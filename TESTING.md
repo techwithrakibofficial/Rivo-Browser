@@ -4,6 +4,7 @@
 - Android compile platform API 37.2; targetSdk 36.
 - Assemble GeckoView MVP debug APKs.
 - Android lint.
+- Android instrumentation tests on an API 35 Google APIs emulator (`:app:connectedDebugAndroidTest`) for Keystore AES-GCM, DataStore migration/corruption/preservation, download-temp cleanup and FileProvider scope.
 - JVM tests for URL/search resolution, safe restorable-tab URL policy, sensitive metadata write validation, IDN normalization and restored-tab index selection.
 - Minified release AAB build with R8/resource shrinking.
 - APK/AAB size reporting and unsigned QA artifact uploads for ARM64/ARMv7.
@@ -16,18 +17,21 @@ The following GitHub Actions runs completed successfully:
 These are branch-level validations, not proof that the integrated Main commit passes.
 
 ## Integrated Main validation
-- Integrated HEAD at handoff: `1683ffb57dda1d1a9d15f85e892cb8139b06d23c`.
-- GitHub Actions run #244: https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42481557821
-- At the time of this update, debug APK assembly had passed and Android lint was in progress; unit tests, minified release AAB, size reporting and artifact uploads were pending.
-- Update this section only after checking the final run conclusion and job steps.
-- A later documentation-only commit may trigger a new Main CI run; always validate the current HEAD rather than assuming an earlier run covers it.
+- Main baseline when RIVO-04 branch was created: `84303588c2560db55bfb7ae2081d8f714be532e7`.
+- GitHub Actions baseline run #246: https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42481870810
+- Run #246 completed successfully on the pre-RIVO-04 Main baseline; it does not include this branch's instrumentation sources or emulator workflow step.
+- Check RIVO-04 branch-specific workflow results before claiming branch validation.
 
 ## Security QA coverage and limitations
 - `SensitiveWriteGuardTest` verifies writes are allowed before integrity failure, remain blocked after repeated failures, and direct replacement is rejected when authentication/metadata validation fails.
 - Direct open-tab/download replacement and clear-history authenticate and validate existing values inside DataStore edit transactions.
 - The process guard serializes sensitive edit callbacks with integrity-failure publication.
 - JVM callback-based tests validate the gate, not Android Keystore cryptography or on-device DataStore transaction durability.
-- Android Keystore AES-GCM round-trip, tampering, missing/lost key, legacy migration and DataStore corruption/relaunch instrumentation remain required.
+- `LocalDataCipherInstrumentedTest` exercises AES-256-GCM round trip/fresh ciphertext, tampering, truncated payloads, missing alias without key regeneration, invalid encrypted JSON, missing-key write preservation after reopening DataStore with a fresh guard, legacy plaintext migration and bookmark/history/tab/download metadata persistence.
+- DataStore corruption coverage reopens the same preferences file and confirms corrupt bytes remain unchanged rather than being reset. This is a DataStore lifecycle test, not an OS process kill/relaunch test.
+- `DownloadTempFileCleanupInstrumentedTest` verifies only direct-child `.rivo-*.part` staging files are deleted; completed files and unrelated files remain.
+- FileProvider instrumentation checks non-exported provider metadata, content URI access for allowed app-download files and rejection of files outside configured roots.
+- The CI emulator test verifies the emulator Keystore implementation. Representative hardware-backed devices, secure-lock-screen invalidation and full force-stop/relaunch remain physical-device release checks.
 
 ## Phase 1 functional test matrix
 1. Initial home page.
@@ -57,5 +61,5 @@ Test at least one 3 GB and one 4 GB Android device if available. Record model, c
 ## Current status
 - Worker PR CI passed on all three branches.
 - Integrated Main CI run #244 was still running at the last checkpoint; integrated status is not yet confirmed.
-- No physical-device install, force-stop/relaunch, TalkBack, Accessibility Scanner or 3–4 GB benchmark is claimed.
+- No physical-device hardware-backed Keystore, secure-lock-screen invalidation, OS force-stop/relaunch or 3–4 GB benchmark is claimed.
 - QA AAB output is unsigned; it is not a production release artifact.

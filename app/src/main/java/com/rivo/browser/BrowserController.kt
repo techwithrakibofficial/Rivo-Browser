@@ -458,11 +458,7 @@ class BrowserController(context: Context) {
             appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
             File(appContext.filesDir, "downloads")
         )
-        directories.forEach { directory ->
-            directory.listFiles { file ->
-                file.isFile && file.name.startsWith(".rivo-") && file.name.endsWith(".part")
-            }?.forEach { it.delete() }
-        }
+        DownloadTempFileCleanup.removeInterruptedFiles(directories)
     }
 
     private suspend fun restoreDownloads() {
