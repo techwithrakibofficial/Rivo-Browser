@@ -35,6 +35,18 @@ data class SavedDownload(
  */
 class BrowserStorage(private val context: Context) {
     private val cipher = LocalDataCipher()
+    @Volatile private var sensitiveWritesBlocked = false
+
+    private fun ensureSensitiveWritesAllowed() {
+        check(!sensitiveWritesBlocked) {
+            "Saved browser data is unreadable; sensitive writes are disabled to preserve existing records."
+        }
+    }
+
+    private fun integrityFailure(error: Exception): Nothing {
+        sensitiveWritesBlocked = true
+        throw error
+    }
     private val themeKey = stringPreferencesKey("appearance")
     private val bookmarksKey = stringPreferencesKey("bookmarks_json")
     private val historyKey = stringPreferencesKey("history_json")
@@ -79,6 +91,7 @@ class BrowserStorage(private val context: Context) {
     }
 
     suspend fun saveDownloads(downloads: List<SavedDownload>) {
+        ensureSensitiveWritesAllowed()
         context.rivoDataStore.edit { prefs ->
             prefs[downloadsKey] = cipher.encrypt(JSONArray().apply {
                 downloads.take(100).forEach { item ->
@@ -93,6 +106,7 @@ class BrowserStorage(private val context: Context) {
     }
 
     suspend fun saveOpenTabs(tabs: List<SavedTab>) {
+        ensureSensitiveWritesAllowed()
         val safeTabs = tabs.filter { RestorableTabPolicy.isSafeUrl(it.url) }.take(8)
         context.rivoDataStore.edit { prefs ->
             prefs[openTabsKey] = cipher.encrypt(JSONArray().apply {
@@ -108,6 +122,7 @@ class BrowserStorage(private val context: Context) {
     }
 
     suspend fun addBookmark(page: SavedPage) {
+        ensureSensitiveWritesAllowed()
         context.rivoDataStore.edit { prefs ->
             val current = decode(cipher.decryptOrLegacy(prefs[bookmarksKey].orEmpty())).toMutableList()
             current.removeAll { it.url == page.url }
@@ -117,6 +132,7 @@ class BrowserStorage(private val context: Context) {
     }
 
     suspend fun removeBookmark(url: String) {
+        ensureSensitiveWritesAllowed()
         context.rivoDataStore.edit { prefs ->
             val current = decode(cipher.decryptOrLegacy(prefs[bookmarksKey].orEmpty()))
             prefs[bookmarksKey] = cipher.encrypt(encode(current.filterNot { it.url == url }))
@@ -124,6 +140,7 @@ class BrowserStorage(private val context: Context) {
     }
 
     suspend fun addHistory(page: SavedPage) {
+        ensureSensitiveWritesAllowed()
         context.rivoDataStore.edit { prefs ->
             val current = decode(cipher.decryptOrLegacy(prefs[historyKey].orEmpty())).toMutableList()
             if (current.firstOrNull()?.url != page.url) current.add(0, page)
@@ -138,7 +155,11 @@ class BrowserStorage(private val context: Context) {
     private suspend fun readProtected(key: Preferences.Key<String>): String {
         val raw = context.rivoDataStore.data.first()[key].orEmpty()
         if (raw.isBlank()) return ""
-        val plainText = cipher.decryptOrLegacy(raw)
+        val plainText = try {
+            cipher.decryptOrLegacy(raw)
+        } catch (error: Exception) {
+            integrityFailure(error)
+        }
         if (!raw.startsWith("enc:v1:")) {
             // Migrate legacy plaintext only after successful read; encrypted write failure
             // leaves the original DataStore value intact because edit is transactional.
@@ -161,15 +182,19 @@ class BrowserStorage(private val context: Context) {
 
     private fun decode(raw: String): List<SavedPage> {
         if (raw.isBlank()) return emptyList()
-        val array = JSONArray(raw)
-        return (0 until array.length()).mapNotNull { index ->
-            val item = array.optJSONObject(index) ?: return@mapNotNull null
-            val url = item.optString("url")
-            if (url.isBlank()) null else SavedPage(
-                url = url,
-                title = item.optString("title", url),
-                visitedAt = item.optLong("visitedAt")
-            )
+        return try {
+            val array = JSONArray(raw)
+            (0 until array.length()).mapNotNull { index ->
+                val item = array.optJSONObject(index) ?: return@mapNotNull null
+                val url = item.optString("url")
+                if (url.isBlank()) null else SavedPage(
+                    url = url,
+                    title = item.optString("title", url),
+                    visitedAt = item.optLong("visitedAt")
+                )
+            }
+        } catch (error: Exception) {
+            integrityFailure(error)
         }
     }
 }
