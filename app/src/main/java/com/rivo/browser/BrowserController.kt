@@ -388,17 +388,10 @@ class BrowserController(context: Context) {
                 val directory = appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
                     ?: File(appContext.filesDir, "downloads")
                 if (!directory.exists() && !directory.mkdirs()) error("Unable to create downloads directory")
-                var target = File(directory, safeName)
-                var suffix = 1
-                while (target.exists()) {
-                    val base = safeName.substringBeforeLast('.', safeName)
-                    val extension = safeName.substringAfterLast('.', "").let { if (it.isBlank()) "" else ".$it" }
-                    target = File(directory, "$base ($suffix)$extension")
-                    suffix++
-                }
+                val temporary = File.createTempFile(".rivo-", ".part", directory)
                 try {
                     body.use { input ->
-                        FileOutputStream(target).use { output ->
+                        FileOutputStream(temporary).use { output ->
                             val buffer = ByteArray(64 * 1024)
                             var totalBytes = 0L
                             while (true) {
@@ -412,11 +405,20 @@ class BrowserController(context: Context) {
                             }
                         }
                     }
+                    var target = File(directory, safeName)
+                    var suffix = 1
+                    while (target.exists()) {
+                        val base = safeName.substringBeforeLast('.', safeName)
+                        val extension = safeName.substringAfterLast('.', "").let { if (it.isBlank()) "" else ".$it" }
+                        target = File(directory, "$base ($suffix)$extension")
+                        suffix++
+                    }
+                    if (!temporary.renameTo(target)) error("Unable to finalize downloaded file")
+                    target
                 } catch (error: Throwable) {
-                    target.delete()
+                    temporary.delete()
                     throw error
                 }
-                target
             }
             withContext(Dispatchers.Main.immediate) {
                 result.onSuccess { file ->
