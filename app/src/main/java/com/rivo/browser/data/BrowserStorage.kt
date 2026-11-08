@@ -1,6 +1,7 @@
 package com.rivo.browser.data
 
 import android.content.Context
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -44,15 +45,13 @@ class BrowserStorage(private val context: Context) {
         context.rivoDataStore.edit { it[themeKey] = theme }
     }
 
-    suspend fun loadBookmarks(): List<SavedPage> =
-        decode(cipher.decryptOrLegacy(context.rivoDataStore.data.first()[bookmarksKey].orEmpty()))
+    suspend fun loadBookmarks(): List<SavedPage> = decode(readProtected(bookmarksKey))
 
-    suspend fun loadHistory(): List<SavedPage> =
-        decode(cipher.decryptOrLegacy(context.rivoDataStore.data.first()[historyKey].orEmpty()))
+    suspend fun loadHistory(): List<SavedPage> = decode(readProtected(historyKey))
 
     /** Restore only regular HTTP(S) tabs; private tabs are never serialized. */
     suspend fun loadOpenTabs(): List<SavedTab> = runCatching {
-        val array = JSONArray(cipher.decryptOrLegacy(context.rivoDataStore.data.first()[openTabsKey].orEmpty()))
+        val array = JSONArray(readProtected(openTabsKey))
         (0 until array.length()).mapNotNull { index ->
             val item = array.optJSONObject(index) ?: return@mapNotNull null
             val url = item.optString("url")
@@ -62,7 +61,7 @@ class BrowserStorage(private val context: Context) {
     }.getOrDefault(emptyList())
 
     suspend fun loadDownloads(): List<SavedDownload> = runCatching {
-        val array = JSONArray(cipher.decryptOrLegacy(context.rivoDataStore.data.first()[downloadsKey].orEmpty()))
+        val array = JSONArray(readProtected(downloadsKey))
         (0 until array.length()).mapNotNull { index ->
             val item = array.optJSONObject(index) ?: return@mapNotNull null
             val filename = item.optString("filename")
@@ -126,6 +125,16 @@ class BrowserStorage(private val context: Context) {
 
     suspend fun clearHistory() {
         context.rivoDataStore.edit { it[historyKey] = cipher.encrypt("[]") }
+    }
+
+    private suspend fun readProtected(key: Preferences.Key<String>): String {
+        val raw = context.rivoDataStore.data.first()[key].orEmpty()
+        if (raw.isBlank()) return ""
+        val plainText = cipher.decryptOrLegacy(raw)
+        if (!raw.startsWith("enc:v1:")) {
+            context.rivoDataStore.edit { prefs -> prefs[key] = cipher.encrypt(plainText) }
+        }
+        return plainText
     }
 
     private fun encode(items: List<SavedPage>): String = JSONArray().apply {
