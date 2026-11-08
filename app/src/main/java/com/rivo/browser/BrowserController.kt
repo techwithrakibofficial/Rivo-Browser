@@ -31,6 +31,9 @@ class BrowserTabState(
     var progress by mutableStateOf(0)
     var canGoBack by mutableStateOf(false)
     var canGoForward by mutableStateOf(false)
+    var secureConnection by mutableStateOf(false)
+    var securityKnown by mutableStateOf(false)
+    var certificateException by mutableStateOf(false)
     lateinit var engine: GeckoBrowserTab
 }
 
@@ -108,6 +111,12 @@ class BrowserController(context: Context) {
                 override fun onContentCrashed() {
                     tab.loading = false
                     notice = "A page process stopped. Reload the tab to continue."
+                }
+
+                override fun onSecurityChanged(secure: Boolean, exception: Boolean) {
+                    tab.secureConnection = secure
+                    tab.certificateException = exception
+                    tab.securityKnown = true
                 }
             }
         )
