@@ -7,6 +7,7 @@ import android.os.Environment
 import androidx.core.content.FileProvider
 import com.rivo.browser.data.BrowserStorage
 import com.rivo.browser.data.SavedPage
+import com.rivo.browser.data.SavedTab
 import com.rivo.browser.engine.gecko.GeckoBrowserRuntime
 import com.rivo.browser.engine.gecko.GeckoBrowserTab
 import com.rivo.browser.engine.gecko.GeckoTabListener
@@ -79,16 +80,31 @@ class BrowserController(context: Context) {
             }.getOrDefault(BrowserAppearance.DARK)
             bookmarks.addAll(storage.loadBookmarks())
             history.addAll(storage.loadHistory())
-            if (tabs.isEmpty()) createTab()
+            val restoredTabs = storage.loadOpenTabs()
+            if (restoredTabs.isEmpty()) {
+                createTab()
+            } else {
+                restoredTabs.forEach { saved ->
+                    createTab(url = saved.url, restoredTitle = saved.title)
+                }
+                restoredTabs.firstOrNull { it.selected }?.let { selected ->
+                    tabs.firstOrNull { it.url == selected.url }?.let { selectTab(it.id) }
+                }
+            }
         }
     }
 
-    fun createTab(privateMode: Boolean = false, url: String = HOME_URL) {
+    fun createTab(
+        privateMode: Boolean = false,
+        url: String = HOME_URL,
+        restoredTitle: String? = null
+    ) {
         if (tabs.size >= MAX_TABS) {
             notice = "For memory stability, Rivo currently supports up to $MAX_TABS open tabs."
             return
         }
         val tab = BrowserTabState(nextId++, privateMode, url)
+        if (!restoredTitle.isNullOrBlank()) tab.title = restoredTitle
         tab.engine = GeckoBrowserTab(
             runtime,
             privateMode,
@@ -97,6 +113,7 @@ class BrowserController(context: Context) {
                     tab.url = url
                     if (!tab.privateMode && url.startsWith("http")) {
                         saveHistory(tab)
+                        persistOpenTabs()
                     }
                 }
 
@@ -139,12 +156,14 @@ class BrowserController(context: Context) {
         tabs.add(tab)
         selectTab(tab.id)
         tab.engine.load(url)
+        persistOpenTabs()
     }
 
     fun selectTab(id: Long) {
         tabs.firstOrNull { it.id == activeTabId }?.engine?.setActive(false)
         activeTabId = id
         tabs.firstOrNull { it.id == id }?.engine?.setActive(hostStarted)
+        persistOpenTabs()
     }
 
     fun closeTab(id: Long) {
@@ -158,6 +177,8 @@ class BrowserController(context: Context) {
             createTab()
         } else if (wasActive) {
             selectTab(tabs.getOrNull(index.coerceAtMost(tabs.lastIndex))?.id ?: tabs.last().id)
+        } else {
+            persistOpenTabs()
         }
     }
 
@@ -344,6 +365,17 @@ class BrowserController(context: Context) {
                 }
             }
         }
+    }
+
+    private fun persistOpenTabs() {
+        val saved = tabs.filterNot { it.privateMode }.map { tab ->
+            SavedTab(
+                url = tab.url,
+                title = tab.title,
+                selected = tab.id == activeTabId
+            )
+        }
+        scope.launch { storage.saveOpenTabs(saved) }
     }
 
     private fun saveHistory(tab: BrowserTabState) {
