@@ -30,16 +30,19 @@ internal class LocalDataCipher {
     fun decryptOrLegacy(raw: String): String {
         if (raw.isBlank()) return ""
         if (!raw.startsWith(PREFIX)) return raw
-        val payload = Base64.decode(raw.removePrefix(PREFIX), Base64.NO_WRAP)
-        require(payload.size > GCM_IV_BYTES) { "Encrypted browser data is truncated" }
-        val buffer = ByteBuffer.wrap(payload)
-        val iv = ByteArray(GCM_IV_BYTES).also(buffer::get)
-        val encrypted = ByteArray(buffer.remaining()).also(buffer::get)
-        val cipher = Cipher.getInstance(TRANSFORMATION)
-        cipher.init(Cipher.DECRYPT_MODE, getOrCreateKey(), GCMParameterSpec(GCM_TAG_BITS, iv))
-        return String(cipher.doFinal(encrypted), StandardCharsets.UTF_8)
+        return runCatching {
+            val payload = Base64.decode(raw.removePrefix(PREFIX), Base64.NO_WRAP)
+            require(payload.size > GCM_IV_BYTES) { "Encrypted browser data is truncated" }
+            val buffer = ByteBuffer.wrap(payload)
+            val iv = ByteArray(GCM_IV_BYTES).also(buffer::get)
+            val encrypted = ByteArray(buffer.remaining()).also(buffer::get)
+            val cipher = Cipher.getInstance(TRANSFORMATION)
+            cipher.init(Cipher.DECRYPT_MODE, getOrCreateKey(), GCMParameterSpec(GCM_TAG_BITS, iv))
+            String(cipher.doFinal(encrypted), StandardCharsets.UTF_8)
+        }.getOrDefault("")
     }
 
+    @Synchronized
     private fun getOrCreateKey(): SecretKey {
         val keyStore = KeyStore.getInstance(ANDROID_KEY_STORE).apply { load(null) }
         (keyStore.getKey(KEY_ALIAS, null) as? SecretKey)?.let { return it }
