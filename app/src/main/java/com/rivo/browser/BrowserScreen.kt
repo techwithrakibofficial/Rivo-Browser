@@ -46,6 +46,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import android.app.Activity
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import android.os.Build.VERSION_CODES
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -66,6 +73,9 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     var address by remember(active?.id) { mutableStateOf(active?.url.orEmpty()) }
     var isEditingAddress by remember(active?.id) { mutableStateOf(false) }
     var menuExpanded by remember { mutableStateOf(false) }
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted -> browser.respondToSitePermission(granted) }
 
     SideEffect {
         val window = (view.context as? Activity)?.window
@@ -149,6 +159,10 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                                 DropdownMenuItem(text = { Text("Appearance") }, onClick = {
                                     menuExpanded = false
                                     browser.openPanel(BrowserPanel.APPEARANCE)
+                                })
+                                DropdownMenuItem(text = { Text("Privacy & site permissions") }, onClick = {
+                                    menuExpanded = false
+                                    browser.openPanel(BrowserPanel.SITE_PERMISSIONS)
                                 })
                             }
                         }
@@ -253,7 +267,17 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                 )
             },
             confirmButton = {
-                TextButton(onClick = { browser.respondToSitePermission(true) }) { Text("Allow") }
+                TextButton(onClick = {
+                    if (request.permission == "Notifications" &&
+                        Build.VERSION.SDK_INT >= VERSION_CODES.TIRAMISU &&
+                        ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
+                        PackageManager.PERMISSION_GRANTED
+                    ) {
+                        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    } else {
+                        browser.respondToSitePermission(true)
+                    }
+                }) { Text("Allow") }
             },
             dismissButton = {
                 TextButton(onClick = { browser.respondToSitePermission(false) }) { Text("Deny") }
@@ -287,7 +311,11 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
         BrowserPanel.HISTORY -> "History"
         BrowserPanel.DOWNLOADS -> "Downloads"
         BrowserPanel.APPEARANCE -> "Quick appearance"
+        BrowserPanel.SITE_PERMISSIONS -> "Privacy & site permissions"
         BrowserPanel.MENU -> "Browser menu"
+    }
+    LaunchedEffect(panel) {
+        if (panel == BrowserPanel.SITE_PERMISSIONS) browser.refreshSitePermissions()
     }
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -386,6 +414,55 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                         }
                         Text(
                             "Files are stored in Rivo's app-specific Downloads folder. Private mode does not erase files you download.",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    BrowserPanel.SITE_PERMISSIONS -> {
+                        Text(
+                            if (browser.activeTab?.trackingProtectionEnabled == true)
+                                "Tracking protection is enabled for the active GeckoView session."
+                            else
+                                "Tracking protection status is unavailable for the active tab.",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            "Rivo does not show a blocked-tracker number because this screen does not have a verified per-page tracker count. Location, camera, microphone, persistent-storage requests and unsupported content permissions are denied by default.",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Spacer(Modifier.height(RivoSpacing.small))
+                        if (browser.sitePermissionsLoading) {
+                            Text("Loading permissions from GeckoView…")
+                        } else if (browser.sitePermissions.isEmpty()) {
+                            Text("GeckoView reports no saved normal-browsing site permissions.")
+                        }
+                        LazyColumn(modifier = Modifier.heightIn(max = 300.dp)) {
+                            items(
+                                browser.sitePermissions,
+                                key = { "${it.origin}|${it.permissionName}|${it.permission.contextId.orEmpty()}" }
+                            ) { permission ->
+                                Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                                    Text(permission.origin, style = MaterialTheme.typography.titleSmall, maxLines = 1)
+                                    Text(permission.permissionName, style = MaterialTheme.typography.bodyMedium)
+                                    Text(
+                                        if (permission.allowed) "Allowed" else "Denied",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = if (permission.allowed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+                                    )
+                                    if (permission.canRevoke) {
+                                        TextButton(onClick = { browser.revokeSitePermission(permission) }) {
+                                            Text(if (permission.allowed) "Revoke" else "Reset")
+                                        }
+                                    } else {
+                                        Text(
+                                            "GeckoView does not support revoking this permission after it is granted.",
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        Text(
+                            "Private-session permission records are not shown here. GeckoView keeps private-mode decisions separate and clears them with the private session.",
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
