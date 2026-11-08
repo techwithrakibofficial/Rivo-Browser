@@ -30,8 +30,9 @@ gradle --no-daemon :app:testDebugUnitTest
 The app creates separate ARM64 and ARMv7 debug APK outputs. Install only the APK matching the device ABI.
 
 ## Verification
-- Successful CI checkpoint: https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42460649170
-- CI passed assemble, lint, unit tests and artifact upload.
+- Successful CI checkpoint: https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42461668698
+- CI passed assemble, lint, unit tests, ABI size reporting and separate ARM64/ARMv7 artifact uploads.
+- Extracted debug APK sizes were verified at 208,688,414 bytes (ARM64) and 169,493,492 bytes (ARMv7); these are debug builds, not release-size measurements.
 - No physical-device install or performance benchmark is claimed yet.
 
 ## Documentation
