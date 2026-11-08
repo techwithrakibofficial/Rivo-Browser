@@ -31,4 +31,5 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.3.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0")
     debugImplementation("androidx.compose.ui:ui-tooling")
+    testImplementation("junit:junit:4.13.2")
 }
