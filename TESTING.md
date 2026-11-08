@@ -43,7 +43,7 @@ These are branch-level validations, not proof that the integrated Main commit pa
 11. Dark/Light/Glass persistence and system-bar contrast.
 12. Open all dialogs/panels in all three appearance modes; verify theme scope and contrast.
 13. Download confirmation/cancel, response-stream closure, filename sanitization, duplicate names, atomic finalization, 250 MB cap, metadata restoration and open/share.
-14. HTTPS site-notification and supported autoplay requests show explicit Allow/Deny prompts; Android 13+ notification approval also requests POST_NOTIFICATIONS.
+14. Normal-mode HTTPS site-notification and supported autoplay requests show explicit Allow/Deny prompts; Android 13+ notification approval also requests POST_NOTIFICATIONS. Private-mode website notifications are denied.
 15. Geolocation, persistent-storage, XR, DRM, tracking exceptions, third-party storage, camera, microphone and unsupported media/runtime requests are denied by default.
 16. Site permission panel lists actual GeckoView records, excludes private-mode records, and resets revocable records to VALUE_PROMPT; persistent-storage records are shown as non-revocable.
 17. Private site permission decisions do not appear in the normal site-permission manager; no private permanent permission API is used.
