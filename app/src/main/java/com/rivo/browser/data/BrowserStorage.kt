@@ -22,12 +22,19 @@ data class SavedTab(
     val selected: Boolean
 )
 
+data class SavedDownload(
+    val filename: String,
+    val mimeType: String?,
+    val absolutePath: String
+)
+
 /** Small local-only storage. History is deliberately bounded to 300 entries. */
 class BrowserStorage(private val context: Context) {
     private val themeKey = stringPreferencesKey("appearance")
     private val bookmarksKey = stringPreferencesKey("bookmarks_json")
     private val historyKey = stringPreferencesKey("history_json")
     private val openTabsKey = stringPreferencesKey("open_tabs_json")
+    private val downloadsKey = stringPreferencesKey("downloads_json")
 
     suspend fun loadTheme(): String =
         context.rivoDataStore.data.first()[themeKey] ?: "dark"
@@ -52,6 +59,31 @@ class BrowserStorage(private val context: Context) {
             else SavedTab(url, item.optString("title", url), item.optBoolean("selected"))
         }.take(8)
     }.getOrDefault(emptyList())
+
+    suspend fun loadDownloads(): List<SavedDownload> = runCatching {
+        val array = JSONArray(context.rivoDataStore.data.first()[downloadsKey].orEmpty())
+        (0 until array.length()).mapNotNull { index ->
+            val item = array.optJSONObject(index) ?: return@mapNotNull null
+            val filename = item.optString("filename")
+            val path = item.optString("path")
+            if (filename.isBlank() || filename.contains('/') || filename.contains('\\\\') || path.isBlank()) null
+            else SavedDownload(filename, item.optString("mimeType").takeIf { it.isNotBlank() }, path)
+        }.take(100)
+    }.getOrDefault(emptyList())
+
+    suspend fun saveDownloads(downloads: List<SavedDownload>) {
+        context.rivoDataStore.edit { prefs ->
+            prefs[downloadsKey] = JSONArray().apply {
+                downloads.take(100).forEach { item ->
+                    put(JSONObject().apply {
+                        put("filename", item.filename)
+                        put("mimeType", item.mimeType ?: "")
+                        put("path", item.absolutePath)
+                    })
+                }
+            }.toString()
+        }
+    }
 
     suspend fun saveOpenTabs(tabs: List<SavedTab>) {
         val safeTabs = tabs.filter { RestorableTabPolicy.isSafeUrl(it.url) }.take(8)
