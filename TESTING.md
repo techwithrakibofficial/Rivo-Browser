@@ -48,7 +48,7 @@ These are branch-level validations, not proof that the integrated Main commit pa
 16. Site permission panel lists actual GeckoView records, excludes private-mode records, and resets revocable records to VALUE_PROMPT; persistent-storage records are shown as non-revocable.
 17. Private site permission decisions do not appear in the normal site-permission manager; no private permanent permission API is used.
 18. Notification channel delivery is gated by Android notification permission; notification clicks are routed back to Gecko.
-19. Tracking-protection status reflects GeckoSessionSettings; no tracker count is displayed without a verified per-page engine count.
+19. Tracking-protection status reflects GeckoSessionSettings and the active page's Gecko ContentPermission exception; no tracker count is displayed without a verified per-page engine count.
 20. Certificate errors are not bypassed; security label comes from GeckoView callback.
 21. Activity recreation/background/foreground; verify all sessions deactivate on stop and only selected session reactivates on start.
 22. Force-stop/relaunch: regular HTTP(S) tabs restore; selected normal tab restores; private tabs do not reappear.
