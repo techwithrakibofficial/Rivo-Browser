@@ -17,7 +17,9 @@ Phase 1 — Functional Browser MVP, authorized by user on 2026-11-08.
 
 ## Phase 1 source implemented
 - Process-scoped GeckoRuntime provider; one GeckoSession per tab.
-- GeckoView is created with the current Activity context and detached on composition lifecycle changes; sessions remain in ViewModel.
+- GeckoView is created with the current Activity context and detached on composition lifecycle changes; sessions remain in ViewModel across Activity configuration changes.
+- Activity onStart/onStop now gates session activation: only the selected tab is active while visible; all tabs are deactivated/unfocused while backgrounded.
+- Android system Back now navigates browser history when available.
 - Omnibox resolves HTTP/HTTPS URLs and plain-text searches; unsupported schemes are sent to search.
 - Back, forward, reload and stop; Gecko navigation capability state comes from delegate callbacks.
 - Multiple tabs with active/inactive session handling and an 8-tab cap.
@@ -29,6 +31,13 @@ Phase 1 — Functional Browser MVP, authorized by user on 2026-11-08.
 - Downloads stream into app-specific Downloads storage, have a 250 MB per-file safety cap, and can be opened/shared through a non-exported scoped FileProvider.
 - Centralized semantic colors, spacing and shape tokens; Quick Appearance Picker is in secondary menu; system-bar icon contrast follows appearance.
 - URL/search resolver JUnit tests added.
+
+## Latest source changes (CI verification pending)
+- `8af4505`: pause Gecko sessions when Activity stops and reactivate selected session on start.
+- `18cc890`: wire BrowserController lifecycle to MainActivity.
+- `b8405ac`: route Android system Back to Gecko page history when available.
+- `9951c49`, `44dabb1`, `24fe452`: update architecture, handoff and README documentation.
+- These changes are committed to `main`; the new source has not yet been confirmed by a post-change CI run.
 
 ## Build verification
 - GitHub Actions run #143 (`42461668698`) on commit `89139a036bb36829e52681df9eae7c47ae77197e` completed successfully on 2026-11-08.
@@ -48,7 +57,7 @@ Phase 1 — Functional Browser MVP, authorized by user on 2026-11-08.
 - Final engine selection awaits controlled WebView/GeckoView device benchmark.
 
 ## Next steps
-1. Verify CI builds and publishes both ARM64 and ARMv7 split APK artifacts.
+1. Verify CI after Activity lifecycle and system Back changes.
 2. Install and smoke-test on physical ARM64 and ARMv7 Android devices.
 3. Measure actual per-APK size, cold/warm startup, PSS, CPU and stability on 3–4 GB devices.
 4. Implement per-site permission UX and tab restoration.
