@@ -31,13 +31,14 @@ Phase 1 — Functional Browser MVP, authorized by user on 2026-11-08.
 - URL/search resolver JUnit tests added.
 
 ## Build verification
-- GitHub Actions run 42460649170 completed successfully: assembleDebug, Android lint, unit tests and artifact upload.
-- ABI split build configuration was then added. A follow-up CI run is pending for the updated separate ARM64/ARMv7 artifact workflow.
-- The previous combined debug artifact ZIP was 215,087,168 bytes; individual split APK sizes have not yet been independently measured.
+- GitHub Actions run #143 (`42461668698`) on commit `89139a036bb36829e52681df9eae7c47ae77197e` completed successfully on 2026-11-08.
+- `:app:assembleDebug`, `:app:lintDebug`, `:app:testDebugUnitTest`, ABI size reporting and both artifact uploads all passed.
+- Separate artifacts published: `rivo-browser-arm64-debug` (109,529,496-byte ZIP) and `rivo-browser-armv7-debug` (105,557,703-byte ZIP). Both are unexpired; GitHub retention expiry is 2026-11-22.
+- Artifact ZIP sizes are not the same as APK file sizes; inspect the archives before recording individual APK sizes.
 - No APK has been installed on a physical device in this session.
 
 ## Remaining / known limitations
-- Latest CI after separate ABI artifact upload changes must be confirmed.
+- Inspect the two artifact archives and record exact APK sizes and package metadata.
 - No physical device install/smoke test or 3–4 GB memory benchmark.
 - Per-site permission allow/deny UI is not implemented; permissions remain denied.
 - Download files are app-specific; downloads list metadata is not persisted after process death.
