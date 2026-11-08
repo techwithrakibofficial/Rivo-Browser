@@ -39,7 +39,7 @@ internal object DownloadSecurityPolicy {
         val canonicalRoots = allowedRoots.map { it.canonicalFile }
         canonicalFile.name == expectedFilename &&
             canonicalFile.isFile &&
-            canonicalFile.length() in 1..maxBytes &&
+            canonicalFile.length() in 1L..maxBytes &&
             canonicalRoots.any { canonicalFile.parentFile == it }
     }.getOrDefault(false)
 }
