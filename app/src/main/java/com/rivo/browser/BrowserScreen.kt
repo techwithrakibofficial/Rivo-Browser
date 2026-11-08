@@ -102,6 +102,10 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                                     menuExpanded = false
                                     browser.openPanel(BrowserPanel.HISTORY)
                                 })
+                                DropdownMenuItem(text = { Text("Downloads") }, onClick = {
+                                    menuExpanded = false
+                                    browser.openPanel(BrowserPanel.DOWNLOADS)
+                                })
                                 DropdownMenuItem(text = { Text("Appearance") }, onClick = {
                                     menuExpanded = false
                                     browser.openPanel(BrowserPanel.APPEARANCE)
@@ -200,6 +204,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
         BrowserPanel.TABS -> "Your tabs"
         BrowserPanel.BOOKMARKS -> "Bookmarks"
         BrowserPanel.HISTORY -> "History"
+        BrowserPanel.DOWNLOADS -> "Downloads"
         BrowserPanel.APPEARANCE -> "Quick appearance"
         BrowserPanel.MENU -> "Browser menu"
     }
@@ -270,6 +275,22 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                                 }
                             }
                         }
+                    }
+                    BrowserPanel.DOWNLOADS -> {
+                        if (browser.downloads.isEmpty()) Text("No downloads yet.")
+                        LazyColumn(modifier = Modifier.height(300.dp)) {
+                            items(browser.downloads, key = { it.id }) { download ->
+                                Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                                    Text(download.filename, maxLines = 1)
+                                    Text(download.status, style = MaterialTheme.typography.labelSmall)
+                                    download.mimeType?.let { Text(it, style = MaterialTheme.typography.labelSmall) }
+                                }
+                            }
+                        }
+                        Text(
+                            "Files are stored in Rivo's app-specific Downloads folder. Private mode does not erase files you download.",
+                            style = MaterialTheme.typography.bodySmall
+                        )
                     }
                     BrowserPanel.APPEARANCE -> {
                         BrowserAppearance.values().forEach { appearance ->
