@@ -53,6 +53,7 @@ class BrowserController(context: Context) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val runtime = GeckoBrowserRuntime.get(appContext)
     private var nextId = 1L
+    private var hostStarted = true
 
     val tabs = mutableStateListOf<BrowserTabState>()
     val bookmarks = mutableStateListOf<SavedPage>()
@@ -143,7 +144,7 @@ class BrowserController(context: Context) {
     fun selectTab(id: Long) {
         tabs.firstOrNull { it.id == activeTabId }?.engine?.setActive(false)
         activeTabId = id
-        tabs.firstOrNull { it.id == id }?.engine?.setActive(true)
+        tabs.firstOrNull { it.id == id }?.engine?.setActive(hostStarted)
     }
 
     fun closeTab(id: Long) {
@@ -167,6 +168,18 @@ class BrowserController(context: Context) {
         val tab = activeTab ?: return
         tab.url = url
         tab.engine.load(url)
+    }
+
+    /** Called by the Activity when its window becomes visible to the user. */
+    fun onHostResumed() {
+        hostStarted = true
+        tabs.forEach { tab -> tab.engine.setActive(tab.id == activeTabId) }
+    }
+
+    /** Release Gecko's foreground/focus state while the Activity is backgrounded. */
+    fun onHostPaused() {
+        hostStarted = false
+        tabs.forEach { it.engine.setActive(false) }
     }
 
     fun goBack() { activeTab?.engine?.goBack() }
