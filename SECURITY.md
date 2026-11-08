@@ -48,3 +48,12 @@ Integrated Main commit `84303588c2560db55bfb7ae2081d8f714be532e7` passed GitHub 
 
 ## Android Keystore and storage instrumentation coverage
 The API 35 emulator suite exercises AES-256-GCM round-trip with fresh randomized ciphertext, tampering and truncated payload rejection, missing-key fail-closed behavior, legacy plaintext migration, encrypted bookmark/history/tab/download metadata persistence, DataStore corruption preservation across store reopen, and preservation of encrypted records after key loss. It also checks Rivo-owned partial-download cleanup and FileProvider export/path scope. These emulator tests do not prove hardware-backed Keystore behavior, secure-lock-screen invalidation, OS force-stop/relaunch, or MASVS certification; those remain separate release gates.
+
+
+## Site permissions and privacy controls
+- GeckoView `PermissionDelegate` explicitly mediates only HTTPS desktop notifications and autoplay requests; all other site capabilities default-deny.
+- Website notifications additionally require Android 13+ `POST_NOTIFICATIONS` approval. Private-tab website notifications are denied so OS notification artifacts do not escape the private session.
+- Location, camera, microphone, persistent storage, XR, DRM, tracking exceptions, third-party storage, local-device/local-network access and unsupported capabilities are denied by default. The manifest does not request location, camera or microphone.
+- The Privacy & site permissions panel reads actual normal-mode GeckoView permission records, excludes private records, and resets only revocable permissions. Persistent storage is explicitly shown as non-revocable; Rivo does not claim it can revoke that Gecko permission.
+- Tracking status reflects the actual active GeckoSession setting and active-page exception callback. No fabricated blocked-tracker count is shown.
+- Notification click receiver is non-exported and routes clicks to Gecko's WebNotification callback.
