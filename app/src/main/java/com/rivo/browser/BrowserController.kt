@@ -89,7 +89,6 @@ class BrowserController(context: Context) {
         }
         val tab = BrowserTabState(nextId++, privateMode, url)
         tab.engine = GeckoBrowserTab(
-            appContext,
             runtime,
             privateMode,
             object : GeckoTabListener {
