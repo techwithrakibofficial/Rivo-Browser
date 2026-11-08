@@ -24,14 +24,14 @@ class BenchmarkActivity : Activity() {
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
         val version = provider.engineVersion(this)
-        Log.i(TAG, "event=activity_created engine=${{provider.engineName} version=$version " +
-            "model=${{Build.MODEL} android=${{Build.VERSION.RELEASE} " +
-            "sdk=${{Build.VERSION.SDK_INT} abis=${{Build.SUPPORTED_ABIS.joinToString(",")}")
+        Log.i(TAG, "event=activity_created engine=${provider.engineName} version=$version " +
+            "model=${Build.MODEL} android=${Build.VERSION.RELEASE} " +
+            "sdk=${Build.VERSION.SDK_INT} abis=${Build.SUPPORTED_ABIS.joinToString(",")}")
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(12), dp(12), dp(12), dp(8))
         }
-        root.addView(TextView(this).apply { text = "${{provider.engineName} | $version"; textSize = 16f })
+        root.addView(TextView(this).apply { text = "${provider.engineName} | $version"; textSize = 16f })
         status = TextView(this).apply { text = "Starting deterministic page…"; textSize = 13f }
         root.addView(status)
         content = FrameLayout(this)
@@ -79,8 +79,8 @@ class BenchmarkActivity : Activity() {
         if (selected in tabs.indices) {
             content.addView(tabs[selected].view, FrameLayout.LayoutParams(-1, -1))
         }
-        status.text = "Active tab ${{selected + 1}/${{tabs.size}"
-        Log.i(TAG, "event=tab_state active_index=$selected tab_count=${{tabs.size}")
+        status.text = "Active tab ${selected + 1}/${tabs.size}"
+        Log.i(TAG, "event=tab_state active_index=$selected tab_count=${tabs.size}")
     }
 
     override fun onStart() { super.onStart(); hostStarted = true; updateActive() }
