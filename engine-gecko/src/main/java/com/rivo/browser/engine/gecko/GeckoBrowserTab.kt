@@ -12,14 +12,22 @@ import org.mozilla.geckoview.WebResponse
 import java.io.InputStream
 
 /**
- * Owns the single GeckoRuntime for the application process.
- * The runtime must outlive individual tab sessions.
+ * Process-scoped GeckoRuntime provider. GeckoView permits only one active Gecko
+ * instance; keep it alive across Activity/ViewModel recreation and close only
+ * individual tab sessions during normal navigation.
  */
-class GeckoBrowserRuntime(context: Context) {
-    val runtime: GeckoRuntime = GeckoRuntime.create(
-        context.applicationContext,
-        GeckoRuntimeSettings.Builder().build()
-    )
+object GeckoBrowserRuntime {
+    @Volatile
+    private var instance: GeckoRuntime? = null
+
+    fun get(context: Context): GeckoRuntime {
+        return instance ?: synchronized(this) {
+            instance ?: GeckoRuntime.create(
+                context.applicationContext,
+                GeckoRuntimeSettings.Builder().build()
+            ).also { instance = it }
+        }
+    }
 }
 
 interface GeckoTabListener {
