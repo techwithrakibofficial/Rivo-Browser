@@ -70,3 +70,10 @@
 - Engine-specific verified features.
 - Optional sync only after privacy/security design and cost review.
 - Translation feasibility, accessibility polish, performance optimization and release/distribution readiness.
+
+
+### Engine decision gate
+- Build and retain matched GeckoView/WebView benchmark APKs and AABs through CI.
+- Capture cold/warm launch, DOM-ready latency, CPU, PSS, frame stats, crashes/ANRs and device metadata using `tools/run-engine-benchmark.sh`.
+- Run repeated trials on representative 3–4 GB devices and compare medians/distributions; do not select an engine from build success or synthetic CI alone.
+- Static 16 KB ELF/APK checks are screening evidence only; runtime launch on a 16 KB Android image remains required.
