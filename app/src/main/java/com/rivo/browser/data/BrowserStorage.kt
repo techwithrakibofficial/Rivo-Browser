@@ -68,26 +68,30 @@ class BrowserStorage(private val context: Context) {
     suspend fun loadOpenTabs(): List<SavedTab> {
         val raw = readProtected(openTabsKey)
         if (raw.isBlank()) return emptyList()
-        val array = JSONArray(raw)
-        return (0 until array.length()).mapNotNull { index ->
-            val item = array.optJSONObject(index) ?: return@mapNotNull null
-            val url = item.optString("url")
-            if (!RestorableTabPolicy.isSafeUrl(url)) null
-            else SavedTab(url, item.optString("title", url), item.optBoolean("selected"))
-        }.take(8)
+        return try {
+            val array = JSONArray(raw)
+            (0 until array.length()).mapNotNull { index ->
+                val item = array.optJSONObject(index) ?: return@mapNotNull null
+                val url = item.optString("url")
+                if (!RestorableTabPolicy.isSafeUrl(url)) null
+                else SavedTab(url, item.optString("title", url), item.optBoolean("selected"))
+            }.take(8)
+        } catch (error: Exception) { integrityFailure(error) }
     }
 
     suspend fun loadDownloads(): List<SavedDownload> {
         val raw = readProtected(downloadsKey)
         if (raw.isBlank()) return emptyList()
-        val array = JSONArray(raw)
-        return (0 until array.length()).mapNotNull { index ->
-            val item = array.optJSONObject(index) ?: return@mapNotNull null
-            val filename = item.optString("filename")
-            val path = item.optString("path")
-            if (filename.isBlank() || filename.contains('/') || filename.contains('\\') || path.isBlank()) null
-            else SavedDownload(filename, item.optString("mimeType").takeIf { it.isNotBlank() }, path)
-        }.take(100)
+        return try {
+            val array = JSONArray(raw)
+            (0 until array.length()).mapNotNull { index ->
+                val item = array.optJSONObject(index) ?: return@mapNotNull null
+                val filename = item.optString("filename")
+                val path = item.optString("path")
+                if (filename.isBlank() || filename.contains('/') || filename.contains('\\') || path.isBlank()) null
+                else SavedDownload(filename, item.optString("mimeType").takeIf { it.isNotBlank() }, path)
+            }.take(100)
+        } catch (error: Exception) { integrityFailure(error) }
     }
 
     suspend fun saveDownloads(downloads: List<SavedDownload>) {
