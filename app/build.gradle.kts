@@ -38,11 +38,24 @@ android {
             isUniversalApk = false
         }
     }
+    signingConfigs {
+        if (releaseSigningRequired) {
+            create("upload") {
+                storeFile = file(requireNotNull(releaseStoreFile))
+                storePassword = requireNotNull(releaseStorePassword)
+                keyAlias = requireNotNull(releaseKeyAlias)
+                keyPassword = requireNotNull(releaseKeyPassword)
+            }
+        }
+    }
     buildTypes {
         getByName("release") {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
+            if (releaseSigningRequired) {
+                signingConfig = signingConfigs.getByName("upload")
+            }
         }
     }
     compileOptions {
