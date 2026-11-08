@@ -44,7 +44,7 @@ These are branch-level validations, not proof that the integrated Main commit pa
 11. Dark/Light/Glass persistence and system-bar contrast.
 12. Open all dialogs/panels in all three appearance modes; verify theme scope and contrast.
 13. Download confirmation/cancel, response-stream closure, HTTP(S)-only response URL validation, filename sanitization, duplicate names, atomic finalization, streamed 250 MB cap, canonical app-root metadata restoration and scoped read-only open/share.
-14. Private-tab downloads: the file remains in app-specific storage after download, but its new metadata is not saved to persistent browser download history; confirm the UI discloses that file bytes are not erased or encrypted by private mode.
+14. Private-tab downloads: the file remains in app-specific storage after download, its in-memory list entry is removed when the originating private tab closes, and its new metadata is not saved to persistent browser download history; confirm the UI discloses that file bytes are not erased or encrypted by private mode.
 15. Normal-mode HTTPS site-notification and supported autoplay requests show explicit Allow/Deny prompts; Android 13+ notification approval also requests POST_NOTIFICATIONS. Private-mode website notifications are denied.
 16. Geolocation, persistent-storage, XR, DRM, tracking exceptions, third-party storage, camera, microphone and unsupported media/runtime requests are denied by default.
 17. Privacy Intelligence Center lists actual GeckoView records, excludes private-mode records, and resets revocable records to VALUE_PROMPT; persistent-storage records are shown as non-revocable.
