@@ -22,5 +22,14 @@ jobs:
           cache-provider: basic
       - name: Assemble WebView and GeckoView probes
         run: gradle --no-daemon :app:assembleWebviewDebug :app:assembleGeckoDebug
+      - name: Run Android lint for both variants
+        run: gradle --no-daemon :app:lintWebviewDebug :app:lintGeckoDebug
       - name: Run unit tests
         run: gradle --no-daemon test
+      - name: Upload Phase 0 debug APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: rivo-phase0-engine-probes
+          path: app/build/outputs/apk/*/debug/*.apk
+          if-no-files-found: error
+          retention-days: 14
