@@ -1,6 +1,6 @@
 # Appearance Modes
 
-All native browser chrome must use the centralized semantic palettes in `RivoColorSchemes`. The selected appearance must cover the complete native Compose subtree, including modal panels, permission prompts, download confirmations and notice dialogs. Web-page content remains controlled by the visited website.
+All native browser chrome must use the centralized semantic palettes in `RivoColorSchemes`. `BrowserScreen` applies the selected `MaterialTheme` around the browser surface and every modal panel, permission prompt, download confirmation and notice dialog. Web-page content remains controlled by the visited website.
 
 ## Dark
 
@@ -12,7 +12,7 @@ All native browser chrome must use the centralized semantic palettes in `RivoCol
 
 - Neutral light background, white surfaces, dark foreground text and blue accents.
 - Current source palette: background `#F3F6FA`, surface `#FFFFFF`, foreground `#172333`.
-- The current secondary token `#567D9F` reaches approximately 4.35:1 against white; do not use it for normal-sized text until darkened to at least 4.5:1.
+- Secondary token is `#4D7192` (approximately 5.13:1 against white), meeting WCAG AA for normal-sized text.
 
 ## Premium Glass
 
