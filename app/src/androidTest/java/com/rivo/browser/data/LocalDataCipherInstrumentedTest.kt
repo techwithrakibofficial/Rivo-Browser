@@ -2,9 +2,7 @@ package com.rivo.browser.data
 
 import android.security.keystore.KeyInfo
 import android.util.Base64
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import android.content.Context
 import java.security.KeyStore
 import java.util.UUID
 import javax.crypto.SecretKey
