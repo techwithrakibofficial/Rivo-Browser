@@ -1,15 +1,18 @@
 # Changelog
 
-## Unreleased — Phase 0 engine evaluation
-- Add GeckoView Stable candidate module and lifecycle-safe GeckoSession probe.
-- Add separate WebView and GeckoView app variants using the same deterministic local HTML workload.
-- Harden the WebView probe lifecycle and default security settings.
-- Update CI to assemble both engine variants.
-- Document the engine comparison and repeatable physical-device benchmark protocol.
-- Engine selection remains provisional pending CI and device measurements.
+## Unreleased — Phase 1 Functional Browser MVP
+- Add GeckoView-backed browser tabs with a process-scoped runtime.
+- Add URL/search omnibox, navigation controls, tab switching and private sessions.
+- Enable per-session tracking protection and deny site/device/media permissions by default.
+- Surface engine-reported TLS connection state.
+- Add local bookmarks, bounded browsing history and persistent appearance preference.
+- Add streamed downloads into app-specific storage and a downloads panel.
+- Add centralized Dark, Light and Premium Glass semantic color schemes.
+- Add JUnit coverage for navigation input resolution.
+- CI updated for AGP 9 built-in Kotlin support and current Android SDK setup.
 
-## Earlier — Phase 0 foundation
-- Initialize repository documentation and Android project skeleton.
-- Add minimal engine abstraction and WebView lifecycle probe.
-- Add Android CI workflow.
-- Record Phase 0 scope and evaluation gates.
+## Phase 0 — Foundation and engine evaluation
+- Initialize Android project foundation and modular engine adapters.
+- Add WebView and GeckoView comparison probes.
+- Add benchmark protocol and engine research.
+- Physical-device benchmark and final engine selection remain pending.
