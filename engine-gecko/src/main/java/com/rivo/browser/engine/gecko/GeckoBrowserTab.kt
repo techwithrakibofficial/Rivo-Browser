@@ -42,7 +42,6 @@ interface GeckoTabListener {
 
 /** One GeckoSession per browser tab. */
 class GeckoBrowserTab(
-    context: Context,
     runtime: GeckoRuntime,
     val isPrivate: Boolean,
     private val listener: GeckoTabListener
@@ -53,7 +52,7 @@ class GeckoBrowserTab(
             .useTrackingProtection(true)
             .build()
     )
-    val view: GeckoView = GeckoView(context)
+    private var attachedView: GeckoView? = null
     private var disposed = false
     private var canGoBack = false
     private var canGoForward = false
@@ -154,7 +153,24 @@ class GeckoBrowserTab(
             }
         })
         session.open(runtime)
-        view.setSession(session)
+    }
+
+    /** Create a UI-context GeckoView for the current Activity window. */
+    fun createView(context: Context): GeckoView {
+        check(!disposed)
+        releaseView()
+        return GeckoView(context).also { newView ->
+            newView.setSession(session)
+            attachedView = newView
+        }
+    }
+
+    /** Detach the current Activity-bound view while keeping this tab session alive. */
+    fun releaseView() {
+        val oldView = attachedView ?: return
+        (oldView.parent as? ViewGroup)?.removeView(oldView)
+        oldView.releaseSession()
+        attachedView = null
     }
 
     fun load(url: String) {
@@ -191,8 +207,7 @@ class GeckoBrowserTab(
     fun dispose() {
         if (disposed) return
         disposed = true
-        (view.parent as? ViewGroup)?.removeView(view)
-        view.releaseSession()
+        releaseView()
         session.close()
     }
 }
