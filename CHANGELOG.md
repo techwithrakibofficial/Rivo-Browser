@@ -6,7 +6,11 @@
 - Enable tracking protection and deny site/device/media permissions by default.
 - Display GeckoView-reported connection security state.
 - Add local bookmarks, bounded history and persisted Dark/Light/Premium Glass appearance.
-- Add safe streamed downloads, 250 MB per-file cap and scoped open/share FileProvider.
+- Add confirmation-gated downloads, atomic temp-file finalization, 250 MB cap, persisted download metadata and scoped open/share FileProvider.
+- Persist and restore regular HTTP(S) tabs after process recreation; never serialize private tabs.
+- Add HTTPS notification and persistent-storage permission prompts; unsupported and hardware/media permissions remain denied.
+- Require R8 and resource shrinking for release; build an unsigned QA AAB in CI.
+- Add strict URL policy tests for restored tabs.
 - Add centralized browser chrome color, spacing and shape tokens.
 - Add URL/search resolver unit tests.
 - Configure ARM64 and ARMv7 APK splits.
