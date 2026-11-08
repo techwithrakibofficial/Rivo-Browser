@@ -25,9 +25,11 @@ Run #143 predates the latest Activity lifecycle, tab restoration, R8/AAB and enc
 - The process guard serializes sensitive edit callbacks with integrity-failure publication to close the check-then-write race. JVM callback-based tests verify the validation gate, not actual Android Keystore cryptography or DataStore disk-commit semantics.
 
 ## Latest source verification status
-- Previous PR head `243348fae5c61a3c9dec40a285af17bf2de4419b` had a cancelled CI run (#229) during Android SDK setup; build, lint, tests and artifacts did not run.
-- The previous successful run (#228) was on parent commit `1c6e5b7f080f6d71bae1acc94c8ff9247f5ddd15`, not the PR head.
-- CI for the current follow-up commit must complete before the source is treated as CI-verified.
+- GitHub Actions run #236 ([42478875382](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42478875382)) completed successfully on commit `81cb1ae3528462c00c5dc0be43406f9f2d8c51b6`.
+- `:app:assembleDebug`, `:app:lintDebug`, `:app:testDebugUnitTest`, minified `:app:bundleRelease`, ABI/AAB size reporting, and all three QA artifact uploads passed.
+- Raw build outputs: ARM64 debug APK 208,721,182 bytes; ARMv7 debug APK 169,526,260 bytes; unsigned release AAB 249,320,074 bytes.
+- Uploaded artifact ZIP sizes: ARM64 109,565,149 bytes; ARMv7 105,591,537 bytes; unsigned AAB 248,827,278 bytes. Artifacts expire 14 days after upload.
+- This CI run validates compile, lint, JVM tests and packaging; it does not exercise Android Keystore instrumentation, DataStore on-device corruption/relaunch behavior, or physical-device performance.
 - No physical-device install, force-stop/relaunch test or 3–4 GB benchmark is claimed.
 
 ## Phase 1 functional checks
