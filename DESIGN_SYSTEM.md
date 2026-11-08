@@ -1,6 +1,6 @@
 # Rivo Browser Design System
 
-**Status:** Phase 1 browser-chrome baseline, audited 2026-11-08.  
+**Status:** Phase 1 browser-chrome baseline; RIVO-02 theme-scope implementation in progress (2026-11-08).  
 **Scope:** Native Android/Compose browser UI. Website-rendered content is controlled by the visited site and is not recolored by Rivo's chrome theme.
 
 ## Product principles
@@ -25,7 +25,7 @@
 
 **The selected `MaterialTheme` must wrap the complete native screen subtree.** That includes the browser chrome, tab/bookmark/history/download/appearance panels, permission prompts, download confirmations and notice dialogs. A dialog composed outside the selected theme silently falls back to the ambient/default Material theme and breaks three-mode consistency.
 
-The current source has a known scope defect: `BrowserScreen` closes its `MaterialTheme` around the main `Surface`, then emits the panel dialog and `AlertDialog` overlays after that scope. The screen owner must move those overlays under the selected theme (or apply the same Rivo theme explicitly inside each overlay). See `docs/design/UI_UX_ACCESSIBILITY_AUDIT.md`.
+RIVO-02 moves the panel dialog and all browser `AlertDialog` overlays inside the same selected `MaterialTheme` scope as the main `Surface`. This prevents dialogs from falling back to the ambient/default Material theme.
 
 ## Appearance specifications
 
@@ -39,10 +39,10 @@ The current source has a known scope defect: `BrowserScreen` closes its `Materia
 ### Light
 
 - Background: `#F3F6FA`; surface: `#FFFFFF`.
-- Primary: `#315B85`; secondary: current `#567D9F`.
+- Primary: `#315B85`; secondary: `#4D7192` (updated to exceed 4.5:1 against white).
 - Foreground: `#172333`; error: `#BA1A1A`.
 - Keep surfaces neutral and controls clearly separated.
-- **Contrast follow-up:** current secondary against white is approximately 4.35:1, below the 4.5:1 WCAG AA threshold for normal text. If secondary is used for text, darken it (for example `#4D7192`, approximately 5.13:1 against white) or use the primary/on-surface role.
+- **Contrast:** secondary `#4D7192` is approximately 5.13:1 against white and clears the 4.5:1 WCAG AA normal-text threshold.
 
 ### Premium Glass
 

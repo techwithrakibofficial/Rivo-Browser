@@ -3,7 +3,7 @@
 **Task:** RIVO-GPT-02  
 **Repository:** https://github.com/techwithrakibofficial/Rivo-Browser  
 **Audited branch:** `main`  
-**Audited HEAD:** `da6bf4aed9b53a29cff6c9226c238d1da7006acb`  
+**Audited main HEAD:** `84303588c2560db55bfb7ae2081d8f714be532e7`  
 **Audit date:** 2026-11-08  
 **Method:** Read-only source and documentation inspection; no emulator/device or screenshot validation.
 
@@ -11,21 +11,19 @@
 
 The Phase 1 UI has a working native browser shell, an omnibox, a five-action bottom toolbar, modal panels for tabs/bookmarks/history/downloads/appearance, and Dark/Light/Premium Glass color palettes. The design foundations are already present; they were not recreated.
 
-The most important defect is **theme scope leakage**: the selected `MaterialTheme` wraps the main browser surface but not the dialogs and panels rendered later in `BrowserScreen`. Consequently, appearance selection is not consistently applied to the appearance panel, tab/bookmark/history/download panels, download confirmation, site-permission prompt and notice dialog. This is a source-level finding, not a screenshot observation.
-
-No UI source was changed because `BrowserScreen.kt` and `MainActivity.kt` are outside this worker's file ownership. The fix is handed to the UI implementation owner.
+RIVO-02 implementation on `worker/rivo-02-premium-glass` addresses the original theme-scope leakage by keeping the selected `MaterialTheme` active around the main surface, browser panels and alert dialogs. It also adds appearance radio controls, a Light secondary contrast correction, three Compose previews, palette/contrast unit tests, and several small-screen/accessibility refinements. Android CI #248 passed for the implementation commit; emulator/device and screenshot validation remain outstanding.
 
 ## Severity-ranked findings
 
 | ID | Severity | Area | Finding | Recommendation / owner |
 |---|---|---|---|---|
-| UI-01 | P1 | Three-theme consistency | `MaterialTheme` ends around the main `Surface`; the subsequent panel and `AlertDialog` overlays are outside the selected theme scope. | UI owner: wrap the entire screen including all overlays in the selected Rivo theme, or theme each overlay explicitly. Add one test/preview per mode. |
-| UI-02 | P1 | Responsive navigation | Five text actions (Back, Forward, Reload/Stop, Bookmark, Tabs) share one fixed bottom `Row`. At narrow widths or large font scales, labels can crowd or overflow. No adaptive layout is present. | UI owner: test 320 dp width and large font scale; use adaptive/scrollable secondary actions while keeping core navigation reachable. |
-| UI-03 | P2 | Contrast | Light secondary `#567D9F` on white is approximately 4.35:1, just below WCAG AA's 4.5:1 normal-text threshold. | Design-system owner: darken secondary (e.g. `#4D7192`, ~5.13:1) before using it for normal text; otherwise use a compliant semantic role. |
-| UI-04 | P2 | Omnibox semantics | Omnibox has a placeholder but no persistent `label` in the inspected Compose source. The hint may not remain available as a clear field name after text entry. | UI owner: add a persistent localized label or explicit semantics and verify TalkBack while empty and populated. |
-| UI-05 | P2 | Tab close action | Close action is a text button whose visible/accessible text is only `×`; this is not a clear localized action name. | UI owner: provide a localized “Close tab” semantic label and keep a visible affordance. |
-| UI-06 | P2 | Appearance picker | Current selected mode is indicated by a textual checkmark prefix; no explicit selected/radio semantics are authored. | UI owner: use a selectable/radio row or selected semantics; verify TalkBack announces the selected mode. |
-| UI-07 | P2 | Dialog sizing | Tab, bookmark, history and download lists use fixed `300.dp` heights. This can consume too much space on short displays and does not document an adaptive max-height strategy. | UI owner: constrain to available window height and retain internal scrolling at large font scales. |
+| UI-01 | P1 | Three-theme consistency | Fixed on RIVO-02: selected `MaterialTheme` now encloses the main `Surface`, panel dialog and browser `AlertDialog` overlays. | Android CI #248 passed; verify each overlay visually in all three modes on device. |
+| UI-02 | P1 | Responsive navigation | RIVO-02 makes the bottom action row horizontally scrollable to avoid compressing controls at narrow widths. | Verify 320 dp width, large font scale and reachability on device. |
+| UI-03 | P2 | Contrast | Fixed on the RIVO-02 branch: Light secondary is `#4D7192` (~5.13:1 against white). | Palette contrast is covered by a unit test; rendered states still need device review. |
+| UI-04 | P2 | Omnibox semantics | RIVO-02 adds a persistent `Address or search` label. | Localization and TalkBack announcement still need device review. |
+| UI-05 | P2 | Tab close action | RIVO-02 adds a `Close tab` content description to the close button. | Localize the description and verify TalkBack on device. |
+| UI-06 | P2 | Appearance picker | RIVO-02 adds a Material `RadioButton` reflecting the selected appearance. | Verify TalkBack announces the selected mode on device. |
+| UI-07 | P2 | Dialog sizing | RIVO-02 changes the tab list to `heightIn(max = 300.dp)`; bookmark, history and download lists still use fixed `300.dp` heights. | Extend adaptive sizing to remaining lists and verify short displays/large font scales. |
 | UI-08 | P2 | Verification | No Compose UI tests, screenshot tests, accessibility scanner results, TalkBack session or device contrast captures were available in this audit. | QA owner: run the checklist below on physical/emulated small and standard displays. Do not claim compliance until evidence exists. |
 | UI-09 | P3 | Glass specification drift | `docs/design/APPEARANCE_MODES.md` previously described selective blur, while source and `DESIGN_SYSTEM.md` intentionally avoid real-time blur. | Design-system owner: align documentation with the implemented low-RAM translucent-surface approach. This documentation update resolves the mismatch. |
 | UI-10 | P3 | Home / Tab Universe scope | Initial tab loads DuckDuckGo; there is no native Rivo home dashboard. Tabs are a simple list dialog, not a visual Tab Universe. | Product/UI owner: treat these as future design scope; do not claim the advanced screens exist in Phase 1. |
@@ -37,8 +35,8 @@ No UI source was changed because `BrowserScreen.kt` and `MainActivity.kt` are ou
 | Browser home | Basic web landing only | `HOME_URL` points to DuckDuckGo. No native dashboard or quick-link home screen found. |
 | Omnibox | Implemented | `OutlinedTextField`, Go button, URI keyboard action. Persistent label and TalkBack review remain. |
 | Tab interface | Basic list implemented | “Your tabs” dialog lists title/private prefix and close action. No thumbnail grid, grouping or visual Tab Universe. |
-| Quick Appearance Picker | Implemented | Appearance item is in secondary overflow menu; selection is a text checkmark. |
-| Dark / Light / Glass | Palettes implemented | Main browser surface uses the selected scheme. Overlay scope defect prevents consistent application to dialogs/panels. |
+| Quick Appearance Picker | Implemented | Appearance item remains in secondary overflow menu; selected mode now has a radio indicator. |
+| Dark / Light / Glass | Palettes implemented | Selected scheme now wraps the main surface and native overlays on the RIVO-02 branch. |
 | Private browsing | Basic status UI implemented | Private banner and tab-list prefix exist. No separate private-mode dashboard was found. |
 | Bookmarks | Panel implemented | Empty state exists; row navigation and remove actions are present. |
 | History | Panel implemented | Empty state and clear action exist. |
@@ -57,7 +55,7 @@ Contrast ratios below are calculated from the literal palette hex values in `Riv
 |---|---|---:|---|
 | Light | onSurface `#172333` / surface `#FFFFFF` | 15.85:1 | Pass |
 | Light | primary `#315B85` / surface `#FFFFFF` | 7.08:1 | Pass |
-| Light | secondary `#567D9F` / surface `#FFFFFF` | 4.35:1 | **Fail** |
+| Light | secondary `#4D7192` / surface `#FFFFFF` | ~5.13:1 | Pass |
 | Light | error `#BA1A1A` / surface `#FFFFFF` | 6.46:1 | Pass |
 | Dark | onSurface `#E8EEF7` / surface `#171E28` | 14.37:1 | Pass |
 | Dark | primary `#9CCBFF` / surface `#171E28` | 9.90:1 | Pass |
@@ -71,7 +69,7 @@ For the Glass surface token `#CC26354B` composited at roughly 80% opacity over `
 
 ## Accessibility review
 
-- **Contrast:** one palette token fails normal-text AA if used as text (Light secondary). Main source does not appear to use this secondary token for a visible label in the inspected screen, but the token should be corrected before broader component reuse.
+- **Contrast:** the RIVO-02 Light secondary token clears normal-text AA by source-level calculation and is covered by a unit test; other rendered component/state combinations still require review.
 - **Names and roles:** text-labelled controls are generally discoverable; the `×` close-tab action needs a meaningful localized semantic name. The omnibox should have a persistent label.
 - **Selected state:** theme selection is represented visually with a checkmark prefix; expose a selected/radio state to assistive technology.
 - **Touch targets:** Material 3 buttons are used, but this audit did not measure rendered bounds. Five toolbar actions in one row create a narrow-width and large-font risk. Verify every action is at least 48 × 48 dp.
@@ -92,4 +90,4 @@ For the Glass surface token `#CC26354B` composited at roughly 80% opacity over `
 
 ## Scope and ownership
 
-This audit did not modify `BrowserScreen.kt`, `MainActivity.kt`, `BrowserController.kt`, theme Kotlin sources, Gradle files, security/storage files or other UI-owner files. The P1/P2 source fixes are recommendations for the designated UI implementation owner. The documentation/specification changes are owned by RIVO-GPT-02.
+RIVO-02 modifies `BrowserScreen.kt` and `RivoColorSchemes.kt`, and adds `RivoAppearancePreview.kt` plus `RivoColorSchemesTest.kt`. The remaining dialog sizing for bookmark/history/download lists, localization, TalkBack validation, and device verification remain open. No screenshot, emulator, TalkBack or physical-device verification is claimed.

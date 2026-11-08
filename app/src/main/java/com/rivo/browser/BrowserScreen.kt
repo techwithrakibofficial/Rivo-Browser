@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -34,10 +36,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import com.rivo.browser.designsystem.RivoColorSchemes
 import com.rivo.browser.designsystem.RivoSpacing
 import com.rivo.browser.designsystem.RivoShapes
@@ -106,6 +111,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                             },
                             singleLine = true,
                             shape = RoundedCornerShape(RivoShapes.control),
+                            label = { Text("Address or search") },
                             placeholder = { Text("Search or enter address") },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Go),
                             keyboardActions = KeyboardActions(onGo = {
@@ -198,9 +204,10 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState())
                         .background(MaterialTheme.colorScheme.surface)
                         .padding(horizontal = RivoSpacing.small, vertical = RivoSpacing.compact + 2.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    horizontalArrangement = Arrangement.spacedBy(RivoSpacing.compact),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     TextButton(onClick = { browser.goBack() }, enabled = active?.canGoBack == true) { Text("Back") }
@@ -211,7 +218,6 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                 }
             }
         }
-    }
 
     if (browser.panel != null) {
         BrowserPanelDialog(
@@ -271,6 +277,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
             }
         )
     }
+    }
 }
 
 @Composable
@@ -299,7 +306,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                 Text(title, style = MaterialTheme.typography.titleLarge)
                 Spacer(Modifier.height(RivoSpacing.medium))
                 when (panel) {
-                    BrowserPanel.TABS -> LazyColumn(modifier = Modifier.height(300.dp)) {
+                    BrowserPanel.TABS -> LazyColumn(modifier = Modifier.heightIn(max = 300.dp)) {
                         items(browser.tabs, key = { it.id }) { tab ->
                             Row(
                                 modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
@@ -314,7 +321,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                                         maxLines = 1
                                     )
                                 }
-                                TextButton(onClick = { browser.closeTab(tab.id) }) { Text("×") }
+                                TextButton(onClick = { browser.closeTab(tab.id) }, modifier = Modifier.semantics { contentDescription = "Close tab" }) { Text("×") }
                             }
                         }
                     }
@@ -398,10 +405,13 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                                 },
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                Text(
-                                    (if (browser.appearance == appearance) "✓  " else "") +
-                                        appearance.name.lowercase().replaceFirstChar { it.uppercase() }
-                                )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    androidx.compose.material3.RadioButton(
+                                        selected = browser.appearance == appearance,
+                                        onClick = null
+                                    )
+                                    Text(appearance.name.lowercase().replaceFirstChar { it.uppercase() })
+                                }
                             }
                         }
                         Text(
