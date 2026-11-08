@@ -70,3 +70,14 @@ The Android CI workflow runs `:app:connectedDebugAndroidTest` on an API 35 Googl
 
 ## Core browser hardening regression tests
 JVM tests cover history callback coalescing versus later revisits, duplicate-URL normal-tab restoration, private/unsafe URL exclusion, selected-tab identity, session activation policy, URL credential/port validation, and download filename/path/size/collision/staging behavior. These tests do not replace live Gecko navigation or external viewer/Sharesheet testing.
+
+
+## Privacy & site permission validation
+- Verify only HTTPS notification/autoplay requests are prompted; all unsupported site capabilities remain denied.
+- On Android 13+, notification allow requires OS `POST_NOTIFICATIONS`; deny/OS denial must deny Gecko permission. Private-tab notifications are denied and no private permission records appear in the normal list.
+- Verify site-permission list reads GeckoView state, resets only revocable permissions, and marks persistent storage as non-revocable. Confirm tracking status/exception is engine-reported and no tracker count is fabricated.
+- Verify notification click returns to Gecko and dismisses the OS notification. Physical-device notification-channel behavior and permission revocation after app upgrade remain required.
+
+## Advanced Tab Universe validation
+- Test search by title/URL, All/Normal/Private/Active filters, all sort modes, active switching and close actions.
+- Repeat at 320 dp width, large font scale and all three appearance modes. Confirm private tabs are not persisted and eight-tab cap is unchanged.
