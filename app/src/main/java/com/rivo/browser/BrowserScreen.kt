@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,7 +23,9 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -37,15 +39,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.stateDescription
 import com.rivo.browser.designsystem.RivoColorSchemes
 import com.rivo.browser.designsystem.RivoSpacing
 import com.rivo.browser.designsystem.RivoShapes
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -111,8 +118,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                             },
                             singleLine = true,
                             shape = RoundedCornerShape(RivoShapes.control),
-                            label = { Text("Address or search") },
-                            placeholder = { Text("Search or enter address") },
+                            label = { Text("Search or enter address") },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Go),
                             keyboardActions = KeyboardActions(onGo = {
                                 val submittedAddress = address
@@ -130,7 +136,14 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                             keyboard?.hide()
                         }) { Text("Go") }
                         Box {
-                            TextButton(onClick = { menuExpanded = true }) { Text("Menu") }
+                            IconButton(
+                                onClick = { menuExpanded = true },
+                                modifier = Modifier.semantics(mergeDescendants = true) {
+                                    contentDescription = "Open browser menu"
+                                }
+                            ) {
+                                Text("⋮", style = MaterialTheme.typography.titleLarge)
+                            }
                             DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
                                 DropdownMenuItem(text = { Text("New tab") }, onClick = {
                                     menuExpanded = false
@@ -204,17 +217,54 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState())
                         .background(MaterialTheme.colorScheme.surface)
-                        .padding(horizontal = RivoSpacing.small, vertical = RivoSpacing.compact + 2.dp),
-                    horizontalArrangement = Arrangement.spacedBy(RivoSpacing.compact),
+                        .padding(horizontal = RivoSpacing.small, vertical = RivoSpacing.compact),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    TextButton(onClick = { browser.goBack() }, enabled = active?.canGoBack == true) { Text("Back") }
-                    TextButton(onClick = { browser.goForward() }, enabled = active?.canGoForward == true) { Text("Forward") }
-                    TextButton(onClick = { browser.reloadOrStop() }) { Text(if (active?.loading == true) "Stop" else "Reload") }
-                    TextButton(onClick = { browser.addCurrentBookmark() }) { Text("Bookmark") }
-                    TextButton(onClick = { browser.openPanel(BrowserPanel.TABS) }) { Text("Tabs ${browser.tabs.size}") }
+                    IconButton(
+                        onClick = { browser.goBack() },
+                        enabled = active?.canGoBack == true,
+                        modifier = Modifier.weight(1f).semantics(mergeDescendants = true) {
+                            contentDescription = "Go back"
+                        }
+                    ) {
+                        Text("←", style = MaterialTheme.typography.titleLarge)
+                    }
+                    IconButton(
+                        onClick = { browser.goForward() },
+                        enabled = active?.canGoForward == true,
+                        modifier = Modifier.weight(1f).semantics(mergeDescendants = true) {
+                            contentDescription = "Go forward"
+                        }
+                    ) {
+                        Text("→", style = MaterialTheme.typography.titleLarge)
+                    }
+                    IconButton(
+                        onClick = { browser.reloadOrStop() },
+                        modifier = Modifier.weight(1f).semantics(mergeDescendants = true) {
+                            contentDescription = if (active?.loading == true) "Stop loading page" else "Reload page"
+                        }
+                    ) {
+                        Text(if (active?.loading == true) "×" else "↻", style = MaterialTheme.typography.titleLarge)
+                    }
+                    IconButton(
+                        onClick = { browser.addCurrentBookmark() },
+                        modifier = Modifier.weight(1f).semantics(mergeDescendants = true) {
+                            contentDescription = "Add current page to bookmarks"
+                        }
+                    ) {
+                        Text("☆", style = MaterialTheme.typography.titleLarge)
+                    }
+                    IconButton(
+                        onClick = { browser.openPanel(BrowserPanel.TABS) },
+                        modifier = Modifier.weight(1f).semantics(mergeDescendants = true) {
+                            contentDescription = "Show tabs"
+                            stateDescription = "${browser.tabs.size} open"
+                        }
+                    ) {
+                        Text("▢", style = MaterialTheme.typography.titleLarge)
+                    }
                 }
             }
         }
@@ -233,7 +283,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
             onDismissRequest = { browser.cancelPendingDownload() },
             title = { Text("Download file?") },
             text = {
-                Text(
+                DialogBodyText(
                     "$fileName from ${downloadUri.host ?: "this website"} will be saved in Rivo's app-specific Downloads folder. " +
                         "The maximum file size is 250 MB." +
                         if (request.privateMode) " Private browsing does not automatically erase saved files." else ""
@@ -253,7 +303,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
             onDismissRequest = { browser.respondToSitePermission(false) },
             title = { Text("Website permission") },
             text = {
-                Text(
+                DialogBodyText(
                     "${request.origin} wants to access ${request.permission}. " +
                         if (request.privateMode) "This decision applies only to this private tab." else "Allow only if you trust this website."
                 )
@@ -271,13 +321,24 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
         AlertDialog(
             onDismissRequest = { browser.dismissNotice() },
             title = { Text("Rivo Browser") },
-            text = { Text(browser.notice.orEmpty()) },
+            text = { DialogBodyText(browser.notice.orEmpty()) },
             confirmButton = {
                 TextButton(onClick = { browser.dismissNotice() }) { Text("OK") }
             }
         )
     }
     }
+}
+
+@Composable
+private fun DialogBodyText(message: String) {
+    val maxTextHeight = LocalConfiguration.current.screenHeightDp.dp * 0.4f
+    Text(
+        message,
+        modifier = Modifier
+            .heightIn(max = maxTextHeight)
+            .verticalScroll(rememberScrollState())
+    )
 }
 
 @Composable
@@ -297,16 +358,23 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
         BrowserPanel.MENU -> "Browser menu"
     }
     Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            shape = RoundedCornerShape(RivoShapes.panel),
-            color = MaterialTheme.colorScheme.surface,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(modifier = Modifier.padding(RivoSpacing.large)) {
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            val panelMaxHeight = maxHeight * 0.88f
+            Surface(
+                shape = RoundedCornerShape(RivoShapes.panel),
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.fillMaxWidth().heightIn(max = panelMaxHeight)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = panelMaxHeight)
+                        .padding(RivoSpacing.large)
+                ) {
                 Text(title, style = MaterialTheme.typography.titleLarge)
                 Spacer(Modifier.height(RivoSpacing.medium))
                 when (panel) {
-                    BrowserPanel.TABS -> LazyColumn(modifier = Modifier.heightIn(max = 300.dp)) {
+                    BrowserPanel.TABS -> LazyColumn(modifier = Modifier.weight(1f, fill = false)) {
                         items(browser.tabs, key = { it.id }) { tab ->
                             Row(
                                 modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
@@ -321,13 +389,18 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                                         maxLines = 1
                                     )
                                 }
-                                TextButton(onClick = { browser.closeTab(tab.id) }, modifier = Modifier.semantics { contentDescription = "Close tab" }) { Text("×") }
+                                IconButton(
+                                    onClick = { browser.closeTab(tab.id) },
+                                    modifier = Modifier.semantics(mergeDescendants = true) {
+                                        contentDescription = "Close tab: ${tab.title}"
+                                    }
+                                ) { Text("×", style = MaterialTheme.typography.titleMedium) }
                             }
                         }
                     }
                     BrowserPanel.BOOKMARKS -> {
                         if (browser.bookmarks.isEmpty()) Text("No bookmarks saved yet.")
-                        LazyColumn(modifier = Modifier.height(300.dp)) {
+                        LazyColumn(modifier = Modifier.weight(1f, fill = false)) {
                             items(browser.bookmarks, key = { it.url }) { page ->
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
@@ -345,7 +418,12 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                                             Text(page.url, style = MaterialTheme.typography.labelSmall, maxLines = 1)
                                         }
                                     }
-                                    TextButton(onClick = { browser.removeBookmark(page.url) }) { Text("×") }
+                                    IconButton(
+                                        onClick = { browser.removeBookmark(page.url) },
+                                        modifier = Modifier.semantics(mergeDescendants = true) {
+                                            contentDescription = "Remove bookmark: ${page.title}"
+                                        }
+                                    ) { Text("×", style = MaterialTheme.typography.titleMedium) }
                                 }
                             }
                         }
@@ -356,7 +434,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                             TextButton(onClick = { browser.clearHistory() }) { Text("Clear") }
                         }
                         if (browser.history.isEmpty()) Text("No browsing history yet.")
-                        LazyColumn(modifier = Modifier.height(300.dp)) {
+                        LazyColumn(modifier = Modifier.weight(1f, fill = false)) {
                             // Multiple visits to one URL are distinct history records.
                             items(browser.history) { page ->
                                 TextButton(onClick = {
@@ -376,7 +454,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                     }
                     BrowserPanel.DOWNLOADS -> {
                         if (browser.downloads.isEmpty()) Text("No downloads yet.")
-                        LazyColumn(modifier = Modifier.height(300.dp)) {
+                        LazyColumn(modifier = Modifier.weight(1f, fill = false)) {
                             items(browser.downloads, key = { it.id }) { download ->
                                 Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                                     Text(download.filename, maxLines = 1)
@@ -397,31 +475,43 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                         )
                     }
                     BrowserPanel.APPEARANCE -> {
-                        BrowserAppearance.values().forEach { appearance ->
-                            TextButton(
-                                onClick = {
-                                    browser.updateAppearance(appearance)
-                                    onDismiss()
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    androidx.compose.material3.RadioButton(
-                                        selected = browser.appearance == appearance,
-                                        onClick = null
+                        LazyColumn(modifier = Modifier.weight(1f, fill = false)) {
+                            items(BrowserAppearance.values().toList(), key = { it.name }) { appearance ->
+                                val isSelected = browser.appearance == appearance
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .heightIn(min = 48.dp)
+                                        .selectable(
+                                            selected = isSelected,
+                                            onClick = {
+                                                browser.updateAppearance(appearance)
+                                                onDismiss()
+                                            },
+                                            role = Role.RadioButton
+                                        )
+                                        .padding(horizontal = RivoSpacing.small),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    RadioButton(selected = isSelected, onClick = null)
+                                    Text(
+                                        appearance.name.lowercase().replaceFirstChar { it.uppercase() },
+                                        modifier = Modifier.padding(start = RivoSpacing.small)
                                     )
-                                    Text(appearance.name.lowercase().replaceFirstChar { it.uppercase() })
                                 }
                             }
+                            item {
+                                Text(
+                                    "Glass mode uses translucent surfaces without heavy real-time blur for better low-end performance.",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
                         }
-                        Text(
-                            "Glass mode uses translucent surfaces without heavy real-time blur for better low-end performance.",
-                            style = MaterialTheme.typography.bodySmall
-                        )
                     }
                     BrowserPanel.MENU -> Unit
                 }
                 TextButton(onClick = onDismiss, modifier = Modifier.align(Alignment.End)) { Text("Close") }
+                }
             }
         }
     }

@@ -4,7 +4,7 @@
 - Android compile platform API 37.2; targetSdk 36.
 - Assemble GeckoView MVP debug APKs.
 - Android lint.
-- JVM tests for URL/search resolution, safe restorable-tab URL policy, sensitive metadata write validation, IDN normalization and restored-tab index selection.
+- JVM tests for URL/search resolution, safe restorable-tab URL policy, sensitive metadata write validation, IDN normalization, restored-tab index selection and WCAG palette contrast in all three appearance modes.
 - Minified release AAB build with R8/resource shrinking.
 - APK/AAB size reporting and unsigned QA artifact uploads for ARM64/ARMv7.
 
@@ -16,11 +16,17 @@ The following GitHub Actions runs completed successfully:
 These are branch-level validations, not proof that the integrated Main commit passes.
 
 ## Integrated Main validation
-- Integrated HEAD at handoff: `1683ffb57dda1d1a9d15f85e892cb8139b06d23c`.
-- GitHub Actions run #244: https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42481557821
-- At the time of this update, debug APK assembly had passed and Android lint was in progress; unit tests, minified release AAB, size reporting and artifact uploads were pending.
-- Update this section only after checking the final run conclusion and job steps.
-- A later documentation-only commit may trigger a new Main CI run; always validate the current HEAD rather than assuming an earlier run covers it.
+- Current pre-RIVO-03 Main baseline: `84303588c2560db55bfb7ae2081d8f714be532e7`.
+- GitHub Actions run #246: https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42481870810
+- Run #246 completed successfully on 2026-11-08; it validates the main baseline only, not this RIVO-03 change set.
+- Run #244 for the previous integrated commit was cancelled and is superseded by the successful #246 run.
+- Verify branch/PR CI before treating RIVO-03 changes as build/lint/unit-test verified.
+
+## Accessibility and responsive UI regression coverage
+- `RivoColorSchemesTest` computes WCAG relative luminance and asserts at least 4.5:1 for primary, secondary, on-surface and error palette roles against Light and Dark surfaces and the composited Glass surface.
+- The unit test checks source palette values; it does not inspect rendered UI compositing, disabled/focused states, icons, non-text contrast or every actual text usage.
+- The existing Android workflow runs JVM tests but does not provision an emulator or run Compose instrumentation tests. Full BrowserScreen UI tests were not added because BrowserScreen initializes a GeckoView-backed controller and the project has no Compose instrumentation runner/emulator step.
+- Manual matrix required: 320 dp width, standard width, short display height, font scale 1.0/1.3/2.0, Dark/Light/Glass, TalkBack, hardware keyboard/focus traversal, panel scrolling and Glass fallback.
 
 ## Security QA coverage and limitations
 - `SensitiveWriteGuardTest` verifies writes are allowed before integrity failure, remain blocked after repeated failures, and direct replacement is rejected when authentication/metadata validation fails.
@@ -49,13 +55,14 @@ These are branch-level validations, not proof that the integrated Main commit pa
 17. Force-stop/relaunch: regular HTTP(S) tabs restore; selected normal tab restores; private tabs do not reappear.
 18. Release bundle builds with R8/resource shrinking and minified runtime behavior is smoke-tested.
 19. Encrypted storage: legacy migration, fresh-IV round-trip, tampered/truncated ciphertext, unavailable key and read-modify-write preservation.
-20. Accessibility: TalkBack names/roles/selected states, 48 dp touch targets, font scaling, 320 dp width, panel scrolling and Glass fallback.
+20. Accessibility: TalkBack names/roles/selected states, 48 dp touch targets, font scale 1.0/1.3/2.0, 320 dp width, short-height dialogs/panels, keyboard/focus traversal and Glass fallback. This remains a manual device matrix; do not infer a pass from JVM CI.
 
 ## Physical-device benchmark
 Test at least one 3 GB and one 4 GB Android device if available. Record model, chipset, Android build, ABI, GeckoView version, APK/AAB size, cold/warm startup, PSS, CPU, thermal state and crashes/ANRs. Do not extrapolate emulator-only results to all 3–4 GB phones.
 
 ## Current status
 - Worker PR CI passed on all three branches.
-- Integrated Main CI run #244 was still running at the last checkpoint; integrated status is not yet confirmed.
+- Integrated Main baseline run #246 passed on commit `84303588c2560db55bfb7ae2081d8f714be532e7`; it does not cover RIVO-03.
+- RIVO-03 branch-specific CI, emulator/screenshots, TalkBack and Accessibility Scanner checks remain outstanding until their results are recorded.
 - No physical-device install, force-stop/relaunch, TalkBack, Accessibility Scanner or 3–4 GB benchmark is claimed.
 - QA AAB output is unsigned; it is not a production release artifact.
