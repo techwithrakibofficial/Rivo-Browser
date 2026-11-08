@@ -54,8 +54,17 @@ object NavigationInputResolver {
             IDN.toASCII(rawHost, IDN.USE_STD3_ASCII_RULES)
         }.getOrNull()?.takeIf { it.isNotBlank() } ?: return null
 
-        return runCatching {
-            URI(uri.scheme, uri.userInfo, asciiHost, port, uri.path, uri.query, uri.fragment)
-        }.getOrNull()
+        val normalizedAuthority = buildString {
+            uri.rawUserInfo?.let { append(it).append('@') }
+            append(asciiHost)
+            if (port >= 0) append(':').append(port)
+        }
+        val normalizedUri = buildString {
+            append(uri.scheme).append("://").append(normalizedAuthority)
+            append(uri.rawPath.orEmpty())
+            uri.rawQuery?.let { append('?').append(it) }
+            uri.rawFragment?.let { append('#').append(it) }
+        }
+        return runCatching { URI(normalizedUri) }.getOrNull()
     }
 }
