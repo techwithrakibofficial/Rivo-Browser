@@ -28,11 +28,11 @@ OWASP MASVS is the baseline for storage, cryptography, network, platform, code, 
 ## Known limitations and review findings
 - Location, camera and microphone access remain unsupported and denied until a separately reviewed Android runtime permission flow is implemented. Persistent storage remains denied because GeckoView does not support revoking it after grant.
 - Private mode does not hide network activity from sites, ISPs, DNS resolvers or network operators.
-- User-saved download files remain on device, including downloads started from private tabs. Download file contents are not encrypted by the metadata cipher.
+- Downloaded file bytes remain on the device, including downloads started from private tabs; private mode does not automatically delete user-saved files. New private-tab download entries are excluded from persistent browser download metadata, but the actual file remains in app-specific storage. Download file contents are not encrypted by the metadata cipher.
 - Encrypted metadata decryption failures now propagate as `EncryptedDataException`; malformed JSON and malformed entries fail closed instead of being silently discarded.
 - BrowserStorage uses a process-wide fail-closed write guard for integrity failures observed in the current process. The in-memory flag resets after process restart; therefore every direct replacement of existing open-tab or download metadata, and clear-history, now decrypts and validates the current value inside the DataStore edit transaction before replacing it. A missing/lost Keystore key or malformed existing value causes the edit to abort and preserves the stored ciphertext. Theme preference remains independently writable. All sensitive DataStore edit mutations are serialized with integrity-failure publication through the same process guard; read-modify-write paths authenticate and decode their target value before writing.
 - AES-GCM payload parsing validates the 12-byte IV plus 16-byte authentication tag minimum. The cipher uses a fresh provider-generated IV for each encryption.
-- JVM tests cover fail-closed guard behavior and verify that replacement is rejected when existing-value authentication or metadata validation fails. These tests exercise the validation gate with controlled callbacks; they do not prove Android Keystore cryptography or DataStore transaction behavior. Android Keystore-backed AES-GCM round-trip, tampering, key-loss, and legacy migration tests still require Android instrumentation; do not treat those cases as verified.
+- JVM tests cover fail-closed guard behavior and download URL, filename, restored-path and private-metadata policies. Android instrumentation tests are added for AES-GCM round-trip, AES-256 key size, ciphertext tampering and missing-key failure without replacement. These tests must pass on CI/device before those runtime behaviors are considered verified; DataStore corruption/relaunch and legacy migration instrumentation remain outstanding.
 - Regular-tab restoration and download-metadata persistence are implemented in source but still require CI and force-stop/relaunch verification.
 - No verified per-page blocked-tracker count is currently surfaced; tracking protection status is taken from the active GeckoSession setting. No claim of anonymity or complete tracker/ad blocking.
 - Final engine selection and device security/performance validation remain pending.
@@ -45,3 +45,25 @@ OWASP MASVS is the baseline for storage, cryptography, network, platform, code, 
 - Run dependency vulnerability review and OWASP MASVS checklist.
 - Verify release signing, artifact provenance, ABI packaging, release bundle size and backup policy.
 - Perform physical-device privacy, lifecycle and performance testing.
+
+## Privacy Intelligence Center
+
+The Privacy Intelligence Center reports only state available from the active GeckoView session and stored Gecko permission records:
+- Tracking protection status reads the active session setting. A site exception is shown only when GeckoView reports the corresponding tracking permission for the active page.
+- The UI does not show a blocked-tracker count because no verified per-page count is exposed by the current integration.
+- Site permissions are loaded from GeckoView `StorageController.getAllPermissions()`. Private records and prompt/default entries are excluded. Revocation resets the original Gecko `ContentPermission` to `VALUE_PROMPT` and verifies the stored result. Persistent-storage grants are shown as non-revocable.
+- Only HTTPS desktop notifications and audible/inaudible autoplay requests are eligible for an explicit site prompt. Private-mode website notifications are denied; location, camera, microphone, persistent storage, XR, DRM, tracking exceptions and unsupported permissions default-deny.
+- The panel discloses encryption coverage, private-mode persistence boundaries and the fact that downloaded file contents are not encrypted by the metadata cipher.
+
+## OWASP MASVS coverage map (source-level, not certification)
+
+| MASVS group | Current evidence | Remaining verification / limitation |
+|---|---|---|
+| MASVS-STORAGE | Sensitive browser metadata uses AES-256-GCM with an Android Keystore key; app backup is disabled; download metadata paths are validated against app-specific roots; private tabs are not restored and private download metadata is not persisted | Run instrumentation and device tests; downloaded file contents are not encrypted |
+| MASVS-CRYPTO | AES/GCM/NoPadding, 256-bit key, provider-generated IV, 128-bit GCM tag; decrypt requires the existing key and fails closed if it is missing | Verify on supported Android devices; hardware-backed/StrongBox key storage is not guaranteed or claimed |
+| MASVS-NETWORK | Cleartext traffic disabled; no certificate-error override; GeckoView reports connection security state | Full TLS/redirect/deep-link review and network testing remain pending |
+| MASVS-PLATFORM | Native GeckoView sessions, denied unsupported Android/media permission callbacks, non-exported scoped FileProvider with read grants | Device validation of permission and URI-grant flows remains pending |
+| MASVS-PRIVACY | Private browsing excludes app-side history/bookmarks/tab restoration; private permission decisions are not listed as persistent; user-facing privacy disclosures; no mandatory telemetry/backend | Private browsing does not hide network activity or erase downloaded files; no anonymity/fingerprinting-resistance claim |
+| MASVS-CODE / RESILIENCE | Pinned dependency versions and CI build/lint/test gates | Dependency/SBOM vulnerability review, tamper analysis and full resilience testing remain pending |
+
+A MASVS mapping is a gap-tracking aid only. It is not a MASVS assessment, verification report, certification or claim of compliance.
