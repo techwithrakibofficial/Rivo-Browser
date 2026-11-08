@@ -34,11 +34,12 @@ Phase 1 — Functional Browser MVP, authorized by user on 2026-11-08.
 - GitHub Actions run #143 (`42461668698`) on commit `89139a036bb36829e52681df9eae7c47ae77197e` completed successfully on 2026-11-08.
 - `:app:assembleDebug`, `:app:lintDebug`, `:app:testDebugUnitTest`, ABI size reporting and both artifact uploads all passed.
 - Separate artifacts published: `rivo-browser-arm64-debug` (109,529,496-byte ZIP) and `rivo-browser-armv7-debug` (105,557,703-byte ZIP). Both are unexpired; GitHub retention expiry is 2026-11-22.
-- Artifact ZIP sizes are not the same as APK file sizes; inspect the archives before recording individual APK sizes.
-- No APK has been installed on a physical device in this session.
+- Inspected both downloaded ZIPs: ARM64 APK `app-arm64-v8a-debug.apk` is 208,688,414 bytes (~199.0 MiB); ARMv7 APK `app-armeabi-v7a-debug.apk` is 169,493,492 bytes (~161.7 MiB).
+- APK SHA-256: ARM64 `9bca287c9407d8d060903be24db0405c759aacd39828af32f643fa92d7641223`; ARMv7 `5af075f25765f209dff18f304cb0bf26803e9655f7b9bb7b71ae7b84f4ce892d`.
+- ZIP archive listing confirms each APK contains native libraries for only its named ABI. No APK has been installed on a physical device in this session.
 
 ## Remaining / known limitations
-- Inspect the two artifact archives and record exact APK sizes and package metadata.
+- Investigate large GeckoView APK footprint and optimize packaging without compromising engine functionality or security.
 - No physical device install/smoke test or 3–4 GB memory benchmark.
 - Per-site permission allow/deny UI is not implemented; permissions remain denied.
 - Download files are app-specific; downloads list metadata is not persisted after process death.
