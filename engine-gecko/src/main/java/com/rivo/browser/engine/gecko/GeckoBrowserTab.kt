@@ -395,9 +395,12 @@ private class RivoWebNotificationDelegate(context: Context) : WebNotificationDel
 
     override fun onShowNotification(notification: WebNotification) {
         mainHandler.post {
-            if (Build.VERSION.SDK_INT >= 33 &&
-                appContext.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) !=
-                PackageManager.PERMISSION_GRANTED
+            if ((Build.VERSION.SDK_INT >= 33 &&
+                    appContext.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) !=
+                    PackageManager.PERMISSION_GRANTED) ||
+                !manager.areNotificationsEnabled() ||
+                (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+                    manager.getNotificationChannel(CHANNEL_ID)?.importance == NotificationManager.IMPORTANCE_NONE)
             ) {
                 notification.dismiss()
                 return@post
@@ -424,8 +427,12 @@ private class RivoWebNotificationDelegate(context: Context) : WebNotificationDel
                 .setSubText(host)
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent)
-            manager.notify(NOTIFICATION_TAG, notificationId, builder.build())
-            notification.show()
+            runCatching {
+                manager.notify(NOTIFICATION_TAG, notificationId, builder.build())
+                notification.show()
+            }.onFailure {
+                notification.dismiss()
+            }
         }
     }
 
