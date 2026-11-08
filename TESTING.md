@@ -33,10 +33,11 @@ Artifacts expire 2026-11-22. Extracted APKs: ARM64 208,688,414 bytes (~199.0 MiB
 12. Certificate errors are not bypassed; security label comes from GeckoView callback.
 13. Activity recreation and background/foreground transitions; verify all Gecko sessions deactivate on stop and only the selected tab reactivates on start.
 14. Android system Back navigates Gecko history when available; otherwise verify normal Android back behavior.
-15. Force-stop/relaunch and document tab restoration limitation.
+15. Force-stop/relaunch; verify regular HTTP(S) tabs restore, selected normal tab is restored, and private tabs do not reappear.
+16. Verify release bundle build completes with R8 and resource shrinking; inspect AAB size and test runtime behavior of minified code.
 
 ## Physical-device benchmark
 Test at least one 3 GB and one 4 GB device if available. Record model, chipset, Android build, ABI, GeckoView version, individual APK size, cold/warm startup, PSS, CPU, thermal state and crashes/ANRs. No emulator-only result should be extrapolated to all devices.
 
 ## Current status
-CI passed at the checkpoint above. Activity lifecycle and system Back changes have been committed after that checkpoint; a new CI result is pending. Both APK archives were downloaded, extracted and inspected for ABI-specific native library paths. No physical-device install, smoke test or benchmark has been completed in this session. APK size is a significant optimization target before release.
+CI passed at the checkpoint above. Activity lifecycle, process-death tab restoration and R8/AAB changes are newer; their CI run is pending. Both APK archives were downloaded, extracted and inspected for ABI-specific native library paths. No physical-device install, smoke test or benchmark has been completed in this session. APK size is a significant optimization target before release.
