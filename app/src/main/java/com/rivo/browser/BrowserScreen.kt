@@ -1,5 +1,6 @@
 package com.rivo.browser
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -57,6 +58,7 @@ import java.util.Date
 fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     val browser = viewModel.browser
     val active = browser.activeTab
+    BackHandler(enabled = active?.canGoBack == true) { browser.goBack() }
     val keyboard = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
     val view = LocalView.current
