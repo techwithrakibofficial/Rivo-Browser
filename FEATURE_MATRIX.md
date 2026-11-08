@@ -31,3 +31,9 @@
 | Developer Mode | Research only | Future secure opt-in |
 | CI | Verified on current checkpoint | Main run #246 passed assembleDebug, lintDebug, testDebugUnitTest, bundleRelease and configured QA artifact steps on commit `84303588c2560db55bfb7ae2081d8f714be532e7` |
 | Production release signing | Pending | QA AAB is unsigned |
+
+
+## Advanced Tab Universe
+- Open-tab panel supports case-insensitive title/URL search, All/Normal/Private/Active filters, and Active-first/Title/Normal-vs-Private organization.
+- Shows active state, tab type and URL; preserves the existing eight-tab cap and Gecko session lifecycle.
+- Does not claim extra memory savings or persistent private-tab restoration; device QA remains required.
