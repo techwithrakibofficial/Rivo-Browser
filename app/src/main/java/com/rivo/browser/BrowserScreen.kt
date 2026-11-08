@@ -426,10 +426,12 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                     }
                     BrowserPanel.SITE_PERMISSIONS -> {
                         Text(
-                            if (browser.activeTab?.trackingProtectionEnabled == true)
-                                "Tracking protection is enabled for the active GeckoView session."
-                            else
-                                "Tracking protection status is unavailable for the active tab.",
+                            when {
+                                browser.activeTab == null -> "Tracking protection status is unavailable for the active tab."
+                                !browser.activeTab!!.trackingProtectionEnabled -> "Tracking protection is disabled for the active GeckoView session."
+                                browser.activeTab!!.trackingProtectionException -> "GeckoView reports a site-specific tracking-protection exception for this page."
+                                else -> "Tracking protection is enabled for the active GeckoView session; no site exception is reported."
+                            },
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Text(
@@ -452,6 +454,12 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                                 Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                                     Text(permission.origin, style = MaterialTheme.typography.titleSmall, maxLines = 1)
                                     Text(permission.permissionName, style = MaterialTheme.typography.bodyMedium)
+                                    if (permission.permissionName == "Tracking protection exception") {
+                                        Text(
+                                            "This permission lets trackers operate on this site by disabling GeckoView tracking protection for it.",
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
                                     Text(
                                         if (permission.allowed) "Allowed" else "Denied",
                                         style = MaterialTheme.typography.labelSmall,
