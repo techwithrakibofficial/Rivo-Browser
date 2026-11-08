@@ -7,7 +7,9 @@ OWASP MASVS is the baseline for storage, cryptography, network, platform, code, 
 - One process-scoped GeckoRuntime; one GeckoSession per tab.
 - GeckoView native private mode; private tabs excluded from app-side history/bookmarks.
 - Tracking protection enabled per session.
-- Content, Android runtime and media permission requests denied until user-facing permission mediation is implemented.
+- HTTPS site requests for desktop notifications and persistent storage are shown in an explicit per-origin Allow/Deny prompt; GeckoView stores the resulting content permission.
+- Unsupported content permissions, Android runtime permissions (location/camera/microphone) and media capture requests are denied by default. No runtime hardware permissions are declared in the manifest.
+- Permission prompts are not shown for non-HTTPS origins; private-mode decisions remain scoped to Gecko's private session.
 - No JavaScript-to-native bridge and no TLS certificate error override.
 - Connection security state from GeckoView ProgressDelegate.
 - Omnibox accepts HTTP/HTTPS; unsupported schemes become search queries.
