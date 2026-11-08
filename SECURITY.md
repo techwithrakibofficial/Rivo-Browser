@@ -12,7 +12,7 @@ OWASP MASVS is the baseline for storage, cryptography, network, platform, code, 
 - Android runtime permission requests for location, camera and microphone are rejected. The manifest intentionally does not declare location, CAMERA or RECORD_AUDIO permissions; media capture requests are rejected.
 - The site-permission manager reads real records from GeckoView StorageController.getAllPermissions(), excludes private-mode records, and resets supported records with setPermission(VALUE_PROMPT). Persistent-storage records, if present from an earlier build, are displayed as non-revocable.
 - Private-mode permission decisions remain in GeckoView's private permission context; the app never calls setPrivateBrowsingPermanentPermission and does not surface private records in the persistent site-permission list. Website notifications are denied in private tabs to avoid creating OS-level notification artifacts outside the private session.
-- Tracking protection is enabled per GeckoSession. Rivo displays the engine setting only; it does not invent a blocked-tracker count or claim complete tracker blocking.
+- Tracking protection is enabled per GeckoSession. Rivo reads the active page's GeckoView tracking-exception permission from onLocationChange and explains when a site exception applies. It does not invent a blocked-tracker count or claim complete tracker blocking.
 - No JavaScript-to-native bridge and no TLS certificate error override.
 - Connection security state comes from GeckoView ProgressDelegate.
 - Omnibox accepts HTTP/HTTPS; unsupported schemes become search queries.
