@@ -83,20 +83,27 @@ class BrowserController(context: Context) {
             appearance = runCatching {
                 BrowserAppearance.valueOf(storage.loadTheme().uppercase())
             }.getOrDefault(BrowserAppearance.DARK)
-            bookmarks.addAll(storage.loadBookmarks())
-            history.addAll(storage.loadHistory())
-            cleanupInterruptedDownloads()
-            restoreDownloads()
-            val restoredTabs = storage.loadOpenTabs()
-            if (restoredTabs.isEmpty()) {
-                createTab()
-            } else {
-                restoredTabs.forEach { saved ->
-                    createTab(url = saved.url, restoredTitle = saved.title)
+            try {
+                bookmarks.addAll(storage.loadBookmarks())
+                history.addAll(storage.loadHistory())
+                cleanupInterruptedDownloads()
+                restoreDownloads()
+                val restoredTabs = storage.loadOpenTabs()
+                if (restoredTabs.isEmpty()) {
+                    createTab()
+                } else {
+                    restoredTabs.forEach { saved ->
+                        createTab(url = saved.url, restoredTitle = saved.title)
+                    }
+                    restoredTabs.firstOrNull { it.selected }?.let { selected ->
+                        tabs.firstOrNull { it.url == selected.url }?.let { selectTab(it.id) }
+                    }
                 }
-                restoredTabs.firstOrNull { it.selected }?.let { selected ->
-                    tabs.firstOrNull { it.url == selected.url }?.let { selectTab(it.id) }
-                }
+            } catch (error: Exception) {
+                // Keep browsing available, but BrowserStorage switches to read-only after
+                // an integrity failure so the fallback tab cannot overwrite saved records.
+                notice = "Saved browser data could not be read. Existing data was preserved; sensitive saving is paused."
+                if (tabs.isEmpty()) createTab()
             }
         }
     }
