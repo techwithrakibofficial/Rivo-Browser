@@ -12,6 +12,7 @@ import com.rivo.browser.data.SavedTab
 import com.rivo.browser.engine.gecko.GeckoBrowserRuntime
 import com.rivo.browser.engine.gecko.GeckoBrowserTab
 import com.rivo.browser.engine.gecko.GeckoTabListener
+import com.rivo.browser.engine.gecko.GeckoStoredSitePermission
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -42,6 +43,7 @@ class BrowserTabState(
     var secureConnection by mutableStateOf(false)
     var securityKnown by mutableStateOf(false)
     var certificateException by mutableStateOf(false)
+    var trackingProtectionEnabled by mutableStateOf(false)
     lateinit var engine: GeckoBrowserTab
 }
 
@@ -61,6 +63,8 @@ class BrowserController(context: Context) {
     val bookmarks = mutableStateListOf<SavedPage>()
     val history = mutableStateListOf<SavedPage>()
     val downloads = mutableStateListOf<BrowserDownload>()
+    val sitePermissions = mutableStateListOf<GeckoStoredSitePermission>()
+    var sitePermissionsLoading by mutableStateOf(false)
 
     var activeTabId by mutableStateOf(0L)
         private set
@@ -181,6 +185,7 @@ class BrowserController(context: Context) {
                 }
             }
         )
+        tab.trackingProtectionEnabled = tab.engine.isTrackingProtectionEnabled
         tabs.add(tab)
         selectTab(tab.id)
         tab.engine.load(url)
@@ -316,6 +321,32 @@ class BrowserController(context: Context) {
             )
         }.onFailure {
             notice = "Unable to share this download."
+        }
+    }
+
+    fun refreshSitePermissions() {
+        val sourceTab = activeTab ?: tabs.firstOrNull() ?: return
+        sitePermissionsLoading = true
+        sourceTab.engine.loadStoredSitePermissions { permissions ->
+            sitePermissions.clear()
+            sitePermissions.addAll(permissions)
+            sitePermissionsLoading = false
+        }
+    }
+
+    fun revokeSitePermission(permission: GeckoStoredSitePermission) {
+        val sourceTab = activeTab ?: tabs.firstOrNull() ?: return
+        if (!permission.canRevoke) {
+            notice = "GeckoView does not support revoking this permission after it has been granted."
+            return
+        }
+        sourceTab.engine.revokeStoredSitePermission(permission) { revoked ->
+            if (revoked) {
+                notice = "Site permission reset. The website will need to ask again."
+                refreshSitePermissions()
+            } else {
+                notice = "This site permission could not be reset."
+            }
         }
     }
 
@@ -572,4 +603,4 @@ class BrowserDownload(val id: Long, val filename: String, val mimeType: String?)
     var file: File? = null
 }
 
-enum class BrowserPanel { TABS, BOOKMARKS, HISTORY, DOWNLOADS, APPEARANCE, MENU }
+enum class BrowserPanel { TABS, BOOKMARKS, HISTORY, DOWNLOADS, APPEARANCE, SITE_PERMISSIONS, MENU }
