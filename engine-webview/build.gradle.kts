@@ -3,7 +3,11 @@ plugins {
 }
 android {
     namespace = "com.rivo.browser.engine.webview"
-    compileSdk = 36
+    compileSdk {
+        version = release(37) {
+            minorApiLevel = 2
+        }
+    }
     defaultConfig { minSdk = 26 }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
