@@ -6,8 +6,8 @@ A free, privacy-focused Android browser targeting low- and mid-range devices.
 **Phase 1 — Functional Browser MVP.** Source includes GeckoView browser sessions, navigation, tabs, private sessions, local bookmarks/history, downloads and Dark/Light/Premium Glass chrome. CI has passed build, lint and unit tests; physical-device validation is still pending.
 
 ## MVP source capabilities
-- URL/search omnibox, back, forward, reload and stop.
-- Multiple tabs; inactive Gecko sessions are deactivated; current cap is eight.
+- URL/search omnibox, back, forward, reload and stop; Android system Back follows page history when available.
+- Multiple tabs; inactive Gecko sessions are deactivated; Activity backgrounding now deactivates and unfocuses all sessions; current cap is eight.
 - Native private sessions; private tabs do not enter app-side history or bookmarks.
 - Tracking protection enabled per session.
 - Site/device/media permissions denied until proper permission mediation is implemented.
