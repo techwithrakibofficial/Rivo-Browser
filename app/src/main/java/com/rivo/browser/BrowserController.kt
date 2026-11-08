@@ -44,6 +44,7 @@ class BrowserTabState(
     var securityKnown by mutableStateOf(false)
     var certificateException by mutableStateOf(false)
     var trackingProtectionEnabled by mutableStateOf(false)
+    var trackingProtectionException by mutableStateOf(false)
     lateinit var engine: GeckoBrowserTab
 }
 
@@ -129,8 +130,9 @@ class BrowserController(context: Context) {
             runtime,
             privateMode,
             object : GeckoTabListener {
-                override fun onLocationChanged(url: String) {
+                override fun onLocationChanged(url: String, trackingProtectionException: Boolean) {
                     tab.url = url
+                    tab.trackingProtectionException = trackingProtectionException
                     if (!tab.privateMode && url.startsWith("http")) {
                         saveHistory(tab)
                         persistOpenTabs()
