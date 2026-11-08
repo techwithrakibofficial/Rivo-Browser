@@ -31,7 +31,7 @@ jobs:
       - name: Run Android lint
         run: gradle --no-daemon :app:lintDebug
       - name: Run unit tests
-        run: gradle --no-daemon test
+        run: gradle --no-daemon :app:testDebugUnitTest
       - name: Upload Phase 1 debug APK
         uses: actions/upload-artifact@v4
         with:
