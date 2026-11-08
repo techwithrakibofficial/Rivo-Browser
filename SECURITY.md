@@ -45,3 +45,6 @@ Integrated Main commit `84303588c2560db55bfb7ae2081d8f714be532e7` passed GitHub 
 - Run dependency vulnerability review and OWASP MASVS checklist.
 - Verify release signing, artifact provenance, ABI packaging, release bundle size and backup policy.
 - Perform physical-device privacy, lifecycle and performance testing.
+
+## Android Keystore and storage instrumentation coverage
+The API 35 emulator suite exercises AES-256-GCM round-trip with fresh randomized ciphertext, tampering and truncated payload rejection, missing-key fail-closed behavior, legacy plaintext migration, encrypted bookmark/history/tab/download metadata persistence, DataStore corruption preservation across store reopen, and preservation of encrypted records after key loss. It also checks Rivo-owned partial-download cleanup and FileProvider export/path scope. These emulator tests do not prove hardware-backed Keystore behavior, secure-lock-screen invalidation, OS force-stop/relaunch, or MASVS certification; those remain separate release gates.
