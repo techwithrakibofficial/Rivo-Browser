@@ -69,6 +69,8 @@ class BrowserController(context: Context) {
         private set
     var notice by mutableStateOf<String?>(null)
         private set
+    var permissionPrompt by mutableStateOf<SitePermissionPrompt?>(null)
+        private set
 
     val activeTab: BrowserTabState?
         get() = tabs.firstOrNull { it.id == activeTabId }
@@ -150,6 +152,20 @@ class BrowserController(context: Context) {
                     body: InputStream?
                 ) {
                     saveDownload(tab, url, mimeType, disposition, body)
+                }
+
+                override fun onSitePermissionRequest(
+                    origin: String,
+                    permission: String,
+                    privateMode: Boolean,
+                    respond: (Boolean) -> Unit
+                ) {
+                    if (permissionPrompt != null || tab.id !in tabs.map { it.id }) {
+                        respond(false)
+                        return
+                    }
+                    val host = Uri.parse(origin).host ?: origin
+                    permissionPrompt = SitePermissionPrompt(host, permission, privateMode, respond)
                 }
             }
         )
@@ -289,6 +305,12 @@ class BrowserController(context: Context) {
     fun showNotice(value: String) { notice = value }
     fun dismissNotice() { notice = null }
 
+    fun respondToSitePermission(granted: Boolean) {
+        val pending = permissionPrompt ?: return
+        permissionPrompt = null
+        pending.respond(granted)
+    }
+
 
     private fun saveDownload(
         tab: BrowserTabState,
@@ -402,6 +424,13 @@ class BrowserController(context: Context) {
         const val MAX_DOWNLOAD_BYTES = 250L * 1024L * 1024L
     }
 }
+
+data class SitePermissionPrompt(
+    val origin: String,
+    val permission: String,
+    val privateMode: Boolean,
+    val respond: (Boolean) -> Unit
+)
 
 class BrowserDownload(val id: Long, val filename: String, val mimeType: String?) {
     var status by mutableStateOf("Downloading")
