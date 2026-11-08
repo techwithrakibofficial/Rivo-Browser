@@ -35,3 +35,11 @@
 
 ## Current recommendation
 GeckoView is the Phase 1 implementation candidate, not a final benchmark winner. Keep WebView comparison adapter and ADR-0001 Proposed until controlled 3–4 GB device results are available.
+
+
+## Packaging and binary footprint note (2026-11-08)
+- The measured ABI-specific debug APKs are 208,688,414 bytes (ARM64) and 169,493,492 bytes (ARMv7). ABI splits remove the other ABI's native libraries but the GeckoView engine remains the dominant package-size concern.
+- Android's official size guidance recommends Android App Bundles for device-targeted delivery, R8 code shrinking plus resource shrinking for release builds, and ABI splits when distributing APKs directly: https://developer.android.com/topic/performance/reduce-apk-size
+- GeckoView is a self-contained engine bundled with the app, unlike Android WebView which uses the platform provider: https://mozilla.github.io/geckoview/
+- Do not strip or exclude GeckoView native libraries as a size workaround. Measure a minified release build and compare with a WebView build before deciding whether engine footprint justifies changing the provisional engine choice.
+- Native-library compatibility, including 16 KB page-size alignment, must be verified for the exact GeckoView artifact: https://developer.android.com/guide/practices/page-sizes
