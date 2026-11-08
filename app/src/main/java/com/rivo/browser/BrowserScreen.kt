@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -82,7 +83,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
 
     MaterialTheme(colorScheme = RivoColorSchemes.forAppearance(browser.appearance)) {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-            Column(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -108,7 +109,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                             keyboard?.hide()
                         }) { Text("Go") }
                         Box {
-                            TextButton(onClick = { menuExpanded = true }) { Text("⋮") }
+                            TextButton(onClick = { menuExpanded = true }) { Text("Menu") }
                             DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
                                 DropdownMenuItem(text = { Text("New tab") }, onClick = {
                                     menuExpanded = false
@@ -155,7 +156,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                         Text(
                             when {
                                 active.certificateException -> "Certificate security exception"
-                                active.secureConnection -> "Secure connection verified by browser engine"
+                                active.secureConnection -> "Secure connection"
                                 else -> "Connection is not secure"
                             },
                             style = MaterialTheme.typography.labelSmall,
@@ -187,11 +188,11 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    TextButton(onClick = { browser.goBack() }, enabled = active?.canGoBack == true) { Text("‹") }
-                    TextButton(onClick = { browser.goForward() }, enabled = active?.canGoForward == true) { Text("›") }
+                    TextButton(onClick = { browser.goBack() }, enabled = active?.canGoBack == true) { Text("Back") }
+                    TextButton(onClick = { browser.goForward() }, enabled = active?.canGoForward == true) { Text("Forward") }
                     TextButton(onClick = { browser.reloadOrStop() }) { Text(if (active?.loading == true) "Stop" else "Reload") }
-                    TextButton(onClick = { browser.addCurrentBookmark() }) { Text("☆") }
-                    TextButton(onClick = { browser.openPanel(BrowserPanel.TABS) }) { Text("${browser.tabs.size} tabs") }
+                    TextButton(onClick = { browser.addCurrentBookmark() }) { Text("Bookmark") }
+                    TextButton(onClick = { browser.openPanel(BrowserPanel.TABS) }) { Text("Tabs ${browser.tabs.size}") }
                 }
             }
         }
