@@ -5,7 +5,7 @@
 - Assemble GeckoView MVP debug APKs.
 - Android lint.
 - JVM unit tests for URL/search resolver.
-- Upload separate ARM64 and ARMv7 debug APK artifacts (latest workflow update pending verification).
+- Upload separate ARM64 and ARMv7 debug APK artifacts.
 
 ## Last verified CI checkpoint
 GitHub Actions run #143 (`42461668698`) completed successfully on commit `89139a036bb36829e52681df9eae7c47ae77197e`:
@@ -16,7 +16,7 @@ GitHub Actions run #143 (`42461668698`) completed successfully on commit `89139a
 - ARM64 debug artifact upload — PASS (`rivo-browser-arm64-debug`, ZIP 109,529,496 bytes)
 - ARMv7 debug artifact upload — PASS (`rivo-browser-armv7-debug`, ZIP 105,557,703 bytes)
 
-Artifacts expire 2026-11-22. ZIP sizes are not individual APK sizes; archive inspection remains pending.
+Artifacts expire 2026-11-22. Extracted APKs: ARM64 208,688,414 bytes (~199.0 MiB); ARMv7 169,493,492 bytes (~161.7 MiB). ZIP and APK sizes are distinct.
 
 ## Phase 1 functional checks
 1. Initial home page.
@@ -38,4 +38,4 @@ Artifacts expire 2026-11-22. ZIP sizes are not individual APK sizes; archive ins
 Test at least one 3 GB and one 4 GB device if available. Record model, chipset, Android build, ABI, GeckoView version, individual APK size, cold/warm startup, PSS, CPU, thermal state and crashes/ANRs. No emulator-only result should be extrapolated to all devices.
 
 ## Current status
-CI passed at the checkpoint above. No physical-device install, smoke test or benchmark has been completed in this session.
+CI passed at the checkpoint above. Both APK archives were downloaded, extracted and inspected for ABI-specific native library paths. No physical-device install, smoke test or benchmark has been completed in this session. APK size is a significant optimization target before release.
