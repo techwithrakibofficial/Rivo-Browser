@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -299,7 +300,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                 Text(title, style = MaterialTheme.typography.titleLarge)
                 Spacer(Modifier.height(RivoSpacing.medium))
                 when (panel) {
-                    BrowserPanel.TABS -> LazyColumn(modifier = Modifier.height(300.dp)) {
+                    BrowserPanel.TABS -> LazyColumn(modifier = Modifier.heightIn(max = 300.dp)) {
                         items(browser.tabs, key = { it.id }) { tab ->
                             Row(
                                 modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
@@ -320,7 +321,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                     }
                     BrowserPanel.BOOKMARKS -> {
                         if (browser.bookmarks.isEmpty()) Text("No bookmarks saved yet.")
-                        LazyColumn(modifier = Modifier.height(300.dp)) {
+                        LazyColumn(modifier = Modifier.heightIn(max = 300.dp)) {
                             items(browser.bookmarks, key = { it.url }) { page ->
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
@@ -349,7 +350,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                             TextButton(onClick = { browser.clearHistory() }) { Text("Clear") }
                         }
                         if (browser.history.isEmpty()) Text("No browsing history yet.")
-                        LazyColumn(modifier = Modifier.height(300.dp)) {
+                        LazyColumn(modifier = Modifier.heightIn(max = 300.dp)) {
                             // Multiple visits to one URL are distinct history records.
                             items(browser.history) { page ->
                                 TextButton(onClick = {
@@ -369,7 +370,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                     }
                     BrowserPanel.DOWNLOADS -> {
                         if (browser.downloads.isEmpty()) Text("No downloads yet.")
-                        LazyColumn(modifier = Modifier.height(300.dp)) {
+                        LazyColumn(modifier = Modifier.heightIn(max = 300.dp)) {
                             items(browser.downloads, key = { it.id }) { download ->
                                 Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                                     Text(download.filename, maxLines = 1)
