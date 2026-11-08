@@ -1,109 +1,91 @@
 # Release Readiness & Android QA — RIVO-09
 
-**Status: BLOCKED — not a production release candidate.**
+**Decision: NO-GO for production distribution.**
 Audit date: 2026-11-09
-Audited branch: `main`
-Audited commit: `84303588c2560db55bfb7ae2081d8f714be532e7`
+Canonical repository: https://github.com/techwithrakibofficial/Rivo-Browser
+Main HEAD after the latest confirmed merges: `9633351069a1c59d8bd184d4ad6f2e2603e0addb`.
 
-## Verified CI evidence
+## Integrated and branch-level evidence
 
-GitHub Actions run #246 on the audited Main commit completed successfully:
-https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42481870810
+- PR #5 documentation checkpoint synchronization: merged.
+- PR #6 centralized theme overlays, contrast and UI accessibility improvements: merged as `9633351069a1c59d8bd184d4ad6f2e2603e0addb`; its latest branch CI run #249 passed.
+- PR #7 adaptive browser panel list sizing: CI run #250 passed; branch is based on the earlier Main checkpoint and currently has a merge conflict.
+- PR #8 Android Keystore/DataStore instrumentation: CI run #252 has passed assemble, lint, JVM tests and unsigned AAB/artifact steps; API 35 emulator instrumentation was still running at this audit checkpoint. Do not claim instrumentation passed until the run concludes successfully.
+- PR #9 core navigation/history/tab/download hardening: CI run #254 passed all configured build, lint, JVM test, release bundle and QA artifact steps; branch is based on the earlier Main checkpoint and requires conflict resolution before integration.
+- PR #10 privacy and per-site permission controls: CI run #268 passed configured build, lint, JVM test, release bundle and QA artifact steps. Runtime permission prompts/notifications/site permission persistence still need device verification.
+- PR #11 matched GeckoView/WebView benchmark harness: initial CI run #272 failed at benchmark release AAB packaging because ABI splits produced multiple shrunk-resource files. A code/workflow correction is being prepared; no benchmark result or engine winner is claimed.
+- PR #12 Advanced Tab Universe first increment: CI run #273 passed configured checks. This covers open-tab search/filter/sort only, not the complete Phase 2 feature set.
+- PR #13 release readiness/signing: earlier CI run #275 passed, but follow-up signing/changelog corrections require a fresh run before merge.
 
-Completed successfully:
-- `:app:assembleDebug`
-- `:app:lintDebug`
-- `:app:testDebugUnitTest`
-- `:app:bundleRelease` with R8/resource shrinking
-- QA artifact upload for unsigned AAB, ARM64 debug APK and ARMv7 debug APK
+CI is commit-specific. A passing run on an earlier branch SHA does not validate later commits or the integrated Main HEAD.
 
-Artifact archive sizes (GitHub Actions ZIP artifacts, **not** raw APK/AAB file sizes):
-- ARM64 debug artifact: 109,569,398 bytes
-- ARMv7 debug artifact: 105,594,221 bytes
-- unsigned release AAB artifact: 248,829,993 bytes
+## What CI does and does not prove
 
-Do not report these ZIP archive sizes as installed APK or raw AAB sizes. Download and inspect the individual files before release. CI proves build packaging for both ABI outputs, not installation or runtime support on physical devices.
+The Android workflow covers debug assembly, Android lint, JVM unit tests, minified release AAB packaging and unsigned QA artifacts. PR #8 adds API 35 emulator instrumentation. These checks do not replace physical-device install, upgrade, force-stop/relaunch, TalkBack, notification UX, hardware-backed Keystore validation or 3–4 GB RAM profiling.
 
-Run #246 is the current Main validation evidence at audit time. Earlier Main run #244 was cancelled after the main build steps had passed; it is superseded by #246.
+The CI AAB is unsigned QA output unless the explicit production signing property and protected signing environment are configured. No production signing credentials are available in this project environment.
 
 ## Release blockers
 
-1. Phase 1 acceptance is not complete. PR #8 (Android Keystore/storage tests), #9 (core browser hardening/downloads), #10 (privacy/per-site controls) and #6 (theme overlay integration) remain open at audit time. Do not assume their code is present in Main.
-2. PR #11 engine benchmark failed CI and no physical-device benchmark result exists. Engine choice remains provisional.
-3. PR #12 Advanced Tab Universe remains open and its CI validation was still running at audit time.
-4. Android Keystore AES-GCM, corruption, key loss and legacy migration instrumentation tests are still outstanding.
-5. No physical Android device installation, upgrade, force-stop/relaunch, migration, navigation, private-mode, download, accessibility or performance QA evidence is available.
-6. No production signing key has been supplied/configured. CI AAB is explicitly unsigned QA output.
-7. No dependency vulnerability scan/SBOM or completed OWASP MASVS assessment has been recorded. `SECURITY.md` explicitly says it is a baseline, not certification.
-8. No raw APK/AAB size inspection, APK Signature Scheme verification, AAB signing verification, 16 KB runtime test or install-time compatibility test has been recorded.
-9. No GitHub Release exists at audit time.
+1. Phase 1 work remains partly unmerged: #7, #8, #9, #10, #11, #12 and #13 are open; #7 and #9 require conflict resolution.
+2. PR #8 emulator instrumentation must finish green; representative hardware-backed Keystore and secure-lock-screen key invalidation remain physical-device checks.
+3. PR #11 benchmark bundle workflow must pass, followed by actual GeckoView/WebView runs on representative 3–4 GB devices. Do not choose an engine based only on CI build success.
+4. No physical-device install/upgrade/migration/relaunch, browsing, private-mode, download, notification, permission, accessibility or performance QA evidence has been recorded.
+5. No production upload keystore/secrets have been supplied. The Gradle signing configuration is opt-in and fails closed when required secrets are incomplete.
+6. Dependency vulnerability review, SBOM generation, GeckoView license/transitive dependency review and documented OWASP MASVS assessment remain incomplete.
+7. Merged release manifest, APK/AAB signature, raw artifact sizes, 16 KB runtime compatibility and Play upload validation remain outstanding.
+8. No production GitHub Release has been published.
 
-## Android configuration observed
+## Android configuration observed in the Phase 1 source
 
 - applicationId: `com.rivo.browser`
 - versionName: `0.2.0-phase1`; versionCode: `2`
-- minSdk: 26
-- targetSdk: 36
-- compileSdk: 37.2
-- configured ABI splits: `arm64-v8a`, `armeabi-v7a`
-- manifest permission: `android.permission.INTERNET` only
-- `allowBackup=false`; `usesCleartextTraffic=false`
-- no broad storage, camera, microphone or location permission declared in the main app manifest.
+- minSdk: 26; targetSdk: 36; compileSdk: 37.2
+- intended ABIs: `arm64-v8a`, `armeabi-v7a`
+- app manifest declares INTERNET only; backup disabled and cleartext traffic disabled.
 
-This is a source inspection, not a full merged-manifest or runtime permission test. Review merged manifests for every release variant and transitive SDK before publishing.
+This is source-level inspection, not a complete merged-manifest or runtime permission test.
 
 ## Secure production signing
 
-The app Gradle configuration supports environment-only upload signing. No keystore or password is stored in source control.
+The Gradle release build supports opt-in upload signing from environment-only values:
 
-Configure protected GitHub Actions Environment secrets (or secure local environment variables):
-- `RIVO_UPLOAD_STORE_FILE`: path to the upload keystore available to the runner
+- `RIVO_UPLOAD_STORE_FILE`
 - `RIVO_UPLOAD_STORE_PASSWORD`
 - `RIVO_UPLOAD_KEY_ALIAS`
 - `RIVO_UPLOAD_KEY_PASSWORD`
 
-Production signing must be explicitly required:
-```bash
-./gradlew -Privo.releaseSigningRequired=true :app:bundleRelease
-```
+Only when explicitly requested with `-Privo.releaseSigningRequired=true` does the release variant use the upload signing config. If any required value is missing, Gradle fails. Ordinary CI remains unsigned QA packaging. Never commit a keystore/password or expose secrets in logs or command-line arguments. Use protected GitHub Actions environment secrets and least-privilege access.
 
-If signing is required but any environment value is missing, Gradle fails configuration. Without the explicit property, the existing CI release task remains unsigned for QA. Do not put secret values in command-line arguments, Gradle files, logs, repository variables, or committed `local.properties`. Use a protected environment, least-privilege access, limited reviewers, secret masking and a backup/recovery process. Keep the upload key separate from the Play app-signing key if Play App Signing is used. Validate the resulting signature with `jarsigner -verify -verbose -certs` for APKs and `bundletool validate` plus the Play upload flow for AABs.
+## Required release-candidate verification matrix
 
-## Required QA matrix before RC
-
-| Test | Required evidence | Status |
+| Area | Required evidence | Status |
 |---|---|---|
-| Fresh install | Install, launch, first-run and permissions on physical ARM64 and ARMv7 devices | Not run |
-| Upgrade | Install prior signed build, upgrade without uninstall, preserve expected data | Not run |
-| Migration | Legacy plaintext encrypted metadata migration and rollback-safe behavior | Not run |
-| Relaunch | Force-stop/reboot; normal tabs restore, private tabs do not | Not run |
-| Navigation | HTTPS/HTTP, search, back/forward/reload, redirects, certificate errors | Not run |
-| Private mode | No app-side history/bookmark/tab persistence; explain network visibility | Not run |
-| Downloads | Confirm/cancel, failures, path traversal, duplicate names, open/share, size limit | Not run |
-| Themes | Dark, Light, Premium Glass across every dialog/panel/system bar | Not run |
-| Accessibility | TalkBack labels/states, focus order, 48dp targets, font scale, contrast | Not run |
-| Performance | Cold/warm startup, PSS, CPU, thermal, ANR/crash, low-memory behavior | Not run |
-| Security | Keystore instrumentation, dependency scan, MASVS evidence, merged manifest | Not run |
-| ABI | Install and launch each supported ABI artifact on matching devices | Not run |
+| CI | Current Main build, lint, JVM and instrumentation suites, minified AAB | Partly complete; PR validation ongoing |
+| Fresh install | Physical ARM64 and ARMv7 install/launch | Not run |
+| Upgrade/migration | Upgrade without uninstall; preserve and migrate user data | Not run |
+| Relaunch | Force-stop/reboot; normal tabs restore and private tabs do not | Not run |
+| Navigation | HTTPS/HTTP, search, redirects, back/forward/reload, certificate errors | Not run on device |
+| Private mode | App-side persistence isolation and clear network privacy disclosure | Source-level only |
+| Downloads | Confirm/cancel, path traversal, collisions, failure cleanup, open/share, cap | JVM/instrumentation coverage partial; device not run |
+| Site permissions | Allow/deny, Android notification permission, revocation and private-mode behavior | JVM policy/CI coverage; device not run |
+| Themes/accessibility | Dark, Light, Glass overlays; TalkBack, focus, 48dp targets, font scale | Source/previews and CI; device not run |
+| Performance | Cold/warm startup, PSS, CPU, thermal, ANR/crash on 3–4 GB devices | Harness under repair; no measurements |
+| Security | Keystore device behavior, dependency scan/SBOM, MASVS evidence, merged manifest | Incomplete |
+| ABI/16 KB | Physical install and runtime validation on supported ABIs/page sizes | Static workflow pending |
 
 ## Dependency and MASVS review
 
-A complete vulnerability assessment has **not** been performed. Pinning dependencies is not proof that dependencies are vulnerability-free. Before release:
-- Generate Gradle dependency reports for every runtime configuration.
-- Run dependency vulnerability scanning (for example, OSV-Scanner or OWASP Dependency-Check) and review advisories against exact resolved versions.
-- Produce an SBOM (CycloneDX or SPDX) and retain it with the release evidence.
-- Review GeckoView native components, transitive dependencies, licenses and update policy.
-- Complete a documented OWASP MASVS checklist covering STORAGE, CRYPTO, NETWORK, PLATFORM, CODE, RESILIENCE and PRIVACY. Record evidence and residual risks; do not claim certification.
+A complete vulnerability assessment has not been performed. Before release, generate resolved Gradle dependency reports, run an advisory scanner such as OSV-Scanner, produce a CycloneDX/SPDX SBOM, review GeckoView native/transitive dependencies and licenses, and document evidence/residual risks against OWASP MASVS STORAGE, CRYPTO, NETWORK, PLATFORM, CODE, RESILIENCE and PRIVACY. Do not claim MASVS certification without an actual assessment.
 
-## Known issues / rollback
+## Known limitations and rollback
 
-- Site permission grant/revoke management remains incomplete; unsupported permission requests should remain denied.
-- GeckoView versus WebView selection is not supported by physical-device benchmark data.
-- Theme overlay and narrow-screen/accessibility issues remain documented in the development plan.
-- Downloaded files are user data in app-specific storage and are not encrypted by the metadata cipher.
-- Private mode does not make network activity anonymous.
-- If a release candidate fails: stop promotion, revoke/discontinue the candidate track, retain crash/log evidence, restore the previous known-good signed artifact, and avoid uninstall/data wipe as a rollback method. Database/DataStore schema changes require a tested backward-compatible migration or a documented data-preserving recovery plan. Never downgrade over user data without validating migration compatibility.
+- GeckoView remains provisional until measured against WebView on target devices.
+- Site-permission UX intentionally defaults unsupported capabilities to deny.
+- Downloaded file contents are not encrypted by the metadata cipher; private mode does not erase user-saved downloads.
+- Private browsing does not make network activity anonymous.
+- If a candidate fails, stop promotion, retain diagnostics and restore the previous known-good signed artifact. Do not uninstall or wipe user data as a rollback shortcut. Validate backward-compatible data migration before downgrade.
 
 ## Release decision
 
-**NO-GO.** Do not tag, publish, announce, or distribute a production release. A release candidate may be prepared only after blockers close, secure signing is configured, all required physical-device tests pass, security/dependency evidence is reviewed, and the owner explicitly authorizes RC creation.
+**NO-GO.** Do not tag, publish, announce or distribute a production release until all blockers close, current Main CI passes, physical-device/security evidence is reviewed, signing is configured and the owner explicitly authorizes the release.
