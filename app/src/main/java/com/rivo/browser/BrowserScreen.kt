@@ -281,6 +281,10 @@ private fun keyTab(id: Long, content: @Composable () -> Unit) {
 @Composable
 private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit) {
     val panel = browser.panel ?: return
+    var tabQuery by remember(panel) { mutableStateOf("") }
+    var tabFilter by remember(panel) { mutableStateOf(TabUniverseFilter.ALL) }
+    var tabSort by remember(panel) { mutableStateOf(TabUniverseSort.ACTIVE_FIRST) }
+    var sortMenuExpanded by remember(panel) { mutableStateOf(false) }
     val title = when (panel) {
         BrowserPanel.TABS -> "Your tabs"
         BrowserPanel.BOOKMARKS -> "Bookmarks"
@@ -299,24 +303,79 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                 Text(title, style = MaterialTheme.typography.titleLarge)
                 Spacer(Modifier.height(RivoSpacing.medium))
                 when (panel) {
-                    BrowserPanel.TABS -> LazyColumn(modifier = Modifier.height(300.dp)) {
-                        items(browser.tabs, key = { it.id }) { tab ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                TextButton(onClick = {
-                                    browser.selectTab(tab.id)
-                                    onDismiss()
-                                }, modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        (if (tab.privateMode) "Private · " else "") + tab.title,
-                                        maxLines = 1
-                                    )
+                    BrowserPanel.TABS -> {
+                        val tabItems = browser.tabs.map { tab ->
+                            TabUniverseItem(tab.id, tab.title, tab.url, tab.privateMode, tab.id == browser.activeTabId)
+                        }
+                        val visibleTabs = TabUniversePolicy.visible(tabItems, tabQuery, tabFilter, tabSort)
+                        OutlinedTextField(
+                            value = tabQuery,
+                            onValueChange = { tabQuery = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            placeholder = { Text("Search open tabs") }
+                        )
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(0.dp)) {
+                            listOf(
+                                TabUniverseFilter.ALL to "All",
+                                TabUniverseFilter.NORMAL to "Normal",
+                                TabUniverseFilter.PRIVATE to "Private",
+                                TabUniverseFilter.ACTIVE to "Active"
+                            ).forEach { (filter, label) ->
+                                TextButton(onClick = { tabFilter = filter }) {
+                                    Text((if (tabFilter == filter) "✓ " else "") + label)
                                 }
-                                TextButton(onClick = { browser.closeTab(tab.id) }) { Text("×") }
                             }
                         }
+                        Box {
+                            TextButton(onClick = { sortMenuExpanded = true }) {
+                                Text("Organize: " + when (tabSort) {
+                                    TabUniverseSort.ACTIVE_FIRST -> "Active first"
+                                    TabUniverseSort.TITLE -> "Title"
+                                    TabUniverseSort.TYPE -> "Normal / private"
+                                })
+                            }
+                            DropdownMenu(expanded = sortMenuExpanded, onDismissRequest = { sortMenuExpanded = false }) {
+                                listOf(
+                                    TabUniverseSort.ACTIVE_FIRST to "Active first",
+                                    TabUniverseSort.TITLE to "Title",
+                                    TabUniverseSort.TYPE to "Normal / private"
+                                ).forEach { (sort, label) ->
+                                    DropdownMenuItem(text = { Text(label) }, onClick = {
+                                        tabSort = sort
+                                        sortMenuExpanded = false
+                                    })
+                                }
+                            }
+                        }
+                        Text("${visibleTabs.size} of ${browser.tabs.size} tabs · ${browser.tabs.count { it.privateMode }} private",
+                            style = MaterialTheme.typography.labelSmall)
+                        if (visibleTabs.isEmpty()) {
+                            Text("No tabs match this search.")
+                        } else {
+                            LazyColumn(modifier = Modifier.height(230.dp)) {
+                                items(visibleTabs, key = { it.id }) { item ->
+                                    val tab = browser.tabs.firstOrNull { it.id == item.id } ?: return@items
+                                    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                                        verticalAlignment = Alignment.CenterVertically) {
+                                        TextButton(onClick = {
+                                            browser.selectTab(tab.id)
+                                            onDismiss()
+                                        }, modifier = Modifier.weight(1f)) {
+                                            Column(horizontalAlignment = Alignment.Start) {
+                                                Text((if (item.active) "● " else "") +
+                                                    (if (item.privateMode) "Private · " else "Normal · ") + item.title,
+                                                    maxLines = 1)
+                                                Text(item.url, style = MaterialTheme.typography.labelSmall, maxLines = 1)
+                                            }
+                                        }
+                                        TextButton(onClick = { browser.closeTab(tab.id) }) { Text("×") }
+                                    }
+                                }
+                            }
+                        }
+                        Text("Inactive tabs remain available but their Gecko sessions are deactivated and unfocused. Open tabs are capped at 8.",
+                            style = MaterialTheme.typography.bodySmall)
                     }
                     BrowserPanel.BOOKMARKS -> {
                         if (browser.bookmarks.isEmpty()) Text("No bookmarks saved yet.")
