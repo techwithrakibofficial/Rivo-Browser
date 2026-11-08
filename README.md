@@ -1,41 +1,44 @@
 # Rivo Browser
 
-A free, privacy-focused Android browser project targeting low- and mid-range devices.
+A free, privacy-focused Android browser for low- and mid-range devices.
 
-## Current scope
-**Phase 0 only:** foundation, engine research, WebView/GeckoView proof-of-concept and comparative benchmarking. Full browser features (Phase 1) have not started.
+## Current phase
+**Phase 1 — Functional Browser MVP.** The app source now includes GeckoView browser sessions, navigation, tabs, private sessions, local bookmarks/history, downloads and three appearance modes. CI and device verification are still in progress; this is not yet a production release.
 
-## Engine evaluation
-- WebView and GeckoView are maintained as separate engine adapters.
-- Build flavors: `webview` and `gecko`.
-- Both variants load the same deterministic local HTML workload.
-- GeckoView uses a pinned Stable candidate; CI must confirm dependency resolution.
-- No final engine decision is made until controlled 3–4 GB device benchmarks are complete.
+## Features in the current MVP source
+- URL/search omnibox, back, forward, reload and stop.
+- Multiple tabs; inactive Gecko sessions are deactivated and the MVP currently caps tabs at eight.
+- Native GeckoView private sessions; private tabs do not enter local history or bookmarks.
+- Tracking protection enabled per session.
+- Site/device/media permissions denied until a proper permission mediation UI exists.
+- Local bookmarks and bounded history.
+- Downloads stored in Rivo's app-specific Downloads directory.
+- Dark, Light and Premium Glass browser chrome themes.
 
-## Build both debug variants
-Requires JDK 17, Android SDK (API 36) and Gradle 9.6.0.
+## Build
+Requires JDK 17, Android SDK API 36 and Gradle 9.6.0.
 
 ```bash
-gradle --no-daemon :app:assembleWebviewDebug :app:assembleGeckoDebug
+gradle --no-daemon :app:assembleDebug
+gradle --no-daemon :app:lintDebug
+gradle --no-daemon test
 ```
 
-Expected APKs:
-- `app/build/outputs/apk/webview/debug/app-webview-debug.apk`
-- `app/build/outputs/apk/gecko/debug/app-gecko-debug.apk`
-
-See [BENCHMARK_PROTOCOL.md](docs/research/BENCHMARK_PROTOCOL.md) before comparing results.
-
-## Project documentation
+## Documentation
 - [Master specification](MASTER_SPEC.md)
 - [Project state](PROJECT_STATE.md)
 - [Development plan](DEVELOPMENT_PLAN.md)
 - [Architecture](ARCHITECTURE.md)
 - [Design system](DESIGN_SYSTEM.md)
 - [Feature matrix](FEATURE_MATRIX.md)
-- [Decisions](DECISIONS.md)
 - [Testing](TESTING.md)
 - [Security](SECURITY.md)
 - [Handoff](HANDOFF.md)
+- [Engine benchmark protocol](docs/research/BENCHMARK_PROTOCOL.md)
 
-## Scope boundary
-Do not begin Phase 1 until it is explicitly approved. No build, benchmark, security audit or release result is claimed unless documented with verifiable evidence.
+## Important limitations
+- No production APK or device test is claimed until verified.
+- Download open/share/export and per-site permission controls are pending.
+- Private browsing does not hide traffic from websites, ISPs or network operators.
+- GeckoView remains the provisional MVP engine; final engine choice awaits 3–4 GB device benchmark.
+- Phase 2 and Phase 3 features have not started.
