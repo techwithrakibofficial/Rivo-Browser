@@ -27,7 +27,7 @@ class GeckoViewEngineProbe(
     }
 
     val view: GeckoView = GeckoView(context).apply {
-        setSession(session)
+        setSession(this@GeckoViewEngineProbe.session)
     }
 
     fun loadUrl(url: String) {
