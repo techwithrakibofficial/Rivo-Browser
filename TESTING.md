@@ -59,3 +59,7 @@ Test at least one 3 GB and one 4 GB Android device if available. Record model, c
 - Integrated Main CI run #246 completed successfully; all configured steps passed for its recorded HEAD.
 - No physical-device install, force-stop/relaunch, TalkBack, Accessibility Scanner or 3–4 GB benchmark is claimed.
 - QA AAB output is unsigned; it is not a production release artifact.
+
+
+## Advanced Tab Universe
+JVM tests cover case-insensitive title/URL search, All/Normal/Private/Active filters and Active-first/Title/Normal-vs-Private sorting. Manual device QA remains required for narrow layouts, large font scale, active-tab switching, close actions and private-mode behavior.
