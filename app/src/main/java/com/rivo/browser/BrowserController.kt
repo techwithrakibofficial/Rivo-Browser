@@ -73,6 +73,10 @@ class BrowserController(context: Context) {
     }
 
     fun createTab(privateMode: Boolean = false, url: String = HOME_URL) {
+        if (tabs.size >= MAX_TABS) {
+            notice = "For memory stability, Rivo currently supports up to $MAX_TABS open tabs."
+            return
+        }
         val tab = BrowserTabState(nextId++, privateMode, url)
         tab.engine = GeckoBrowserTab(
             appContext,
@@ -109,7 +113,7 @@ class BrowserController(context: Context) {
         )
         tabs.add(tab)
         selectTab(tab.id)
-        if (url != HOME_URL) tab.engine.load(url)
+        tab.engine.load(url)
     }
 
     fun selectTab(id: Long) {
@@ -218,6 +222,7 @@ class BrowserController(context: Context) {
 
     companion object {
         const val HOME_URL = "https://duckduckgo.com/"
+        const val MAX_TABS = 8
     }
 }
 
