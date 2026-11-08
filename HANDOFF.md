@@ -1,6 +1,7 @@
 # Handoff
 
 ## Current state
+Latest verified main commit: `13e88d8b2dd6ab1f3e07e57255e3ec03eabb682d` (29 commits ahead of the previous Phase 0 foundation checkpoint).
 Phase 0 is active. Phase 1 browser feature implementation has not started and remains outside the current authorization.
 
 ## Completed
