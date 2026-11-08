@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.app.NotificationManager
-import android.net.Uri
 import org.mozilla.geckoview.WebNotification
 
 /**
@@ -18,7 +17,6 @@ class RivoWebNotificationReceiver : BroadcastReceiver() {
             notification.click()
             notification.dismiss()
             val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            val source = notification.source ?: notification.origin
             val id = (notification.origin + "|" + notification.tag).hashCode()
             manager.cancel("rivo-web", id)
         }
