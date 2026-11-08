@@ -36,6 +36,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.Modifier
 import com.rivo.browser.designsystem.RivoColorSchemes
 import com.rivo.browser.designsystem.RivoSpacing
@@ -100,7 +101,9 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                                 address = it
                                 isEditingAddress = true
                             },
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(1f).onFocusChanged {
+                                isEditingAddress = it.isFocused
+                            },
                             singleLine = true,
                             shape = RoundedCornerShape(RivoShapes.control),
                             placeholder = { Text("Search or enter address") },
