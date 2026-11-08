@@ -13,6 +13,8 @@ https://github.com/techwithrakibofficial/Rivo-Browser
 - Android system Back navigates page history when available.
 - URL/search omnibox; back, forward, reload and stop.
 - Tab switching/closing; inactive sessions are deactivated; 8-tab cap.
+- Regular HTTP(S) tabs are persisted and restored after process recreation; private tabs are never persisted.
+- Release builds enable R8 code shrinking and resource shrinking; CI builds an unsigned QA-only AAB.
 - Private Gecko sessions, excluded from app-side history/bookmarks.
 - Tracking protection enabled; site content, Android and media permissions denied by default.
 - Engine-reported TLS connection status.
@@ -35,10 +37,10 @@ https://github.com/techwithrakibofficial/Rivo-Browser
 - No physical-device install, emulator smoke test or performance benchmark is claimed.
 
 ## Remaining
-1. Investigate GeckoView binary footprint and safe APK-size optimization.
-2. Install both APKs on physical supported devices and run smoke tests.
-3. Add per-site permission UI.
-4. Add process-death tab/session restoration.
+1. Verify CI for tab restoration and minified release AAB; inspect measured AAB size.
+2. Investigate GeckoView binary footprint and safe APK-size optimization.
+3. Install both APKs on physical supported devices and run smoke tests.
+4. Add per-site permission UI.
 5. Complete accessibility and MASVS review.
 6. Perform 3–4 GB device benchmark before final engine decision.
 
