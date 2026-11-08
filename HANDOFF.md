@@ -16,7 +16,7 @@ https://github.com/techwithrakibofficial/Rivo-Browser
 - Regular HTTP(S) tabs are persisted and restored after process recreation; private tabs are never persisted.
 - Release builds enable R8 code shrinking and resource shrinking; CI builds an unsigned QA-only AAB.
 - Private Gecko sessions, excluded from app-side history/bookmarks.
-- Tracking protection enabled; site content, Android and media permissions denied by default.
+- Tracking protection enabled; HTTPS notifications and persistent-storage requests receive an explicit Allow/Deny prompt; unsupported content, Android runtime and media permissions remain denied.
 - Engine-reported TLS connection status.
 - Local bookmarks/history, clear history and persisted Dark/Light/Premium Glass appearance.
 - Downloads stream to app-specific storage, max 250 MB per file; scoped FileProvider supports open/share.
