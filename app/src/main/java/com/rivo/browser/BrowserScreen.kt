@@ -166,7 +166,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                                     menuExpanded = false
                                     browser.openPanel(BrowserPanel.APPEARANCE)
                                 })
-                                DropdownMenuItem(text = { Text("Privacy & site permissions") }, onClick = {
+                                DropdownMenuItem(text = { Text("Privacy Intelligence Center") }, onClick = {
                                     menuExpanded = false
                                     browser.openPanel(BrowserPanel.SITE_PERMISSIONS)
                                 })
@@ -318,7 +318,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
         BrowserPanel.HISTORY -> "History"
         BrowserPanel.DOWNLOADS -> "Downloads"
         BrowserPanel.APPEARANCE -> "Quick appearance"
-        BrowserPanel.SITE_PERMISSIONS -> "Privacy & site permissions"
+        BrowserPanel.SITE_PERMISSIONS -> "Privacy Intelligence Center"
         BrowserPanel.MENU -> "Browser menu"
     }
     LaunchedEffect(panel) {
@@ -420,11 +420,24 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                             }
                         }
                         Text(
-                            "Files are stored in Rivo's app-specific Downloads folder. Private mode does not erase files you download.",
+                            "Files are stored in Rivo's app-specific Downloads folder. Private mode does not erase downloaded files; private-tab download entries are not saved in persistent browser download history.",
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
                     BrowserPanel.SITE_PERMISSIONS -> {
+                        Text("Secure storage", style = MaterialTheme.typography.titleSmall)
+                        Text(
+                            "Bookmarks, history, regular-tab restoration data and download metadata are encrypted at rest with AES-256-GCM using an Android Keystore key. The theme preference is non-sensitive and is not encrypted. Downloaded file contents are not encrypted by the metadata cipher.",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Spacer(Modifier.height(RivoSpacing.small))
+                        Text("Private browsing", style = MaterialTheme.typography.titleSmall)
+                        Text(
+                            "Private tabs use GeckoView private sessions and are excluded from app history, bookmarks and tab restoration. Private-session permission decisions are not listed as persistent site permissions. Downloaded files remain on the device; private-tab download entries are not saved in persistent browser download history.",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Spacer(Modifier.height(RivoSpacing.small))
+                        Text("Tracking protection", style = MaterialTheme.typography.titleSmall)
                         Text(
                             when {
                                 browser.activeTab == null -> "Tracking protection status is unavailable for the active tab."
