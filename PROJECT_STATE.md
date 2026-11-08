@@ -29,7 +29,8 @@ Phase 1 — Functional Browser MVP, authorized by user on 2026-11-08.
 - HTTPS notification and persistent-storage requests use an explicit per-origin Allow/Deny prompt; unsupported content, Android runtime and media permissions remain denied.
 - Connection security indicator uses GeckoView security callbacks.
 - Local DataStore bookmarks (max 500), history (max 300) and persisted Dark/Light/Glass appearance.
-- Downloads stream into app-specific Downloads storage, have a 250 MB per-file safety cap, and can be opened/shared through a non-exported scoped FileProvider.
+- Downloads require explicit confirmation, stream into app-specific Downloads storage through temporary files, enforce a 250 MB per-file cap, finalize atomically and can be opened/shared through a non-exported scoped FileProvider.
+- Saved download metadata is persisted and restored only when the referenced file resolves inside the app-specific Downloads directories; interrupted `.part` files are cleaned at startup.
 - Centralized semantic colors, spacing and shape tokens; Quick Appearance Picker is in secondary menu; system-bar icon contrast follows appearance.
 - URL/search resolver JUnit tests added.
 
@@ -54,7 +55,7 @@ Phase 1 — Functional Browser MVP, authorized by user on 2026-11-08.
 - Investigate large GeckoView APK footprint and optimize packaging without compromising engine functionality or security.
 - No physical device install/smoke test or 3–4 GB memory benchmark.
 - Permission mediation currently covers HTTPS notifications and persistent storage only; geolocation, camera, microphone, XR, DRM and other unsupported requests remain denied. A site-permission management/revoke screen is still pending.
-- Download files are app-specific; downloads list metadata is not persisted after process death.
+- Download confirmation holds the response stream until user action; app backgrounding cancels and closes it. Physical verification of long-running downloads remains pending.
 - Process-death tab restoration is implemented in source but has not yet passed a post-change CI or physical force-stop/relaunch test.
 - History/bookmarks are app-private but not separately encrypted with an app-managed key.
 - Final engine selection awaits controlled WebView/GeckoView device benchmark.
