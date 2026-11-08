@@ -39,3 +39,13 @@
 - Gecko activation is gated by selected-tab identity and host lifecycle.
 - Download writing sanitizes Content-Disposition names, reserves collision-safe targets, enforces the byte limit while streaming, closes streams and removes failed staging files.
 - Android Keystore decryption requires the existing alias; missing/unusable keys fail closed instead of silently generating replacement keys.
+
+
+## Privacy & site permissions
+- Implemented in source: GeckoView-backed tracking protection status and site exception, normal-mode stored permission list, revocation/reset for supported permissions, explicit HTTPS notification/autoplay prompts, Android 13+ notification permission gate, and private-mode isolation.
+- Default-deny: geolocation, camera, microphone, persistent storage, XR/DRM, tracking exceptions, third-party storage and unsupported site capabilities.
+- Device validation and review of GeckoView permission records across app upgrades remain pending.
+
+## Advanced Tab Universe
+- Search open tabs by title/URL, filter All/Normal/Private/Active, and sort Active-first/Title/Normal-vs-Private.
+- Eight-tab cap and existing session lifecycle remain unchanged. Groups/workspaces and long-term memory profiling remain future work.
