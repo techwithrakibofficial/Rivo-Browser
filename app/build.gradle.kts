@@ -4,7 +4,7 @@ plugins {
 }
 android {
     namespace = "com.rivo.browser"
-    compileSdk = 36
+    compileSdk = 37
     defaultConfig {
         applicationId = "com.rivo.browser"
         minSdk = 26
