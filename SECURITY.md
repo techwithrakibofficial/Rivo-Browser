@@ -25,13 +25,16 @@ OWASP MASVS is the baseline for storage, cryptography, network, platform, code, 
 - Per-site permission allow/deny management and revoke UI is pending. Unsupported/device/media requests remain denied.
 - Private mode does not hide network activity from sites, ISPs, DNS resolvers or network operators.
 - User-saved download files remain on device, including downloads started from private tabs. Download file contents are not encrypted by the metadata cipher.
-- LocalDataCipher currently converts encrypted-data decryption failures into an empty-string fallback. BrowserStorage read-modify-write paths can then overwrite previously saved records after ciphertext corruption or Keystore-key loss. This is a source-review finding and a release blocker until failure handling preserves existing records and regression tests cover the case.
+- Encrypted metadata decryption failures now propagate as `EncryptedDataException`; malformed JSON and malformed entries fail closed instead of being silently discarded.
+- BrowserStorage uses a process-wide fail-closed write guard for integrity failures observed in the current process. The in-memory flag resets after process restart; therefore every direct replacement of existing open-tab or download metadata, and clear-history, now decrypts and validates the current value inside the DataStore edit transaction before replacing it. A missing/lost Keystore key or malformed existing value causes the edit to abort and preserves the stored ciphertext. Theme preference remains independently writable. All sensitive DataStore edit mutations are serialized with integrity-failure publication through the same process guard; read-modify-write paths authenticate and decode their target value before writing.
+- AES-GCM payload parsing validates the 12-byte IV plus 16-byte authentication tag minimum. The cipher uses a fresh provider-generated IV for each encryption.
+- JVM tests cover fail-closed guard behavior and verify that replacement is rejected when existing-value authentication or metadata validation fails. These tests exercise the validation gate with controlled callbacks; they do not prove Android Keystore cryptography or DataStore transaction behavior. Android Keystore-backed AES-GCM round-trip, tampering, key-loss, and legacy migration tests still require Android instrumentation; do not treat those cases as verified.
 - Regular-tab restoration and download-metadata persistence are implemented in source but still require CI and force-stop/relaunch verification.
 - No claim of anonymity or complete tracker/ad blocking.
 - Final engine selection and device security/performance validation remain pending.
 
 ## Release gates
-- Fix and test encrypted-metadata failure handling before release.
+- Verify encrypted-metadata failure handling with Android instrumentation tests before release.
 - Review certificate validation, redirects, external schemes and downloads.
 - Test FileProvider URI grants and path traversal resistance.
 - Add explicit per-site permission mediation and revoke controls.

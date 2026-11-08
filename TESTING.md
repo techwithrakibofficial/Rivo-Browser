@@ -4,7 +4,7 @@
 - Android compile platform: API 37.2; targetSdk 36.
 - Assemble GeckoView MVP debug APKs.
 - Android lint.
-- JVM unit tests for URL/search resolution and safe restorable-tab URL policy.
+- JVM unit tests for URL/search resolution, safe restorable-tab URL policy, and sensitive metadata write validation (guard behavior plus refusing replacement after simulated authentication/format failures).
 - Build minified release AAB with R8 and resource shrinking.
 - Report APK/AAB sizes and upload unsigned QA AAB plus separate ARM64/ARMv7 debug APK artifacts.
 
@@ -19,10 +19,17 @@ GitHub Actions run #143 (42461668698) completed successfully on commit 89139a036
 
 Run #143 predates the latest Activity lifecycle, tab restoration, R8/AAB and encrypted-metadata commits. Its recorded job steps did not include the current workflow's minified release AAB step. It must not be reported as verification of the latest source.
 
+## Security QA branch coverage
+- `SensitiveWriteGuardTest` verifies writes are permitted before integrity failure, the guard remains blocked after repeated failures, and direct replacement is rejected when authentication or metadata validation fails.
+- Direct open-tab/download replacement and clear-history now authenticate and validate the existing value inside the DataStore edit transaction before overwriting it. This protects against the in-memory guard resetting after process restart.
+- The process guard serializes sensitive edit callbacks with integrity-failure publication to close the check-then-write race. JVM callback-based tests verify the validation gate, not actual Android Keystore cryptography or DataStore disk-commit semantics.
+
 ## Latest source verification status
-- Latest source checkpoint before this documentation update: 9df07aa84f2b3e94c8a383cea486ced09652b8e5.
-- No workflow run or commit status was returned for that source commit during recovery.
-- Latest source has not yet been confirmed by CI.
+- GitHub Actions run #236 ([42478875382](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42478875382)) completed successfully on commit `81cb1ae3528462c00c5dc0be43406f9f2d8c51b6`.
+- `:app:assembleDebug`, `:app:lintDebug`, `:app:testDebugUnitTest`, minified `:app:bundleRelease`, ABI/AAB size reporting, and all three QA artifact uploads passed.
+- Raw build outputs: ARM64 debug APK 208,721,182 bytes; ARMv7 debug APK 169,526,260 bytes; unsigned release AAB 249,320,074 bytes.
+- Uploaded artifact ZIP sizes: ARM64 109,565,149 bytes; ARMv7 105,591,537 bytes; unsigned AAB 248,827,278 bytes. Artifacts expire 14 days after upload.
+- This CI run validates compile, lint, JVM tests and packaging; it does not exercise Android Keystore instrumentation, DataStore on-device corruption/relaunch behavior, or physical-device performance.
 - No physical-device install, force-stop/relaunch test or 3–4 GB benchmark is claimed.
 
 ## Phase 1 functional checks
