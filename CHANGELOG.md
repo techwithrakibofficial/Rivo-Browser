@@ -19,3 +19,10 @@
 - Add WebView and GeckoView comparison probes.
 - Add benchmark protocol and engine research.
 - Physical-device benchmark and final engine selection remain pending.
+
+
+## RIVO-04 / RIVO-05 combined hardening increment (2026-11-09)
+- Add Android Keystore/DataStore instrumentation coverage and scoped download staging/FileProvider tests.
+- Harden navigation input, history visit policy, restorable tab snapshots, Gecko session activation and collision-safe bounded download writes.
+- Preserve fail-closed encrypted metadata behavior when the original Keystore key is missing.
+- Run API 35 emulator instrumentation in CI; hardware-backed and physical-device checks remain outstanding.
