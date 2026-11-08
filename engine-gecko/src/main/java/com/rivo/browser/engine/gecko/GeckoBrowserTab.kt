@@ -49,6 +49,8 @@ class GeckoBrowserTab(
     private var disposed = false
     private var canGoBack = false
     private var canGoForward = false
+    private var crashed = false
+    private var currentUrl = "about:blank"
 
     init {
         session.setContentDelegate(object : GeckoSession.ContentDelegate {
@@ -57,10 +59,12 @@ class GeckoBrowserTab(
             }
 
             override fun onCrash(session: GeckoSession) {
+                crashed = true
                 listener.onContentCrashed()
             }
 
             override fun onKill(session: GeckoSession) {
+                crashed = true
                 listener.onContentCrashed()
             }
 
@@ -126,6 +130,7 @@ class GeckoBrowserTab(
                 permissions: List<GeckoSession.PermissionDelegate.ContentPermission>?,
                 hasUserGesture: Boolean?
             ) {
+                currentUrl = url
                 listener.onLocationChanged(url)
             }
 
@@ -145,12 +150,26 @@ class GeckoBrowserTab(
 
     fun load(url: String) {
         check(!disposed)
+        currentUrl = url
+        if (crashed) {
+            session.open(runtime)
+            crashed = false
+        }
         session.loadUri(url)
     }
 
-    fun goBack() { if (!disposed && canGoBack) session.goBack() }
-    fun goForward() { if (!disposed && canGoForward) session.goForward() }
-    fun reload() { if (!disposed) session.reload() }
+    fun goBack() { if (!disposed && !crashed && canGoBack) session.goBack() }
+    fun goForward() { if (!disposed && !crashed && canGoForward) session.goForward() }
+    fun reload() {
+        if (disposed) return
+        if (crashed) {
+            session.open(runtime)
+            crashed = false
+            session.loadUri(currentUrl)
+        } else {
+            session.reload()
+        }
+    }
     fun stop() { if (!disposed) session.stop() }
 
     fun setActive(active: Boolean) {
