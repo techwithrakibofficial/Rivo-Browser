@@ -1,4 +1,5 @@
 plugins { id("com.android.application") }
+val enableAbiSplits = (project.findProperty("rivo.abiSplits") as String?)?.toBoolean() ?: true
 android {
     namespace = "com.rivo.browser.enginebenchmark"
     compileSdk { version = release(37) { minorApiLevel = 2 } }
@@ -16,7 +17,7 @@ android {
     }
     splits {
         abi {
-            isEnable = true
+            isEnable = enableAbiSplits
             reset()
             include("arm64-v8a", "armeabi-v7a")
             isUniversalApk = false
