@@ -67,8 +67,11 @@ class BrowserStorage(private val context: Context) {
         return try {
             val array = JSONArray(raw)
             (0 until array.length()).mapNotNull { index ->
-                val item = array.optJSONObject(index) ?: return@mapNotNull null
+                val item = requireNotNull(array.optJSONObject(index)) {
+                    "Saved tab entry is not an object"
+                }
                 val url = item.optString("url")
+                require(url.isNotBlank()) { "Saved tab URL is missing" }
                 if (!RestorableTabPolicy.isSafeUrl(url)) null
                 else SavedTab(url, item.optString("title", url), item.optBoolean("selected"))
             }.take(8)
@@ -80,12 +83,17 @@ class BrowserStorage(private val context: Context) {
         if (raw.isBlank()) return emptyList()
         return try {
             val array = JSONArray(raw)
-            (0 until array.length()).mapNotNull { index ->
-                val item = array.optJSONObject(index) ?: return@mapNotNull null
+            (0 until array.length()).map { index ->
+                val item = requireNotNull(array.optJSONObject(index)) {
+                    "Saved download entry is not an object"
+                }
                 val filename = item.optString("filename")
                 val path = item.optString("path")
-                if (filename.isBlank() || filename.contains('/') || filename.contains('\\') || path.isBlank()) null
-                else SavedDownload(filename, item.optString("mimeType").takeIf { it.isNotBlank() }, path)
+                require(filename.isNotBlank() && !filename.contains('/') && !filename.contains('\\')) {
+                    "Saved download filename is invalid"
+                }
+                require(path.isNotBlank()) { "Saved download path is missing" }
+                SavedDownload(filename, item.optString("mimeType").takeIf { it.isNotBlank() }, path)
             }.take(100)
         } catch (error: Exception) { integrityFailure(error) }
     }
@@ -202,10 +210,13 @@ class BrowserStorage(private val context: Context) {
         if (raw.isBlank()) return emptyList()
         return try {
             val array = JSONArray(raw)
-            (0 until array.length()).mapNotNull { index ->
-                val item = array.optJSONObject(index) ?: return@mapNotNull null
+            (0 until array.length()).map { index ->
+                val item = requireNotNull(array.optJSONObject(index)) {
+                    "Saved page entry is not an object"
+                }
                 val url = item.optString("url")
-                if (url.isBlank()) null else SavedPage(
+                require(url.isNotBlank()) { "Saved page URL is missing" }
+                SavedPage(
                     url = url,
                     title = item.optString("title", url),
                     visitedAt = item.optLong("visitedAt")
