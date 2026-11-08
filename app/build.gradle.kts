@@ -3,6 +3,17 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 val enableAbiSplits = (project.findProperty("rivo.abiSplits") as String?)?.toBoolean() ?: true
+val releaseSigningRequired = (project.findProperty("rivo.releaseSigningRequired") as String?)?.toBoolean() ?: false
+val releaseStoreFile = System.getenv("RIVO_UPLOAD_STORE_FILE")
+val releaseStorePassword = System.getenv("RIVO_UPLOAD_STORE_PASSWORD")
+val releaseKeyAlias = System.getenv("RIVO_UPLOAD_KEY_ALIAS")
+val releaseKeyPassword = System.getenv("RIVO_UPLOAD_KEY_PASSWORD")
+val releaseSigningConfigured = listOf(releaseStoreFile, releaseStorePassword, releaseKeyAlias, releaseKeyPassword)
+    .all { !it.isNullOrBlank() }
+
+if (releaseSigningRequired && !releaseSigningConfigured) {
+    throw GradleException("Production signing requested but RIVO_UPLOAD_* environment variables are incomplete.")
+}
 
 android {
     namespace = "com.rivo.browser"
@@ -27,11 +38,24 @@ android {
             isUniversalApk = false
         }
     }
+    signingConfigs {
+        if (releaseSigningRequired) {
+            create("upload") {
+                storeFile = file(requireNotNull(releaseStoreFile))
+                storePassword = requireNotNull(releaseStorePassword)
+                keyAlias = requireNotNull(releaseKeyAlias)
+                keyPassword = requireNotNull(releaseKeyPassword)
+            }
+        }
+    }
     buildTypes {
         getByName("release") {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
+            if (releaseSigningRequired) {
+                signingConfig = signingConfigs.getByName("upload")
+            }
         }
     }
     compileOptions {
