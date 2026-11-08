@@ -32,7 +32,6 @@ class GeckoSitePermissionPolicyTest {
 
     @Test
     fun rejectsSensitiveAndUnsupportedCapabilitiesByDefault() {
-        val permissions = GeckoSession.PermissionDelegate
         val unsupported = listOf(
             GeckoSession.PermissionDelegate.PERMISSION_GEOLOCATION,
             GeckoSession.PermissionDelegate.PERMISSION_PERSISTENT_STORAGE,
@@ -50,7 +49,6 @@ class GeckoSitePermissionPolicyTest {
 
     @Test
     fun rejectsAllPermissionPromptsForInsecureOrigins() {
-        val permissions = GeckoSession.PermissionDelegate
         assertFalse(
             GeckoSitePermissionPolicy.shouldPrompt(
                 GeckoSession.PermissionDelegate.PERMISSION_DESKTOP_NOTIFICATION,
@@ -80,7 +78,6 @@ class GeckoSitePermissionPolicyTest {
 
     @Test
     fun persistentStorageIsNotMarkedRevocable() {
-        val permissions = GeckoSession.PermissionDelegate
         assertFalse(
             GeckoSitePermissionPolicy.canRevoke(GeckoSession.PermissionDelegate.PERMISSION_PERSISTENT_STORAGE)
         )
@@ -94,7 +91,6 @@ class GeckoSitePermissionPolicyTest {
 
     @Test
     fun labelsExistOnlyForRecognizedGeckoPermissionTypes() {
-        val permissions = GeckoSession.PermissionDelegate
         assertEquals("Notifications", GeckoSitePermissionPolicy.label(GeckoSession.PermissionDelegate.PERMISSION_DESKTOP_NOTIFICATION))
         assertEquals("Location", GeckoSitePermissionPolicy.label(GeckoSession.PermissionDelegate.PERMISSION_GEOLOCATION))
         assertEquals("Persistent storage", GeckoSitePermissionPolicy.label(GeckoSession.PermissionDelegate.PERMISSION_PERSISTENT_STORAGE))
