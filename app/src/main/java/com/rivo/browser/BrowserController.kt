@@ -222,6 +222,8 @@ class BrowserController(context: Context) {
     /** Release Gecko's foreground/focus state while the Activity is backgrounded. */
     fun onHostPaused() {
         hostStarted = false
+        if (permissionPrompt != null) respondToSitePermission(false)
+        if (pendingDownload != null) cancelPendingDownload()
         tabs.forEach { it.engine.setActive(false) }
     }
 
