@@ -70,3 +70,7 @@
 - Engine-specific verified features.
 - Optional sync only after privacy/security design and cost review.
 - Translation feasibility, accessibility polish, performance optimization and release/distribution readiness.
+
+
+### Advanced Tab Universe — first increment
+Search, filter and organize currently open tabs without changing the eight-tab limit or GeckoSession lifecycle. Follow-up work remains for tab groups/workspaces, session memory profiling and device validation; no memory optimization claim is made from this UI increment alone.
