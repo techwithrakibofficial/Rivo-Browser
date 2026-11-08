@@ -11,6 +11,7 @@
 - Add HTTPS notification and persistent-storage permission prompts; unsupported and hardware/media permissions remain denied.
 - Require R8 and resource shrinking for release; build an unsigned QA AAB in CI.
 - Add strict URL policy tests for restored tabs.
+- Encrypt bookmarks, history, restorable tabs and download metadata at rest with Android Keystore AES-256-GCM; migrate legacy plaintext records on read.
 - Add centralized browser chrome color, spacing and shape tokens.
 - Add URL/search resolver unit tests.
 - Configure ARM64 and ARMv7 APK splits.
