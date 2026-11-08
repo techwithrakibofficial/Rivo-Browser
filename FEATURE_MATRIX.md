@@ -15,7 +15,7 @@
 | Connection security indicator | Implemented | GeckoView security callback |
 | Bookmarks | Implemented | Local DataStore; add/remove |
 | Browsing history | Implemented | Local DataStore, max 300; clear |
-| Downloads | Implemented | App-specific storage, 250 MB cap, open/share |
+| Downloads | Implemented in source; CI pending | Confirmation, atomic temp-file finalization, 250 MB cap, persisted metadata, scoped open/share |
 | Dark / Light / Premium Glass | Implemented in source | Centralized colors/tokens; CI passed |
 | Quick Appearance Picker | Implemented | Secondary menu |
 | System bar contrast | Implemented | Status/navigation icon colors follow appearance |
