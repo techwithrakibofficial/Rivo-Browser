@@ -51,6 +51,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import android.app.Activity
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import android.os.Build.VERSION_CODES
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -71,6 +78,9 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     var address by remember(active?.id) { mutableStateOf(active?.url.orEmpty()) }
     var isEditingAddress by remember(active?.id) { mutableStateOf(false) }
     var menuExpanded by remember { mutableStateOf(false) }
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted -> browser.completeNotificationPermissionRequest(granted) }
 
     SideEffect {
         val window = (view.context as? Activity)?.window
@@ -88,6 +98,11 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
 
     LaunchedEffect(active?.url, isEditingAddress) {
         if (active != null && !isEditingAddress) address = active.url
+    }
+
+    val currentPermissionPrompt = browser.permissionPrompt
+    LaunchedEffect(currentPermissionPrompt) {
+        currentPermissionPrompt?.onShown?.invoke()
     }
 
     MaterialTheme(colorScheme = RivoColorSchemes.forAppearance(browser.appearance)) {
@@ -155,6 +170,10 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                                 DropdownMenuItem(text = { Text("Appearance") }, onClick = {
                                     menuExpanded = false
                                     browser.openPanel(BrowserPanel.APPEARANCE)
+                                })
+                                DropdownMenuItem(text = { Text("Privacy & site permissions") }, onClick = {
+                                    menuExpanded = false
+                                    browser.openPanel(BrowserPanel.SITE_PERMISSIONS)
                                 })
                             }
                         }
@@ -248,18 +267,29 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
         )
     }
 
-    browser.permissionPrompt?.let { request ->
+    currentPermissionPrompt?.let { request ->
         AlertDialog(
             onDismissRequest = { browser.respondToSitePermission(false) },
             title = { Text("Website permission") },
             text = {
                 Text(
                     "${request.origin} wants to access ${request.permission}. " +
-                        if (request.privateMode) "This decision applies only to this private tab." else "Allow only if you trust this website."
+                        if (request.privateMode) "This decision applies only to this private browsing session and is not saved as a persistent site permission." else "Allow only if you trust this website."
                 )
             },
             confirmButton = {
-                TextButton(onClick = { browser.respondToSitePermission(true) }) { Text("Allow") }
+                TextButton(onClick = {
+                    if (request.permission == "Notifications" &&
+                        Build.VERSION.SDK_INT >= VERSION_CODES.TIRAMISU &&
+                        ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
+                        PackageManager.PERMISSION_GRANTED
+                    ) {
+                        browser.beginNotificationPermissionRequest()
+                        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    } else {
+                        browser.respondToSitePermission(true)
+                    }
+                }) { Text("Allow") }
             },
             dismissButton = {
                 TextButton(onClick = { browser.respondToSitePermission(false) }) { Text("Deny") }
@@ -288,13 +318,21 @@ private fun keyTab(id: Long, content: @Composable () -> Unit) {
 @Composable
 private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit) {
     val panel = browser.panel ?: return
+    var tabQuery by remember(panel) { mutableStateOf("") }
+    var tabFilter by remember(panel) { mutableStateOf(TabUniverseFilter.ALL) }
+    var tabSort by remember(panel) { mutableStateOf(TabUniverseSort.ACTIVE_FIRST) }
+    var sortMenuExpanded by remember(panel) { mutableStateOf(false) }
     val title = when (panel) {
         BrowserPanel.TABS -> "Your tabs"
         BrowserPanel.BOOKMARKS -> "Bookmarks"
         BrowserPanel.HISTORY -> "History"
         BrowserPanel.DOWNLOADS -> "Downloads"
         BrowserPanel.APPEARANCE -> "Quick appearance"
+        BrowserPanel.SITE_PERMISSIONS -> "Privacy & site permissions"
         BrowserPanel.MENU -> "Browser menu"
+    }
+    LaunchedEffect(panel) {
+        if (panel == BrowserPanel.SITE_PERMISSIONS) browser.refreshSitePermissions()
     }
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -306,28 +344,83 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                 Text(title, style = MaterialTheme.typography.titleLarge)
                 Spacer(Modifier.height(RivoSpacing.medium))
                 when (panel) {
-                    BrowserPanel.TABS -> LazyColumn(modifier = Modifier.heightIn(max = 300.dp)) {
-                        items(browser.tabs, key = { it.id }) { tab ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                TextButton(onClick = {
-                                    browser.selectTab(tab.id)
-                                    onDismiss()
-                                }, modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        (if (tab.privateMode) "Private · " else "") + tab.title,
-                                        maxLines = 1
-                                    )
+                    BrowserPanel.TABS -> {
+                        val tabItems = browser.tabs.map { tab ->
+                            TabUniverseItem(tab.id, tab.title, tab.url, tab.privateMode, tab.id == browser.activeTabId)
+                        }
+                        val visibleTabs = TabUniversePolicy.visible(tabItems, tabQuery, tabFilter, tabSort)
+                        OutlinedTextField(
+                            value = tabQuery,
+                            onValueChange = { tabQuery = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            placeholder = { Text("Search open tabs") }
+                        )
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(0.dp)) {
+                            listOf(
+                                TabUniverseFilter.ALL to "All",
+                                TabUniverseFilter.NORMAL to "Normal",
+                                TabUniverseFilter.PRIVATE to "Private",
+                                TabUniverseFilter.ACTIVE to "Active"
+                            ).forEach { (filter, label) ->
+                                TextButton(onClick = { tabFilter = filter }) {
+                                    Text((if (tabFilter == filter) "✓ " else "") + label)
                                 }
-                                TextButton(onClick = { browser.closeTab(tab.id) }, modifier = Modifier.semantics { contentDescription = "Close tab" }) { Text("×") }
                             }
                         }
+                        Box {
+                            TextButton(onClick = { sortMenuExpanded = true }) {
+                                Text("Organize: " + when (tabSort) {
+                                    TabUniverseSort.ACTIVE_FIRST -> "Active first"
+                                    TabUniverseSort.TITLE -> "Title"
+                                    TabUniverseSort.TYPE -> "Normal / private"
+                                })
+                            }
+                            DropdownMenu(expanded = sortMenuExpanded, onDismissRequest = { sortMenuExpanded = false }) {
+                                listOf(
+                                    TabUniverseSort.ACTIVE_FIRST to "Active first",
+                                    TabUniverseSort.TITLE to "Title",
+                                    TabUniverseSort.TYPE to "Normal / private"
+                                ).forEach { (sort, label) ->
+                                    DropdownMenuItem(text = { Text(label) }, onClick = {
+                                        tabSort = sort
+                                        sortMenuExpanded = false
+                                    })
+                                }
+                            }
+                        }
+                        Text("${visibleTabs.size} of ${browser.tabs.size} tabs · ${browser.tabs.count { it.privateMode }} private",
+                            style = MaterialTheme.typography.labelSmall)
+                        if (visibleTabs.isEmpty()) {
+                            Text("No tabs match this search.")
+                        } else {
+                            LazyColumn(modifier = Modifier.heightIn(max = 300.dp)) {
+                                items(visibleTabs, key = { it.id }) { item ->
+                                    val tab = browser.tabs.firstOrNull { it.id == item.id } ?: return@items
+                                    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                                        verticalAlignment = Alignment.CenterVertically) {
+                                        TextButton(onClick = {
+                                            browser.selectTab(tab.id)
+                                            onDismiss()
+                                        }, modifier = Modifier.weight(1f)) {
+                                            Column(horizontalAlignment = Alignment.Start) {
+                                                Text((if (item.active) "● " else "") +
+                                                    (if (item.privateMode) "Private · " else "Normal · ") + item.title,
+                                                    maxLines = 1)
+                                                Text(item.url, style = MaterialTheme.typography.labelSmall, maxLines = 1)
+                                            }
+                                        }
+                                        TextButton(onClick = { browser.closeTab(tab.id) }, modifier = Modifier.semantics { contentDescription = "Close tab" }) { Text("×") }
+                                    }
+                                }
+                            }
+                        }
+                        Text("Inactive tabs remain available but their Gecko sessions are deactivated and unfocused. Open tabs are capped at 8.",
+                            style = MaterialTheme.typography.bodySmall)
                     }
                     BrowserPanel.BOOKMARKS -> {
                         if (browser.bookmarks.isEmpty()) Text("No bookmarks saved yet.")
-                        LazyColumn(modifier = Modifier.height(300.dp)) {
+                        LazyColumn(modifier = Modifier.heightIn(max = 300.dp)) {
                             items(browser.bookmarks, key = { it.url }) { page ->
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
@@ -356,7 +449,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                             TextButton(onClick = { browser.clearHistory() }) { Text("Clear") }
                         }
                         if (browser.history.isEmpty()) Text("No browsing history yet.")
-                        LazyColumn(modifier = Modifier.height(300.dp)) {
+                        LazyColumn(modifier = Modifier.heightIn(max = 300.dp)) {
                             // Multiple visits to one URL are distinct history records.
                             items(browser.history) { page ->
                                 TextButton(onClick = {
@@ -376,7 +469,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                     }
                     BrowserPanel.DOWNLOADS -> {
                         if (browser.downloads.isEmpty()) Text("No downloads yet.")
-                        LazyColumn(modifier = Modifier.height(300.dp)) {
+                        LazyColumn(modifier = Modifier.heightIn(max = 300.dp)) {
                             items(browser.downloads, key = { it.id }) { download ->
                                 Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                                     Text(download.filename, maxLines = 1)
@@ -393,6 +486,65 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                         }
                         Text(
                             "Files are stored in Rivo's app-specific Downloads folder. Private mode does not erase files you download.",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    BrowserPanel.SITE_PERMISSIONS -> {
+                        Text(
+                            when {
+                                browser.activeTab == null -> "Tracking protection status is unavailable for the active tab."
+                                !browser.activeTab!!.trackingProtectionEnabled -> "Tracking protection is disabled for the active GeckoView session."
+                                browser.activeTab!!.trackingProtectionException -> "GeckoView reports a site-specific tracking-protection exception for this page."
+                                else -> "Tracking protection is enabled for the active GeckoView session; no site exception is reported."
+                            },
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            "Rivo does not show a blocked-tracker number because this screen does not have a verified per-page tracker count. Location, camera, microphone, persistent-storage requests and unsupported content permissions are denied by default.",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Spacer(Modifier.height(RivoSpacing.small))
+                        if (browser.sitePermissionsLoading) {
+                            Text("Loading permissions from GeckoView…")
+                        } else if (browser.sitePermissionsLoadError) {
+                            Text("GeckoView permission data is unavailable. No permission state is being assumed.")
+                        } else if (browser.sitePermissions.isEmpty()) {
+                            Text("GeckoView reports no saved normal-browsing site permissions.")
+                        }
+                        LazyColumn(modifier = Modifier.heightIn(max = 300.dp)) {
+                            items(
+                                browser.sitePermissions,
+                                key = { "${it.origin}|${it.permissionName}|${it.contextKey.orEmpty()}" }
+                            ) { permission ->
+                                Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                                    Text(permission.origin, style = MaterialTheme.typography.titleSmall, maxLines = 1)
+                                    Text(permission.permissionName, style = MaterialTheme.typography.bodyMedium)
+                                    if (permission.permissionName == "Tracking protection exception") {
+                                        Text(
+                                            "This permission lets trackers operate on this site by disabling GeckoView tracking protection for it.",
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
+                                    Text(
+                                        if (permission.allowed) "Allowed" else "Denied",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = if (permission.allowed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+                                    )
+                                    if (permission.canRevoke) {
+                                        TextButton(onClick = { browser.revokeSitePermission(permission) }) {
+                                            Text(if (permission.allowed) "Revoke" else "Reset")
+                                        }
+                                    } else {
+                                        Text(
+                                            "GeckoView does not support revoking this permission after it is granted.",
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        Text(
+                            "Private-session permission records are not shown here. GeckoView keeps private-mode decisions separate and clears them with the private session.",
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
