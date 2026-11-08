@@ -1,71 +1,79 @@
 # Project State
 
-Updated: 2026-11-08
+Updated: 2026-11-08 12:44 UTC
 
 ## Current phase
-Phase 1 — Functional Browser MVP, authorized by user on 2026-11-08.
+Phase 1 — Functional Browser MVP. Phase 0 foundation is in place; final engine selection remains provisional pending physical-device benchmarking. Phase 2 and Phase 3 have not started.
 
-## Repository
+## Repository checkpoint
 - Canonical repository: https://github.com/techwithrakibofficial/Rivo-Browser
-- Branch: main
-- Latest source HEAD before this documentation refresh: 9df07aa84f2b3e94c8a383cea486ced09652b8e5.
-- Phase 2 and Phase 3 have not started.
+- Default branch: `main`
+- Integrated HEAD: `1683ffb57dda1d1a9d15f85e892cb8139b06d23c`
+- PR #1, #2 and #3 are merged; no open PRs were found at this checkpoint.
+- Worker branches were integrated using squash merges. Their changes are now in main; do not reimplement them.
+- Main CI run #244 (https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42481557821) was running against this HEAD during this update. Debug assembly passed; lint was in progress; unit tests, release AAB and artifact steps were pending. Do not report integrated CI as passed until run #244 completes.
 
-## Phase 0
-- Android foundation, modular engine probes and comparison protocol committed.
-- Physical-device WebView vs GeckoView benchmark remains outstanding.
-- Final engine decision remains open. GeckoView is the provisional Phase 1 implementation candidate, not a measured final winner.
+## Integrated work
+### Security QA — PR #1
+- Encrypted metadata decryption/format errors propagate instead of silently becoming empty data.
+- Sensitive metadata writes use a process-wide fail-closed guard.
+- Direct tab/download replacement and clear-history authenticate and validate existing values inside DataStore edits before overwriting.
+- Malformed saved records are rejected rather than silently dropped.
+- AES-GCM minimum payload size accepts the valid 12-byte IV + 16-byte tag case.
+- JVM tests cover guard behavior and validation gates.
+- Still requires Android Keystore instrumentation and DataStore corruption/relaunch tests; JVM callback tests do not prove on-device cryptography or transaction behavior.
 
-## Phase 1 source implemented
-- Process-scoped GeckoRuntime provider; one GeckoSession per tab.
-- GeckoView is created with the current Activity context and detached on composition lifecycle changes; sessions remain in ViewModel across Activity configuration changes.
-- Activity onStart/onStop gates session activation: only the selected tab is active while visible; all tabs are deactivated/unfocused while backgrounded.
-- Normal HTTP(S) tabs are persisted locally and restored after process recreation (up to eight); private tabs are excluded from serialization.
-- Android system Back navigates browser history when available.
-- Omnibox resolves HTTP/HTTPS URLs and plain-text searches; unsupported schemes are sent to search.
-- Back, forward, reload and stop; Gecko navigation capability state comes from delegate callbacks.
-- Multiple tabs with active/inactive session handling and an 8-tab cap.
-- Native Gecko private sessions; private pages are excluded from app-side history/bookmarks.
+### Android engine fixes — PR #2
+- Restored selected tab is selected by saved record index, not URL equality, so duplicate-URL tabs restore independently.
+- Omnibox preserves text while the user is editing despite Gecko location callbacks.
+- History list no longer uses URL as a unique LazyColumn key.
+- Internationalized domain names are normalized to IDNA ASCII.
+- JVM regression tests added. Force-stop/relaunch and physical-device validation remain outstanding.
+
+### UI/UX audit and design documentation — PR #3
+- Three-theme design contract and appearance-mode documentation expanded.
+- Premium Glass accurately specified as translucent surfaces without real-time blur.
+- Source-level accessibility audit and severity-ranked findings added at `docs/design/UI_UX_ACCESSIBILITY_AUDIT.md`.
+- This PR is documentation-only; it does not fix UI source findings.
+
+## Phase 1 source baseline
+- Process-scoped GeckoRuntime and per-tab GeckoSession architecture.
+- Activity-aware session activation/deactivation; selected foreground tab only.
+- Navigation, URL/search omnibox, back/forward/reload/stop and Gecko-reported connection security.
+- Up to eight tabs; native Gecko private sessions; private tabs excluded from app-side history/bookmarks/restoration.
 - Tracking protection enabled per session.
-- HTTPS notification and persistent-storage requests use an explicit per-origin Allow/Deny prompt; unsupported content, Android runtime and media permissions remain denied.
-- Connection security indicator uses GeckoView security callbacks.
-- Local DataStore bookmarks (max 500), history (max 300), restorable tabs and download metadata; sensitive metadata uses AES-256-GCM with an Android Keystore key and migrates legacy plaintext on read. Appearance persists separately.
-- Downloads require explicit confirmation, stream into app-specific storage through temporary files, enforce a 250 MB per-file cap, finalize atomically and can be opened/shared through a non-exported scoped FileProvider.
-- Saved download metadata is persisted and restored only when the referenced file resolves inside app-specific Downloads directories; interrupted .part files are cleaned at startup.
-- Centralized semantic colors, spacing and shape tokens; Quick Appearance Picker is in the secondary menu; system-bar icon contrast follows appearance.
-- URL/search resolver and safe-restorable-tab policy unit tests are present in source.
+- Local DataStore bookmarks (max 500), history (max 300), restorable tabs and download metadata; sensitive metadata encrypted with Android Keystore AES-256-GCM; legacy plaintext migration on read.
+- Confirmation-gated HTTP(S) downloads, app-specific storage, temporary-file streaming, 250 MB cap, atomic finalization and scoped FileProvider open/share.
+- Dark, Light and Premium Glass palettes; secondary-menu Quick Appearance Picker; system-bar contrast follows appearance.
+- Regular HTTP(S) tab persistence/restoration, with selected-tab index fix now integrated.
+- URL/search, restorable-tab policy, sensitive-write guard and IDN/tab-selection JVM tests.
 
-## Latest source changes — CI verification pending
-- Activity lifecycle/session deactivation and system Back integration.
-- Regular-tab persistence/restoration; private tabs remain excluded.
-- R8 code shrinking/resource shrinking and unsigned QA AAB build configuration.
-- Android Keystore AES-256-GCM encryption for bookmarks, history, restorable tabs and download metadata.
-- Legacy plaintext migration on read, plus handling for malformed/unavailable encrypted data.
-- Latest source commit before this documentation update: 9df07aa84f2b3e94c8a383cea486ced09652b8e5 (2026-11-08 10:17:45 UTC).
+## Verified versus unverified
+- PR CI runs #237 (security), #240 (Android engine) and #241 (UI documentation) completed successfully.
+- These PR checks are not a substitute for the integrated Main run #244.
+- Integrated Main run #244 is the current validation gate; see TESTING.md for its live status.
+- No physical-device install, force-stop/relaunch test, TalkBack audit or 3–4 GB performance benchmark is claimed.
+- Release AAB from CI is unsigned QA output, not a production-signed release.
 
-## Build verification
-- Last verified GitHub Actions run #143 (42461668698) completed successfully on commit 89139a036bb36829e52681df9eae7c47ae77197e.
-- That run passed assembleDebug, lintDebug, unit tests, ABI size reporting and separate ARM64/ARMv7 artifact uploads.
-- Run #143 did not test the later lifecycle, tab-restoration or encryption commits; its recorded job steps did not include the current workflow's minified release AAB step.
-- Debug APK sizes from run #143: ARM64 208,688,414 bytes (~199.0 MiB), ARMv7 169,493,492 bytes (~161.7 MiB). These are not release-size measurements.
-- No physical-device install, smoke test or performance benchmark has been completed.
-- No CI run or commit status was returned for source HEAD 9df07aa during recovery.
-
-## Remaining / known limitations
-- Run the full CI workflow against the latest source, including the minified release AAB build.
-- LocalDataCipher currently converts encrypted-data decryption failures into an empty string. BrowserStorage read-modify-write paths can overwrite previously saved records after ciphertext corruption or Keystore-key loss. Treat this as a release blocker; fix failure semantics and add regression coverage.
-- Process-death tab restoration is implemented in source but still needs force-stop/relaunch validation.
-- Investigate the large GeckoView APK footprint and optimize packaging without removing required engine components.
-- No physical-device install/smoke test or 3–4 GB memory benchmark.
-- Permission mediation currently covers HTTPS notifications and persistent storage only; geolocation, camera, microphone, XR, DRM and other unsupported requests remain denied. Per-site permission management/revoke UI is pending.
-- Download file contents are not encrypted at rest; they remain in app-specific storage for explicit open/share. Private mode does not erase user-saved downloads.
-- Final engine selection awaits controlled WebView/GeckoView device benchmark.
-- Accessibility, dependency vulnerability and MASVS reviews are incomplete.
+## Known issues and release blockers
+- P1: selected MaterialTheme currently does not cover dialogs/panels emitted after the main BrowserScreen Surface; Dark/Light/Glass appearance can leak on overlays.
+- P1: five-action bottom toolbar may crowd/overflow at 320 dp width or large font scale; adaptive behavior needs implementation and device verification.
+- P2: Light secondary palette #567D9F is approximately 4.35:1 on white, below WCAG AA 4.5:1 for normal text if used as text.
+- P2: omnibox persistent label, tab-close semantics, appearance selected-state semantics and fixed 300 dp panels need accessibility/responsive fixes.
+- Android Keystore-backed AES-GCM round-trip, tampering, key-loss and DataStore corruption/relaunch instrumentation are outstanding.
+- Process-death tab restoration and private-tab exclusion require force-stop/relaunch tests.
+- Per-site permission management/revoke UI is pending. HTTPS notification and persistent-storage requests have prompts; unsupported/device/media permissions remain denied.
+- Downloaded file contents are not encrypted by the metadata cipher; private mode does not erase user-saved downloads.
+- GeckoView remains provisional until comparative WebView/GeckoView benchmarks on representative 3–4 GB devices.
+- Dependency vulnerability review and OWASP MASVS verification remain incomplete.
+- Advanced Tab Universe, Privacy Intelligence Center, Transfer Studio, reader mode, QR and verified extension workflows are not implemented.
 
 ## Exact next steps
-1. Verify the current source with the complete Android CI workflow, including debug build, lint, unit tests and minified release AAB.
-2. Fix encrypted-metadata failure handling so failed decryption cannot silently overwrite existing records; add regression coverage.
-3. Install and smoke-test on physical ARM64 and ARMv7 Android devices.
-4. Measure actual release artifact size, cold/warm startup, PSS, CPU and stability on 3–4 GB devices.
-5. Implement per-site permission UX and revoke controls.
-6. Complete accessibility and MASVS review before release.
+1. Confirm integrated Main CI run #244 succeeds; if it fails, inspect the failing job and fix before further feature work.
+2. Fix the P1 overlay theme-scope defect and narrow-width/large-font toolbar behavior; add Compose UI tests/previews where feasible.
+3. Fix Light secondary contrast and omnibox/tab/theme-selection accessibility semantics; make panels adapt to available window height.
+4. Add Android instrumentation tests for Keystore AES-GCM round-trip, tampering, missing/lost key, legacy migration and DataStore corruption/relaunch preservation.
+5. Test tab restoration, duplicate URLs and private-tab exclusion after force-stop/relaunch.
+6. Install ARM64/ARMv7 builds on physical devices; benchmark startup, PSS, CPU, stability and release footprint on 3–4 GB devices.
+7. Complete permission management/revoke UX, dependency review and OWASP MASVS assessment.
+8. Only after Phase 1 acceptance, start Phase 2 features.
