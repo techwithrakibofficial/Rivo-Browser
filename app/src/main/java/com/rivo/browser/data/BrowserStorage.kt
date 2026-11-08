@@ -48,17 +48,13 @@ class BrowserStorage(private val context: Context) {
         (0 until array.length()).mapNotNull { index ->
             val item = array.optJSONObject(index) ?: return@mapNotNull null
             val url = item.optString("url")
-            val uri = android.net.Uri.parse(url)
-            if (uri.scheme !in listOf("http", "https") || uri.host.isNullOrBlank()) null
+            if (!RestorableTabPolicy.isSafeUrl(url)) null
             else SavedTab(url, item.optString("title", url), item.optBoolean("selected"))
         }.take(8)
     }.getOrDefault(emptyList())
 
     suspend fun saveOpenTabs(tabs: List<SavedTab>) {
-        val safeTabs = tabs.filter { tab ->
-            val uri = android.net.Uri.parse(tab.url)
-            uri.scheme in listOf("http", "https") && !uri.host.isNullOrBlank()
-        }.take(8)
+        val safeTabs = tabs.filter { RestorableTabPolicy.isSafeUrl(it.url) }.take(8)
         context.rivoDataStore.edit { prefs ->
             prefs[openTabsKey] = JSONArray().apply {
                 safeTabs.forEach { tab ->
