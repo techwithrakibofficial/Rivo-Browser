@@ -59,3 +59,7 @@ Test at least one 3 GB and one 4 GB Android device if available. Record model, c
 - Integrated Main CI run #246 completed successfully; all configured steps passed for its recorded HEAD.
 - No physical-device install, force-stop/relaunch, TalkBack, Accessibility Scanner or 3–4 GB benchmark is claimed.
 - QA AAB output is unsigned; it is not a production release artifact.
+
+
+## Engine comparison benchmark
+Build both engine probes with `:engine-benchmark:assembleGeckoDebug`, `:engine-benchmark:assembleWebviewDebug`, and bundle release variants with `-Privo.abiSplits=false` to avoid multiple shrunk-resource outputs. On a physical Android device, run `bash tools/run-engine-benchmark.sh gecko <apk> <output-dir> 5 1` and repeat for `webview` with the same device state and workload. Preserve raw captures and device metadata. The harness records cold/warm launch, DOM-ready timing, CPU/process/PSS, frame stats, crashes and ANRs. CI builds and static alignment checks do not constitute real performance results or 16 KB runtime certification.
