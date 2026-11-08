@@ -31,3 +31,11 @@
 | Developer Mode | Research only | Future secure opt-in |
 | CI | Verified on current checkpoint | Main run #246 passed assembleDebug, lintDebug, testDebugUnitTest, bundleRelease and configured QA artifact steps on commit `84303588c2560db55bfb7ae2081d8f714be532e7` |
 | Production release signing | Pending | QA AAB is unsigned |
+
+
+## Core browser hardening increment
+- History persistence and in-memory history share a consecutive-visit coalescing policy while preserving later revisits.
+- Restorable normal tabs are snapshotted by tab identity; private/unsafe URLs are excluded, duplicate URLs remain independent and the eight-tab cap is enforced.
+- Gecko activation is gated by selected-tab identity and host lifecycle.
+- Download writing sanitizes Content-Disposition names, reserves collision-safe targets, enforces the byte limit while streaming, closes streams and removes failed staging files.
+- Android Keystore decryption requires the existing alias; missing/unusable keys fail closed instead of silently generating replacement keys.
