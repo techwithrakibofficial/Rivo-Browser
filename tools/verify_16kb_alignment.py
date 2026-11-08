@@ -11,6 +11,10 @@ from pathlib import Path
 from shutil import which
 
 PAGE = 16 * 1024
+# Android 16 KB page-size devices are 64-bit; check only the supported 64-bit ABIs.
+# The official Android guide's ELF alignment check targets arm64-v8a and x86_64.
+SUPPORTED_16KB_ABIS = {"arm64-v8a", "x86_64"}
+LEGACY_32BIT_ABIS = {"armeabi-v7a", "x86"}
 
 def load_alignments(data: bytes) -> list[int]:
     if len(data) < 64 or data[:4] != b"\x7fELF":
@@ -74,6 +78,15 @@ def main() -> int:
                 if not libs:
                     print(f"INFO no native libraries: {path}")
                 for lib in libs:
+                    abi = next((part for part in lib.filename.split("/") if part in
+                                SUPPORTED_16KB_ABIS | LEGACY_32BIT_ABIS), None)
+                    if abi in LEGACY_32BIT_ABIS:
+                        print(f"INFO skip 32-bit ELF page alignment (not a 16 KB device ABI): {path}:{lib.filename}")
+                        continue
+                    if abi not in SUPPORTED_16KB_ABIS:
+                        print(f"FAIL unknown native ABI path: {path}:{lib.filename}")
+                        ok = False
+                        continue
                     count += 1
                     try:
                         values = load_alignments(archive.read(lib))
