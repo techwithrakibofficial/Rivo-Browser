@@ -65,6 +65,7 @@ class BrowserController(context: Context) {
     val downloads = mutableStateListOf<BrowserDownload>()
     val sitePermissions = mutableStateListOf<GeckoStoredSitePermission>()
     var sitePermissionsLoading by mutableStateOf(false)
+    var sitePermissionsLoadError by mutableStateOf(false)
     private var awaitingNotificationPermissionResult = false
 
     var activeTabId by mutableStateOf(0L)
@@ -329,9 +330,14 @@ class BrowserController(context: Context) {
     fun refreshSitePermissions() {
         val sourceTab = activeTab ?: tabs.firstOrNull() ?: return
         sitePermissionsLoading = true
+        sitePermissionsLoadError = false
         sourceTab.engine.loadStoredSitePermissions { permissions ->
             sitePermissions.clear()
-            sitePermissions.addAll(permissions)
+            if (permissions == null) {
+                sitePermissionsLoadError = true
+            } else {
+                sitePermissions.addAll(permissions)
+            }
             sitePermissionsLoading = false
         }
     }
