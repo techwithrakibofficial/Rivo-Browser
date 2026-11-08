@@ -45,7 +45,7 @@ class NavigationInputResolverTest {
     @Test
     fun addsHttpsForInternationalizedDomainNames() {
         assertEquals(
-            "https://xn--r8jz45g.xn--zckzah/",
+            "https://xn--r8jz45g.xn--zckzah",
             NavigationInputResolver.resolve("例え.テスト")
         )
     }
