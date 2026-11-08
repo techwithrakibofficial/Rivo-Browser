@@ -207,6 +207,28 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
         )
     }
 
+    browser.pendingDownload?.let { request ->
+        val downloadUri = android.net.Uri.parse(request.url)
+        val fileName = downloadUri.lastPathSegment ?: "download"
+        AlertDialog(
+            onDismissRequest = { browser.cancelPendingDownload() },
+            title = { Text("Download file?") },
+            text = {
+                Text(
+                    "$fileName from ${downloadUri.host ?: "this website"} will be saved in Rivo's app-specific Downloads folder. " +
+                        "The maximum file size is 250 MB." +
+                        if (request.privateMode) " Private browsing does not automatically erase saved files." else ""
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { browser.confirmPendingDownload() }) { Text("Download") }
+            },
+            dismissButton = {
+                TextButton(onClick = { browser.cancelPendingDownload() }) { Text("Cancel") }
+            }
+        )
+    }
+
     browser.permissionPrompt?.let { request ->
         AlertDialog(
             onDismissRequest = { browser.respondToSitePermission(false) },
