@@ -69,8 +69,13 @@ data class GeckoStoredSitePermission(
 
 /** Allow only site permissions that Rivo currently mediates and can explain. */
 object GeckoSitePermissionPolicy {
-    fun shouldPrompt(permission: Int, secureOrigin: Boolean): Boolean =
-        secureOrigin && permission in setOf(
+    fun shouldPrompt(
+        permission: Int,
+        secureOrigin: Boolean,
+        privateMode: Boolean = false
+    ): Boolean = secureOrigin &&
+        !(privateMode && permission == GeckoSession.PermissionDelegate.PERMISSION_DESKTOP_NOTIFICATION) &&
+        permission in setOf(
             GeckoSession.PermissionDelegate.PERMISSION_DESKTOP_NOTIFICATION,
             GeckoSession.PermissionDelegate.PERMISSION_AUTOPLAY_AUDIBLE,
             GeckoSession.PermissionDelegate.PERMISSION_AUTOPLAY_INAUDIBLE
@@ -159,7 +164,7 @@ class GeckoBrowserTab(
                         GeckoSession.PermissionDelegate.ContentPermission.VALUE_DENY
                     )
                 if (permission.privateMode != isPrivate ||
-                    !GeckoSitePermissionPolicy.shouldPrompt(permission.permission, secureOrigin)
+                    !GeckoSitePermissionPolicy.shouldPrompt(permission.permission, secureOrigin, permission.privateMode)
                 ) {
                     return GeckoResult.fromValue(
                         GeckoSession.PermissionDelegate.ContentPermission.VALUE_DENY
