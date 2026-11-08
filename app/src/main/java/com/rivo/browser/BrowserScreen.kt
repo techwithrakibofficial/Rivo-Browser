@@ -433,7 +433,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                         Spacer(Modifier.height(RivoSpacing.small))
                         Text("Private browsing", style = MaterialTheme.typography.titleSmall)
                         Text(
-                            "Private tabs use GeckoView private sessions and are excluded from app history, bookmarks and tab restoration. Private-session permission decisions are not listed as persistent site permissions. Downloaded files remain on the device; private-tab download entries are not saved in persistent browser download history.",
+                            "Private tabs use GeckoView private sessions and are excluded from app history, bookmarks and tab restoration. Private-session permission decisions are not listed as persistent site permissions. Closing a private tab removes its in-memory download entry. Downloaded files remain on the device; private-tab download entries are not saved in persistent browser download history. Private browsing does not hide your network activity or IP address from websites, DNS resolvers or network operators.",
                             style = MaterialTheme.typography.bodySmall
                         )
                         Spacer(Modifier.height(RivoSpacing.small))
