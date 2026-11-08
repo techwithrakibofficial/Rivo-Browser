@@ -47,6 +47,8 @@ class GeckoBrowserTab(
     )
     val view: GeckoView = GeckoView(context)
     private var disposed = false
+    private var canGoBack = false
+    private var canGoForward = false
 
     init {
         session.setContentDelegate(object : GeckoSession.ContentDelegate {
@@ -128,11 +130,13 @@ class GeckoBrowserTab(
             }
 
             override fun onCanGoBack(session: GeckoSession, canGoBack: Boolean) {
-                listener.onNavigationChanged(canGoBack, session.canGoForward())
+                this@GeckoBrowserTab.canGoBack = canGoBack
+                listener.onNavigationChanged(this@GeckoBrowserTab.canGoBack, this@GeckoBrowserTab.canGoForward)
             }
 
             override fun onCanGoForward(session: GeckoSession, canGoForward: Boolean) {
-                listener.onNavigationChanged(session.canGoBack(), canGoForward)
+                this@GeckoBrowserTab.canGoForward = canGoForward
+                listener.onNavigationChanged(this@GeckoBrowserTab.canGoBack, this@GeckoBrowserTab.canGoForward)
             }
         })
         session.open(runtime)
@@ -144,8 +148,8 @@ class GeckoBrowserTab(
         session.loadUri(url)
     }
 
-    fun goBack() { if (!disposed && session.canGoBack()) session.goBack() }
-    fun goForward() { if (!disposed && session.canGoForward()) session.goForward() }
+    fun goBack() { if (!disposed && canGoBack) session.goBack() }
+    fun goForward() { if (!disposed && canGoForward) session.goForward() }
     fun reload() { if (!disposed) session.reload() }
     fun stop() { if (!disposed) session.stop() }
 
