@@ -13,8 +13,8 @@
 | Tracking protection | Enabled | Per GeckoSession |
 | Site permissions | Partial mediation | HTTPS notifications and persistent-storage requests show explicit Allow/Deny prompt; unsupported/device/media requests remain denied |
 | Connection security indicator | Implemented | GeckoView security callback |
-| Bookmarks | Implemented | Local DataStore; add/remove |
-| Browsing history | Implemented | Local DataStore, max 300; clear |
+| Bookmarks | Implemented | Local DataStore; add/remove; Android Keystore AES-GCM at rest |
+| Browsing history | Implemented | Local DataStore, max 300; clear; Android Keystore AES-GCM at rest |
 | Downloads | Implemented in source; CI pending | Confirmation, atomic temp-file finalization, 250 MB cap, persisted metadata, scoped open/share |
 | Dark / Light / Premium Glass | Implemented in source | Centralized colors/tokens; CI passed |
 | Quick Appearance Picker | Implemented | Secondary menu |
