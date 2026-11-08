@@ -26,7 +26,7 @@ Phase 1 — Functional Browser MVP, authorized by user on 2026-11-08.
 - Multiple tabs with active/inactive session handling and an 8-tab cap.
 - Native Gecko private sessions; private pages are excluded from app-side history/bookmarks.
 - Tracking protection enabled per session.
-- Content, Android runtime and media permissions denied until a user-facing permission mediation flow exists.
+- HTTPS notification and persistent-storage requests use an explicit per-origin Allow/Deny prompt; unsupported content, Android runtime and media permissions remain denied.
 - Connection security indicator uses GeckoView security callbacks.
 - Local DataStore bookmarks (max 500), history (max 300) and persisted Dark/Light/Glass appearance.
 - Downloads stream into app-specific Downloads storage, have a 250 MB per-file safety cap, and can be opened/shared through a non-exported scoped FileProvider.
@@ -53,7 +53,7 @@ Phase 1 — Functional Browser MVP, authorized by user on 2026-11-08.
 ## Remaining / known limitations
 - Investigate large GeckoView APK footprint and optimize packaging without compromising engine functionality or security.
 - No physical device install/smoke test or 3–4 GB memory benchmark.
-- Per-site permission allow/deny UI is not implemented; permissions remain denied.
+- Permission mediation currently covers HTTPS notifications and persistent storage only; geolocation, camera, microphone, XR, DRM and other unsupported requests remain denied. A site-permission management/revoke screen is still pending.
 - Download files are app-specific; downloads list metadata is not persisted after process death.
 - Process-death tab restoration is implemented in source but has not yet passed a post-change CI or physical force-stop/relaunch test.
 - History/bookmarks are app-private but not separately encrypted with an app-managed key.
