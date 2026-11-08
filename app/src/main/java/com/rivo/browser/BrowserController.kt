@@ -1,8 +1,10 @@
 package com.rivo.browser
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Environment
+import androidx.core.content.FileProvider
 import com.rivo.browser.data.BrowserStorage
 import com.rivo.browser.data.SavedPage
 import com.rivo.browser.engine.gecko.GeckoBrowserRuntime
@@ -205,6 +207,46 @@ class BrowserController(context: Context) {
         }
     }
 
+
+    fun openDownload(download: BrowserDownload) {
+        val file = download.file ?: return
+        runCatching {
+            val uri = FileProvider.getUriForFile(
+                appContext,
+                appContext.packageName + ".fileprovider",
+                file
+            )
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, download.mimeType ?: "*/*")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            appContext.startActivity(intent)
+        }.onFailure {
+            notice = "No compatible app could open this download."
+        }
+    }
+
+    fun shareDownload(download: BrowserDownload) {
+        val file = download.file ?: return
+        runCatching {
+            val uri = FileProvider.getUriForFile(
+                appContext,
+                appContext.packageName + ".fileprovider",
+                file
+            )
+            val send = Intent(Intent.ACTION_SEND).apply {
+                type = download.mimeType ?: "*/*"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            appContext.startActivity(
+                Intent.createChooser(send, "Share download").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        }.onFailure {
+            notice = "Unable to share this download."
+        }
+    }
+
     fun setAppearance(value: BrowserAppearance) {
         appearance = value
         scope.launch { storage.saveTheme(value.name.lowercase()) }
@@ -258,6 +300,7 @@ class BrowserController(context: Context) {
             }
             withContext(Dispatchers.Main.immediate) {
                 result.onSuccess { file ->
+                    item.file = file
                     item.status = "Saved in app Downloads"
                     notice = if (tab.privateMode) {
                         "Download saved. Private browsing does not automatically erase downloaded files."
@@ -298,6 +341,7 @@ class BrowserController(context: Context) {
 
 class BrowserDownload(val id: Long, val filename: String, val mimeType: String?) {
     var status by mutableStateOf("Downloading")
+    var file: File? = null
 }
 
 enum class BrowserPanel { TABS, BOOKMARKS, HISTORY, DOWNLOADS, APPEARANCE, MENU }
