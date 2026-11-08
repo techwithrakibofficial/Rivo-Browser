@@ -36,7 +36,7 @@ internal class LocalDataCipher {
 
         try {
             val payload = Base64.decode(raw.removePrefix(PREFIX), Base64.NO_WRAP)
-            require(payload.size > GCM_IV_BYTES + GCM_TAG_BYTES) {
+            require(payload.size >= GCM_IV_BYTES + GCM_TAG_BYTES) {
                 "Encrypted browser data is truncated"
             }
             val buffer = ByteBuffer.wrap(payload)
