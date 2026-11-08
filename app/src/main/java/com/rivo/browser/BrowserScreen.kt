@@ -336,7 +336,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                         BrowserAppearance.values().forEach { appearance ->
                             TextButton(
                                 onClick = {
-                                    browser.setAppearance(appearance)
+                                    browser.updateAppearance(appearance)
                                     onDismiss()
                                 },
                                 modifier = Modifier.fillMaxWidth()
