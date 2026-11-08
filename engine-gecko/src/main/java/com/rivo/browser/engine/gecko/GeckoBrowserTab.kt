@@ -301,8 +301,19 @@ class GeckoBrowserTab(
                 stored.permission,
                 GeckoSession.PermissionDelegate.ContentPermission.VALUE_PROMPT
             )
-        }.onSuccess { callback(true) }
-            .onFailure { callback(false) }
+        }.onSuccess {
+            loadStoredSitePermissions { remaining ->
+                callback(
+                    remaining.none {
+                        it.origin == stored.origin &&
+                            it.permissionName == stored.permissionName &&
+                            it.contextKey == stored.contextKey
+                    }
+                )
+            }
+        }.onFailure {
+            callback(false)
+        }
     }
 
     /** Create a UI-context GeckoView for the current Activity window. */
