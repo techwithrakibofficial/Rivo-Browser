@@ -1,63 +1,72 @@
 # Development Plan
 
-## Phase 0 — foundation checkpoint
-- Android foundation, modular engine API and WebView/GeckoView probe variants.
-- Official documentation research and benchmark protocol.
-- Physical-device benchmark and final engine decision remain pending.
+## Phase 0 — foundation
+- Android foundation, modular engine API and WebView/GeckoView probe variants are committed.
+- Official documentation research and benchmark protocol are present.
+- Physical-device comparison and final engine decision remain pending; GeckoView is provisional, not a measured winner.
 
-## Phase 1 — authorized 2026-11-08
-Functional browser MVP:
+## Phase 1 — Functional Browser MVP (authorized 2026-11-08)
+### Implemented in source and integrated
 1. GeckoView-backed browser session adapter with process-scoped runtime and Activity-safe view lifecycle.
-2. Navigation, omnibox URL/search handling, loading state and engine-reported security status.
-3. Multi-tab lifecycle, active/inactive session management and native private sessions.
-4. Local bookmarks and regular browsing history with encrypted metadata at rest.
-5. Safe download streaming and app-specific storage with open/share.
-6. Centralized Dark, Light and Premium Glass design tokens and secondary Quick Appearance Picker.
-7. Persist and restore regular HTTP(S) tabs across process recreation; never persist private tabs.
-8. Automated build/lint/unit tests, release-bundle packaging checks, device smoke tests and security review.
+2. Navigation, URL/search omnibox, loading state and engine-reported security status.
+3. Multi-tab lifecycle, active/inactive session handling and native private sessions.
+4. Local bookmarks/history and encrypted metadata at rest.
+5. Safe download streaming, app-specific storage, confirmation, 250 MB cap and scoped open/share.
+6. Centralized Dark, Light and Premium Glass palettes with secondary Quick Appearance Picker.
+7. Regular HTTP(S) tab persistence/restoration; private tabs excluded.
+8. Security fail-closed metadata write handling and malformed-record rejection.
+9. Selected-tab index restoration, omnibox edit preservation, history duplicate-URL key correction and IDN normalization.
+10. Design-system contract and source-level UI/accessibility audit.
 
-## Dependencies and build baseline
-- GeckoView Stable artifact: org.mozilla.geckoview:geckoview:159.0.20261022150525.
+### Build baseline
+- GeckoView Stable: org.mozilla.geckoview:geckoview:159.0.20261022150525.
 - Android compile SDK API 37.2; targetSdk 36; minSdk 26.
-- Android Gradle Plugin 9.5.0, Gradle 9.6.0, JDK 17.
+- AGP 9.5.0, Gradle 9.6.0, JDK 17.
 - Compose BOM 2026.06.00; Activity Compose 1.13.0; Lifecycle ViewModel Compose 2.10.0.
 - DataStore Preferences 1.3.0; coroutines Android 1.11.0.
 - No backend, account, telemetry or paid service.
 
-## Risks and mitigations
-- GeckoView package/runtime footprint: ARM64 debug APK measured at 208,688,414 bytes (~199.0 MiB), ARMv7 at 169,493,492 bytes (~161.7 MiB). These are debug measurements; compare release size and WebView footprint before final engine selection.
-- Inactive tabs: set sessions inactive and cap MVP at eight pending measurements.
-- Private mode: use native GeckoSession private mode; exclude private tabs from app-side history, bookmarks and restoration state.
-- Site permissions: deny by default until explicit per-site permission management is complete; HTTPS notification and persistent-storage requests currently have Allow/Deny prompts.
-- Downloads: HTTP(S) only, sanitize filenames, 250 MB cap, app-specific storage and scoped FileProvider.
-- Glass performance: translucent surfaces, no heavy blur, solid fallback.
-- Engine choice: GeckoView is provisional for MVP; physical-device comparison with WebView remains required.
-- Encrypted metadata: verify key-unavailable and tampered-ciphertext behavior; prevent silent overwrite of existing records.
+### Acceptance criteria
+- Integrated Main CI passes assemble, lint, JVM tests and minified release AAB packaging.
+- URL/search navigation, browser controls, tab lifecycle and duplicate-URL restoration work.
+- Private sessions do not enter app-side history/bookmarks/restoration.
+- Sensitive metadata is encrypted and corruption/key-loss never silently overwrites saved records.
+- Downloads are confirmation-gated and safely stored/opened/shared.
+- Dark/Light/Glass remain readable across all native surfaces and overlays.
+- Regular tabs restore after process recreation; private tabs do not.
+- Manual device smoke tests, performance and security evidence are recorded.
 
-## Acceptance criteria
-- CI assemble, lint and unit tests pass for the current source.
-- Minified release AAB builds successfully and its size is recorded.
-- Navigation and omnibox work for URLs and search terms.
-- Tabs create/switch/close without session leaks.
-- Private session is native private mode and does not enter local history/bookmarks or restoration state.
-- Bookmarks/history and appearance persist locally; sensitive metadata is encrypted.
-- Downloads are user-visible and can be opened/shared safely.
-- All three appearance modes maintain readable browser chrome.
-- Regular tabs restore after process recreation without restoring private tabs.
-- Manual device smoke tests and performance/security evidence are documented.
+### Remaining Phase 1 work (ordered)
+1. Verify integrated Main CI run #244 (or latest run on the current Main HEAD), including assembleDebug, lintDebug, testDebugUnitTest and minified bundleRelease.
+2. Fix overlay theme scope so the selected MaterialTheme covers dialogs and panels; add Compose previews/tests for all three modes.
+3. Adapt bottom toolbar and modal panel sizing for 320 dp width, short screens and large system font scales.
+4. Fix Light secondary contrast; add persistent omnibox label, localized tab-close semantics and selected-state semantics for appearance.
+5. Add Android instrumentation tests for Keystore AES-GCM round-trip, tampering, truncated payload, missing/lost key, legacy migration and DataStore corruption/relaunch preservation.
+6. Verify duplicate URL tab restoration and private-tab exclusion after force-stop/relaunch.
+7. Analyze minified release AAB/native library footprint; verify 16 KB native-library alignment where applicable. Do not remove required engine components solely to reduce size.
+8. Install ARM64/ARMv7 builds on physical devices and benchmark representative 3–4 GB devices (startup, PSS, CPU, thermal behavior, stability).
+9. Add per-site permission management and revoke controls; unsupported requests remain denied until safely mediated.
+10. Complete accessibility verification, dependency vulnerability review and OWASP MASVS assessment.
+11. Run controlled WebView/GeckoView comparison before making the final engine decision.
 
-## Remaining Phase 1 work
-1. Verify the latest source in GitHub Actions: assembleDebug, lintDebug, testDebugUnitTest and bundleRelease with R8/resource shrinking.
-2. Correct encrypted-metadata error semantics and add regression tests for legacy migration, ciphertext tampering, unavailable/lost Keystore keys and read-modify-write preservation.
-3. Test Activity lifecycle, regular-tab restoration and private-tab exclusion on device.
-4. Analyze minified release AAB size and compare native-library footprint; do not remove required Gecko engine components merely to chase APK size. Verify 16 KB native-library alignment where applicable.
-5. Install and smoke-test ARM64/ARMv7 builds on physical devices.
-6. Add per-site permission management and revoke UI.
-7. Complete accessibility, dependency vulnerability and OWASP MASVS reviews.
-8. Run a comparative WebView/GeckoView benchmark on representative 3–4 GB hardware.
+### Risks and mitigations
+- GeckoView package/runtime footprint: optimize and compare actual release artifacts and WebView baseline.
+- Inactive tabs: deactivate sessions correctly and retain MVP cap of eight until profiling supports a change.
+- Private mode: native private sessions; do not persist private tab state or app-side history/bookmarks.
+- Site permissions: deny by default; add explicit per-site controls before enabling additional capabilities.
+- Downloads: HTTP(S), filename/path validation, 250 MB cap, app-specific storage and scoped FileProvider.
+- Glass performance: translucent surfaces, no real-time blur, opaque fallback.
+- Encrypted metadata: fail closed and validate stored values before replacement; instrument on Android.
 
-## Phase 2
-Advanced Tab Universe, Privacy Intelligence Center, Transfer Studio, QR, reader mode, extension workflows where verified, Developer Mode.
+## Phase 2 — Advanced browser
+- Advanced Tab Universe.
+- Privacy Intelligence Center.
+- Transfer Studio.
+- Reader mode and QR scanning where feasible.
+- Extension workflows only where engine support is verified.
+- Developer Mode using verified engine capabilities.
 
-## Phase 3
-Engine-specific features, optional sync, translation feasibility, optimization and distribution readiness.
+## Phase 3 — optimization and distribution
+- Engine-specific verified features.
+- Optional sync only after privacy/security design and cost review.
+- Translation feasibility, accessibility polish, performance optimization and release/distribution readiness.

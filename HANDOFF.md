@@ -1,52 +1,51 @@
 # Handoff
 
+Updated: 2026-11-08 12:44 UTC
+
 ## Current phase
-Phase 1 — Functional Browser MVP (authorized 2026-11-08).
+Phase 1 — Functional Browser MVP.
 
-## Repository
-https://github.com/techwithrakibofficial/Rivo-Browser
-Branch: main
-Latest source checkpoint before this handoff update: 9df07aa84f2b3e94c8a383cea486ced09652b8e5 (2026-11-08 10:17:45 UTC).
+## Canonical checkpoint
+- Repository: https://github.com/techwithrakibofficial/Rivo-Browser
+- Branch: `main`
+- HEAD: `1683ffb57dda1d1a9d15f85e892cb8139b06d23c`
+- PR #1 (security), PR #2 (Android engine) and PR #3 (UI/UX documentation) are merged.
+- Their work is integrated; do not ask those worker accounts to repeat the completed tasks.
+- Main CI run #244: https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42481557821. At handoff update, debug assembly passed and lint was running; tests/AAB/artifact steps had not completed. Verify live run before claiming success.
 
-## Implemented in source
-- GeckoView Stable candidate with process-scoped GeckoRuntime and per-tab GeckoSession.
-- Activity-safe GeckoView lifecycle; only the selected foreground session is active, and sessions deactivate while the Activity is stopped.
-- Android system Back navigates page history when available.
-- URL/search omnibox; back, forward, reload and stop.
-- Multi-tab management, inactive session handling and an eight-tab cap.
-- Native Gecko private sessions; private tabs are excluded from app-side history/bookmarks and tab restoration.
-- Regular HTTP(S) tabs persist and restore after process recreation.
-- Tracking protection per session; HTTPS notification and persistent-storage requests have explicit Allow/Deny prompts.
-- Unsupported content, Android runtime and media permissions remain denied.
-- Engine-reported TLS connection status.
-- Local bookmarks, history, restorable-tab metadata and download metadata are persisted; sensitive metadata uses Android Keystore AES-256-GCM and legacy plaintext values migrate on read.
-- Confirmation-gated downloads, temporary-file streaming, atomic finalization, 250 MB cap, app-specific storage and scoped FileProvider open/share.
-- Centralized Dark/Light/Premium Glass semantic tokens and secondary Quick Appearance Picker.
-- ARM64/ARMv7 APK splits; R8/resource shrinking and unsigned QA AAB build are configured.
+## Completed in this integration
+- Security PR: fail-closed encrypted metadata handling, validation before direct replacement/clear-history, malformed record rejection and JVM guard tests.
+- Android PR: selected-tab restoration by record index, omnibox edit preservation, repeated-history URL key correction, IDN-to-ASCII normalization and JVM regression tests.
+- UI documentation PR: three-theme contract, accurate no-real-time-blur Glass specification and source-level accessibility audit.
+- Three PR CI workflows #237, #240 and #241 completed successfully. Integrated Main CI is separate and must be verified independently.
 
-## Verified
-- GitHub Actions run #143 (42461668698) passed assembleDebug, lint, unit tests, ABI size reporting and ARM64/ARMv7 artifact uploads.
-- Run #143 tested commit 89139a036bb36829e52681df9eae7c47ae77197e, not the later lifecycle, tab-restoration, R8/AAB or encryption changes.
-- The current workflow includes a minified release AAB step which was not present in run #143's recorded job steps.
-- Debug APK sizes from run #143: ARM64 208,688,414 bytes (~199.0 MiB); ARMv7 169,493,492 bytes (~161.7 MiB).
-- No physical-device install, force-stop/relaunch test or performance benchmark is claimed.
-- No CI run or commit status was returned for latest source commit 9df07aa during this recovery.
+## Existing Phase 1 implementation
+- GeckoView runtime/session architecture, navigation, omnibox, tabs, private sessions, tracking protection and Gecko security status.
+- Local bookmarks/history, encrypted metadata, regular-tab persistence, download confirmation/streaming/cap/open-share flow.
+- Dark/Light/Premium Glass palettes and secondary appearance picker.
+- See PROJECT_STATE.md and FEATURE_MATRIX.md for the authoritative source-level inventory.
 
-## Review finding — release blocker
-LocalDataCipher currently converts encrypted-data decryption failures into an empty string. BrowserStorage read-modify-write paths consume that fallback; after ciphertext corruption or Keystore-key loss they may overwrite previously saved bookmarks/history instead of preserving the original data. Fix the failure semantics and add regression coverage before release.
+## Release blockers / known limitations
+1. BrowserScreen overlay theme scope: dialogs/panels currently fall outside selected MaterialTheme.
+2. Bottom toolbar responsiveness at narrow widths and large font scales is not verified.
+3. Light secondary #567D9F contrast is approximately 4.35:1 on white; below normal-text WCAG AA if used for text.
+4. Omnibox persistent label, close-tab accessible name, appearance selected semantics and fixed-height panels need fixes.
+5. Android Keystore and DataStore corruption/relaunch instrumentation is not complete.
+6. Physical-device install, process-death tab restoration, 3–4 GB benchmark, dependency review and MASVS assessment remain outstanding.
+7. Site permissions are partial; unsupported hardware/media requests remain denied. Per-site management/revoke UX is pending.
+8. GeckoView is provisional until measured against WebView on target devices.
 
-## Remaining
-1. Verify the latest source with the complete Android CI workflow, including the minified release AAB.
-2. Fix encrypted-metadata failure handling so a decrypt failure cannot silently overwrite existing records; add regression tests for legacy migration, tampering and unavailable keys.
-3. Validate regular-tab restoration and private-tab exclusion with force-stop/relaunch.
-4. Investigate GeckoView binary footprint and safely optimize release packaging.
-5. Install ABI builds on physical devices and benchmark a representative 3–4 GB device.
-6. Add per-site permission management/revoke UI.
-7. Complete accessibility, dependency vulnerability and OWASP MASVS reviews.
+## Next actions
+1. Verify run #244 on the integrated Main HEAD.
+2. Implement the P1 UI theme-scope and responsive toolbar fixes, then add UI/accessibility verification.
+3. Add Android storage instrumentation and force-stop/relaunch tests.
+4. Run physical ARM64/ARMv7 smoke tests and 3–4 GB performance benchmark.
+5. Close permission, dependency and MASVS gaps before release.
+6. Begin Phase 2 only after Phase 1 acceptance.
 
-## Known limitations
-- Private mode does not hide traffic from websites, ISPs, DNS resolvers or network operators.
-- Downloaded files remain in app-specific storage and are not encrypted by the metadata cipher or erased by private mode.
-- Site permission mediation covers HTTPS notifications and persistent storage only; hardware/media permissions remain denied.
-- GeckoView remains the provisional MVP engine; final selection awaits controlled WebView/GeckoView benchmarking.
-- Phase 2/3 features have not started.
+## Continuity rules
+- GitHub main is the source of truth.
+- Start future work by reading PROJECT_STATE.md, HANDOFF.md, DEVELOPMENT_PLAN.md, FEATURE_MATRIX.md, TESTING.md and SECURITY.md.
+- Use isolated worker branches and PRs; never overwrite another worker's files.
+- Push every completed change and record tests/limitations in the PR.
+- Do not report CI, device testing, accessibility compliance or release readiness without evidence.
