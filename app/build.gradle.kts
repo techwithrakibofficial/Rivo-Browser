@@ -2,6 +2,8 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.plugin.compose")
 }
+val enableAbiSplits = (project.findProperty("rivo.abiSplits") as String?)?.toBoolean() ?: true
+
 android {
     namespace = "com.rivo.browser"
     compileSdk {
@@ -17,6 +19,14 @@ android {
         versionName = "0.2.0-phase1"
     }
     buildFeatures { compose = true }
+    splits {
+        abi {
+            isEnable = enableAbiSplits
+            reset()
+            include("arm64-v8a", "armeabi-v7a")
+            isUniversalApk = false
+        }
+    }
     buildTypes {
         getByName("release") {
             isMinifyEnabled = true
