@@ -31,3 +31,10 @@
 ## RIVO-09 release readiness and signing (2026-11-09)
 - Add opt-in Android upload signing using protected environment variables; CI remains unsigned unless explicitly requested.
 - Add release candidate checklist and current release readiness report. Production distribution remains NO-GO until physical-device, security, dependency/SBOM, MASVS and signing evidence is complete.
+
+
+## RIVO-06 / RIVO-08.1 privacy and tabs increment (2026-11-09)
+- Add GeckoView-backed site permission inventory, revocation/reset for supported records, explicit notification/autoplay mediation and Android notification permission handling.
+- Keep unsupported and non-revocable site permissions default-deny; exclude private-session records and avoid fabricated tracker counts.
+- Add searchable, filterable and sortable Advanced Tab Universe with active-tab state and unchanged eight-tab cap.
+- Physical-device notification, site-permission and responsive/accessibility verification remain outstanding.
