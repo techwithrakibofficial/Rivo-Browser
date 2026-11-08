@@ -4,7 +4,7 @@
 - Android compile platform: API 37.2; targetSdk 36.
 - Assemble GeckoView MVP debug APKs.
 - Android lint.
-- JVM unit tests for URL/search resolution, safe restorable-tab URL policy, and the sensitive metadata write guard.
+- JVM unit tests for URL/search resolution, safe restorable-tab URL policy, and sensitive metadata write validation (guard behavior plus refusing replacement after simulated authentication/format failures).
 - Build minified release AAB with R8 and resource shrinking.
 - Report APK/AAB sizes and upload unsigned QA AAB plus separate ARM64/ARMv7 debug APK artifacts.
 
@@ -20,13 +20,14 @@ GitHub Actions run #143 (42461668698) completed successfully on commit 89139a036
 Run #143 predates the latest Activity lifecycle, tab restoration, R8/AAB and encrypted-metadata commits. Its recorded job steps did not include the current workflow's minified release AAB step. It must not be reported as verification of the latest source.
 
 ## Security QA branch coverage
-- `SensitiveWriteGuardTest` verifies the guard permits writes before an integrity failure, remains blocked after repeated failures, and exposes a shared process-wide guard.
-- These are JVM tests of the guard only; they do not exercise Android DataStore transactions or Android Keystore cryptography.
+- `SensitiveWriteGuardTest` verifies writes are permitted before integrity failure, the guard remains blocked after repeated failures, and direct replacement is rejected when authentication or metadata validation fails.
+- Direct open-tab/download replacement and clear-history now authenticate and validate the existing value inside the DataStore edit transaction before overwriting it. This protects against the in-memory guard resetting after process restart.
+- JVM callback-based tests verify the validation gate, not actual Android Keystore cryptography or DataStore disk-commit semantics.
 
 ## Latest source verification status
-- Latest source checkpoint before this documentation update: 9df07aa84f2b3e94c8a383cea486ced09652b8e5.
-- No workflow run or commit status was returned for that source commit during recovery.
-- Latest source has not yet been confirmed by CI.
+- Previous PR head `243348fae5c61a3c9dec40a285af17bf2de4419b` had a cancelled CI run (#229) during Android SDK setup; build, lint, tests and artifacts did not run.
+- The previous successful run (#228) was on parent commit `1c6e5b7f080f6d71bae1acc94c8ff9247f5ddd15`, not the PR head.
+- CI for the current follow-up commit must complete before the source is treated as CI-verified.
 - No physical-device install, force-stop/relaunch test or 3–4 GB benchmark is claimed.
 
 ## Phase 1 functional checks

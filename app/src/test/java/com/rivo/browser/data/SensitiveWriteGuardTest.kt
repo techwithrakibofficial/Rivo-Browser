@@ -29,11 +29,58 @@ class SensitiveWriteGuardTest {
     }
 
     @Test
-    fun processGuardIsSharedAcrossStorageInstances() {
-        SensitiveWriteGuard.process.block()
+    fun rejectsReplacementWhenExistingCiphertextCannotBeAuthenticated() {
+        val guard = SensitiveWriteGuard()
+        var replacementWritten = false
 
         assertThrows(IllegalStateException::class.java) {
-            SensitiveWriteGuard.process.ensureAllowed()
+            guard.validateExisting(
+                raw = "enc:v1:unreadable",
+                decrypt = { throw IllegalStateException("authentication failed") },
+                validate = {}
+            )
+            replacementWritten = true
         }
+
+        assertThrows(IllegalStateException::class.java) {
+            guard.ensureAllowed()
+        }
+        org.junit.Assert.assertFalse(replacementWritten)
+    }
+
+    @Test
+    fun rejectsReplacementWhenExistingMetadataIsMalformed() {
+        val guard = SensitiveWriteGuard()
+        var replacementWritten = false
+
+        assertThrows(IllegalArgumentException::class.java) {
+            guard.validateExisting(
+                raw = "legacy-json",
+                decrypt = { it },
+                validate = { throw IllegalArgumentException("malformed metadata") }
+            )
+            replacementWritten = true
+        }
+
+        assertThrows(IllegalStateException::class.java) {
+            guard.ensureAllowed()
+        }
+        org.junit.Assert.assertFalse(replacementWritten)
+    }
+
+    @Test
+    fun allowsReplacementOnlyAfterExistingMetadataPassesValidation() {
+        val guard = SensitiveWriteGuard()
+        var replacementWritten = false
+
+        guard.validateExisting(
+            raw = "legacy-json",
+            decrypt = { it },
+            validate = { assertEquals("legacy-json", it) }
+        )
+        replacementWritten = true
+
+        org.junit.Assert.assertTrue(replacementWritten)
+        guard.ensureAllowed()
     }
 }

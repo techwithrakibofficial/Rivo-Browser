@@ -61,47 +61,21 @@ class BrowserStorage(private val context: Context) {
     suspend fun loadHistory(): List<SavedPage> = decodeProtected(readProtected(historyKey))
 
     /** Restore only regular HTTP(S) tabs; private tabs are never serialized. */
-    suspend fun loadOpenTabs(): List<SavedTab> {
-        val raw = readProtected(openTabsKey)
-        if (raw.isBlank()) return emptyList()
-        return try {
-            val array = JSONArray(raw)
-            (0 until array.length()).mapNotNull { index ->
-                val item = requireNotNull(array.optJSONObject(index)) {
-                    "Saved tab entry is not an object"
-                }
-                val url = item.optString("url")
-                require(url.isNotBlank()) { "Saved tab URL is missing" }
-                if (!RestorableTabPolicy.isSafeUrl(url)) null
-                else SavedTab(url, item.optString("title", url), item.optBoolean("selected"))
-            }.take(8)
-        } catch (error: Exception) { integrityFailure(error) }
-    }
+    suspend fun loadOpenTabs(): List<SavedTab> =
+        decodeOpenTabs(readProtected(openTabsKey))
 
-    suspend fun loadDownloads(): List<SavedDownload> {
-        val raw = readProtected(downloadsKey)
-        if (raw.isBlank()) return emptyList()
-        return try {
-            val array = JSONArray(raw)
-            (0 until array.length()).map { index ->
-                val item = requireNotNull(array.optJSONObject(index)) {
-                    "Saved download entry is not an object"
-                }
-                val filename = item.optString("filename")
-                val path = item.optString("path")
-                require(filename.isNotBlank() && !filename.contains('/') && !filename.contains('\\')) {
-                    "Saved download filename is invalid"
-                }
-                require(path.isNotBlank()) { "Saved download path is missing" }
-                SavedDownload(filename, item.optString("mimeType").takeIf { it.isNotBlank() }, path)
-            }.take(100)
-        } catch (error: Exception) { integrityFailure(error) }
-    }
+    suspend fun loadDownloads(): List<SavedDownload> =
+        decodeDownloads(readProtected(downloadsKey))
 
     suspend fun saveDownloads(downloads: List<SavedDownload>) {
         ensureSensitiveWritesAllowed()
         context.rivoDataStore.edit { prefs ->
             ensureSensitiveWritesAllowed()
+            sensitiveWriteGuard.validateExisting(
+                prefs[downloadsKey].orEmpty(),
+                cipher::decryptOrLegacy,
+                ::parseDownloads
+            )
             prefs[downloadsKey] = cipher.encrypt(JSONArray().apply {
                 downloads.take(100).forEach { item ->
                     put(JSONObject().apply {
@@ -119,6 +93,11 @@ class BrowserStorage(private val context: Context) {
         val safeTabs = tabs.filter { RestorableTabPolicy.isSafeUrl(it.url) }.take(8)
         context.rivoDataStore.edit { prefs ->
             ensureSensitiveWritesAllowed()
+            sensitiveWriteGuard.validateExisting(
+                prefs[openTabsKey].orEmpty(),
+                cipher::decryptOrLegacy,
+                ::parseOpenTabs
+            )
             prefs[openTabsKey] = cipher.encrypt(JSONArray().apply {
                 safeTabs.forEach { tab ->
                     put(JSONObject().apply {
@@ -163,9 +142,14 @@ class BrowserStorage(private val context: Context) {
 
     suspend fun clearHistory() {
         ensureSensitiveWritesAllowed()
-        context.rivoDataStore.edit {
+        context.rivoDataStore.edit { prefs ->
             ensureSensitiveWritesAllowed()
-            it[historyKey] = cipher.encrypt("[]")
+            sensitiveWriteGuard.validateExisting(
+                prefs[historyKey].orEmpty(),
+                cipher::decryptOrLegacy,
+                ::decode
+            )
+            prefs[historyKey] = cipher.encrypt("[]")
         }
     }
 
@@ -182,6 +166,49 @@ class BrowserStorage(private val context: Context) {
             }
         }
         return plainText
+    }
+
+    private fun decodeOpenTabs(raw: String): List<SavedTab> = try {
+        parseOpenTabs(raw)
+    } catch (error: Exception) {
+        integrityFailure(error)
+    }
+
+    private fun parseOpenTabs(raw: String): List<SavedTab> {
+        if (raw.isBlank()) return emptyList()
+        val array = JSONArray(raw)
+        return (0 until array.length()).mapNotNull { index ->
+            val item = requireNotNull(array.optJSONObject(index)) {
+                "Saved tab entry is not an object"
+            }
+            val url = item.optString("url")
+            require(url.isNotBlank()) { "Saved tab URL is missing" }
+            if (!RestorableTabPolicy.isSafeUrl(url)) null
+            else SavedTab(url, item.optString("title", url), item.optBoolean("selected"))
+        }.take(8)
+    }
+
+    private fun decodeDownloads(raw: String): List<SavedDownload> = try {
+        parseDownloads(raw)
+    } catch (error: Exception) {
+        integrityFailure(error)
+    }
+
+    private fun parseDownloads(raw: String): List<SavedDownload> {
+        if (raw.isBlank()) return emptyList()
+        val array = JSONArray(raw)
+        return (0 until array.length()).map { index ->
+            val item = requireNotNull(array.optJSONObject(index)) {
+                "Saved download entry is not an object"
+            }
+            val filename = item.optString("filename")
+            val path = item.optString("path")
+            require(filename.isNotBlank() && !filename.contains('/') && !filename.contains('\\\\')) {
+                "Saved download filename is invalid"
+            }
+            require(path.isNotBlank()) { "Saved download path is missing" }
+            SavedDownload(filename, item.optString("mimeType").takeIf { it.isNotBlank() }, path)
+        }.take(100)
     }
 
     private fun encode(items: List<SavedPage>): String = JSONArray().apply {
@@ -244,6 +271,25 @@ internal class SensitiveWriteGuard {
     fun ensureAllowed() {
         check(!blocked) {
             "Saved browser data is unreadable; sensitive writes are disabled to preserve existing records."
+        }
+    }
+
+    /**
+     * Authenticate and validate the current value before a direct replacement.
+     * This protects records after process restart, when the in-memory block flag is reset.
+     */
+    fun validateExisting(
+        raw: String,
+        decrypt: (String) -> String,
+        validate: (String) -> Unit
+    ) {
+        ensureAllowed()
+        if (raw.isBlank()) return
+        try {
+            validate(decrypt(raw))
+        } catch (error: Exception) {
+            block()
+            throw error
         }
     }
 }
