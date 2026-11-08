@@ -138,9 +138,8 @@ class BrowserStorage(private val context: Context) {
         ensureSensitiveWritesAllowed()
         context.rivoDataStore.edit { prefs ->
             sensitiveWriteGuard.withAllowed {
-                val current = decodeProtected(decryptProtected(prefs[historyKey].orEmpty())).toMutableList()
-                if (current.firstOrNull()?.url != page.url) current.add(0, page)
-                prefs[historyKey] = cipher.encrypt(encode(current.take(300)))
+                val current = decodeProtected(decryptProtected(prefs[historyKey].orEmpty()))
+                prefs[historyKey] = cipher.encrypt(encode(HistoryVisitPolicy.recordVisit(current, page)))
             }
         }
     }
@@ -304,5 +303,24 @@ internal class SensitiveWriteGuard {
             block()
             throw error
         }
+    }
+}
+
+
+/**
+ * Shared policy for persisted and in-memory history. Gecko can emit both location
+ * and title callbacks for one visit; coalesce only consecutive callbacks for the
+ * same URL, retaining a later revisit after a different URL.
+ */
+internal object HistoryVisitPolicy {
+    fun recordVisit(
+        existing: List<SavedPage>,
+        page: SavedPage,
+        maxEntries: Int = 300
+    ): List<SavedPage> {
+        require(maxEntries >= 0) { "History limit cannot be negative" }
+        val bounded = existing.take(maxEntries)
+        if (bounded.firstOrNull()?.url == page.url) return bounded
+        return (listOf(page) + bounded).take(maxEntries)
     }
 }
