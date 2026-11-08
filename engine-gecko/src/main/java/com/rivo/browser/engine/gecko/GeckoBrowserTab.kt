@@ -8,6 +8,8 @@ import org.mozilla.geckoview.GeckoRuntimeSettings
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.GeckoSessionSettings
 import org.mozilla.geckoview.GeckoView
+import org.mozilla.geckoview.WebResponse
+import java.io.InputStream
 
 /**
  * Owns the single GeckoRuntime for the application process.
@@ -27,6 +29,7 @@ interface GeckoTabListener {
     fun onNavigationChanged(canGoBack: Boolean, canGoForward: Boolean)
     fun onContentCrashed()
     fun onSecurityChanged(secure: Boolean, exception: Boolean)
+    fun onExternalDownload(url: String, mimeType: String?, disposition: String?, body: InputStream?)
 }
 
 /** One GeckoSession per browser tab. */
@@ -57,6 +60,15 @@ class GeckoBrowserTab(
 
             override fun onKill(session: GeckoSession) {
                 listener.onContentCrashed()
+            }
+
+            override fun onExternalResponse(session: GeckoSession, response: WebResponse) {
+                listener.onExternalDownload(
+                    response.uri,
+                    response.headers["content-type"],
+                    response.headers["content-disposition"],
+                    response.body
+                )
             }
         })
         session.setPermissionDelegate(object : GeckoSession.PermissionDelegate {
