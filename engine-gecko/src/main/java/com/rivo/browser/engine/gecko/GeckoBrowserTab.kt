@@ -60,6 +60,7 @@ data class GeckoStoredSitePermission(
     val permissionName: String,
     val allowed: Boolean,
     val canRevoke: Boolean,
+    val contextKey: String?,
     internal val permission: GeckoSession.PermissionDelegate.ContentPermission
 )
 
@@ -260,6 +261,7 @@ class GeckoBrowserTab(
                         permissionName = label,
                         allowed = permission.value == GeckoSession.PermissionDelegate.ContentPermission.VALUE_ALLOW,
                         canRevoke = GeckoSitePermissionPolicy.canRevoke(permission.permission),
+                        contextKey = permission.contextId,
                         permission = permission
                     )
                 }
