@@ -1,7 +1,7 @@
 # ADR-0001: Browser Engine Selection
 
 - Date: 2026-11-08
-- Status: Proposed — build and physical-device benchmark required
+- Status: Proposed — physical-device benchmark required
 - Decision owner: Rivo Browser project
 
 ## Context
@@ -10,26 +10,24 @@ Rivo targets 3–4 GB Android devices and needs browser-grade session management
 ## Options
 ### Android System WebView
 Pros: lower integration complexity, system component updates, usually avoids bundling a full browser engine.
-Cons: the app must build browser-level features around an embeddable web-content component; no native full WebExtensions runtime; provider versions vary across devices.
+Cons: app must build browser-level features around an embeddable web-content component; no native full WebExtensions runtime; provider versions vary across devices.
 
 ### Mozilla GeckoView
-Pros: designed for embedding Gecko in apps and browsers; bundled/versioned engine; GeckoRuntime/GeckoSession lifecycle; browser-specific content-blocking and WebExtension APIs.
-Cons: larger package/runtime footprint is a risk to measure; the app owns engine update cadence and compatibility testing; extension compatibility is not universal.
+Pros: designed for embedding Gecko in apps and browsers; bundled/versioned engine; GeckoRuntime/GeckoSession lifecycle; native private sessions, content-blocking and WebExtension APIs.
+Cons: larger package/runtime footprint must be measured; app owns engine update cadence and compatibility testing; extension compatibility is not universal.
 
-## Phase 0 implementation
-- Added isolated `:engine-webview` and `:engine-gecko` modules.
-- Added `:webview` and `:gecko` app variants that load the same deterministic local HTML workload.
-- Pinned a Stable GeckoView candidate: `159.0.20261022150525`. CI must confirm dependency resolution and compilation.
-- Both adapters are probes only; they are not the Phase 1 browser engine integration.
+## Phase 1 implementation choice
+GeckoView Stable is used provisionally for the functional MVP because its session model supports private browsing and tracking protection. Published artifact: org.mozilla.geckoview:geckoview:159.0.20261022150525.
+The Android compile SDK is API 37.2 due AAR metadata; targetSdk remains 36.
+CI confirms assemble, lint and URL resolver unit tests pass. This is not a final engine selection.
 
-## Provisional recommendation
-Keep both candidates. GeckoView remains a strong browser-oriented candidate, but no final selection is made before build and physical-device evidence.
-
-## Acceptance evidence required
-- Successful CI build of both variants.
-- Installable APK size comparison per ABI.
+## Required evidence before final decision
+- Successful build and install of both engine candidates.
+- Per-ABI APK size comparison.
 - Cold/warm startup and page rendering observations.
 - PSS, Java/native heap and CPU measurements.
-- 1/5/10 session memory behavior in a future controlled probe.
-- Lifecycle cleanup and crash stability on representative 3–4 GB hardware.
-- Review of security update cadence and operational cost for each engine.
+- 1/5/10 session memory behavior.
+- Stability and security update cadence review on representative 3–4 GB devices.
+
+## Decision
+Keep status Proposed. Finalize only after reproducible physical-device measurements. Do not claim universal extension compatibility or a benchmark winner from source inspection alone.
