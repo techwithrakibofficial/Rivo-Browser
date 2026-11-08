@@ -174,6 +174,7 @@ class BrowserController(context: Context) {
                     origin: String,
                     permission: String,
                     privateMode: Boolean,
+                    onShown: () -> Unit,
                     respond: (Boolean) -> Unit
                 ) {
                     if (permissionPrompt != null || tab.id !in tabs.map { it.id }) {
@@ -181,7 +182,7 @@ class BrowserController(context: Context) {
                         return
                     }
                     val host = Uri.parse(origin).host ?: origin
-                    permissionPrompt = SitePermissionPrompt(tab.id, host, permission, privateMode, respond)
+                    permissionPrompt = SitePermissionPrompt(tab.id, host, permission, privateMode, onShown, respond)
                 }
             }
         )
@@ -595,6 +596,7 @@ data class SitePermissionPrompt(
     val origin: String,
     val permission: String,
     val privateMode: Boolean,
+    val onShown: () -> Unit,
     val respond: (Boolean) -> Unit
 )
 
