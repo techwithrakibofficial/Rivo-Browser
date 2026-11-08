@@ -211,7 +211,6 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                 }
             }
         }
-    }
 
     if (browser.panel != null) {
         BrowserPanelDialog(
@@ -270,6 +269,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                 TextButton(onClick = { browser.dismissNotice() }) { Text("OK") }
             }
         )
+    }
     }
 }
 
@@ -398,10 +398,13 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                                 },
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                Text(
-                                    (if (browser.appearance == appearance) "✓  " else "") +
-                                        appearance.name.lowercase().replaceFirstChar { it.uppercase() }
-                                )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    androidx.compose.material3.RadioButton(
+                                        selected = browser.appearance == appearance,
+                                        onClick = null
+                                    )
+                                    Text(appearance.name.lowercase().replaceFirstChar { it.uppercase() })
+                                }
                             }
                         }
                         Text(
