@@ -38,6 +38,7 @@ interface GeckoTabListener {
     fun onContentCrashed()
     fun onSecurityChanged(secure: Boolean, exception: Boolean)
     fun onExternalDownload(url: String, mimeType: String?, disposition: String?, body: InputStream?)
+    fun onSitePermissionRequest(origin: String, permission: String, privateMode: Boolean, respond: (Boolean) -> Unit)
 }
 
 /** One GeckoSession per browser tab. */
@@ -88,9 +89,26 @@ class GeckoBrowserTab(
             override fun onContentPermissionRequest(
                 session: GeckoSession,
                 permission: GeckoSession.PermissionDelegate.ContentPermission
-            ): GeckoResult<Int> = GeckoResult.fromValue(
-                GeckoSession.PermissionDelegate.ContentPermission.VALUE_DENY
-            )
+            ): GeckoResult<Int> {
+                val permissionName = when (permission.permission) {
+                    GeckoSession.PermissionDelegate.PERMISSION_DESKTOP_NOTIFICATION -> "notifications"
+                    GeckoSession.PermissionDelegate.PERMISSION_PERSISTENT_STORAGE -> "persistent storage"
+                    else -> return GeckoResult.fromValue(
+                        GeckoSession.PermissionDelegate.ContentPermission.VALUE_DENY
+                    )
+                }
+                if (permission.privateMode != isPrivate) {
+                    return GeckoResult.fromValue(GeckoSession.PermissionDelegate.ContentPermission.VALUE_DENY)
+                }
+                val result = GeckoResult<Int>()
+                listener.onSitePermissionRequest(permission.uri, permissionName, permission.privateMode) { granted ->
+                    result.complete(
+                        if (granted) GeckoSession.PermissionDelegate.ContentPermission.VALUE_ALLOW
+                        else GeckoSession.PermissionDelegate.ContentPermission.VALUE_DENY
+                    )
+                }
+                return result
+            }
 
             override fun onAndroidPermissionsRequest(
                 session: GeckoSession,
