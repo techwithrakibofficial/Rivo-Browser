@@ -9,6 +9,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.net.Uri
 import android.view.ViewGroup
 import org.mozilla.geckoview.GeckoRuntime
@@ -351,6 +353,7 @@ class GeckoBrowserTab(
 private class RivoWebNotificationDelegate(context: Context) : WebNotificationDelegate {
     private val appContext = context.applicationContext
     private val manager = appContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -365,46 +368,50 @@ private class RivoWebNotificationDelegate(context: Context) : WebNotificationDel
     }
 
     override fun onShowNotification(notification: WebNotification) {
-        if (Build.VERSION.SDK_INT >= 33 &&
-            appContext.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) !=
-            PackageManager.PERMISSION_GRANTED
-        ) {
-            notification.dismiss()
-            return
+        mainHandler.post {
+            if (Build.VERSION.SDK_INT >= 33 &&
+                appContext.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) !=
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                notification.dismiss()
+                return@post
+            }
+            val source = notification.source.orEmpty()
+            val host = Uri.parse(source).host ?: "Website"
+            val notificationId = notificationKey(notification)
+            val clickIntent = Intent().setClassName(
+                appContext,
+                "com.rivo.browser.RivoWebNotificationReceiver"
+            ).apply {
+                putExtra("com.rivo.browser.extra.WEB_NOTIFICATION", notification)
+            }
+            val pendingIntent = PendingIntent.getBroadcast(
+                appContext,
+                notificationId,
+                clickIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            val builder = Notification.Builder(appContext, CHANNEL_ID)
+                .setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setContentTitle(notification.title?.takeIf { it.isNotBlank() } ?: host)
+                .setContentText(notification.text.orEmpty())
+                .setSubText(host)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent)
+            manager.notify(NOTIFICATION_TAG, notificationId, builder.build())
+            notification.show()
         }
-        val source = notification.source ?: notification.origin
-        val host = Uri.parse(source).host ?: "Website"
-        val notificationId = notificationKey(notification)
-        val clickIntent = Intent().setClassName(
-            appContext,
-            "com.rivo.browser.RivoWebNotificationReceiver"
-        ).apply {
-            putExtra("com.rivo.browser.extra.WEB_NOTIFICATION", notification)
-        }
-        val pendingIntent = PendingIntent.getBroadcast(
-            appContext,
-            notificationId,
-            clickIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        val builder = Notification.Builder(appContext, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle(notification.title?.takeIf { it.isNotBlank() } ?: host)
-            .setContentText(notification.text.orEmpty())
-            .setSubText(host)
-            .setAutoCancel(true)
-            .setContentIntent(pendingIntent)
-        manager.notify(NOTIFICATION_TAG, notificationId, builder.build())
-        notification.show()
     }
 
     override fun onCloseNotification(notification: WebNotification) {
-        manager.cancel(NOTIFICATION_TAG, notificationKey(notification))
-        notification.dismiss()
+        mainHandler.post {
+            manager.cancel(NOTIFICATION_TAG, notificationKey(notification))
+            notification.dismiss()
+        }
     }
 
     private fun notificationKey(notification: WebNotification): Int =
-        (notification.origin + "|" + notification.tag).hashCode()
+        ((notification.source ?: "") + "|" + notification.tag).hashCode()
 
     companion object {
         private const val CHANNEL_ID = "rivo-website-notifications"
