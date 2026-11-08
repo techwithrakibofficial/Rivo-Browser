@@ -6,7 +6,7 @@ on:
     branches: [main]
   workflow_dispatch:
 concurrency:
-  group: android-ci-${{ github.ref }
+  group: android-ci-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: read
@@ -47,11 +47,11 @@ jobs:
           mapfile -t apks < <(find app/build/outputs/apk/debug engine-benchmark/build/outputs/apk -type f -name '*.apk' | sort)
           mapfile -t aabs < <(find app/build/outputs/bundle/release engine-benchmark/build/outputs/bundle -type f -name '*.aab' | sort)
           args=()
-          for artifact in ${{apks[@]}; do args+=(--apk "$artifact"); done
-          for artifact in ${{aabs[@]}; do args+=(--aab "$artifact"); done
-          test -n "${{#apks[@]}"
-          test -n "${{#aabs[@]}"
-          python3 tools/verify_16kb_alignment.py ${{args[@]}
+          for artifact in "${apks[@]}"; do args+=(--apk "$artifact"); done
+          for artifact in "${aabs[@]}"; do args+=(--aab "$artifact"); done
+          test -n "${#apks[@]}"
+          test -n "${#aabs[@]}"
+          python3 tools/verify_16kb_alignment.py "${args[@]}"
       - name: Report artifact sizes
         shell: bash
         run: |
