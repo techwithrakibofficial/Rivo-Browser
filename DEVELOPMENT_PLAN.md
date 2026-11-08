@@ -37,7 +37,7 @@
 - Manual device smoke tests, performance and security evidence are recorded.
 
 ### Remaining Phase 1 work (ordered)
-1. Verify integrated Main CI run #244 (or latest run on the current Main HEAD), including assembleDebug, lintDebug, testDebugUnitTest and minified bundleRelease.
+1. Maintain green CI on each new Main HEAD; latest integrated Main run #246 passed assembleDebug, lintDebug, testDebugUnitTest and minified bundleRelease.
 2. Fix overlay theme scope so the selected MaterialTheme covers dialogs and panels; add Compose previews/tests for all three modes.
 3. Adapt bottom toolbar and modal panel sizing for 320 dp width, short screens and large system font scales.
 4. Fix Light secondary contrast; add persistent omnibox label, localized tab-close semantics and selected-state semantics for appearance.

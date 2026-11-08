@@ -29,15 +29,12 @@ The app creates separate ARM64 and ARMv7 debug APK outputs. Install only the APK
 
 ## Verification
 
-Last successful CI checkpoint: GitHub Actions run #143 (42461668698), on commit 89139a036bb36829e52681df9eae7c47ae77197e.
+Latest integrated Main CI checkpoint: [GitHub Actions run #246](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42481870810), on commit `84303588c2560db55bfb7ae2081d8f714be532e7`. Its single build job succeeded.
 
-That earlier run passed assemble, lint, unit tests, ABI size reporting and ARM64/ARMv7 artifact uploads. It predates the latest lifecycle, tab-restoration, release-bundle and encrypted-metadata changes; it does not verify the current source HEAD.
+Verified: `:app:assembleDebug`, `:app:lintDebug`, `:app:testDebugUnitTest`, minified `-Privo.abiSplits=false :app:bundleRelease`, ABI APK/AAB size reporting, unsigned QA AAB upload, ARM64 APK upload and ARMv7 APK upload.
 
-- ARM64 debug APK from run #143: 208,688,414 bytes (~199.0 MiB).
-- ARMv7 debug APK from run #143: 169,493,492 bytes (~161.7 MiB).
-- These are debug APK sizes, not release AAB/APK measurements.
-- No physical-device installation or 3–4 GB performance benchmark has been verified.
-- Latest source checkpoint before this documentation update: 9df07aa84f2b3e94c8a383cea486ced09652b8e5; latest CI verification is pending.
+This validates CI for that exact commit only. It does not establish physical-device behavior, accessibility compliance, production signing or release readiness. Run #143 APK byte counts are historical and are not attributed to the current commit. No physical-device installation or 3–4 GB benchmark is verified.
+
 
 ## Documentation
 - Master specification: MASTER_SPEC.md
@@ -52,7 +49,7 @@ That earlier run passed assemble, lint, unit tests, ABI size reporting and ARM64
 - Engine benchmark protocol: docs/research/BENCHMARK_PROTOCOL.md
 
 ## Limitations and release blockers
-- LocalDataCipher currently falls back to an empty string when decryption fails; read-modify-write operations may overwrite previously saved metadata after ciphertext/key failure. This needs a safe fix and regression tests.
+- Encrypted metadata failures now propagate and sensitive writes use fail-closed validation; Android Keystore/DataStore instrumentation is still required for on-device verification.
 - Per-site permission management/revoke UI and process-death tab restoration validation are pending.
 - Download file contents are stored as ordinary files in app-specific storage and are not encrypted by the metadata cipher; private mode does not erase user-saved downloads.
 - Private browsing does not hide traffic from websites, ISPs or network operators.

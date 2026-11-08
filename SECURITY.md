@@ -29,9 +29,13 @@ OWASP MASVS is the baseline for storage, cryptography, network, platform, code, 
 - BrowserStorage uses a process-wide fail-closed write guard for integrity failures observed in the current process. The in-memory flag resets after process restart; therefore every direct replacement of existing open-tab or download metadata, and clear-history, now decrypts and validates the current value inside the DataStore edit transaction before replacing it. A missing/lost Keystore key or malformed existing value causes the edit to abort and preserves the stored ciphertext. Theme preference remains independently writable. All sensitive DataStore edit mutations are serialized with integrity-failure publication through the same process guard; read-modify-write paths authenticate and decode their target value before writing.
 - AES-GCM payload parsing validates the 12-byte IV plus 16-byte authentication tag minimum. The cipher uses a fresh provider-generated IV for each encryption.
 - JVM tests cover fail-closed guard behavior and verify that replacement is rejected when existing-value authentication or metadata validation fails. These tests exercise the validation gate with controlled callbacks; they do not prove Android Keystore cryptography or DataStore transaction behavior. Android Keystore-backed AES-GCM round-trip, tampering, key-loss, and legacy migration tests still require Android instrumentation; do not treat those cases as verified.
-- Regular-tab restoration and download-metadata persistence are implemented in source but still require CI and force-stop/relaunch verification.
+- Regular-tab restoration and download-metadata persistence are implemented in source; integrated Main CI run #246 passed, but force-stop/relaunch behavior still requires physical-device verification.
 - No claim of anonymity or complete tracker/ad blocking.
 - Final engine selection and device security/performance validation remain pending.
+
+## CI verification checkpoint
+
+Integrated Main commit `84303588c2560db55bfb7ae2081d8f714be532e7` passed GitHub Actions run [#246](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42481870810), including assembleDebug, lintDebug, JVM unit tests and minified release bundle packaging. These checks do not replace Android Keystore/DataStore instrumentation, physical-device tests, dependency review or MASVS assessment.
 
 ## Release gates
 - Verify encrypted-metadata failure handling with Android instrumentation tests before release.

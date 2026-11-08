@@ -16,11 +16,11 @@ The following GitHub Actions runs completed successfully:
 These are branch-level validations, not proof that the integrated Main commit passes.
 
 ## Integrated Main validation
-- Integrated HEAD at handoff: `1683ffb57dda1d1a9d15f85e892cb8139b06d23c`.
-- GitHub Actions run #244: https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42481557821
-- At the time of this update, debug APK assembly had passed and Android lint was in progress; unit tests, minified release AAB, size reporting and artifact uploads were pending.
-- Update this section only after checking the final run conclusion and job steps.
-- A later documentation-only commit may trigger a new Main CI run; always validate the current HEAD rather than assuming an earlier run covers it.
+- Verified integrated HEAD: `84303588c2560db55bfb7ae2081d8f714be532e7`.
+- GitHub Actions run [#246](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42481870810) completed with conclusion `success`.
+- The single `build` job completed all steps successfully: checkout/toolchain setup, `:app:assembleDebug`, `:app:lintDebug`, `:app:testDebugUnitTest`, `-Privo.abiSplits=false :app:bundleRelease`, ABI APK size reporting, release AAB size reporting, unsigned AAB upload, ARM64 APK upload and ARMv7 APK upload.
+- This is CI evidence for the exact HEAD above. It does not prove physical-device behavior or release signing.
+- A later source commit requires its own successful CI run; a documentation-only commit may also trigger CI.
 
 ## Security QA coverage and limitations
 - `SensitiveWriteGuardTest` verifies writes are allowed before integrity failure, remain blocked after repeated failures, and direct replacement is rejected when authentication/metadata validation fails.
@@ -56,6 +56,6 @@ Test at least one 3 GB and one 4 GB Android device if available. Record model, c
 
 ## Current status
 - Worker PR CI passed on all three branches.
-- Integrated Main CI run #244 was still running at the last checkpoint; integrated status is not yet confirmed.
+- Integrated Main CI run #246 completed successfully; all configured steps passed for its recorded HEAD.
 - No physical-device install, force-stop/relaunch, TalkBack, Accessibility Scanner or 3–4 GB benchmark is claimed.
 - QA AAB output is unsigned; it is not a production release artifact.

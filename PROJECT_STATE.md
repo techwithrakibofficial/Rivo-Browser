@@ -1,6 +1,6 @@
 # Project State
 
-Updated: 2026-11-08 12:44 UTC
+Updated: 2026-11-08 12:52 UTC
 
 ## Current phase
 Phase 1 — Functional Browser MVP. Phase 0 foundation is in place; final engine selection remains provisional pending physical-device benchmarking. Phase 2 and Phase 3 have not started.
@@ -8,10 +8,10 @@ Phase 1 — Functional Browser MVP. Phase 0 foundation is in place; final engine
 ## Repository checkpoint
 - Canonical repository: https://github.com/techwithrakibofficial/Rivo-Browser
 - Default branch: `main`
-- Integrated HEAD: `1683ffb57dda1d1a9d15f85e892cb8139b06d23c`
-- PR #1, #2 and #3 are merged; no open PRs were found at this checkpoint.
-- Worker branches were integrated using squash merges. Their changes are now in main; do not reimplement them.
-- Main CI run #244 (https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42481557821) was running against this HEAD during this update. Debug assembly passed; lint was in progress; unit tests, release AAB and artifact steps were pending. Do not report integrated CI as passed until run #244 completes.
+- Integrated HEAD: `84303588c2560db55bfb7ae2081d8f714be532e7`
+- PR #1, #2 and #3 are merged; no open PRs were found at this audit checkpoint.
+- Worker branches were integrated using squash merges; their changes are integrated and must not be reimplemented.
+- Latest Main validation: [CI run #246](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42481870810) passed on this HEAD, including assemble, lint, JVM tests, minified release bundle, size reports and QA artifact uploads.
 
 ## Integrated work
 ### Security QA — PR #1
@@ -50,8 +50,8 @@ Phase 1 — Functional Browser MVP. Phase 0 foundation is in place; final engine
 
 ## Verified versus unverified
 - PR CI runs #237 (security), #240 (Android engine) and #241 (UI documentation) completed successfully.
-- These PR checks are not a substitute for the integrated Main run #244.
-- Integrated Main run #244 is the current validation gate; see TESTING.md for its live status.
+- Integrated Main run #246 is the latest verified gate and passed all configured workflow steps on the recorded HEAD.
+- CI evidence is commit-specific; a later source change requires a new successful run.
 - No physical-device install, force-stop/relaunch test, TalkBack audit or 3–4 GB performance benchmark is claimed.
 - Release AAB from CI is unsigned QA output, not a production-signed release.
 
@@ -69,7 +69,7 @@ Phase 1 — Functional Browser MVP. Phase 0 foundation is in place; final engine
 - Advanced Tab Universe, Privacy Intelligence Center, Transfer Studio, reader mode, QR and verified extension workflows are not implemented.
 
 ## Exact next steps
-1. Confirm integrated Main CI run #244 succeeds; if it fails, inspect the failing job and fix before further feature work.
+1. Keep Main CI green after future source changes; run #246 passed the four required Gradle tasks and configured artifact steps.
 2. Fix the P1 overlay theme-scope defect and narrow-width/large-font toolbar behavior; add Compose UI tests/previews where feasible.
 3. Fix Light secondary contrast and omnibox/tab/theme-selection accessibility semantics; make panels adapt to available window height.
 4. Add Android instrumentation tests for Keystore AES-GCM round-trip, tampering, missing/lost key, legacy migration and DataStore corruption/relaunch preservation.

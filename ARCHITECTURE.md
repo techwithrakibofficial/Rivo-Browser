@@ -49,4 +49,4 @@
 - Status/navigation system icon contrast follows appearance mode.
 
 ## Verification boundary
-This document describes the current source architecture. Latest encryption, tab-restoration and Activity-lifecycle changes still require CI and physical-device validation before being treated as verified behavior.
+This document describes the current source architecture. Integrated Main commit `84303588c2560db55bfb7ae2081d8f714be532e7` passed GitHub Actions run [#246](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42481870810), including assembleDebug, lintDebug, JVM unit tests and minified bundleRelease. CI validates build/static/JVM checks only; physical-device lifecycle, encryption instrumentation and runtime behavior remain unverified.
