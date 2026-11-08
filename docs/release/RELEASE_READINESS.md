@@ -3,7 +3,7 @@
 **Status: BLOCKED — not a production release candidate.**
 Audit date: 2026-11-09
 Audited branch: `main`
-Audited commit: `84303588c2560db0944ba7fd7becca0af50309b3b6`
+Audited commit: `84303588c2560db55bfb7ae2081d8f714be532e7`
 
 ## Verified CI evidence
 
