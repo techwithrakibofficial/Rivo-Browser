@@ -450,15 +450,17 @@ class BrowserController(context: Context) {
                     if (!allowed || !file.isFile || !file.exists() || file.length() > MAX_DOWNLOAD_BYTES) {
                         null
                     } else {
-                        BrowserDownload(nextId++, saved.filename, saved.mimeType).apply {
-                            this.file = file
-                            status = "Saved in app Downloads"
-                        }
+                        saved to file
                     }
                 }.getOrNull()
             }
             withContext(Dispatchers.Main.immediate) {
-                downloads.addAll(restored)
+                downloads.addAll(restored.map { (saved, file) ->
+                    BrowserDownload(nextId++, saved.filename, saved.mimeType).apply {
+                        this.file = file
+                        status = "Saved in app Downloads"
+                    }
+                })
             }
         }
     }
