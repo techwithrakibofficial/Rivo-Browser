@@ -250,25 +250,32 @@ class BrowserController(context: Context) {
         }
         val page = SavedPage(tab.url, tab.title, System.currentTimeMillis())
         scope.launch {
-            storage.addBookmark(page)
-            bookmarks.removeAll { it.url == page.url }
-            bookmarks.add(0, page)
-            notice = "Bookmark saved"
+            runCatching { storage.addBookmark(page) }
+                .onSuccess {
+                    bookmarks.removeAll { it.url == page.url }
+                    bookmarks.add(0, page)
+                    notice = "Bookmark saved"
+                }
+                .onFailure { notice = it.message ?: "Bookmark could not be saved." }
         }
     }
 
     fun removeBookmark(url: String) {
         scope.launch {
-            storage.removeBookmark(url)
-            bookmarks.removeAll { it.url == url }
+            runCatching { storage.removeBookmark(url) }
+                .onSuccess { bookmarks.removeAll { it.url == url } }
+                .onFailure { notice = it.message ?: "Bookmark could not be removed." }
         }
     }
 
     fun clearHistory() {
         scope.launch {
-            storage.clearHistory()
-            history.clear()
-            notice = "Browsing history cleared"
+            runCatching { storage.clearHistory() }
+                .onSuccess {
+                    history.clear()
+                    notice = "Browsing history cleared"
+                }
+                .onFailure { notice = it.message ?: "History could not be cleared." }
         }
     }
 
@@ -492,7 +499,10 @@ class BrowserController(context: Context) {
             val file = item.file ?: return@mapNotNull null
             SavedDownload(item.filename, item.mimeType, file.absolutePath)
         }
-        scope.launch { storage.saveDownloads(saved) }
+        scope.launch {
+            runCatching { storage.saveDownloads(saved) }
+                .onFailure { notice = it.message ?: "Download metadata could not be saved." }
+        }
     }
 
     private fun persistOpenTabs() {
@@ -503,16 +513,22 @@ class BrowserController(context: Context) {
                 selected = tab.id == activeTabId
             )
         }
-        scope.launch { storage.saveOpenTabs(saved) }
+        scope.launch {
+            runCatching { storage.saveOpenTabs(saved) }
+                .onFailure { notice = it.message ?: "Tab restoration data could not be saved." }
+        }
     }
 
     private fun saveHistory(tab: BrowserTabState) {
         val page = SavedPage(tab.url, tab.title, System.currentTimeMillis())
         scope.launch {
-            storage.addHistory(page)
-            history.removeAll { it.url == page.url }
-            history.add(0, page)
-            while (history.size > 300) history.removeAt(history.lastIndex)
+            runCatching { storage.addHistory(page) }
+                .onSuccess {
+                    history.removeAll { it.url == page.url }
+                    history.add(0, page)
+                    while (history.size > 300) history.removeAt(history.lastIndex)
+                }
+                .onFailure { notice = it.message ?: "History could not be saved." }
         }
     }
 
