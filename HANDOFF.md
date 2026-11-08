@@ -9,6 +9,8 @@ https://github.com/techwithrakibofficial/Rivo-Browser
 ## Implemented
 - GeckoView Stable candidate with process-scoped GeckoRuntime and per-tab GeckoSession.
 - Activity-context GeckoView lifecycle is separated from ViewModel-owned browser sessions.
+- Activity start/stop now gates Gecko session activation; backgrounded tabs are deactivated and unfocused.
+- Android system Back navigates page history when available.
 - URL/search omnibox; back, forward, reload and stop.
 - Tab switching/closing; inactive sessions are deactivated; 8-tab cap.
 - Private Gecko sessions, excluded from app-side history/bookmarks.
