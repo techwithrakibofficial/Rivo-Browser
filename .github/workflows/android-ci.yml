@@ -49,8 +49,8 @@ jobs:
           args=()
           for artifact in "${apks[@]}"; do args+=(--apk "$artifact"); done
           for artifact in "${aabs[@]}"; do args+=(--aab "$artifact"); done
-          test -n "${#apks[@]}"
-          test -n "${#aabs[@]}"
+          (( ${#apks[@]} > 0 ))
+          (( ${#aabs[@]} > 0 ))
           python3 tools/verify_16kb_alignment.py "${args[@]}"
       - name: Report artifact sizes
         shell: bash
