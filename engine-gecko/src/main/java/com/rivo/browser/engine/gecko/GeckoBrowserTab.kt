@@ -257,7 +257,7 @@ class GeckoBrowserTab(
     val isTrackingProtectionEnabled: Boolean
         get() = session.settings.useTrackingProtection
 
-    fun loadStoredSitePermissions(callback: (List<GeckoStoredSitePermission>) -> Unit) {
+    fun loadStoredSitePermissions(callback: (List<GeckoStoredSitePermission>?) -> Unit) {
         runtime.storageController.getAllPermissions().accept({ permissions ->
             val stored = permissions.orEmpty()
                 .filter(GeckoSitePermissionPolicy::shouldDisplay)
@@ -284,7 +284,7 @@ class GeckoBrowserTab(
                 .sortedWith(compareBy<GeckoStoredSitePermission> { it.origin }.thenBy { it.permissionName })
             callback(stored)
         }, {
-            callback(emptyList())
+            callback(null)
         })
     }
 
