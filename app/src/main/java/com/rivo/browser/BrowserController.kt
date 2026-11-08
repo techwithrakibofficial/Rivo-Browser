@@ -212,6 +212,7 @@ class BrowserController(context: Context) {
         if (permissionPrompt?.tabId == id) respondToSitePermission(false)
         if (pendingDownload?.tabId == id) cancelPendingDownload()
         closing.engine.dispose()
+        downloads.removeAll { it.privateTabId == id }
         tabs.removeAt(index)
         if (tabs.isEmpty()) {
             createTab()
@@ -451,7 +452,7 @@ class BrowserController(context: Context) {
             "download-" + System.currentTimeMillis()
         )
 
-        val item = BrowserDownload(nextId++, safeName, mimeType, tab.privateMode)
+        val item = BrowserDownload(nextId++, safeName, mimeType, tab.privateMode, if (tab.privateMode) tab.id else null)
         downloads.add(0, item)
         scope.launch(Dispatchers.IO) {
             val result = runCatching {
@@ -622,7 +623,13 @@ data class SitePermissionPrompt(
     val respond: (Boolean) -> Unit
 )
 
-class BrowserDownload(val id: Long, val filename: String, val mimeType: String?, val privateMode: Boolean = false) {
+class BrowserDownload(
+    val id: Long,
+    val filename: String,
+    val mimeType: String?,
+    val privateMode: Boolean = false,
+    val privateTabId: Long? = null
+) {
     var status by mutableStateOf("Downloading")
     var file: File? = null
 }
