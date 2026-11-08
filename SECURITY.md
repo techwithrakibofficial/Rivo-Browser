@@ -13,7 +13,8 @@ OWASP MASVS is the baseline for storage, cryptography, network, platform, code, 
 - No JavaScript-to-native bridge and no TLS certificate error override.
 - Connection security state from GeckoView ProgressDelegate.
 - Omnibox accepts HTTP/HTTPS; unsupported schemes become search queries.
-- Downloads accept HTTP(S) response streams, sanitize filenames, enforce a 250 MB per-file limit and write into app-specific storage.
+- Downloads require an explicit user confirmation, accept HTTP(S) response streams, sanitize filenames, enforce a 250 MB per-file limit, write to a temporary file and atomically finalize in app-specific storage.
+- Download metadata restoration validates canonical file paths against app-specific download directories; abandoned temporary `.part` files are cleaned on startup.
 - A non-exported FileProvider exposes only scoped app-specific download paths for explicit open/share actions.
 - App declares INTERNET only; no broad storage, camera, microphone or location permission.
 - Android backup disabled and cleartext traffic disabled in Android app policy.
