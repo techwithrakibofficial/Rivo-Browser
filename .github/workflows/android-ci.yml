@@ -19,7 +19,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.6.0'
-      - name: Assemble debug foundation
-        run: gradle --no-daemon assembleDebug
+      - name: Assemble WebView and GeckoView probes
+        run: gradle --no-daemon :app:assembleWebviewDebug :app:assembleGeckoDebug
       - name: Run unit tests
         run: gradle --no-daemon test
