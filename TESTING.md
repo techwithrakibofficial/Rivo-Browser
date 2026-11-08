@@ -4,7 +4,8 @@
 - Android compile platform API 37.2; targetSdk 36.
 - Assemble GeckoView MVP debug APKs.
 - Android lint.
-- JVM tests for URL/search resolution, safe restorable-tab URL policy, sensitive metadata write validation, IDN normalization, restored-tab index selection and Gecko site-permission policy.
+- JVM tests for URL/search resolution, safe restorable-tab URL policy, sensitive metadata write validation, IDN normalization, restored-tab index selection, Gecko site-permission policy, and download URL/filename/path/private-metadata policies.
+- Android instrumentation tests for Android Keystore AES-GCM round-trip, AES-256 key size, ciphertext tampering and missing-key fail-closed behavior.
 - Minified release AAB build with R8/resource shrinking.
 - APK/AAB size reporting and unsigned QA artifact uploads for ARM64/ARMv7.
 
@@ -42,19 +43,20 @@ These are branch-level validations, not proof that the integrated Main commit pa
 10. History persistence, duplicate visits and clear.
 11. Dark/Light/Glass persistence and system-bar contrast.
 12. Open all dialogs/panels in all three appearance modes; verify theme scope and contrast.
-13. Download confirmation/cancel, response-stream closure, filename sanitization, duplicate names, atomic finalization, 250 MB cap, metadata restoration and open/share.
-14. Normal-mode HTTPS site-notification and supported autoplay requests show explicit Allow/Deny prompts; Android 13+ notification approval also requests POST_NOTIFICATIONS. Private-mode website notifications are denied.
-15. Geolocation, persistent-storage, XR, DRM, tracking exceptions, third-party storage, camera, microphone and unsupported media/runtime requests are denied by default.
-16. Site permission panel lists actual GeckoView records, excludes private-mode records, and resets revocable records to VALUE_PROMPT; persistent-storage records are shown as non-revocable.
-17. Private site permission decisions do not appear in the normal site-permission manager; no private permanent permission API is used.
-18. Notification channel delivery is gated by Android notification permission; notification clicks are routed back to Gecko.
-19. Tracking-protection status reflects GeckoSessionSettings and the active page's Gecko ContentPermission exception; no tracker count is displayed without a verified per-page engine count.
-20. Certificate errors are not bypassed; security label comes from GeckoView callback.
-21. Activity recreation/background/foreground; verify all sessions deactivate on stop and only selected session reactivates on start.
-22. Force-stop/relaunch: regular HTTP(S) tabs restore; selected normal tab restores; private tabs do not reappear.
-23. Release bundle builds with R8/resource shrinking and minified runtime behavior is smoke-tested.
-24. Encrypted storage: legacy migration, fresh-IV round-trip, tampered/truncated ciphertext, unavailable key and read-modify-write preservation.
-25. Accessibility: TalkBack names/roles/selected states, 48 dp touch targets, font scaling, 320 dp width, panel scrolling and Glass fallback.
+13. Download confirmation/cancel, response-stream closure, HTTP(S)-only response URL validation, filename sanitization, duplicate names, atomic finalization, streamed 250 MB cap, canonical app-root metadata restoration and scoped read-only open/share.
+14. Private-tab downloads: the file remains in app-specific storage after download, but its new metadata is not saved to persistent browser download history; confirm the UI discloses that file bytes are not erased or encrypted by private mode.
+15. Normal-mode HTTPS site-notification and supported autoplay requests show explicit Allow/Deny prompts; Android 13+ notification approval also requests POST_NOTIFICATIONS. Private-mode website notifications are denied.
+16. Geolocation, persistent-storage, XR, DRM, tracking exceptions, third-party storage, camera, microphone and unsupported media/runtime requests are denied by default.
+17. Privacy Intelligence Center lists actual GeckoView records, excludes private-mode records, and resets revocable records to VALUE_PROMPT; persistent-storage records are shown as non-revocable.
+18. Private site permission decisions do not appear in the normal site-permission manager; no private permanent permission API is used.
+19. Notification channel delivery is gated by Android notification permission; notification clicks are routed back to Gecko.
+20. Tracking-protection status reflects GeckoSessionSettings and the active page's Gecko ContentPermission exception; no tracker count is displayed without a verified per-page engine count.
+21. Certificate errors are not bypassed; security label comes from GeckoView callback.
+22. Activity recreation/background/foreground; verify all sessions deactivate on stop and only selected session reactivates on start.
+23. Force-stop/relaunch: regular HTTP(S) tabs restore; selected normal tab restores; private tabs do not reappear.
+24. Release bundle builds with R8/resource shrinking and minified runtime behavior is smoke-tested.
+25. Encrypted storage: legacy migration, fresh-IV round-trip, AES-256 Keystore key size, tampered/truncated ciphertext, unavailable key without replacement, and read-modify-write preservation.
+26. Accessibility: TalkBack names/roles/selected states, 48 dp touch targets, font scaling, 320 dp width, panel scrolling and Glass fallback.
 
 ## Physical-device benchmark
 Test at least one 3 GB and one 4 GB Android device if available. Record model, chipset, Android build, ABI, GeckoView version, APK/AAB size, cold/warm startup, PSS, CPU, thermal state and crashes/ANRs. Do not extrapolate emulator-only results to all 3–4 GB phones.
@@ -64,3 +66,9 @@ Test at least one 3 GB and one 4 GB Android device if available. Record model, c
 - Integrated Main CI run #244 was still running at the last checkpoint; integrated status is not yet confirmed.
 - No physical-device install, site-permission grant/revoke, notification runtime prompt, private permission isolation, force-stop/relaunch, TalkBack, Accessibility Scanner or 3–4 GB benchmark is claimed.
 - QA AAB output is unsigned; it is not a production release artifact.
+
+
+## RIVO-11 additions (execution pending)
+- `DownloadSecurityPolicyTest` covers URL scheme/host/user-info rejection, filename sanitization, canonical restored-file root/size checks, and the private-download metadata persistence rule.
+- `LocalDataCipherInstrumentedTest` exercises the Android Keystore provider directly for AES-256-GCM round-trip, tamper detection and missing-key failure without replacement.
+- These are newly added tests; do not report them as passing until the corresponding CI job completes. No hardware-backed/StrongBox assertion is made.
