@@ -149,6 +149,19 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                             modifier = Modifier.padding(start = 8.dp, top = 5.dp)
                         )
                     }
+                    if (active != null && !active.privateMode && active.securityKnown) {
+                        Text(
+                            when {
+                                active.certificateException -> "Certificate security exception"
+                                active.secureConnection -> "Secure connection verified by browser engine"
+                                else -> "Connection is not secure"
+                            },
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (active.secureConnection && !active.certificateException)
+                                MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(start = 8.dp, top = 4.dp)
+                        )
+                    }
                 }
 
                 if (active != null) {
