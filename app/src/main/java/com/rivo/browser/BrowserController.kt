@@ -85,6 +85,7 @@ class BrowserController(context: Context) {
             }.getOrDefault(BrowserAppearance.DARK)
             bookmarks.addAll(storage.loadBookmarks())
             history.addAll(storage.loadHistory())
+            cleanupInterruptedDownloads()
             restoreDownloads()
             val restoredTabs = storage.loadOpenTabs()
             if (restoredTabs.isEmpty()) {
@@ -434,6 +435,20 @@ class BrowserController(context: Context) {
                     item.status = "Failed"
                     notice = "Download failed: " + (it.message ?: "unknown error")
                 }
+            }
+        }
+    }
+
+    private fun cleanupInterruptedDownloads() {
+        scope.launch(Dispatchers.IO) {
+            val directories = listOfNotNull(
+                appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
+                File(appContext.filesDir, "downloads")
+            )
+            directories.forEach { directory ->
+                directory.listFiles { file ->
+                    file.isFile && file.name.startsWith(".rivo-") && file.name.endsWith(".part")
+                }?.forEach { it.delete() }
             }
         }
     }
