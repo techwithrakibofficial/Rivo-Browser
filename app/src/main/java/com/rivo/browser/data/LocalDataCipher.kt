@@ -13,7 +13,10 @@ import javax.crypto.spec.GCMParameterSpec
 
 /**
  * Encrypts local browsing metadata with an AES-256-GCM key held by Android Keystore.
- * Legacy plaintext values are readable for one-way migration and are encrypted on next write.
+ * Legacy plaintext values are readable for one-way migration and encrypted on next write.
+ *
+ * Encrypted payload failures are deliberately propagated. Returning an empty string here
+ * would make callers treat unreadable saved data as an empty collection and overwrite it.
  */
 internal class LocalDataCipher {
     fun encrypt(plainText: String): String {
@@ -30,16 +33,24 @@ internal class LocalDataCipher {
     fun decryptOrLegacy(raw: String): String {
         if (raw.isBlank()) return ""
         if (!raw.startsWith(PREFIX)) return raw
-        return runCatching {
+
+        try {
             val payload = Base64.decode(raw.removePrefix(PREFIX), Base64.NO_WRAP)
-            require(payload.size > GCM_IV_BYTES) { "Encrypted browser data is truncated" }
+            require(payload.size > GCM_IV_BYTES + GCM_TAG_BYTES) {
+                "Encrypted browser data is truncated"
+            }
             val buffer = ByteBuffer.wrap(payload)
             val iv = ByteArray(GCM_IV_BYTES).also(buffer::get)
             val encrypted = ByteArray(buffer.remaining()).also(buffer::get)
             val cipher = Cipher.getInstance(TRANSFORMATION)
             cipher.init(Cipher.DECRYPT_MODE, getOrCreateKey(), GCMParameterSpec(GCM_TAG_BITS, iv))
-            String(cipher.doFinal(encrypted), StandardCharsets.UTF_8)
-        }.getOrDefault("")
+            return String(cipher.doFinal(encrypted), StandardCharsets.UTF_8)
+        } catch (failure: Exception) {
+            throw EncryptedDataException(
+                "Saved browser data could not be decrypted; the original record was preserved.",
+                failure
+            )
+        }
     }
 
     @Synchronized
@@ -69,5 +80,9 @@ internal class LocalDataCipher {
         const val PREFIX = "enc:v1:"
         const val GCM_IV_BYTES = 12
         const val GCM_TAG_BITS = 128
+        const val GCM_TAG_BYTES = GCM_TAG_BITS / 8
     }
 }
+
+internal class EncryptedDataException(message: String, cause: Throwable) :
+    IllegalStateException(message, cause)
