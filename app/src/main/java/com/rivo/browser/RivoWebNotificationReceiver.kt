@@ -17,7 +17,7 @@ class RivoWebNotificationReceiver : BroadcastReceiver() {
             notification.click()
             notification.dismiss()
             val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            val id = (notification.origin + "|" + notification.tag).hashCode()
+            val id = ((notification.source ?: "") + "|" + notification.tag).hashCode()
             manager.cancel("rivo-web", id)
         }
     }
