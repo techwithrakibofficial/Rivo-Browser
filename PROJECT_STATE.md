@@ -19,6 +19,7 @@ Phase 1 — Functional Browser MVP, authorized by user on 2026-11-08.
 - Process-scoped GeckoRuntime provider; one GeckoSession per tab.
 - GeckoView is created with the current Activity context and detached on composition lifecycle changes; sessions remain in ViewModel across Activity configuration changes.
 - Activity onStart/onStop now gates session activation: only the selected tab is active while visible; all tabs are deactivated/unfocused while backgrounded.
+- Normal HTTP(S) tabs are persisted locally and restored after process recreation (up to eight); private tabs are excluded from serialization.
 - Android system Back now navigates browser history when available.
 - Omnibox resolves HTTP/HTTPS URLs and plain-text searches; unsupported schemes are sent to search.
 - Back, forward, reload and stop; Gecko navigation capability state comes from delegate callbacks.
@@ -33,6 +34,8 @@ Phase 1 — Functional Browser MVP, authorized by user on 2026-11-08.
 - URL/search resolver JUnit tests added.
 
 ## Latest source changes (CI verification pending)
+- `2a328a9`, `6f8d22c`: persist and restore regular tabs; private tabs excluded.
+- `300f442`, `d2a1abb`: enable R8/resource shrinking for release and add unsigned QA AAB build/artifact to CI.
 - `8af4505`: pause Gecko sessions when Activity stops and reactivate selected session on start.
 - `18cc890`: wire BrowserController lifecycle to MainActivity.
 - `b8405ac`: route Android system Back to Gecko page history when available.
@@ -52,12 +55,12 @@ Phase 1 — Functional Browser MVP, authorized by user on 2026-11-08.
 - No physical device install/smoke test or 3–4 GB memory benchmark.
 - Per-site permission allow/deny UI is not implemented; permissions remain denied.
 - Download files are app-specific; downloads list metadata is not persisted after process death.
-- Open-tab restoration after process death is not implemented.
+- Process-death tab restoration is implemented in source but has not yet passed a post-change CI or physical force-stop/relaunch test.
 - History/bookmarks are app-private but not separately encrypted with an app-managed key.
 - Final engine selection awaits controlled WebView/GeckoView device benchmark.
 
 ## Next steps
-1. Verify CI after Activity lifecycle and system Back changes.
+1. Verify CI after lifecycle, tab restoration and minified AAB changes.
 2. Install and smoke-test on physical ARM64 and ARMv7 Android devices.
 3. Measure actual per-APK size, cold/warm startup, PSS, CPU and stability on 3–4 GB devices.
 4. Implement per-site permission UX and tab restoration.
