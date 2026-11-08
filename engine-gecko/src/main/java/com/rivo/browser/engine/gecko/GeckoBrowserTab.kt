@@ -3,6 +3,7 @@ package com.rivo.browser.engine.gecko
 import android.content.Context
 import android.view.ViewGroup
 import org.mozilla.geckoview.GeckoRuntime
+import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoRuntimeSettings
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.GeckoSessionSettings
@@ -25,6 +26,7 @@ interface GeckoTabListener {
     fun onLoadingChanged(loading: Boolean, progress: Int)
     fun onNavigationChanged(canGoBack: Boolean, canGoForward: Boolean)
     fun onContentCrashed()
+    fun onSecurityChanged(secure: Boolean, exception: Boolean)
 }
 
 /** One GeckoSession per browser tab. */
@@ -57,7 +59,40 @@ class GeckoBrowserTab(
                 listener.onContentCrashed()
             }
         })
+        session.setPermissionDelegate(object : GeckoSession.PermissionDelegate {
+            override fun onContentPermissionRequest(
+                session: GeckoSession,
+                permission: GeckoSession.PermissionDelegate.ContentPermission
+            ): GeckoResult<Int> = GeckoResult.fromValue(
+                GeckoSession.PermissionDelegate.ContentPermission.VALUE_DENY
+            )
+
+            override fun onAndroidPermissionsRequest(
+                session: GeckoSession,
+                permissions: Array<String>?,
+                callback: GeckoSession.PermissionDelegate.Callback
+            ) {
+                callback.reject()
+            }
+
+            override fun onMediaPermissionRequest(
+                session: GeckoSession,
+                uri: String,
+                video: Array<GeckoSession.PermissionDelegate.MediaSource>?,
+                audio: Array<GeckoSession.PermissionDelegate.MediaSource>?,
+                callback: GeckoSession.PermissionDelegate.MediaCallback
+            ) {
+                callback.reject()
+            }
+        })
         session.setProgressDelegate(object : GeckoSession.ProgressDelegate {
+            override fun onSecurityChange(
+                session: GeckoSession,
+                securityInfo: GeckoSession.ProgressDelegate.SecurityInformation
+            ) {
+                listener.onSecurityChanged(securityInfo.isSecure, securityInfo.isException)
+            }
+
             override fun onPageStart(session: GeckoSession, url: String) {
                 listener.onLoadingChanged(true, 0)
             }
