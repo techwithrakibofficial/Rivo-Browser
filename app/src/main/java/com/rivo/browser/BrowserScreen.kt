@@ -241,14 +241,23 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                         if (browser.bookmarks.isEmpty()) Text("No bookmarks saved yet.")
                         LazyColumn(modifier = Modifier.height(300.dp)) {
                             items(browser.bookmarks, key = { it.url }) { page ->
-                                TextButton(onClick = {
-                                    browser.navigate(page.url)
-                                    onDismiss()
-                                }) {
-                                    Column {
-                                        Text(page.title, maxLines = 1)
-                                        Text(page.url, style = MaterialTheme.typography.labelSmall, maxLines = 1)
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    TextButton(
+                                        onClick = {
+                                            browser.navigate(page.url)
+                                            onDismiss()
+                                        },
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Column {
+                                            Text(page.title, maxLines = 1)
+                                            Text(page.url, style = MaterialTheme.typography.labelSmall, maxLines = 1)
+                                        }
                                     }
+                                    TextButton(onClick = { browser.removeBookmark(page.url) }) { Text("×") }
                                 }
                             }
                         }
