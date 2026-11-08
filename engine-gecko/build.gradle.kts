@@ -18,5 +18,5 @@ android {
 
 dependencies {
     implementation(project(":engine-api"))
-    implementation("org.mozilla.geckoview:geckoview:159.0.20261022150525")
+    api("org.mozilla.geckoview:geckoview:159.0.20261022150525")
 }
