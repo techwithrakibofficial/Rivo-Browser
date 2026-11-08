@@ -34,6 +34,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.rivo.browser.designsystem.RivoColorSchemes
+import com.rivo.browser.designsystem.RivoSpacing
+import com.rivo.browser.designsystem.RivoShapes
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -63,15 +65,15 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.surface.copy(alpha = if (browser.appearance == BrowserAppearance.GLASS) 0.88f else 1f))
-                        .padding(horizontal = 12.dp, vertical = 10.dp)
+                        .padding(horizontal = RivoSpacing.medium, vertical = RivoSpacing.small + RivoSpacing.compact)
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(RivoSpacing.small)) {
                         OutlinedTextField(
                             value = address,
                             onValueChange = { address = it },
                             modifier = Modifier.weight(1f),
                             singleLine = true,
-                            shape = RoundedCornerShape(18.dp),
+                            shape = RoundedCornerShape(RivoShapes.control),
                             placeholder = { Text("Search or enter address") },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Go),
                             keyboardActions = KeyboardActions(onGo = {
@@ -124,7 +126,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                             "PRIVATE TAB · This session is not saved to local history",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(start = 8.dp, top = 5.dp)
+                            modifier = Modifier.padding(start = RivoSpacing.small, top = RivoSpacing.compact)
                         )
                     }
                     if (active != null && !active.privateMode && active.securityKnown) {
@@ -137,7 +139,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                             style = MaterialTheme.typography.labelSmall,
                             color = if (active.secureConnection && !active.certificateException)
                                 MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(start = 8.dp, top = 4.dp)
+                            modifier = Modifier.padding(start = RivoSpacing.small, top = RivoSpacing.compact)
                         )
                     }
                 }
@@ -159,7 +161,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.surface)
-                        .padding(horizontal = 8.dp, vertical = 6.dp),
+                        .padding(horizontal = RivoSpacing.small, vertical = RivoSpacing.compact + 2.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -210,13 +212,13 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
     }
     Dialog(onDismissRequest = onDismiss) {
         Surface(
-            shape = RoundedCornerShape(24.dp),
+            shape = RoundedCornerShape(RivoShapes.panel),
             color = MaterialTheme.colorScheme.surface,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column(modifier = Modifier.padding(18.dp)) {
+            Column(modifier = Modifier.padding(RivoSpacing.large)) {
                 Text(title, style = MaterialTheme.typography.titleLarge)
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(RivoSpacing.medium))
                 when (panel) {
                     BrowserPanel.TABS -> LazyColumn(modifier = Modifier.height(300.dp)) {
                         items(browser.tabs, key = { it.id }) { tab ->
