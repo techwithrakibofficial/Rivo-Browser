@@ -1,6 +1,7 @@
 package com.rivo.browser.designsystem
 
 import com.rivo.browser.BrowserAppearance
+import androidx.compose.ui.graphics.Color
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -12,9 +13,9 @@ class RivoColorSchemesTest {
         val light = RivoColorSchemes.forAppearance(BrowserAppearance.LIGHT)
         val glass = RivoColorSchemes.forAppearance(BrowserAppearance.GLASS)
 
-        assertEquals(0xFF0D1118.toInt(), dark.background.value.toLong().toInt())
-        assertEquals(0xFFF3F6FA.toInt(), light.background.value.toLong().toInt())
-        assertEquals(0xFF101827.toInt(), glass.background.value.toLong().toInt())
+        assertEquals(Color(0xFF0D1118), dark.background)
+        assertEquals(Color(0xFFF3F6FA), light.background)
+        assertEquals(Color(0xFF101827), glass.background)
         assertTrue(glass.surface.alpha < 1f)
         assertEquals(1f, dark.surface.alpha, 0f)
         assertEquals(1f, light.surface.alpha, 0f)
