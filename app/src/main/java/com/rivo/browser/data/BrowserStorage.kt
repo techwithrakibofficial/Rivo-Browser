@@ -35,7 +35,7 @@ data class SavedDownload(
  */
 class BrowserStorage(private val context: Context) {
     private val cipher = LocalDataCipher()
-    private val sensitiveWriteGuard = SensitiveWriteGuard()
+    private val sensitiveWriteGuard = SensitiveWriteGuard.process
 
     private fun ensureSensitiveWritesAllowed() = sensitiveWriteGuard.ensureAllowed()
 
@@ -219,6 +219,10 @@ class BrowserStorage(private val context: Context) {
 
 /** Thread-safe, instance-scoped fail-closed gate for sensitive metadata mutations. */
 internal class SensitiveWriteGuard {
+    companion object {
+        val process = SensitiveWriteGuard()
+    }
+
     @Volatile private var blocked = false
 
     @Synchronized
