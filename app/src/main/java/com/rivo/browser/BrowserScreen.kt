@@ -96,6 +96,11 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
         if (active != null && !isEditingAddress) address = active.url
     }
 
+    val currentPermissionPrompt = browser.permissionPrompt
+    LaunchedEffect(currentPermissionPrompt) {
+        currentPermissionPrompt?.onShown?.invoke()
+    }
+
     MaterialTheme(colorScheme = RivoColorSchemes.forAppearance(browser.appearance)) {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             Column(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
@@ -257,14 +262,14 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
         )
     }
 
-    browser.permissionPrompt?.let { request ->
+    currentPermissionPrompt?.let { request ->
         AlertDialog(
             onDismissRequest = { browser.respondToSitePermission(false) },
             title = { Text("Website permission") },
             text = {
                 Text(
                     "${request.origin} wants to access ${request.permission}. " +
-                        if (request.privateMode) "This decision applies only to this private tab." else "Allow only if you trust this website."
+                        if (request.privateMode) "This decision applies only to this private browsing session and is not saved as a persistent site permission." else "Allow only if you trust this website."
                 )
             },
             confirmButton = {
