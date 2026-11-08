@@ -23,6 +23,7 @@ https://github.com/techwithrakibofficial/Rivo-Browser
 - ABI split configuration for arm64-v8a and armeabi-v7a.
 
 ## Verified
+- Earlier CI checkpoint #143 passed build, lint, unit tests and both ABI artifact uploads; the Activity lifecycle/system Back commits are newer and await their own CI run.
 - CI run #143 (`42461668698`) on commit `89139a036bb36829e52681df9eae7c47ae77197e`: assembleDebug PASS, Android lint PASS, unit tests PASS, ABI size report PASS, ARM64 artifact upload PASS, ARMv7 artifact upload PASS.
 - CI run URL: https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42461668698
 - ARM64 artifact `rivo-browser-arm64-debug`: ZIP 109,529,496 bytes; expires 2026-11-22.
