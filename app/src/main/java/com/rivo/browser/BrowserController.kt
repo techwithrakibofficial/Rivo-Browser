@@ -165,7 +165,7 @@ class BrowserController(context: Context) {
                         return
                     }
                     val host = Uri.parse(origin).host ?: origin
-                    permissionPrompt = SitePermissionPrompt(host, permission, privateMode, respond)
+                    permissionPrompt = SitePermissionPrompt(tab.id, host, permission, privateMode, respond)
                 }
             }
         )
@@ -187,6 +187,7 @@ class BrowserController(context: Context) {
         if (index < 0) return
         val closing = tabs[index]
         val wasActive = closing.id == activeTabId
+        if (permissionPrompt?.tabId == id) respondToSitePermission(false)
         closing.engine.dispose()
         tabs.removeAt(index)
         if (tabs.isEmpty()) {
@@ -426,6 +427,7 @@ class BrowserController(context: Context) {
 }
 
 data class SitePermissionPrompt(
+    val tabId: Long,
     val origin: String,
     val permission: String,
     val privateMode: Boolean,
