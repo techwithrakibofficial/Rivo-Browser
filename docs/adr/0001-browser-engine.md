@@ -1,7 +1,7 @@
 # ADR-0001: Browser Engine Selection
 
 - Date: 2026-11-08
-- Status: Proposed — benchmark required
+- Status: Proposed — build and physical-device benchmark required
 - Decision owner: Rivo Browser project
 
 ## Context
@@ -9,20 +9,27 @@ Rivo targets 3–4 GB Android devices and needs browser-grade session management
 
 ## Options
 ### Android System WebView
-Pros: lower integration complexity, system component updates, typically avoids bundling a full engine.
-Cons: app must build browser features around a component intended primarily to display web content; extension support is not native browser WebExtensions support; lifecycle and memory must be handled carefully.
+Pros: lower integration complexity, system component updates, usually avoids bundling a full browser engine.
+Cons: the app must build browser-level features around an embeddable web-content component; no native full WebExtensions runtime; provider versions vary across devices.
 
 ### Mozilla GeckoView
-Pros: designed for embedding browser engine functionality; bundled/versioned engine; GeckoSession lifecycle; browser-specific APIs including content blocking and WebExtensions workflows.
-Cons: larger package/runtime footprint likely; app owns engine update cadence and compatibility testing; extension compatibility is not universal.
+Pros: designed for embedding Gecko in apps and browsers; bundled/versioned engine; GeckoRuntime/GeckoSession lifecycle; browser-specific content-blocking and WebExtension APIs.
+Cons: larger package/runtime footprint is a risk to measure; the app owns engine update cadence and compatibility testing; extension compatibility is not universal.
+
+## Phase 0 implementation
+- Added isolated `:engine-webview` and `:engine-gecko` modules.
+- Added `:webview` and `:gecko` app variants that load the same deterministic local HTML workload.
+- Pinned a Stable GeckoView candidate: `159.0.20261022150525`. CI must confirm dependency resolution and compilation.
+- Both adapters are probes only; they are not the Phase 1 browser engine integration.
 
 ## Provisional recommendation
-Prototype GeckoView first, keep WebView as measured fallback. Do not finalize until stable artifact pin and device benchmark are available.
+Keep both candidates. GeckoView remains a strong browser-oriented candidate, but no final selection is made before build and physical-device evidence.
 
-## Acceptance evidence
-- Reproducible dependency resolution.
-- Buildable minimal probes for both engines.
-- APK size and native/Java heap/PSS measurements.
-- Cold/warm startup and page navigation results.
-- 1/5/10 session behavior on representative 3–4 GB hardware.
-- Lifecycle cleanup and crash stability.
+## Acceptance evidence required
+- Successful CI build of both variants.
+- Installable APK size comparison per ABI.
+- Cold/warm startup and page rendering observations.
+- PSS, Java/native heap and CPU measurements.
+- 1/5/10 session memory behavior in a future controlled probe.
+- Lifecycle cleanup and crash stability on representative 3–4 GB hardware.
+- Review of security update cadence and operational cost for each engine.
