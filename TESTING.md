@@ -28,7 +28,7 @@ Artifacts expire 2026-11-22. Extracted APKs: ARM64 208,688,414 bytes (~199.0 MiB
 7. Bookmark add/remove and persistence.
 8. History persistence and clear.
 9. Dark/Light/Glass persistence and system-bar contrast.
-10. Download response streams, filename sanitization, duplicate names, 250 MB cap, open/share and private-mode notice.
+10. Download confirmation/cancel, response-stream closure, filename sanitization, duplicate names, atomic finalization, 250 MB cap, metadata restoration, open/share and private-mode notice.
 11. HTTPS notification and persistent-storage requests show an explicit Allow/Deny prompt; non-HTTPS and private-mode requests are handled according to their scoped policy.
 12. Geolocation/camera/microphone/media and unsupported content permissions remain denied; verify no undeclared Android hardware permission is requested.
 13. Certificate errors are not bypassed; security label comes from GeckoView callback.
