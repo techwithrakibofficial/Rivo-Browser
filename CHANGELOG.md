@@ -10,7 +10,8 @@
 - Add centralized browser chrome color, spacing and shape tokens.
 - Add URL/search resolver unit tests.
 - Configure ARM64 and ARMv7 APK splits.
-- CI checkpoint passes assemble, lint, unit tests and artifact upload.
+- CI run #143 passes assemble, lint, unit tests and separate ARM64/ARMv7 artifact uploads.
+- Publish ARM64 debug APK (208,688,414 bytes) and ARMv7 debug APK (169,493,492 bytes); physical-device validation is pending.
 
 ## Phase 0 — Foundation and engine evaluation
 - Initialize Android project foundation and modular engine adapters.
