@@ -11,7 +11,7 @@
 | Multi-tab management | Implemented | Inactive session handling; cap 8 |
 | Private tabs | Implemented | Native private mode; no app history/bookmark writes |
 | Tracking protection | Enabled | Per GeckoSession |
-| Site permissions | Deny-by-default | User-facing permission controls pending |
+| Site permissions | Partial mediation | HTTPS notifications and persistent-storage requests show explicit Allow/Deny prompt; unsupported/device/media requests remain denied |
 | Connection security indicator | Implemented | GeckoView security callback |
 | Bookmarks | Implemented | Local DataStore; add/remove |
 | Browsing history | Implemented | Local DataStore, max 300; clear |
