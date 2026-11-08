@@ -70,7 +70,7 @@ class LocalDataCipherInstrumentedTest {
         val secretKey = key as javax.crypto.SecretKey
         val keyInfo = SecretKeyFactory.getInstance("AES", "AndroidKeyStore")
             .getKeySpec(secretKey, KeyInfo::class.java)
-        assertEquals("Keystore must generate AES-256", 256, keyInfo.keySize)
+        assertEquals("Keystore must generate AES-256", 256, keyInfo.getKeySize())
         assertNotEquals("AES-GCM encryptions should use fresh randomized IVs", first, second)
         assertEquals(plainText, cipher.decryptOrLegacy(first))
         assertEquals(plainText, cipher.decryptOrLegacy(second))
