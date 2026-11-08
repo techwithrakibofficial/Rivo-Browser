@@ -50,4 +50,12 @@ class NavigationInputResolverTest {
         )
     }
 
+    @Test
+    fun preservesEncodedPathQueryAndFragmentDuringIdnConversion() {
+        assertEquals(
+            "https://xn--bcher-kva.de/a%2Fb?q=a%2Fb#section",
+            NavigationInputResolver.resolve("https://bücher.de/a%2Fb?q=a%2Fb#section")
+        )
+    }
+
 }
