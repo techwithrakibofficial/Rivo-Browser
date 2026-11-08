@@ -18,14 +18,15 @@ OWASP MASVS is the baseline for storage, cryptography, network, platform, code, 
 - A non-exported FileProvider exposes only scoped app-specific download paths for explicit open/share actions.
 - App declares INTERNET only; no broad storage, camera, microphone or location permission.
 - Android backup disabled and cleartext traffic disabled in Android app policy.
-- Local DataStore only; no account, telemetry or mandatory backend.
+- Bookmarks, history, restorable-tab metadata and download metadata are encrypted at rest with an AES-256-GCM key held by Android Keystore; legacy plaintext values are migrated on read.
+- Theme preference remains a non-sensitive DataStore value; no account, telemetry or mandatory backend.
 - Separate ARM64/ARMv7 APK split configuration.
 
 ## Known limitations
 - Per-site permission allow/deny UI is pending; permissions remain denied.
 - Private mode does not hide network activity from sites, ISPs, DNS resolvers or network operators.
 - Downloads explicitly saved by the user remain on device, including downloads started from private tabs.
-- History/bookmarks are app-private local data but are not separately encrypted with an app-managed encryption key.
+- Downloaded file contents remain ordinary files in the app-specific sandbox so users can open/share them; private mode does not erase explicitly saved files.
 - No claim of anonymity or complete tracker/ad blocking.
 - Process-death tab restoration and download metadata persistence are not implemented.
 - Final engine selection and device security/performance validation remain pending.
