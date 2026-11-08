@@ -2,37 +2,48 @@
 
 Updated: 2026-11-08
 
-Implementation checkpoint (engine probe and CI source changes): `13e88d8b2dd6ab1f3e07e57255e3ec03eabb682d`
-
 ## Current phase
-Phase 0 — research, architecture, foundation and engine evaluation.
+Phase 1 — Functional Browser MVP (authorized by user on 2026-11-08).
 
 ## Repository
 - Canonical repository: https://github.com/techwithrakibofficial/Rivo-Browser
 - Default branch: main
-- Phase 1 remains explicitly unauthorized and has not started.
+- Phase 2 and Phase 3 have not been started.
 
-## Completed
-- Android Gradle/Compose foundation skeleton and project documentation.
-- Engine-neutral API module.
-- WebView probe with explicit disposal, safe browsing, no mixed content and no native JavaScript bridge.
-- GeckoView probe module using a pinned Stable candidate artifact and process-scoped runtime ownership.
-- Separate WebView and GeckoView app flavors.
-- Same deterministic local HTML probe workload in both flavors.
-- CI workflow updated to assemble both debug variants.
-- Benchmark protocol and engine ADR updated.
+## Phase 0 status
+- Android foundation, modular engine adapters and engine comparison harness committed.
+- Physical-device WebView vs GeckoView benchmark remains outstanding.
+- Final engine decision remains open. GeckoView is the provisional Phase 1 MVP implementation candidate, not a final measured winner.
 
-## Pending verification
-- GitHub Actions result for the latest commits has not yet been confirmed.
-- GeckoView Maven dependency resolution and compilation are pending CI confirmation.
-- No APK has yet been downloaded, installed or manually launched in this session.
-- No physical 3–4 GB device benchmark has been performed.
-- No measured APK size, RAM/PSS, startup, rendering, CPU, battery or crash data exists.
-- Engine selection remains provisional; ADR-0001 is Proposed.
+## Phase 1 implementation committed
+- GeckoRuntime wrapper and one GeckoSession per browser tab.
+- Browser navigation and URL/search omnibox resolver (HTTPS-preferring; unsupported schemes are treated as search queries).
+- Back, forward, reload and stop.
+- Multiple tabs with active/inactive session management and an 8-tab MVP safety cap.
+- Private tabs use GeckoView native private-session settings; app history and bookmarks are not written for private tabs.
+- Tracking protection enabled per session.
+- Site content, Android and media permissions are denied until an explicit permission mediation UI is implemented.
+- Engine-reported connection security state shown in browser chrome.
+- Local DataStore bookmarks, bounded browsing history (300 entries), and persisted Dark/Light/Glass appearance selection.
+- Downloads are streamed from GeckoView response bodies into the app-specific Downloads directory; no broad storage permission is requested.
+- Centralized semantic color schemes for Dark, Light and Premium Glass.
+- Lifecycle-aware ViewModel and Compose browser UI.
+- JUnit tests for URL/search input resolver.
+- CI updated to build/lint the GeckoView MVP and run unit tests; old superseded runs were failing due CI action setup and AGP 9 built-in Kotlin plugin changes. Latest CI result remains pending.
+
+## Pending verification / known limitations
+- Successful final CI build, lint and unit-test run not yet confirmed.
+- No APK artifact has been verified/downloaded.
+- No physical-device install or smoke test.
+- No 3–4 GB device memory/performance benchmark.
+- Downloads currently remain in app-specific storage; user-facing file open/share/export workflow is not yet implemented.
+- Site permissions are deny-by-default; user-facing per-site allow/deny controls are not yet implemented.
+- Browser tab state/session restoration across process death is not yet implemented.
+- Final engine selection remains pending Phase 0 device benchmark.
 
 ## Next steps
-1. Verify GitHub Actions build of both flavors and fix any build failures.
-2. Download/install each APK on physical 3–4 GB devices.
-3. Run the documented controlled benchmark and save raw observations.
-4. Review results and update ADR-0001; do not infer a winner from documentation alone.
-5. Complete Phase 0 acceptance evidence and prepare a handoff.
+1. Complete CI build/lint/test and fix all compile/runtime blockers.
+2. Add safe download open/share/export UI and per-site permission mediation.
+3. Test navigation, tab lifecycle, private mode, persistence, security state and downloads on emulator/device.
+4. Benchmark on representative 3–4 GB Android devices.
+5. Update feature matrix, security review and release readiness after evidence is collected.
