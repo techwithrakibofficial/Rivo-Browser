@@ -3,7 +3,6 @@ package com.rivo.browser
 import android.content.Context
 import android.net.Uri
 import android.os.Environment
-import android.util.Patterns
 import com.rivo.browser.data.BrowserStorage
 import com.rivo.browser.data.SavedPage
 import com.rivo.browser.engine.gecko.GeckoBrowserRuntime
@@ -283,18 +282,7 @@ class BrowserController(context: Context) {
         }
     }
 
-    private fun resolveInput(input: String): String {
-        val candidate = if (input.startsWith("http://", true) || input.startsWith("https://", true)) {
-            input
-        } else if (!input.contains(" ") && (input.startsWith("www.", true) || Patterns.WEB_URL.matcher(input).matches())) {
-            "https://$input"
-        } else {
-            "https://duckduckgo.com/?q=" + Uri.encode(input)
-        }
-        val scheme = Uri.parse(candidate).scheme?.lowercase()
-        return if (scheme == "http" || scheme == "https") candidate
-        else "https://duckduckgo.com/?q=" + Uri.encode(input)
-    }
+    private fun resolveInput(input: String): String = NavigationInputResolver.resolve(input)
 
     fun dispose() {
         tabs.toList().forEach { it.engine.dispose() }
