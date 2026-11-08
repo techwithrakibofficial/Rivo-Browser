@@ -1,59 +1,61 @@
 # Testing Plan
 
-## Automated CI
-- Android compile platform: API 37.2; targetSdk 36.
+## Automated CI scope
+- Android compile platform API 37.2; targetSdk 36.
 - Assemble GeckoView MVP debug APKs.
 - Android lint.
-- JVM unit tests for URL/search resolution, safe restorable-tab URL policy, and sensitive metadata write validation (guard behavior plus refusing replacement after simulated authentication/format failures).
-- Build minified release AAB with R8 and resource shrinking.
-- Report APK/AAB sizes and upload unsigned QA AAB plus separate ARM64/ARMv7 debug APK artifacts.
+- JVM tests for URL/search resolution, safe restorable-tab URL policy, sensitive metadata write validation, IDN normalization and restored-tab index selection.
+- Minified release AAB build with R8/resource shrinking.
+- APK/AAB size reporting and unsigned QA artifact uploads for ARM64/ARMv7.
 
-## Last verified CI checkpoint
-GitHub Actions run #143 (42461668698) completed successfully on commit 89139a036bb36829e52681df9eae7c47ae77197e:
-- :app:assembleDebug — PASS
-- :app:lintDebug — PASS
-- :app:testDebugUnitTest — PASS
-- ABI APK size reporting — PASS
-- ARM64 debug artifact upload — PASS (rivo-browser-arm64-debug, ZIP 109,529,496 bytes)
-- ARMv7 debug artifact upload — PASS (rivo-browser-armv7-debug, ZIP 105,557,703 bytes)
+## Worker PR CI
+The following GitHub Actions runs completed successfully:
+- Run #237, security PR head `40fb89d801fd31da5fcae7e3a6a4f66a5e397543`: assemble, lint, JVM tests, minified release bundle and QA artifact steps passed.
+- Run #240, Android engine PR head `90756bf69607c46f796123bb37efb9b508fea8fa`: assemble, lint, JVM tests, minified release bundle and QA artifact steps passed.
+- Run #241, UI documentation PR head `a02bbe8c7f30ec5110e0e57f2c894545b7bbedc1`: Android CI workflow completed successfully.
+These are branch-level validations, not proof that the integrated Main commit passes.
 
-Run #143 predates the latest Activity lifecycle, tab restoration, R8/AAB and encrypted-metadata commits. Its recorded job steps did not include the current workflow's minified release AAB step. It must not be reported as verification of the latest source.
+## Integrated Main validation
+- Integrated HEAD at handoff: `1683ffb57dda1d1a9d15f85e892cb8139b06d23c`.
+- GitHub Actions run #244: https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42481557821
+- At the time of this update, debug APK assembly had passed and Android lint was in progress; unit tests, minified release AAB, size reporting and artifact uploads were pending.
+- Update this section only after checking the final run conclusion and job steps.
+- A later documentation-only commit may trigger a new Main CI run; always validate the current HEAD rather than assuming an earlier run covers it.
 
-## Security QA branch coverage
-- `SensitiveWriteGuardTest` verifies writes are permitted before integrity failure, the guard remains blocked after repeated failures, and direct replacement is rejected when authentication or metadata validation fails.
-- Direct open-tab/download replacement and clear-history now authenticate and validate the existing value inside the DataStore edit transaction before overwriting it. This protects against the in-memory guard resetting after process restart.
-- The process guard serializes sensitive edit callbacks with integrity-failure publication to close the check-then-write race. JVM callback-based tests verify the validation gate, not actual Android Keystore cryptography or DataStore disk-commit semantics.
+## Security QA coverage and limitations
+- `SensitiveWriteGuardTest` verifies writes are allowed before integrity failure, remain blocked after repeated failures, and direct replacement is rejected when authentication/metadata validation fails.
+- Direct open-tab/download replacement and clear-history authenticate and validate existing values inside DataStore edit transactions.
+- The process guard serializes sensitive edit callbacks with integrity-failure publication.
+- JVM callback-based tests validate the gate, not Android Keystore cryptography or on-device DataStore transaction durability.
+- Android Keystore AES-GCM round-trip, tampering, missing/lost key, legacy migration and DataStore corruption/relaunch instrumentation remain required.
 
-## Latest source verification status
-- GitHub Actions run #236 ([42478875382](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42478875382)) completed successfully on commit `81cb1ae3528462c00c5dc0be43406f9f2d8c51b6`.
-- `:app:assembleDebug`, `:app:lintDebug`, `:app:testDebugUnitTest`, minified `:app:bundleRelease`, ABI/AAB size reporting, and all three QA artifact uploads passed.
-- Raw build outputs: ARM64 debug APK 208,721,182 bytes; ARMv7 debug APK 169,526,260 bytes; unsigned release AAB 249,320,074 bytes.
-- Uploaded artifact ZIP sizes: ARM64 109,565,149 bytes; ARMv7 105,591,537 bytes; unsigned AAB 248,827,278 bytes. Artifacts expire 14 days after upload.
-- This CI run validates compile, lint, JVM tests and packaging; it does not exercise Android Keystore instrumentation, DataStore on-device corruption/relaunch behavior, or physical-device performance.
-- No physical-device install, force-stop/relaunch test or 3–4 GB benchmark is claimed.
-
-## Phase 1 functional checks
+## Phase 1 functional test matrix
 1. Initial home page.
-2. HTTPS URL, explicit HTTP URL, bare domain and search term.
-3. Unsupported schemes (javascript:, file:, content:) become search queries in the omnibox.
+2. HTTPS URL, explicit HTTP URL, bare domain, internationalized domain and search term.
+3. Unsupported schemes (javascript:, file:, content:) resolve safely as search queries.
 4. Back, forward, reload and stop.
 5. Create/switch/close tabs; verify inactive sessions deactivate.
-6. Private session; verify app-side history/bookmarks and restorable-tab state are unchanged.
-7. Bookmark add/remove and encrypted persistence.
-8. History persistence, encryption and clear.
-9. Dark/Light/Glass persistence and system-bar contrast.
-10. Download confirmation/cancel, response-stream closure, filename sanitization, duplicate names, atomic finalization, 250 MB cap, encrypted metadata restoration, open/share and private-mode notice.
-11. HTTPS notification and persistent-storage requests show an explicit Allow/Deny prompt; non-HTTPS and private-mode requests are handled according to their scoped policy.
-12. Geolocation/camera/microphone/media and unsupported content permissions remain denied; verify no undeclared Android hardware permission is requested.
-13. Certificate errors are not bypassed; security label comes from GeckoView callback.
-14. Activity recreation and background/foreground transitions; verify all Gecko sessions deactivate on stop and only the selected tab reactivates on start.
-15. Android system Back navigates Gecko history when available; otherwise verify normal Android back behavior.
-16. Force-stop/relaunch; verify regular HTTP(S) tabs restore, selected normal tab is restored, and private tabs do not reappear.
-17. Verify release bundle build completes with R8 and resource shrinking; inspect AAB size and test runtime behavior of minified code.
-18. Encrypted storage failure tests: legacy plaintext migration, round-trip with fresh IV, tampered ciphertext, truncated payload, missing/invalid Keystore key and read-modify-write preservation.
+6. Duplicate-URL tabs: restore selected tab by saved record index, not URL equality.
+7. Omnibox: edit text while page navigation callbacks arrive; ensure draft text is preserved until submission.
+8. Private session: verify app-side history/bookmarks/restorable-tab state remain unchanged.
+9. Bookmark add/remove and encrypted persistence.
+10. History persistence, duplicate visits and clear.
+11. Dark/Light/Glass persistence and system-bar contrast.
+12. Open all dialogs/panels in all three appearance modes; verify theme scope and contrast.
+13. Download confirmation/cancel, response-stream closure, filename sanitization, duplicate names, atomic finalization, 250 MB cap, metadata restoration and open/share.
+14. HTTPS notification and persistent-storage requests show explicit Allow/Deny prompts; unsupported hardware/media requests remain denied.
+15. Certificate errors are not bypassed; security label comes from GeckoView callback.
+16. Activity recreation/background/foreground; verify all sessions deactivate on stop and only selected tab reactivates on start.
+17. Force-stop/relaunch: regular HTTP(S) tabs restore; selected normal tab restores; private tabs do not reappear.
+18. Release bundle builds with R8/resource shrinking and minified runtime behavior is smoke-tested.
+19. Encrypted storage: legacy migration, fresh-IV round-trip, tampered/truncated ciphertext, unavailable key and read-modify-write preservation.
+20. Accessibility: TalkBack names/roles/selected states, 48 dp touch targets, font scaling, 320 dp width, panel scrolling and Glass fallback.
 
 ## Physical-device benchmark
 Test at least one 3 GB and one 4 GB Android device if available. Record model, chipset, Android build, ABI, GeckoView version, APK/AAB size, cold/warm startup, PSS, CPU, thermal state and crashes/ANRs. Do not extrapolate emulator-only results to all 3–4 GB phones.
 
 ## Current status
-Run #143 remains a successful historical checkpoint only. Latest-source CI, minified AAB measurement, encrypted-storage regression tests and physical-device verification are pending. APK size is a significant optimization target before release.
+- Worker PR CI passed on all three branches.
+- Integrated Main CI run #244 was still running at the last checkpoint; integrated status is not yet confirmed.
+- No physical-device install, force-stop/relaunch, TalkBack, Accessibility Scanner or 3–4 GB benchmark is claimed.
+- QA AAB output is unsigned; it is not a production release artifact.
