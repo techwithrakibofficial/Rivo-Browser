@@ -43,6 +43,8 @@ Functional browser MVP:
 - Manual device smoke tests and performance/security evidence are documented.
 
 ## Remaining Phase 1 work
+- Analyze a minified release build and compare its compressed/uncompressed native library footprint; do not remove Gecko engine components to chase APK size. Evaluate Android App Bundle delivery for store distribution and verify 16 KB native-library alignment.
+- CI-check the Activity lifecycle/session deactivation and Android system Back changes before layering additional browser features.
 - Re-run CI after the documentation-only checkpoint and confirm the latest workflow.
 - Investigate APK footprint: compare debug vs release packaging, inspect GeckoView distribution options and quantify a WebView baseline without removing required engine components.
 - Install and smoke-test ARM64/ARMv7 APKs.
