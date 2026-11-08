@@ -20,7 +20,6 @@ import org.mozilla.geckoview.GeckoView
 import org.mozilla.geckoview.WebResponse
 import org.mozilla.geckoview.WebNotification
 import org.mozilla.geckoview.WebNotificationDelegate
-import androidx.core.content.ContextCompat
 import java.io.InputStream
 
 /**
@@ -73,9 +72,11 @@ object GeckoSitePermissionPolicy {
             GeckoSession.PermissionDelegate.PERMISSION_AUTOPLAY_INAUDIBLE
         )
 
+    fun shouldDisplay(privateMode: Boolean, value: Int): Boolean =
+        !privateMode && value != GeckoSession.PermissionDelegate.ContentPermission.VALUE_PROMPT
+
     fun shouldDisplay(permission: GeckoSession.PermissionDelegate.ContentPermission): Boolean =
-        !permission.privateMode &&
-            permission.value != GeckoSession.PermissionDelegate.ContentPermission.VALUE_PROMPT
+        shouldDisplay(permission.privateMode, permission.value)
 
     fun label(permission: Int): String? = when (permission) {
         GeckoSession.PermissionDelegate.PERMISSION_DESKTOP_NOTIFICATION -> "Notifications"
@@ -363,7 +364,7 @@ private class RivoWebNotificationDelegate(context: Context) : WebNotificationDel
 
     override fun onShowNotification(notification: WebNotification) {
         if (Build.VERSION.SDK_INT >= 33 &&
-            ContextCompat.checkSelfPermission(appContext, Manifest.permission.POST_NOTIFICATIONS) !=
+            appContext.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) !=
             PackageManager.PERMISSION_GRANTED
         ) {
             notification.dismiss()
@@ -372,8 +373,11 @@ private class RivoWebNotificationDelegate(context: Context) : WebNotificationDel
         val source = notification.source ?: notification.origin
         val host = Uri.parse(source).host ?: "Website"
         val notificationId = notificationKey(notification)
-        val clickIntent = Intent(appContext, RivoWebNotificationReceiver::class.java).apply {
-            putExtra(RivoWebNotificationReceiver.EXTRA_NOTIFICATION, notification)
+        val clickIntent = Intent().setClassName(
+            appContext,
+            "com.rivo.browser.RivoWebNotificationReceiver"
+        ).apply {
+            putExtra("com.rivo.browser.extra.WEB_NOTIFICATION", notification)
         }
         val pendingIntent = PendingIntent.getBroadcast(
             appContext,
