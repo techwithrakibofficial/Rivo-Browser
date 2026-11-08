@@ -281,7 +281,7 @@ internal class SensitiveWriteGuard {
     fun validateExisting(
         raw: String,
         decrypt: (String) -> String,
-        validate: (String) -> Any?
+        validate: (String) -> Unit
     ) {
         ensureAllowed()
         if (raw.isBlank()) return
