@@ -228,7 +228,7 @@ class BrowserStorage(private val context: Context) {
     }
 }
 
-/** Thread-safe, instance-scoped fail-closed gate for sensitive metadata mutations. */
+/** Thread-safe process-wide fail-closed gate for sensitive metadata mutations. */
 internal class SensitiveWriteGuard {
     companion object {
         val process = SensitiveWriteGuard()
