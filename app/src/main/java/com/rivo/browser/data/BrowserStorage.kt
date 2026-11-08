@@ -30,6 +30,7 @@ data class SavedDownload(
 
 /** Small local-only storage. History is deliberately bounded to 300 entries. */
 class BrowserStorage(private val context: Context) {
+    private val cipher = LocalDataCipher()
     private val themeKey = stringPreferencesKey("appearance")
     private val bookmarksKey = stringPreferencesKey("bookmarks_json")
     private val historyKey = stringPreferencesKey("history_json")
@@ -44,14 +45,14 @@ class BrowserStorage(private val context: Context) {
     }
 
     suspend fun loadBookmarks(): List<SavedPage> =
-        decode(context.rivoDataStore.data.first()[bookmarksKey].orEmpty())
+        decode(cipher.decryptOrLegacy(context.rivoDataStore.data.first()[bookmarksKey].orEmpty()))
 
     suspend fun loadHistory(): List<SavedPage> =
-        decode(context.rivoDataStore.data.first()[historyKey].orEmpty())
+        decode(cipher.decryptOrLegacy(context.rivoDataStore.data.first()[historyKey].orEmpty()))
 
     /** Restore only regular HTTP(S) tabs; private tabs are never serialized. */
     suspend fun loadOpenTabs(): List<SavedTab> = runCatching {
-        val array = JSONArray(context.rivoDataStore.data.first()[openTabsKey].orEmpty())
+        val array = JSONArray(cipher.decryptOrLegacy(context.rivoDataStore.data.first()[openTabsKey].orEmpty()))
         (0 until array.length()).mapNotNull { index ->
             val item = array.optJSONObject(index) ?: return@mapNotNull null
             val url = item.optString("url")
@@ -61,7 +62,7 @@ class BrowserStorage(private val context: Context) {
     }.getOrDefault(emptyList())
 
     suspend fun loadDownloads(): List<SavedDownload> = runCatching {
-        val array = JSONArray(context.rivoDataStore.data.first()[downloadsKey].orEmpty())
+        val array = JSONArray(cipher.decryptOrLegacy(context.rivoDataStore.data.first()[downloadsKey].orEmpty()))
         (0 until array.length()).mapNotNull { index ->
             val item = array.optJSONObject(index) ?: return@mapNotNull null
             val filename = item.optString("filename")
@@ -73,7 +74,7 @@ class BrowserStorage(private val context: Context) {
 
     suspend fun saveDownloads(downloads: List<SavedDownload>) {
         context.rivoDataStore.edit { prefs ->
-            prefs[downloadsKey] = JSONArray().apply {
+            prefs[downloadsKey] = cipher.encrypt(JSONArray().apply {
                 downloads.take(100).forEach { item ->
                     put(JSONObject().apply {
                         put("filename", item.filename)
@@ -81,14 +82,14 @@ class BrowserStorage(private val context: Context) {
                         put("path", item.absolutePath)
                     })
                 }
-            }.toString()
+            }.toString())
         }
     }
 
     suspend fun saveOpenTabs(tabs: List<SavedTab>) {
         val safeTabs = tabs.filter { RestorableTabPolicy.isSafeUrl(it.url) }.take(8)
         context.rivoDataStore.edit { prefs ->
-            prefs[openTabsKey] = JSONArray().apply {
+            prefs[openTabsKey] = cipher.encrypt(JSONArray().apply {
                 safeTabs.forEach { tab ->
                     put(JSONObject().apply {
                         put("url", tab.url)
@@ -96,35 +97,35 @@ class BrowserStorage(private val context: Context) {
                         put("selected", tab.selected)
                     })
                 }
-            }.toString()
+            }.toString())
         }
     }
 
     suspend fun addBookmark(page: SavedPage) {
         context.rivoDataStore.edit { prefs ->
-            val current = decode(prefs[bookmarksKey].orEmpty()).toMutableList()
+            val current = decode(cipher.decryptOrLegacy(prefs[bookmarksKey].orEmpty())).toMutableList()
             current.removeAll { it.url == page.url }
             current.add(0, page)
-            prefs[bookmarksKey] = encode(current.take(500))
+            prefs[bookmarksKey] = cipher.encrypt(encode(current.take(500)))
         }
     }
 
     suspend fun removeBookmark(url: String) {
         context.rivoDataStore.edit { prefs ->
-            prefs[bookmarksKey] = encode(decode(prefs[bookmarksKey].orEmpty()).filterNot { it.url == url })
+            prefs[bookmarksKey] = cipher.encrypt(encode(decode(cipher.decryptOrLegacy(prefs[bookmarksKey].orEmpty())).filterNot { it.url == url }))
         }
     }
 
     suspend fun addHistory(page: SavedPage) {
         context.rivoDataStore.edit { prefs ->
-            val current = decode(prefs[historyKey].orEmpty()).toMutableList()
+            val current = decode(cipher.decryptOrLegacy(prefs[historyKey].orEmpty())).toMutableList()
             if (current.firstOrNull()?.url != page.url) current.add(0, page)
-            prefs[historyKey] = encode(current.take(300))
+            prefs[historyKey] = cipher.encrypt(encode(current.take(300)))
         }
     }
 
     suspend fun clearHistory() {
-        context.rivoDataStore.edit { it[historyKey] = "[]" }
+        context.rivoDataStore.edit { it[historyKey] = cipher.encrypt("[]") }
     }
 
     private fun encode(items: List<SavedPage>): String = JSONArray().apply {
