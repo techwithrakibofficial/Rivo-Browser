@@ -137,6 +137,7 @@ class BrowserStorage(private val context: Context) {
     suspend fun removeBookmark(url: String) {
         ensureSensitiveWritesAllowed()
         context.rivoDataStore.edit { prefs ->
+            ensureSensitiveWritesAllowed()
             val current = decodeProtected(decryptProtected(prefs[bookmarksKey].orEmpty()))
             prefs[bookmarksKey] = cipher.encrypt(encode(current.filterNot { it.url == url }))
         }
@@ -212,6 +213,22 @@ class BrowserStorage(private val context: Context) {
             }
         } catch (error: Exception) {
             integrityFailure(error)
+        }
+    }
+}
+
+/** Thread-safe, instance-scoped fail-closed gate for sensitive metadata mutations. */
+internal class SensitiveWriteGuard {
+    @Volatile private var blocked = false
+
+    @Synchronized
+    fun block() {
+        blocked = true
+    }
+
+    fun ensureAllowed() {
+        check(!blocked) {
+            "Saved browser data is unreadable; sensitive writes are disabled to preserve existing records."
         }
     }
 }
