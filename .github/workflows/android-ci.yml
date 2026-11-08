@@ -11,14 +11,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: '9.6.0'
+          cache-provider: basic
       - name: Assemble WebView and GeckoView probes
         run: gradle --no-daemon :app:assembleWebviewDebug :app:assembleGeckoDebug
       - name: Run unit tests
