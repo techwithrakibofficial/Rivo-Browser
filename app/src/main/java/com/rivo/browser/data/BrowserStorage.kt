@@ -66,7 +66,7 @@ class BrowserStorage(private val context: Context) {
             val item = array.optJSONObject(index) ?: return@mapNotNull null
             val filename = item.optString("filename")
             val path = item.optString("path")
-            if (filename.isBlank() || filename.contains('/') || filename.contains('\\\\') || path.isBlank()) null
+            if (filename.isBlank() || filename.contains('/') || filename.contains('\\') || path.isBlank()) null
             else SavedDownload(filename, item.optString("mimeType").takeIf { it.isNotBlank() }, path)
         }.take(100)
     }.getOrDefault(emptyList())
