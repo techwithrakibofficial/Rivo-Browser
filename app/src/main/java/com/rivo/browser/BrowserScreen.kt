@@ -25,8 +25,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,7 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import com.rivo.browser.designsystem.RivoColorSchemes
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -58,31 +56,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
         if (active != null) address = active.url
     }
 
-    val colors = when (browser.appearance) {
-        BrowserAppearance.LIGHT -> lightColorScheme(
-            primary = Color(0xFF315B85),
-            secondary = Color(0xFF567D9F),
-            background = Color(0xFFF3F6FA),
-            surface = Color(0xFFFFFFFF),
-            onSurface = Color(0xFF172333)
-        )
-        BrowserAppearance.DARK -> darkColorScheme(
-            primary = Color(0xFF9CCBFF),
-            secondary = Color(0xFFB8CDE2),
-            background = Color(0xFF0D1118),
-            surface = Color(0xFF171E28),
-            onSurface = Color(0xFFE8EEF7)
-        )
-        BrowserAppearance.GLASS -> darkColorScheme(
-            primary = Color(0xFFB7D5FF),
-            secondary = Color(0xFFC4D8F0),
-            background = Color(0xFF101827),
-            surface = Color(0xCC26354B),
-            onSurface = Color(0xFFF3F7FF)
-        )
-    }
-
-    MaterialTheme(colorScheme = colors) {
+    MaterialTheme(colorScheme = RivoColorSchemes.forAppearance(browser.appearance)) {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             Column(modifier = Modifier.fillMaxSize()) {
                 Column(
