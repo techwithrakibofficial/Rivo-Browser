@@ -439,6 +439,8 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                         Spacer(Modifier.height(RivoSpacing.small))
                         if (browser.sitePermissionsLoading) {
                             Text("Loading permissions from GeckoView…")
+                        } else if (browser.sitePermissionsLoadError) {
+                            Text("GeckoView permission data is unavailable. No permission state is being assumed.")
                         } else if (browser.sitePermissions.isEmpty()) {
                             Text("GeckoView reports no saved normal-browsing site permissions.")
                         }
