@@ -1,36 +1,44 @@
 # Handoff
 
-## Current state
-Implementation checkpoint (engine probe and CI source changes): `13e88d8b2dd6ab1f3e07e57255e3ec03eabb682d` (29 commits ahead of the previous Phase 0 foundation checkpoint).
-Phase 0 is active. Phase 1 browser feature implementation has not started and remains outside the current authorization.
+## Current phase
+Phase 1 — Functional Browser MVP, authorized on 2026-11-08.
 
-## Completed
-- Android project foundation, engine API and initial project documentation.
-- WebView and GeckoView adapter modules.
-- Separate app build flavors with a shared deterministic local HTML workload.
-- WebView probe defaults: JavaScript/DOM storage enabled for comparison, Safe Browsing enabled, mixed content disallowed, no native bridge.
-- GeckoView probe uses a process-scoped GeckoRuntime and closes its GeckoSession on disposal.
-- CI workflow now builds both debug flavors.
-- Engine comparison and benchmark documentation updated.
+## Repository
+https://github.com/techwithrakibofficial/Rivo-Browser
 
-## Tested / verified
-- GitHub source files and commit history were inspected.
-- Mozilla's official quick-start/API documentation and stable channel naming were reviewed.
-- Public Maven version index lists GeckoView Stable 159.0.20261022150525.
-- The dependency pin is declared but not yet confirmed by a successful Gradle build.
-- No local Android build, APK install, physical device test or benchmark result is claimed.
+## Implemented source
+- GeckoView process runtime wrapper and per-tab GeckoSession.
+- Navigation/search resolver, back/forward/reload/stop.
+- Multi-tab UI and lifecycle; inactive sessions are marked inactive and MVP is capped at eight tabs.
+- Private sessions use GeckoView native private mode and do not enter app-side history/bookmarks.
+- Tracking protection enabled; content, Android and media permissions are denied until user-facing permission mediation exists.
+- TLS/security status is taken from GeckoView callbacks.
+- DataStore persistence for appearance, bookmarks and bounded history.
+- GeckoView downloads streamed into app-specific Downloads storage.
+- Compose browser chrome with centralized Dark, Light and Premium Glass color schemes.
+- Quick Appearance Picker lives in the secondary overflow menu.
+- Unit tests added for URL/search resolver.
+
+## Verified facts
+- GitHub commits and source files are present.
+- A GitHub Actions build was attempted and failed before compilation because the setup-android action requested the removed SDK tools package. The action was updated to v4.
+- A subsequent build reached Gradle and failed because AGP 9.5.0 provides built-in Kotlin support; the redundant Kotlin Android plugin was removed from app/library modules.
+- New CI runs after those fixes are still pending confirmation.
+- No successful APK build, install, device test or benchmark is claimed.
 
 ## Remaining
-1. Confirm CI build and resolve compile/dependency issues.
-2. Install both flavor APKs on representative 3–4 GB hardware.
-3. Collect at least five repeat runs per workload and preserve raw outputs.
-4. Compare size, startup, PSS, frame behavior and stability.
-5. Update ADR-0001 only after evidence review.
+1. Confirm latest CI build/lint/test and fix errors.
+2. Complete download open/share/export.
+3. Implement explicit per-site permission UI.
+4. Add process-death tab/session restoration where feasible.
+5. Run manual tests on emulator and 3–4 GB physical devices.
+6. Complete Phase 0 comparative benchmark before final engine selection.
 
-## Known blockers
-- No attached Android emulator/device is available in this workflow.
-- CI run result has not yet been independently verified.
-- Physical-device benchmark remains outstanding.
+## Known limitations
+- Downloaded files are app-specific; they are not yet exported to the public Downloads collection.
+- Camera, microphone, location, notifications and other content permissions are denied by default.
+- Browser history/bookmarks are local-only; no sync or account service.
+- GeckoView is the provisional Phase 1 engine choice, not a benchmark-confirmed final choice.
 
 ## Scope boundary
-Do not start Phase 1 until the user explicitly approves it.
+Phase 2/3 features are not started.
