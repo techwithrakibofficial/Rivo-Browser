@@ -295,7 +295,26 @@ class BrowserController(context: Context) {
                     target = File(directory, "$base ($suffix)$extension")
                     suffix++
                 }
-                body.use { input -> FileOutputStream(target).use { output -> input.copyTo(output) } }
+                try {
+                    body.use { input ->
+                        FileOutputStream(target).use { output ->
+                            val buffer = ByteArray(64 * 1024)
+                            var totalBytes = 0L
+                            while (true) {
+                                val count = input.read(buffer)
+                                if (count < 0) break
+                                totalBytes += count
+                                if (totalBytes > MAX_DOWNLOAD_BYTES) {
+                                    error("Download exceeds the 250 MB MVP safety limit")
+                                }
+                                output.write(buffer, 0, count)
+                            }
+                        }
+                    }
+                } catch (error: Throwable) {
+                    target.delete()
+                    throw error
+                }
                 target
             }
             withContext(Dispatchers.Main.immediate) {
@@ -336,6 +355,7 @@ class BrowserController(context: Context) {
     companion object {
         const val HOME_URL = "https://duckduckgo.com/"
         const val MAX_TABS = 8
+        const val MAX_DOWNLOAD_BYTES = 250L * 1024L * 1024L
     }
 }
 
