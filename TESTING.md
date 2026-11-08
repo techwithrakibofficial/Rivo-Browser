@@ -4,7 +4,7 @@
 - Android compile platform API 37.2; targetSdk 36.
 - Assemble GeckoView MVP debug APKs.
 - Android lint.
-- JVM tests for URL/search resolution, safe restorable-tab URL policy, sensitive metadata write validation, IDN normalization and restored-tab index selection.
+- JVM tests for URL/search resolution, safe restorable-tab URL policy, sensitive metadata write validation, IDN normalization, restored-tab index selection and Gecko site-permission policy.
 - Minified release AAB build with R8/resource shrinking.
 - APK/AAB size reporting and unsigned QA artifact uploads for ARM64/ARMv7.
 
@@ -43,13 +43,18 @@ These are branch-level validations, not proof that the integrated Main commit pa
 11. Dark/Light/Glass persistence and system-bar contrast.
 12. Open all dialogs/panels in all three appearance modes; verify theme scope and contrast.
 13. Download confirmation/cancel, response-stream closure, filename sanitization, duplicate names, atomic finalization, 250 MB cap, metadata restoration and open/share.
-14. HTTPS notification and persistent-storage requests show explicit Allow/Deny prompts; unsupported hardware/media requests remain denied.
-15. Certificate errors are not bypassed; security label comes from GeckoView callback.
+14. HTTPS site-notification and supported autoplay requests show explicit Allow/Deny prompts; Android 13+ notification approval also requests POST_NOTIFICATIONS.
+15. Geolocation, persistent-storage, XR, DRM, tracking exceptions, third-party storage, camera, microphone and unsupported media/runtime requests are denied by default.
+16. Site permission panel lists only real GeckoView records, excludes private-mode records, and resets revocable records to VALUE_PROMPT; persistent-storage records are shown as non-revocable.
+17. Private site permission grants do not appear in the normal site-permission manager and are cleared with the private Gecko session.
+18. Notification channel delivery and notification click callbacks reach Gecko; OS-level notification permission denial prevents delivery.
+19. Tracking-protection status reflects GeckoSessionSettings; no tracker count is displayed without a verified per-page engine count.
+20. Certificate errors are not bypassed; security label comes from GeckoView callback.
 16. Activity recreation/background/foreground; verify all sessions deactivate on stop and only selected tab reactivates on start.
-17. Force-stop/relaunch: regular HTTP(S) tabs restore; selected normal tab restores; private tabs do not reappear.
-18. Release bundle builds with R8/resource shrinking and minified runtime behavior is smoke-tested.
-19. Encrypted storage: legacy migration, fresh-IV round-trip, tampered/truncated ciphertext, unavailable key and read-modify-write preservation.
-20. Accessibility: TalkBack names/roles/selected states, 48 dp touch targets, font scaling, 320 dp width, panel scrolling and Glass fallback.
+22. Force-stop/relaunch: regular HTTP(S) tabs restore; selected normal tab restores; private tabs do not reappear.
+23. Release bundle builds with R8/resource shrinking and minified runtime behavior is smoke-tested.
+24. Encrypted storage: legacy migration, fresh-IV round-trip, tampered/truncated ciphertext, unavailable key and read-modify-write preservation.
+25. Accessibility: TalkBack names/roles/selected states, 48 dp touch targets, font scaling, 320 dp width, panel scrolling and Glass fallback.
 
 ## Physical-device benchmark
 Test at least one 3 GB and one 4 GB Android device if available. Record model, chipset, Android build, ABI, GeckoView version, APK/AAB size, cold/warm startup, PSS, CPU, thermal state and crashes/ANRs. Do not extrapolate emulator-only results to all 3–4 GB phones.
@@ -57,5 +62,5 @@ Test at least one 3 GB and one 4 GB Android device if available. Record model, c
 ## Current status
 - Worker PR CI passed on all three branches.
 - Integrated Main CI run #244 was still running at the last checkpoint; integrated status is not yet confirmed.
-- No physical-device install, force-stop/relaunch, TalkBack, Accessibility Scanner or 3–4 GB benchmark is claimed.
+- No physical-device install, site-permission grant/revoke, notification runtime prompt, private permission isolation, force-stop/relaunch, TalkBack, Accessibility Scanner or 3–4 GB benchmark is claimed.
 - QA AAB output is unsigned; it is not a production release artifact.
