@@ -2,6 +2,7 @@ package com.rivo.browser
 
 import android.content.Context
 import android.net.Uri
+import android.os.Environment
 import android.util.Patterns
 import com.rivo.browser.data.BrowserStorage
 import com.rivo.browser.data.SavedPage
@@ -10,9 +11,13 @@ import com.rivo.browser.engine.gecko.GeckoBrowserTab
 import com.rivo.browser.engine.gecko.GeckoTabListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -51,6 +56,7 @@ class BrowserController(context: Context) {
     val tabs = mutableStateListOf<BrowserTabState>()
     val bookmarks = mutableStateListOf<SavedPage>()
     val history = mutableStateListOf<SavedPage>()
+    val downloads = mutableStateListOf<BrowserDownload>()
 
     var activeTabId by mutableStateOf(0L)
         private set
@@ -117,6 +123,15 @@ class BrowserController(context: Context) {
                     tab.secureConnection = secure
                     tab.certificateException = exception
                     tab.securityKnown = true
+                }
+
+                override fun onExternalDownload(
+                    url: String,
+                    mimeType: String?,
+                    disposition: String?,
+                    body: InputStream?
+                ) {
+                    saveDownload(tab, url, mimeType, disposition, body)
                 }
             }
         )
@@ -200,6 +215,64 @@ class BrowserController(context: Context) {
     fun showNotice(value: String) { notice = value }
     fun dismissNotice() { notice = null }
 
+
+    private fun saveDownload(
+        tab: BrowserTabState,
+        url: String,
+        mimeType: String?,
+        disposition: String?,
+        body: InputStream?
+    ) {
+        val uri = Uri.parse(url)
+        if (uri.scheme !in listOf("http", "https") || body == null) {
+            notice = "This download could not be safely handled."
+            runCatching { body?.close() }
+            return
+        }
+
+        val dispositionName = Regex("filename\\s*=\\s*\\\"?([^\\\";]+)", RegexOption.IGNORE_CASE)
+            .find(disposition.orEmpty())?.groupValues?.getOrNull(1)
+        val rawName = dispositionName ?: uri.lastPathSegment ?: "download-" + System.currentTimeMillis()
+        val safeName = rawName.substringAfterLast('/')
+            .replace(Regex("[^A-Za-z0-9._-]"), "_")
+            .take(120)
+            .ifBlank { "download-" + System.currentTimeMillis() }
+            .let { if (it == "." || it == "..") "download-" + System.currentTimeMillis() else it }
+
+        val item = BrowserDownload(nextId++, safeName, mimeType)
+        downloads.add(0, item)
+        scope.launch(Dispatchers.IO) {
+            val result = runCatching {
+                val directory = appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+                    ?: File(appContext.filesDir, "downloads")
+                if (!directory.exists() && !directory.mkdirs()) error("Unable to create downloads directory")
+                var target = File(directory, safeName)
+                var suffix = 1
+                while (target.exists()) {
+                    val base = safeName.substringBeforeLast('.', safeName)
+                    val extension = safeName.substringAfterLast('.', "").let { if (it.isBlank()) "" else ".$it" }
+                    target = File(directory, "$base ($suffix)$extension")
+                    suffix++
+                }
+                body.use { input -> FileOutputStream(target).use { output -> input.copyTo(output) } }
+                target
+            }
+            withContext(Dispatchers.Main.immediate) {
+                result.onSuccess { file ->
+                    item.status = "Saved in app Downloads"
+                    notice = if (tab.privateMode) {
+                        "Download saved. Private browsing does not automatically erase downloaded files."
+                    } else {
+                        "Download saved: " + file.name
+                    }
+                }.onFailure {
+                    item.status = "Failed"
+                    notice = "Download failed: " + (it.message ?: "unknown error")
+                }
+            }
+        }
+    }
+
     private fun saveHistory(tab: BrowserTabState) {
         val page = SavedPage(tab.url, tab.title, System.currentTimeMillis())
         scope.launch {
@@ -235,4 +308,8 @@ class BrowserController(context: Context) {
     }
 }
 
-enum class BrowserPanel { TABS, BOOKMARKS, HISTORY, APPEARANCE, MENU }
+class BrowserDownload(val id: Long, val filename: String, val mimeType: String?) {
+    var status by mutableStateOf("Downloading")
+}
+
+enum class BrowserPanel { TABS, BOOKMARKS, HISTORY, DOWNLOADS, APPEARANCE, MENU }
