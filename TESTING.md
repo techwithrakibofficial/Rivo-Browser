@@ -22,7 +22,7 @@ Run #143 predates the latest Activity lifecycle, tab restoration, R8/AAB and enc
 ## Security QA branch coverage
 - `SensitiveWriteGuardTest` verifies writes are permitted before integrity failure, the guard remains blocked after repeated failures, and direct replacement is rejected when authentication or metadata validation fails.
 - Direct open-tab/download replacement and clear-history now authenticate and validate the existing value inside the DataStore edit transaction before overwriting it. This protects against the in-memory guard resetting after process restart.
-- JVM callback-based tests verify the validation gate, not actual Android Keystore cryptography or DataStore disk-commit semantics.
+- The process guard serializes sensitive edit callbacks with integrity-failure publication to close the check-then-write race. JVM callback-based tests verify the validation gate, not actual Android Keystore cryptography or DataStore disk-commit semantics.
 
 ## Latest source verification status
 - Previous PR head `243348fae5c61a3c9dec40a285af17bf2de4419b` had a cancelled CI run (#229) during Android SDK setup; build, lint, tests and artifacts did not run.
