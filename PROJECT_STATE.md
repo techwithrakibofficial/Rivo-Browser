@@ -2,7 +2,7 @@
 
 Updated: 2026-11-08
 
-Latest verified main commit: `13e88d8b2dd6ab1f3e07e57255e3ec03eabb682d`
+Implementation checkpoint (engine probe and CI source changes): `13e88d8b2dd6ab1f3e07e57255e3ec03eabb682d`
 
 ## Current phase
 Phase 0 — research, architecture, foundation and engine evaluation.
