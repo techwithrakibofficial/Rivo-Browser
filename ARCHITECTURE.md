@@ -4,49 +4,45 @@
 - app: Compose browser chrome, Activity, BrowserViewModel, BrowserController, local data and centralized design tokens.
 - engine-api: engine-neutral evaluation contract.
 - engine-gecko: process-scoped GeckoRuntime provider and per-tab GeckoSession adapter.
-- engine-webview: retained Phase 0 comparison adapter; not wired into the Phase 1 app.
-- data: DataStore-backed local bookmarks, bounded history, restorable tabs, download metadata and appearance settings (currently under app data package).
+- engine-webview: retained comparison probe; not wired into shipping Phase 1.
+- engine-benchmark: isolated GeckoView/WebView host variants for controlled startup, memory and session comparison.
+- data: DataStore-backed bookmarks, bounded history, restorable tabs, download metadata and appearance settings under the app data package.
 
 ## Runtime and session ownership
 - One GeckoRuntime is held by a process-level provider.
 - One GeckoSession per browser tab.
 - BrowserViewModel owns tab/session state across Activity configuration changes.
-- GeckoView UI instances are created with the current Activity context, released when the active tab view leaves composition, and reattached to the retained session as needed.
-- MainActivity forwards onStart/onStop to BrowserController: only the selected tab is activated while the Activity is started; all tab sessions are deactivated and unfocused while the Activity is stopped.
-- Tab selection respects host visibility, preventing a tab switch while backgrounded from reactivating Gecko.
-- Private tabs use native Gecko private-session settings.
-- Tracking protection is enabled per session.
-- Inactive sessions call setActive(false) and setFocused(false); selected foreground session is activated/focused.
-- Closing a tab detaches and closes its session.
-- Compose recomposition does not create or destroy sessions.
-- System Back navigates browser history when available; otherwise Android's normal back behavior applies.
-- MVP tab cap is eight pending physical-device memory data.
+- GeckoView UI instances use the current Activity context, are released when the active tab leaves composition and reattached to the retained session as needed.
+- MainActivity forwards onStart/onStop: only the selected tab is active while the Activity is started; all tabs are deactivated and unfocused while stopped.
+- Private tabs use native Gecko private-session settings; tracking protection is enabled per session.
+- Closing a tab detaches its view and closes its session. Compose recomposition does not create/destroy sessions.
+- MVP cap is eight tabs pending physical-device memory data.
+
+## Engine benchmark isolation
+- Shipping app remains GeckoView-only; benchmark work does not change the browser engine.
+- engine-benchmark builds gecko and webview flavors with the same package, Activity, controls and offline HTML/JS workload.
+- 1/5/10-tab scenarios cover activation, background/foreground, switching, reload and close.
+- Results are engine-level, not feature-equivalent full-browser measurements. Browser-level parity remains a decision gate.
 
 ## Data boundaries
-- Regular browsing history, bookmarks, restorable tabs and download metadata are stored locally in Preferences DataStore.
 - Bookmarks, history, restorable-tab metadata and download metadata use AES-256-GCM encryption with an Android Keystore key; legacy plaintext values migrate on read.
-- History is capped at 300 entries; bookmarks at 500; restorable tabs at eight; download metadata at 100 records.
-- Private tabs never write app-side history, bookmarks or restorable-tab state.
-- Theme preference is a non-sensitive local DataStore value and is not included in the encrypted metadata set.
-- Downloaded file contents remain ordinary files inside app-specific Downloads storage so the user can explicitly open/share them; file contents are not encrypted by this metadata cipher.
+- History capped at 300 entries; bookmarks at 500; restorable tabs at eight; download metadata at 100 records.
+- Private tabs do not persist app-side history, bookmarks or restorable-tab state.
+- Downloaded file contents remain ordinary files inside app-specific Downloads storage and are not encrypted by the metadata cipher.
 - No account, cloud sync, telemetry or mandatory server.
 
 ## Security
-- Omnibox parser accepts HTTP/HTTPS URLs; unsupported schemes become search queries.
-- No JavaScript-to-native bridge.
-- TLS certificate validation is not overridden.
-- Site content, Android runtime and media permissions are denied until user-facing mediation exists, except currently mediated HTTPS notification and persistent-storage prompts.
-- Downloads are restricted to HTTP(S) response streams, filenames sanitized, 250 MB per file, app-specific storage and scoped non-exported FileProvider.
-- Browser chrome security state comes from GeckoView callbacks.
+- Omnibox accepts HTTP/HTTPS; unsupported schemes become search queries.
+- No JavaScript-to-native bridge; TLS certificate validation is not overridden.
+- Site, Android and media permissions are denied until user-facing mediation exists, except mediated HTTPS notification and persistent-storage prompts.
+- Downloads are HTTP(S), sanitized, capped at 250 MB, app-specific and exposed through a scoped non-exported FileProvider.
 - Android backup disabled; no broad storage permission.
 
 ## UI
 - Jetpack Compose chrome; GeckoView hosted in AndroidView.
-- Browser chrome theme is independent of website content.
-- Dark, Light and Premium Glass use centralized semantic color, spacing and shape tokens.
-- Glass uses translucent surfaces without expensive real-time blur.
-- Quick Appearance Picker is a secondary overflow control.
-- Status/navigation system icon contrast follows appearance mode.
+- Dark, Light and Premium Glass use centralized semantic tokens.
+- Glass uses translucent surfaces without real-time blur.
+- Status/navigation icon contrast follows appearance mode.
 
 ## Verification boundary
-This document describes the current source architecture. Latest encryption, tab-restoration and Activity-lifecycle changes still require CI and physical-device validation before being treated as verified behavior.
+Main CI run #246 passed on the pre-benchmark HEAD. New benchmark flavors and 16 KB artifact checks require this PR's CI. Physical-device runtime, full browser parity and leak-free memory behavior are not yet verified.
