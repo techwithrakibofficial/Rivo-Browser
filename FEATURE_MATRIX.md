@@ -9,7 +9,7 @@
 | Navigation and omnibox | Implemented | HTTP/HTTPS and search resolver; draft preservation fix integrated |
 | Internationalized domain names | Implemented in source | IDN host normalized to ASCII; JVM regression coverage |
 | Back / forward / reload / stop | Implemented | Delegate-driven navigation state |
-| Multi-tab management | Implemented | Inactive session handling; cap 8 |
+| Multi-tab management | Implemented | Inactive session handling; cap 8; searchable overview, Normal/Private/Active filters and deterministic sorting |
 | Selected-tab restoration | Implemented in source | Uses saved record index; duplicate URLs supported; force-stop test pending |
 | Private tabs | Implemented | Native private mode; no app history/bookmark writes or persisted private tabs |
 | Tracking protection | Enabled | Per GeckoSession |

@@ -51,6 +51,11 @@ These are branch-level validations, not proof that the integrated Main commit pa
 19. Encrypted storage: legacy migration, fresh-IV round-trip, tampered/truncated ciphertext, unavailable key and read-modify-write preservation.
 20. Accessibility: TalkBack names/roles/selected states, 48 dp touch targets, font scaling, 320 dp width, panel scrolling and Glass fallback.
 
+## Advanced Tab Universe tests
+- `TabUniversePolicyTest` covers case-insensitive title/URL search, Normal/Private/Active filters and deterministic Active-first/Title/Type ordering.
+- Manual QA: create normal and private tabs, switch active tab, search by title and URL, change each filter and sort mode, close tabs, and confirm private tabs remain excluded from persisted restoration.
+- The feature does not increase the eight-tab cap or claim measured memory savings; inactive Gecko sessions continue to be deactivated/unfocused by the existing controller lifecycle.
+
 ## Physical-device benchmark
 Test at least one 3 GB and one 4 GB Android device if available. Record model, chipset, Android build, ABI, GeckoView version, APK/AAB size, cold/warm startup, PSS, CPU, thermal state and crashes/ANRs. Do not extrapolate emulator-only results to all 3–4 GB phones.
 

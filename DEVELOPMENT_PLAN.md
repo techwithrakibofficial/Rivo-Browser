@@ -59,7 +59,7 @@
 - Encrypted metadata: fail closed and validate stored values before replacement; instrument on Android.
 
 ## Phase 2 — Advanced browser
-- Advanced Tab Universe.
+- Advanced Tab Universe (first increment: tab search, Normal/Private/Active filters and Active-first/Title/Type organization; retain eight-tab cap pending profiling).
 - Privacy Intelligence Center.
 - Transfer Studio.
 - Reader mode and QR scanning where feasible.
