@@ -36,7 +36,7 @@ These are branch-level validations, not proof that the integrated Main commit pa
 4. Back, forward, reload and stop.
 5. Create/switch/close tabs; verify inactive sessions deactivate.
 6. Duplicate-URL tabs: restore selected tab by saved record index, not URL equality.
-7. Omnibox: edit text while page navigation callbacks arrive; ensure draft text is preserved until submission.
+7. Omnibox: edit text while navigation callbacks arrive; ensure draft text is preserved until submission.
 8. Private session: verify app-side history/bookmarks/restorable-tab state remain unchanged.
 9. Bookmark add/remove and encrypted persistence.
 10. History persistence, duplicate visits and clear.
@@ -45,12 +45,12 @@ These are branch-level validations, not proof that the integrated Main commit pa
 13. Download confirmation/cancel, response-stream closure, filename sanitization, duplicate names, atomic finalization, 250 MB cap, metadata restoration and open/share.
 14. HTTPS site-notification and supported autoplay requests show explicit Allow/Deny prompts; Android 13+ notification approval also requests POST_NOTIFICATIONS.
 15. Geolocation, persistent-storage, XR, DRM, tracking exceptions, third-party storage, camera, microphone and unsupported media/runtime requests are denied by default.
-16. Site permission panel lists only real GeckoView records, excludes private-mode records, and resets revocable records to VALUE_PROMPT; persistent-storage records are shown as non-revocable.
-17. Private site permission grants do not appear in the normal site-permission manager and are cleared with the private Gecko session.
-18. Notification channel delivery and notification click callbacks reach Gecko; OS-level notification permission denial prevents delivery.
+16. Site permission panel lists actual GeckoView records, excludes private-mode records, and resets revocable records to VALUE_PROMPT; persistent-storage records are shown as non-revocable.
+17. Private site permission decisions do not appear in the normal site-permission manager; no private permanent permission API is used.
+18. Notification channel delivery is gated by Android notification permission; notification clicks are routed back to Gecko.
 19. Tracking-protection status reflects GeckoSessionSettings; no tracker count is displayed without a verified per-page engine count.
 20. Certificate errors are not bypassed; security label comes from GeckoView callback.
-16. Activity recreation/background/foreground; verify all sessions deactivate on stop and only selected tab reactivates on start.
+21. Activity recreation/background/foreground; verify all sessions deactivate on stop and only selected session reactivates on start.
 22. Force-stop/relaunch: regular HTTP(S) tabs restore; selected normal tab restores; private tabs do not reappear.
 23. Release bundle builds with R8/resource shrinking and minified runtime behavior is smoke-tested.
 24. Encrypted storage: legacy migration, fresh-IV round-trip, tampered/truncated ciphertext, unavailable key and read-modify-write preservation.
