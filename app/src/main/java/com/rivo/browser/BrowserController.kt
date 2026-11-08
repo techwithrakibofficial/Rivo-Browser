@@ -246,7 +246,7 @@ class BrowserController(context: Context) {
         }
     }
 
-    fun setAppearance(value: BrowserAppearance) {
+    fun updateAppearance(value: BrowserAppearance) {
         appearance = value
         scope.launch { storage.saveTheme(value.name.lowercase()) }
     }
