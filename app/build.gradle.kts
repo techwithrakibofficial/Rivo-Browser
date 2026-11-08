@@ -13,6 +13,11 @@ android {
         versionCode = 1
         versionName = "0.1.0-phase0"
     }
+    flavorDimensions += "engine"
+    productFlavors {
+        create("webview") { dimension = "engine" }
+        create("gecko") { dimension = "engine" }
+    }
     buildFeatures { compose = true }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -22,6 +27,8 @@ android {
 }
 dependencies {
     implementation(project(":engine-api"))
+    webviewImplementation(project(":engine-webview"))
+    geckoImplementation(project(":engine-gecko"))
     implementation(platform("androidx.compose:compose-bom:2026.09.00"))
     implementation("androidx.activity:activity-compose:1.13.0")
     implementation("androidx.compose.ui:ui")
