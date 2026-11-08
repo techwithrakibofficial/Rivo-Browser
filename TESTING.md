@@ -29,12 +29,13 @@ Artifacts expire 2026-11-22. Extracted APKs: ARM64 208,688,414 bytes (~199.0 MiB
 8. History persistence and clear.
 9. Dark/Light/Glass persistence and system-bar contrast.
 10. Download response streams, filename sanitization, duplicate names, 250 MB cap, open/share and private-mode notice.
-11. Geolocation/camera/microphone/notification requests remain denied until permission UX exists.
-12. Certificate errors are not bypassed; security label comes from GeckoView callback.
-13. Activity recreation and background/foreground transitions; verify all Gecko sessions deactivate on stop and only the selected tab reactivates on start.
-14. Android system Back navigates Gecko history when available; otherwise verify normal Android back behavior.
-15. Force-stop/relaunch; verify regular HTTP(S) tabs restore, selected normal tab is restored, and private tabs do not reappear.
-16. Verify release bundle build completes with R8 and resource shrinking; inspect AAB size and test runtime behavior of minified code.
+11. HTTPS notification and persistent-storage requests show an explicit Allow/Deny prompt; non-HTTPS and private-mode requests are handled according to their scoped policy.
+12. Geolocation/camera/microphone/media and unsupported content permissions remain denied; verify no undeclared Android hardware permission is requested.
+13. Certificate errors are not bypassed; security label comes from GeckoView callback.
+14. Activity recreation and background/foreground transitions; verify all Gecko sessions deactivate on stop and only the selected tab reactivates on start.
+15. Android system Back navigates Gecko history when available; otherwise verify normal Android back behavior.
+16. Force-stop/relaunch; verify regular HTTP(S) tabs restore, selected normal tab is restored, and private tabs do not reappear.
+17. Verify release bundle build completes with R8 and resource shrinking; inspect AAB size and test runtime behavior of minified code.
 
 ## Physical-device benchmark
 Test at least one 3 GB and one 4 GB device if available. Record model, chipset, Android build, ABI, GeckoView version, individual APK size, cold/warm startup, PSS, CPU, thermal state and crashes/ANRs. No emulator-only result should be extrapolated to all devices.
