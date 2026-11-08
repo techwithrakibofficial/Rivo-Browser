@@ -4,7 +4,7 @@
 - Android compile platform API 37.2; targetSdk 36.
 - Assemble GeckoView MVP debug APKs.
 - Android lint.
-- JVM tests for URL/search resolution, safe restorable-tab URL policy, sensitive metadata write validation, IDN normalization and restored-tab index selection.
+- JVM tests for URL/search resolution, safe restorable-tab URL policy and snapshot filtering, sensitive metadata write validation, IDN normalization, restored-tab index selection, history ordering, session activation and download file handling.
 - Minified release AAB build with R8/resource shrinking.
 - APK/AAB size reporting and unsigned QA artifact uploads for ARM64/ARMv7.
 
@@ -50,6 +50,18 @@ These are branch-level validations, not proof that the integrated Main commit pa
 18. Release bundle builds with R8/resource shrinking and minified runtime behavior is smoke-tested.
 19. Encrypted storage: legacy migration, fresh-IV round-trip, tampered/truncated ciphertext, unavailable key and read-modify-write preservation.
 20. Accessibility: TalkBack names/roles/selected states, 48 dp touch targets, font scaling, 320 dp width, panel scrolling and Glass fallback.
+
+## RIVO-05 core browser regression coverage
+
+The branch adds deterministic JVM tests for the non-Android portions of the core browser flow:
+
+- NavigationInputResolverTest: explicit HTTP/HTTPS, HTTPS defaulting, plain search, unsupported schemes, IDN conversion with encoded path/query/fragment, valid port preservation, out-of-range port rejection and credential-bearing URL rejection.
+- HistoryVisitPolicyTest: repeated callbacks for the current URL coalesce; a revisit after another page remains a separate entry; history stays bounded at 300.
+- RestorableTabSnapshotTest: private/unsafe tabs are excluded, duplicate URLs remain independent records, selection follows tab identity and snapshots are capped at eight.
+- TabSessionActivationPolicyTest: only the selected tab is active while the host is started; all sessions are inactive while backgrounded.
+- DownloadFileWriterTest: filename/header sanitization, internal staging-name protection, duplicate name allocation without overwrite, stream closure on success/failure, staging cleanup and byte-limit enforcement.
+
+These are pure JVM/helper tests. They do not exercise live GeckoView navigation, real HTTP(S) responses, Android Activity callbacks, OS process death, Android Sharesheet or external file viewers.
 
 ## Physical-device benchmark
 Test at least one 3 GB and one 4 GB Android device if available. Record model, chipset, Android build, ABI, GeckoView version, APK/AAB size, cold/warm startup, PSS, CPU, thermal state and crashes/ANRs. Do not extrapolate emulator-only results to all 3–4 GB phones.
