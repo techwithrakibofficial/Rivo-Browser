@@ -16,20 +16,21 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+      - uses: android-actions/setup-android@v3
       - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: '9.6.0'
           cache-provider: basic
-      - name: Assemble WebView and GeckoView probes
-        run: gradle --no-daemon :app:assembleWebviewDebug :app:assembleGeckoDebug
-      - name: Run Android lint for both variants
-        run: gradle --no-daemon :app:lintWebviewDebug :app:lintGeckoDebug
+      - name: Assemble Rivo Browser MVP
+        run: gradle --no-daemon :app:assembleDebug
+      - name: Run Android lint
+        run: gradle --no-daemon :app:lintDebug
       - name: Run unit tests
         run: gradle --no-daemon test
-      - name: Upload Phase 0 debug APKs
+      - name: Upload Phase 1 debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: rivo-phase0-engine-probes
-          path: app/build/outputs/apk/*/debug/*.apk
+          name: rivo-browser-phase1-debug
+          path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 14
