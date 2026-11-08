@@ -16,11 +16,18 @@ data class SavedPage(
     val visitedAt: Long
 )
 
+data class SavedTab(
+    val url: String,
+    val title: String,
+    val selected: Boolean
+)
+
 /** Small local-only storage. History is deliberately bounded to 300 entries. */
 class BrowserStorage(private val context: Context) {
     private val themeKey = stringPreferencesKey("appearance")
     private val bookmarksKey = stringPreferencesKey("bookmarks_json")
     private val historyKey = stringPreferencesKey("history_json")
+    private val openTabsKey = stringPreferencesKey("open_tabs_json")
 
     suspend fun loadTheme(): String =
         context.rivoDataStore.data.first()[themeKey] ?: "dark"
@@ -34,6 +41,36 @@ class BrowserStorage(private val context: Context) {
 
     suspend fun loadHistory(): List<SavedPage> =
         decode(context.rivoDataStore.data.first()[historyKey].orEmpty())
+
+    /** Restore only regular HTTP(S) tabs; private tabs are never serialized. */
+    suspend fun loadOpenTabs(): List<SavedTab> = runCatching {
+        val array = JSONArray(context.rivoDataStore.data.first()[openTabsKey].orEmpty())
+        (0 until array.length()).mapNotNull { index ->
+            val item = array.optJSONObject(index) ?: return@mapNotNull null
+            val url = item.optString("url")
+            val uri = android.net.Uri.parse(url)
+            if (uri.scheme !in listOf("http", "https") || uri.host.isNullOrBlank()) null
+            else SavedTab(url, item.optString("title", url), item.optBoolean("selected"))
+        }.take(8)
+    }.getOrDefault(emptyList())
+
+    suspend fun saveOpenTabs(tabs: List<SavedTab>) {
+        val safeTabs = tabs.filter { tab ->
+            val uri = android.net.Uri.parse(tab.url)
+            uri.scheme in listOf("http", "https") && !uri.host.isNullOrBlank()
+        }.take(8)
+        context.rivoDataStore.edit { prefs ->
+            prefs[openTabsKey] = JSONArray().apply {
+                safeTabs.forEach { tab ->
+                    put(JSONObject().apply {
+                        put("url", tab.url)
+                        put("title", tab.title)
+                        put("selected", tab.selected)
+                    })
+                }
+            }.toString()
+        }
+    }
 
     suspend fun addBookmark(page: SavedPage) {
         context.rivoDataStore.edit { prefs ->
