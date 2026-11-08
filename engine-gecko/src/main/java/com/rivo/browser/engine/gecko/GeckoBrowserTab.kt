@@ -1,6 +1,7 @@
 package com.rivo.browser.engine.gecko
 
 import android.content.Context
+import android.net.Uri
 import android.view.ViewGroup
 import org.mozilla.geckoview.GeckoRuntime
 import org.mozilla.geckoview.GeckoResult
@@ -97,7 +98,7 @@ class GeckoBrowserTab(
                         GeckoSession.PermissionDelegate.ContentPermission.VALUE_DENY
                     )
                 }
-                if (permission.privateMode != isPrivate) {
+                if (permission.privateMode != isPrivate || Uri.parse(permission.uri).scheme != "https") {
                     return GeckoResult.fromValue(GeckoSession.PermissionDelegate.ContentPermission.VALUE_DENY)
                 }
                 val result = GeckoResult<Int>()
