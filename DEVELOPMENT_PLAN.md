@@ -77,3 +77,10 @@
 - Capture cold/warm launch, DOM-ready latency, CPU, PSS, frame stats, crashes/ANRs and device metadata using `tools/run-engine-benchmark.sh`.
 - Run repeated trials on representative 3–4 GB devices and compare medians/distributions; do not select an engine from build success or synthetic CI alone.
 - Static 16 KB ELF/APK checks are screening evidence only; runtime launch on a 16 KB Android image remains required.
+
+
+### Privacy & site permissions increment
+Implement Gecko-backed permission state and narrowly scoped prompts only for capabilities Rivo can safely mediate. Keep unsupported and non-revocable capabilities default-deny; do not display synthetic tracker counts. Physical Android notification and permission UX verification remains a release gate.
+
+### Advanced Tab Universe increment
+Add searchable, filterable and sortable open-tab management while retaining the eight-tab cap. Tab groups/workspaces and memory profiling are separate future increments.
