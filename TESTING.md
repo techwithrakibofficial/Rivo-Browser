@@ -63,3 +63,10 @@ Test at least one 3 GB and one 4 GB Android device if available. Record model, c
 
 ## Engine comparison benchmark
 Build both engine probes with `:engine-benchmark:assembleGeckoDebug`, `:engine-benchmark:assembleWebviewDebug`, and bundle release variants with `-Privo.abiSplits=false` to avoid multiple shrunk-resource outputs. On a physical Android device, run `bash tools/run-engine-benchmark.sh gecko <apk> <output-dir> 5 1` and repeat for `webview` with the same device state and workload. Preserve raw captures and device metadata. The harness records cold/warm launch, DOM-ready timing, CPU/process/PSS, frame stats, crashes and ANRs. CI builds and static alignment checks do not constitute real performance results or 16 KB runtime certification.
+
+
+## Android security instrumentation
+The Android CI workflow runs `:app:connectedDebugAndroidTest` on an API 35 Google APIs emulator. Coverage includes Android Keystore AES-256-GCM, fresh IV/ciphertext, tampering/truncation, missing-key behavior, legacy migration, encrypted metadata persistence, DataStore corruption/key-loss preservation, download staging cleanup and FileProvider scope. A green emulator run is required before calling these test cases verified. Hardware-backed Keystore, secure-lock-screen invalidation and true OS force-stop/relaunch still require representative physical devices.
+
+## Core browser hardening regression tests
+JVM tests cover history callback coalescing versus later revisits, duplicate-URL normal-tab restoration, private/unsafe URL exclusion, selected-tab identity, session activation policy, URL credential/port validation, and download filename/path/size/collision/staging behavior. These tests do not replace live Gecko navigation or external viewer/Sharesheet testing.
