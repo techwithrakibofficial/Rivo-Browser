@@ -32,6 +32,16 @@ jobs:
         run: gradle --no-daemon :app:lintDebug
       - name: Run unit tests
         run: gradle --no-daemon :app:testDebugUnitTest
+      - name: Assemble engine benchmark debug APKs
+        run: |
+          gradle --no-daemon \
+            :engine-benchmark:assembleGeckoDebug \
+            :engine-benchmark:assembleWebviewDebug
+      - name: Build engine benchmark release bundles without ABI splits
+        run: |
+          gradle --no-daemon -Privo.abiSplits=false \
+            :engine-benchmark:bundleGeckoRelease \
+            :engine-benchmark:bundleWebviewRelease
       - name: Build minified release bundle
         run: gradle --no-daemon -Privo.abiSplits=false :app:bundleRelease
       - name: Report ABI APK sizes
