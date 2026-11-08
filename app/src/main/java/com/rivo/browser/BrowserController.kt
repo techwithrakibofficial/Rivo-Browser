@@ -65,6 +65,7 @@ class BrowserController(context: Context) {
     val downloads = mutableStateListOf<BrowserDownload>()
     val sitePermissions = mutableStateListOf<GeckoStoredSitePermission>()
     var sitePermissionsLoading by mutableStateOf(false)
+    private var awaitingNotificationPermissionResult = false
 
     var activeTabId by mutableStateOf(0L)
         private set
@@ -236,7 +237,7 @@ class BrowserController(context: Context) {
     /** Release Gecko's foreground/focus state while the Activity is backgrounded. */
     fun onHostPaused() {
         hostStarted = false
-        if (permissionPrompt != null) respondToSitePermission(false)
+        if (permissionPrompt != null && !awaitingNotificationPermissionResult) respondToSitePermission(false)
         if (pendingDownload != null) cancelPendingDownload()
         tabs.forEach { it.engine.setActive(false) }
     }
@@ -360,8 +361,23 @@ class BrowserController(context: Context) {
     fun showNotice(value: String) { notice = value }
     fun dismissNotice() { notice = null }
 
+    fun beginNotificationPermissionRequest() {
+        if (permissionPrompt?.permission == "Notifications") {
+            awaitingNotificationPermissionResult = true
+        }
+    }
+
+    fun completeNotificationPermissionRequest(granted: Boolean) {
+        awaitingNotificationPermissionResult = false
+        respondToSitePermission(granted)
+    }
+
     fun respondToSitePermission(granted: Boolean) {
-        val pending = permissionPrompt ?: return
+        val pending = permissionPrompt ?: run {
+            awaitingNotificationPermissionResult = false
+            return
+        }
+        awaitingNotificationPermissionResult = false
         permissionPrompt = null
         pending.respond(granted)
     }
@@ -568,6 +584,7 @@ class BrowserController(context: Context) {
 
     fun dispose() {
         cancelPendingDownload()
+        awaitingNotificationPermissionResult = false
         permissionPrompt?.respond?.invoke(false)
         permissionPrompt = null
         tabs.toList().forEach { it.engine.dispose() }
