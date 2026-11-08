@@ -16,8 +16,8 @@
 
 ## Phase 0 dependency candidate
 - Channel: Stable
-- Candidate artifact: `org.mozilla.geckoview:geckoview-stable:159.0.20261022150525`
-- The public Maven version index lists 159.0.20261022150525 as the 159.0.x stable line. Mozilla's quick start documents the stable channel naming and Mozilla Maven repository.
+- Candidate artifact: `org.mozilla.geckoview:geckoview:159.0.20261022150525`
+- The public Maven version index lists 159.0.20261022150525 as the 159.0.x release. Mozilla's current quick start documents the channel placeholder, while the published Stable universal artifact is named geckoview (not geckoview-stable). The first CI attempt confirmed that the latter artifact name is required.
 - Dependency resolution and compilation still require a successful GitHub Actions build; the pin is not considered validated until CI confirms it.
 
 ## Implemented comparison setup
