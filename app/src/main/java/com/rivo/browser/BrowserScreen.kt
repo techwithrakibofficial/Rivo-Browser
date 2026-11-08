@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -438,7 +439,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                         LazyColumn(modifier = Modifier.heightIn(max = 300.dp)) {
                             items(
                                 browser.sitePermissions,
-                                key = { "${it.origin}|${it.permissionName}|${it.permission.contextId.orEmpty()}" }
+                                key = { "${it.origin}|${it.permissionName}|${it.contextKey.orEmpty()}" }
                             ) { permission ->
                                 Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                                     Text(permission.origin, style = MaterialTheme.typography.titleSmall, maxLines = 1)
