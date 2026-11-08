@@ -301,16 +301,18 @@ class GeckoBrowserTab(
                 stored.permission,
                 GeckoSession.PermissionDelegate.ContentPermission.VALUE_PROMPT
             )
-        }.onSuccess {
-            loadStoredSitePermissions { remaining ->
-                callback(
-                    remaining.none {
-                        it.origin == stored.origin &&
-                            it.permissionName == stored.permissionName &&
-                            it.contextKey == stored.contextKey
-                    }
-                )
-            }
+            runtime.storageController.getAllPermissions().accept({ permissions ->
+                val stillStored = permissions.orEmpty().any { permission ->
+                    !permission.privateMode &&
+                        permission.uri == stored.permission.uri &&
+                        permission.permission == stored.permission.permission &&
+                        permission.contextId == stored.permission.contextId &&
+                        permission.value != GeckoSession.PermissionDelegate.ContentPermission.VALUE_PROMPT
+                }
+                callback(!stillStored)
+            }, {
+                callback(false)
+            })
         }.onFailure {
             callback(false)
         }
