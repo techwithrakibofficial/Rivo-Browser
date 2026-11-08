@@ -5,28 +5,32 @@ Updated: 2026-11-08
 ## Current phase
 Phase 0 — research, architecture, foundation and engine evaluation.
 
-## Verified repository state before this change
-- Repository was empty; no pre-existing source, docs, branches or CI configuration were found.
-- Repository: techwithrakibofficial/Rivo-Browser
+## Repository
+- Canonical repository: https://github.com/techwithrakibofficial/Rivo-Browser
 - Default branch: main
+- Phase 1 remains explicitly unauthorized and has not started.
 
-## Completed in this commit
-- Initial Android Gradle/Compose foundation skeleton.
-- Minimal engine abstraction.
-- WebView lifecycle probe source.
-- Android CI workflow draft.
-- Phase 0 project documentation.
+## Completed
+- Android Gradle/Compose foundation skeleton and project documentation.
+- Engine-neutral API module.
+- WebView probe with explicit disposal, safe browsing, no mixed content and no native JavaScript bridge.
+- GeckoView probe module using a pinned Stable candidate artifact and process-scoped runtime ownership.
+- Separate WebView and GeckoView app flavors.
+- Same deterministic local HTML probe workload in both flavors.
+- CI workflow updated to assemble both debug variants.
+- Benchmark protocol and engine ADR updated.
 
-## Not completed / not claimed
-- No APK has been built or installed yet.
-- No CI run has been observed.
-- No device benchmarks have been performed.
-- GeckoView dependency version and runtime probe are not yet pinned/implemented; stable artifact metadata must be confirmed first.
-- No Phase 1 browser features have started.
+## Pending verification
+- GitHub Actions result for the latest commits has not yet been confirmed.
+- GeckoView Maven dependency resolution and compilation are pending CI confirmation.
+- No APK has yet been downloaded, installed or manually launched in this session.
+- No physical 3–4 GB device benchmark has been performed.
+- No measured APK size, RAM/PSS, startup, rendering, CPU, battery or crash data exists.
+- Engine selection remains provisional; ADR-0001 is Proposed.
 
 ## Next steps
-1. Verify GeckoView stable Maven artifact and supported API surface.
-2. Add isolated GeckoView probe module and compare with WebView.
-3. Run CI and fix any build issues.
-4. Benchmark on representative 3–4 GB Android hardware.
-5. Finalize ADR only after evidence review.
+1. Verify GitHub Actions build of both flavors and fix any build failures.
+2. Download/install each APK on physical 3–4 GB devices.
+3. Run the documented controlled benchmark and save raw observations.
+4. Review results and update ADR-0001; do not infer a winner from documentation alone.
+5. Complete Phase 0 acceptance evidence and prepare a handoff.
