@@ -7,6 +7,7 @@ import android.os.Environment
 import androidx.core.content.FileProvider
 import com.rivo.browser.data.BrowserStorage
 import com.rivo.browser.data.SavedPage
+import com.rivo.browser.data.SavedDownload
 import com.rivo.browser.data.SavedTab
 import com.rivo.browser.engine.gecko.GeckoBrowserRuntime
 import com.rivo.browser.engine.gecko.GeckoBrowserTab
@@ -84,6 +85,7 @@ class BrowserController(context: Context) {
             }.getOrDefault(BrowserAppearance.DARK)
             bookmarks.addAll(storage.loadBookmarks())
             history.addAll(storage.loadHistory())
+            restoreDownloads()
             val restoredTabs = storage.loadOpenTabs()
             if (restoredTabs.isEmpty()) {
                 createTab()
@@ -418,6 +420,7 @@ class BrowserController(context: Context) {
                 result.onSuccess { file ->
                     item.file = file
                     item.status = "Saved in app Downloads"
+                    persistDownloads()
                     notice = if (tab.privateMode) {
                         "Download saved. Private browsing does not automatically erase downloaded files."
                     } else {
@@ -429,6 +432,43 @@ class BrowserController(context: Context) {
                 }
             }
         }
+    }
+
+    private fun restoreDownloads() {
+        val externalRoot = appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+        val internalRoot = File(appContext.filesDir, "downloads")
+        val allowedRoots = listOfNotNull(externalRoot, internalRoot).mapNotNull {
+            runCatching { it.canonicalFile }.getOrNull()
+        }
+        scope.launch(Dispatchers.IO) {
+            val restored = storage.loadDownloads().mapNotNull { saved ->
+                runCatching {
+                    val file = File(saved.absolutePath).canonicalFile
+                    val allowed = allowedRoots.any { root ->
+                        file.parentFile == root && file.name == saved.filename
+                    }
+                    if (!allowed || !file.isFile || !file.exists() || file.length() > MAX_DOWNLOAD_BYTES) {
+                        null
+                    } else {
+                        BrowserDownload(nextId++, saved.filename, saved.mimeType).apply {
+                            this.file = file
+                            status = "Saved in app Downloads"
+                        }
+                    }
+                }.getOrNull()
+            }
+            withContext(Dispatchers.Main.immediate) {
+                downloads.addAll(restored)
+            }
+        }
+    }
+
+    private fun persistDownloads() {
+        val saved = downloads.mapNotNull { item ->
+            val file = item.file ?: return@mapNotNull null
+            SavedDownload(item.filename, item.mimeType, file.absolutePath)
+        }
+        scope.launch { storage.saveDownloads(saved) }
     }
 
     private fun persistOpenTabs() {
