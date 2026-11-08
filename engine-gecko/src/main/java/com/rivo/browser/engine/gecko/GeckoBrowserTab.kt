@@ -48,7 +48,7 @@ object GeckoBrowserRuntime {
 }
 
 interface GeckoTabListener {
-    fun onLocationChanged(url: String)
+    fun onLocationChanged(url: String, trackingProtectionException: Boolean)
     fun onTitleChanged(title: String?)
     fun onLoadingChanged(loading: Boolean, progress: Int)
     fun onNavigationChanged(canGoBack: Boolean, canGoForward: Boolean)
@@ -238,7 +238,13 @@ class GeckoBrowserTab(
             ) {
                 if (url.isNullOrBlank()) return
                 currentUrl = url
-                listener.onLocationChanged(url)
+                listener.onLocationChanged(
+                    url,
+                    permissions.any { permission ->
+                        permission.permission == GeckoSession.PermissionDelegate.PERMISSION_TRACKING &&
+                            permission.value == GeckoSession.PermissionDelegate.ContentPermission.VALUE_ALLOW
+                    }
+                )
             }
 
             override fun onCanGoBack(session: GeckoSession, canGoBack: Boolean) {
