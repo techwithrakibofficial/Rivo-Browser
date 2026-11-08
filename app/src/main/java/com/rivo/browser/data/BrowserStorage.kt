@@ -60,9 +60,9 @@ class BrowserStorage(private val context: Context) {
         context.rivoDataStore.edit { it[themeKey] = theme }
     }
 
-    suspend fun loadBookmarks(): List<SavedPage> = decode(readProtected(bookmarksKey))
+    suspend fun loadBookmarks(): List<SavedPage> = decodeProtected(readProtected(bookmarksKey))
 
-    suspend fun loadHistory(): List<SavedPage> = decode(readProtected(historyKey))
+    suspend fun loadHistory(): List<SavedPage> = decodeProtected(readProtected(historyKey))
 
     /** Restore only regular HTTP(S) tabs; private tabs are never serialized. */
     suspend fun loadOpenTabs(): List<SavedTab> {
@@ -128,7 +128,7 @@ class BrowserStorage(private val context: Context) {
     suspend fun addBookmark(page: SavedPage) {
         ensureSensitiveWritesAllowed()
         context.rivoDataStore.edit { prefs ->
-            val current = decode(cipher.decryptOrLegacy(prefs[bookmarksKey].orEmpty())).toMutableList()
+            val current = decodeProtected(decryptProtected(prefs[bookmarksKey].orEmpty())).toMutableList()
             current.removeAll { it.url == page.url }
             current.add(0, page)
             prefs[bookmarksKey] = cipher.encrypt(encode(current.take(500)))
@@ -138,7 +138,7 @@ class BrowserStorage(private val context: Context) {
     suspend fun removeBookmark(url: String) {
         ensureSensitiveWritesAllowed()
         context.rivoDataStore.edit { prefs ->
-            val current = decode(cipher.decryptOrLegacy(prefs[bookmarksKey].orEmpty()))
+            val current = decodeProtected(decryptProtected(prefs[bookmarksKey].orEmpty()))
             prefs[bookmarksKey] = cipher.encrypt(encode(current.filterNot { it.url == url }))
         }
     }
@@ -146,7 +146,7 @@ class BrowserStorage(private val context: Context) {
     suspend fun addHistory(page: SavedPage) {
         ensureSensitiveWritesAllowed()
         context.rivoDataStore.edit { prefs ->
-            val current = decode(cipher.decryptOrLegacy(prefs[historyKey].orEmpty())).toMutableList()
+            val current = decodeProtected(decryptProtected(prefs[historyKey].orEmpty())).toMutableList()
             if (current.firstOrNull()?.url != page.url) current.add(0, page)
             prefs[historyKey] = cipher.encrypt(encode(current.take(300)))
         }
@@ -159,11 +159,7 @@ class BrowserStorage(private val context: Context) {
     private suspend fun readProtected(key: Preferences.Key<String>): String {
         val raw = context.rivoDataStore.data.first()[key].orEmpty()
         if (raw.isBlank()) return ""
-        val plainText = try {
-            cipher.decryptOrLegacy(raw)
-        } catch (error: Exception) {
-            integrityFailure(error)
-        }
+        val plainText = decryptProtected(raw)
         if (!raw.startsWith("enc:v1:")) {
             // Migrate legacy plaintext only after successful read; encrypted write failure
             // leaves the original DataStore value intact because edit is transactional.
@@ -183,6 +179,18 @@ class BrowserStorage(private val context: Context) {
             })
         }
     }.toString()
+
+    private fun decryptProtected(raw: String): String = try {
+        cipher.decryptOrLegacy(raw)
+    } catch (error: Exception) {
+        integrityFailure(error)
+    }
+
+    private fun decodeProtected(raw: String): List<SavedPage> = try {
+        decode(raw)
+    } catch (error: Exception) {
+        integrityFailure(error)
+    }
 
     private fun decode(raw: String): List<SavedPage> {
         if (raw.isBlank()) return emptyList()
