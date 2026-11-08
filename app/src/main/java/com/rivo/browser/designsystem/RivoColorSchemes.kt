@@ -11,7 +11,7 @@ object RivoColorSchemes {
     fun forAppearance(appearance: BrowserAppearance): ColorScheme = when (appearance) {
         BrowserAppearance.LIGHT -> lightColorScheme(
             primary = Color(0xFF315B85),
-            secondary = Color(0xFF567D9F),
+            secondary = Color(0xFF4D7192),
             background = Color(0xFFF3F6FA),
             surface = Color(0xFFFFFFFF),
             onSurface = Color(0xFF172333),
