@@ -34,4 +34,28 @@ class NavigationInputResolverTest {
     fun emptyInputStaysEmpty() {
         assertEquals("", NavigationInputResolver.resolve("  "))
     }
+    @Test
+    fun convertsInternationalizedDomainNamesToAscii() {
+        assertEquals(
+            "https://xn--bcher-kva.de/path",
+            NavigationInputResolver.resolve("https://bücher.de/path")
+        )
+    }
+
+    @Test
+    fun addsHttpsForInternationalizedDomainNames() {
+        assertEquals(
+            "https://xn--r8jz45g.xn--zckzah",
+            NavigationInputResolver.resolve("例え.テスト")
+        )
+    }
+
+    @Test
+    fun preservesEncodedPathQueryAndFragmentDuringIdnConversion() {
+        assertEquals(
+            "https://xn--bcher-kva.de/a%2Fb?q=a%2Fb#section",
+            NavigationInputResolver.resolve("https://bücher.de/a%2Fb?q=a%2Fb#section")
+        )
+    }
+
 }

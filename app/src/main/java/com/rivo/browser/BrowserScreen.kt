@@ -36,6 +36,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.Modifier
 import com.rivo.browser.designsystem.RivoColorSchemes
 import com.rivo.browser.designsystem.RivoSpacing
@@ -63,6 +64,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     val context = LocalContext.current
     val view = LocalView.current
     var address by remember(active?.id) { mutableStateOf(active?.url.orEmpty()) }
+    var isEditingAddress by remember(active?.id) { mutableStateOf(false) }
     var menuExpanded by remember { mutableStateOf(false) }
 
     SideEffect {
@@ -79,8 +81,8 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
         onDispose { active?.engine?.releaseView() }
     }
 
-    LaunchedEffect(active?.url) {
-        if (active != null) address = active.url
+    LaunchedEffect(active?.url, isEditingAddress) {
+        if (active != null && !isEditingAddress) address = active.url
     }
 
     MaterialTheme(colorScheme = RivoColorSchemes.forAppearance(browser.appearance)) {
@@ -95,19 +97,30 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(RivoSpacing.small)) {
                         OutlinedTextField(
                             value = address,
-                            onValueChange = { address = it },
-                            modifier = Modifier.weight(1f),
+                            onValueChange = {
+                                address = it
+                                isEditingAddress = true
+                            },
+                            modifier = Modifier.weight(1f).onFocusChanged {
+                                isEditingAddress = it.isFocused
+                            },
                             singleLine = true,
                             shape = RoundedCornerShape(RivoShapes.control),
                             placeholder = { Text("Search or enter address") },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Go),
                             keyboardActions = KeyboardActions(onGo = {
-                                browser.navigate(address)
+                                val submittedAddress = address
+                                browser.navigate(submittedAddress)
+                                address = NavigationInputResolver.resolve(submittedAddress)
+                                isEditingAddress = false
                                 keyboard?.hide()
                             })
                         )
                         Button(onClick = {
-                            browser.navigate(address)
+                            val submittedAddress = address
+                            browser.navigate(submittedAddress)
+                            address = NavigationInputResolver.resolve(submittedAddress)
+                            isEditingAddress = false
                             keyboard?.hide()
                         }) { Text("Go") }
                         Box {
@@ -337,7 +350,8 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                         }
                         if (browser.history.isEmpty()) Text("No browsing history yet.")
                         LazyColumn(modifier = Modifier.height(300.dp)) {
-                            items(browser.history, key = { it.url }) { page ->
+                            // Multiple visits to one URL are distinct history records.
+                            items(browser.history) { page ->
                                 TextButton(onClick = {
                                     browser.navigate(page.url)
                                     onDismiss()

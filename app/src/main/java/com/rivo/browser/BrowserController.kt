@@ -95,9 +95,9 @@ class BrowserController(context: Context) {
                     restoredTabs.forEach { saved ->
                         createTab(url = saved.url, restoredTitle = saved.title)
                     }
-                    restoredTabs.firstOrNull { it.selected }?.let { selected ->
-                        tabs.firstOrNull { it.url == selected.url }?.let { selectTab(it.id) }
-                    }
+                    // Select by saved record position, not URL: duplicate URLs are valid tabs.
+                    val selectedIndex = restoredSelectedTabIndex(restoredTabs.map { it.selected })
+                    tabs.getOrNull(selectedIndex)?.let { selectTab(it.id) }
                 }
             } catch (error: Exception) {
                 // Keep browsing available, but BrowserStorage switches to read-only after
