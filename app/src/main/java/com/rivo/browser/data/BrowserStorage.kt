@@ -29,7 +29,10 @@ data class SavedDownload(
     val absolutePath: String
 )
 
-/** Small local-only storage. History is deliberately bounded to 300 entries. */
+/**
+ * Local-only storage. Encrypted-data and malformed-record failures are propagated so
+ * callers cannot mistake unreadable saved data for an empty collection and overwrite it.
+ */
 class BrowserStorage(private val context: Context) {
     private val cipher = LocalDataCipher()
     private val themeKey = stringPreferencesKey("appearance")
@@ -50,26 +53,30 @@ class BrowserStorage(private val context: Context) {
     suspend fun loadHistory(): List<SavedPage> = decode(readProtected(historyKey))
 
     /** Restore only regular HTTP(S) tabs; private tabs are never serialized. */
-    suspend fun loadOpenTabs(): List<SavedTab> = runCatching {
-        val array = JSONArray(readProtected(openTabsKey))
-        (0 until array.length()).mapNotNull { index ->
+    suspend fun loadOpenTabs(): List<SavedTab> {
+        val raw = readProtected(openTabsKey)
+        if (raw.isBlank()) return emptyList()
+        val array = JSONArray(raw)
+        return (0 until array.length()).mapNotNull { index ->
             val item = array.optJSONObject(index) ?: return@mapNotNull null
             val url = item.optString("url")
             if (!RestorableTabPolicy.isSafeUrl(url)) null
             else SavedTab(url, item.optString("title", url), item.optBoolean("selected"))
         }.take(8)
-    }.getOrDefault(emptyList())
+    }
 
-    suspend fun loadDownloads(): List<SavedDownload> = runCatching {
-        val array = JSONArray(readProtected(downloadsKey))
-        (0 until array.length()).mapNotNull { index ->
+    suspend fun loadDownloads(): List<SavedDownload> {
+        val raw = readProtected(downloadsKey)
+        if (raw.isBlank()) return emptyList()
+        val array = JSONArray(raw)
+        return (0 until array.length()).mapNotNull { index ->
             val item = array.optJSONObject(index) ?: return@mapNotNull null
             val filename = item.optString("filename")
             val path = item.optString("path")
             if (filename.isBlank() || filename.contains('/') || filename.contains('\\') || path.isBlank()) null
             else SavedDownload(filename, item.optString("mimeType").takeIf { it.isNotBlank() }, path)
         }.take(100)
-    }.getOrDefault(emptyList())
+    }
 
     suspend fun saveDownloads(downloads: List<SavedDownload>) {
         context.rivoDataStore.edit { prefs ->
@@ -111,7 +118,8 @@ class BrowserStorage(private val context: Context) {
 
     suspend fun removeBookmark(url: String) {
         context.rivoDataStore.edit { prefs ->
-            prefs[bookmarksKey] = cipher.encrypt(encode(decode(cipher.decryptOrLegacy(prefs[bookmarksKey].orEmpty())).filterNot { it.url == url }))
+            val current = decode(cipher.decryptOrLegacy(prefs[bookmarksKey].orEmpty()))
+            prefs[bookmarksKey] = cipher.encrypt(encode(current.filterNot { it.url == url }))
         }
     }
 
@@ -132,7 +140,11 @@ class BrowserStorage(private val context: Context) {
         if (raw.isBlank()) return ""
         val plainText = cipher.decryptOrLegacy(raw)
         if (!raw.startsWith("enc:v1:")) {
-            context.rivoDataStore.edit { prefs -> prefs[key] = cipher.encrypt(plainText) }
+            // Migrate legacy plaintext only after successful read; encrypted write failure
+            // leaves the original DataStore value intact because edit is transactional.
+            context.rivoDataStore.edit { prefs ->
+                if (prefs[key] == raw) prefs[key] = cipher.encrypt(plainText)
+            }
         }
         return plainText
     }
@@ -147,9 +159,10 @@ class BrowserStorage(private val context: Context) {
         }
     }.toString()
 
-    private fun decode(raw: String): List<SavedPage> = runCatching {
+    private fun decode(raw: String): List<SavedPage> {
+        if (raw.isBlank()) return emptyList()
         val array = JSONArray(raw)
-        (0 until array.length()).mapNotNull { index ->
+        return (0 until array.length()).mapNotNull { index ->
             val item = array.optJSONObject(index) ?: return@mapNotNull null
             val url = item.optString("url")
             if (url.isBlank()) null else SavedPage(
@@ -158,5 +171,5 @@ class BrowserStorage(private val context: Context) {
                 visitedAt = item.optLong("visitedAt")
             )
         }
-    }.getOrDefault(emptyList())
+    }
 }
