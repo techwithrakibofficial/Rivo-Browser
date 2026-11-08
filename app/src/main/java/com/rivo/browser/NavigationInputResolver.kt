@@ -26,7 +26,7 @@ object NavigationInputResolver {
             return parsed.toASCIIString()
         }
 
-        val query = URLEncoder.encode(input, StandardCharsets.UTF_8)
+        val query = URLEncoder.encode(input, StandardCharsets.UTF_8.name())
         return "https://duckduckgo.com/?q=$query"
     }
 }
