@@ -24,7 +24,7 @@ Functional browser MVP:
 - No backend, account, telemetry or paid service.
 
 ## Risks and mitigations
-- GeckoView package/runtime footprint: build ARM64 and ARMv7 APK splits; measure actual per-ABI APK size and PSS on 3–4 GB devices.
+- GeckoView package/runtime footprint: ARM64 debug APK measured at 208,688,414 bytes (~199.0 MiB), ARMv7 at 169,493,492 bytes (~161.7 MiB); ABI splits prevent cross-ABI native libraries but do not eliminate the large Gecko engine payload. Compare WebView footprint and measure PSS on 3–4 GB devices before final engine selection.
 - Inactive tabs: set sessions inactive and cap MVP at eight pending measurements.
 - Private mode: use native GeckoSession private mode; exclude private tabs from app-side history/bookmarks.
 - Site permissions: deny by default until an explicit per-site permission UI is complete.
@@ -43,7 +43,8 @@ Functional browser MVP:
 - Manual device smoke tests and performance/security evidence are documented.
 
 ## Remaining Phase 1 work
-- Confirm latest separate ABI artifact workflow.
+- Re-run CI after the documentation-only checkpoint and confirm the latest workflow.
+- Investigate APK footprint: compare debug vs release packaging, inspect GeckoView distribution options and quantify a WebView baseline without removing required engine components.
 - Install and smoke-test ARM64/ARMv7 APKs.
 - Add per-site permission mediation and process-death tab restoration.
 - Complete accessibility and MASVS review.
