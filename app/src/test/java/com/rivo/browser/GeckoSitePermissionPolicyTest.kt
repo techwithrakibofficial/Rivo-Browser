@@ -39,7 +39,9 @@ class GeckoSitePermissionPolicyTest {
             GeckoSession.PermissionDelegate.PERMISSION_XR,
             GeckoSession.PermissionDelegate.PERMISSION_MEDIA_KEY_SYSTEM_ACCESS,
             GeckoSession.PermissionDelegate.PERMISSION_TRACKING,
-            GeckoSession.PermissionDelegate.PERMISSION_STORAGE_ACCESS
+            GeckoSession.PermissionDelegate.PERMISSION_STORAGE_ACCESS,
+            GeckoSession.PermissionDelegate.PERMISSION_LOCAL_DEVICE_ACCESS,
+            GeckoSession.PermissionDelegate.PERMISSION_LOCAL_NETWORK_ACCESS
         )
         unsupported.forEach { permission ->
             assertFalse(GeckoSitePermissionPolicy.shouldPrompt(permission, secureOrigin = true))
