@@ -71,6 +71,8 @@ class BrowserController(context: Context) {
         private set
     var permissionPrompt by mutableStateOf<SitePermissionPrompt?>(null)
         private set
+    var pendingDownload by mutableStateOf<PendingDownload?>(null)
+        private set
 
     val activeTab: BrowserTabState?
         get() = tabs.firstOrNull { it.id == activeTabId }
@@ -151,7 +153,7 @@ class BrowserController(context: Context) {
                     disposition: String?,
                     body: InputStream?
                 ) {
-                    saveDownload(tab, url, mimeType, disposition, body)
+                    requestDownloadConfirmation(tab, url, mimeType, disposition, body)
                 }
 
                 override fun onSitePermissionRequest(
@@ -188,6 +190,7 @@ class BrowserController(context: Context) {
         val closing = tabs[index]
         val wasActive = closing.id == activeTabId
         if (permissionPrompt?.tabId == id) respondToSitePermission(false)
+        if (pendingDownload?.tabId == id) cancelPendingDownload()
         closing.engine.dispose()
         tabs.removeAt(index)
         if (tabs.isEmpty()) {
@@ -313,6 +316,44 @@ class BrowserController(context: Context) {
     }
 
 
+    private fun requestDownloadConfirmation(
+        tab: BrowserTabState,
+        url: String,
+        mimeType: String?,
+        disposition: String?,
+        body: InputStream?
+    ) {
+        if (body == null || Uri.parse(url).scheme !in listOf("http", "https")) {
+            runCatching { body?.close() }
+            notice = "This download could not be safely handled."
+            return
+        }
+        if (pendingDownload != null) {
+            runCatching { body.close() }
+            notice = "Finish or cancel the current download confirmation first."
+            return
+        }
+        pendingDownload = PendingDownload(tab.id, tab.privateMode, url, mimeType, disposition, body)
+    }
+
+    fun confirmPendingDownload() {
+        val pending = pendingDownload ?: return
+        pendingDownload = null
+        val tab = tabs.firstOrNull { it.id == pending.tabId }
+        if (tab == null) {
+            runCatching { pending.body.close() }
+            return
+        }
+        saveDownload(tab, pending.url, pending.mimeType, pending.disposition, pending.body)
+    }
+
+    fun cancelPendingDownload() {
+        val pending = pendingDownload ?: return
+        pendingDownload = null
+        runCatching { pending.body.close() }
+        notice = "Download cancelled"
+    }
+
     private fun saveDownload(
         tab: BrowserTabState,
         url: String,
@@ -414,6 +455,9 @@ class BrowserController(context: Context) {
     private fun resolveInput(input: String): String = NavigationInputResolver.resolve(input)
 
     fun dispose() {
+        cancelPendingDownload()
+        permissionPrompt?.respond?.invoke(false)
+        permissionPrompt = null
         tabs.toList().forEach { it.engine.dispose() }
         tabs.clear()
         scope.cancel()
@@ -425,6 +469,15 @@ class BrowserController(context: Context) {
         const val MAX_DOWNLOAD_BYTES = 250L * 1024L * 1024L
     }
 }
+
+data class PendingDownload(
+    val tabId: Long,
+    val privateMode: Boolean,
+    val url: String,
+    val mimeType: String?,
+    val disposition: String?,
+    val body: InputStream
+)
 
 data class SitePermissionPrompt(
     val tabId: Long,
