@@ -34,4 +34,20 @@ class NavigationInputResolverTest {
     fun emptyInputStaysEmpty() {
         assertEquals("", NavigationInputResolver.resolve("  "))
     }
+    @Test
+    fun convertsInternationalizedDomainNamesToAscii() {
+        assertEquals(
+            "https://xn--bcher-kva.de/path",
+            NavigationInputResolver.resolve("https://bücher.de/path")
+        )
+    }
+
+    @Test
+    fun addsHttpsForInternationalizedDomainNames() {
+        assertEquals(
+            "https://xn--r8jz45g.xn--zckzah/",
+            NavigationInputResolver.resolve("例え.テスト")
+        )
+    }
+
 }
