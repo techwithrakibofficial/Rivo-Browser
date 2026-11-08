@@ -1,38 +1,41 @@
 # Architecture
 
 ## Modules
-- app: Compose UI, browser composition root and lifecycle.
-- engine-api: engine-neutral browser session contract.
-- engine-gecko: GeckoRuntime owner, GeckoSession tab adapter and event delegates.
-- engine-webview: Phase 0 comparison adapter retained for evaluation only.
-- data: local preferences, bookmarks and bounded history persistence (Phase 1).
-- core/designsystem: centralized semantic color, typography, spacing, shape and motion tokens (Phase 1).
+- app: Compose browser chrome, Activity, BrowserViewModel, BrowserController, local data and centralized design tokens.
+- engine-api: engine-neutral evaluation contract.
+- engine-gecko: GeckoRuntime owner and per-tab GeckoSession adapter.
+- engine-webview: retained Phase 0 comparison adapter; not wired into the Phase 1 app.
+- data: DataStore-backed local bookmarks, bounded history and appearance settings (currently located under app data package).
 
 ## Runtime and session ownership
-- One process-scoped GeckoRuntime.
-- One GeckoSession per tab.
-- Private tabs use GeckoSessionSettings.usePrivateMode(true).
-- Inactive sessions call setActive(false); selected session is active and focused.
-- Closing a tab detaches its view and closes its session.
-- Compose recomposition must never create or destroy sessions.
-- Browser controller/ViewModel owns sessions across configuration changes.
+- One GeckoRuntime is owned by the BrowserViewModel's process-lifetime browser controller.
+- One GeckoSession and GeckoView per browser tab.
+- Private tabs use GeckoView native private-session settings.
+- Tracking protection is enabled per session.
+- Inactive sessions call setActive(false) and setFocused(false); selected session is activated/focused.
+- Closing a tab detaches and closes its GeckoSession.
+- Compose recomposition does not create or destroy sessions.
+- MVP tab cap is eight until physical-device measurements establish a better policy.
 
 ## Data boundaries
-- Normal browsing history and bookmarks remain local.
-- Private tabs never write browsing history and do not create persistent bookmark suggestions.
-- Preferences use DataStore. Keep history bounded; migrate to Room if data volume/query requirements grow.
+- Normal browsing history and bookmarks remain local in Preferences DataStore.
+- History is bounded to 300 entries; bookmarks to 500.
+- Private tabs never write app-side history or bookmarks.
+- Theme preference is stored locally.
 - No account, cloud sync, telemetry or mandatory server.
 
 ## Security
-- HTTPS-first navigation resolution; only http/https schemes are accepted from the omnibox unless an explicit safe internal scheme is handled.
-- No unsafe JavaScript-to-native bridge.
-- Do not override TLS certificate errors.
-- Site permissions remain denied until an explicit permission mediation flow exists.
-- Downloads are restricted to HTTP(S), filename sanitized and delegated to Android DownloadManager.
-- Browser chrome security state must come from engine callbacks.
+- Omnibox parser accepts HTTP/HTTPS URLs; unsupported schemes are treated as search queries.
+- No JavaScript-to-native bridge.
+- TLS certificate validation is not overridden.
+- Site content, Android runtime and media permissions are denied until user-facing permission mediation exists.
+- Downloads are restricted to HTTP(S) response bodies, filenames sanitized and files written to app-specific Downloads storage.
+- Browser chrome security state comes from GeckoView callbacks.
+- Android backup disabled; no broad storage permission.
 
 ## UI
 - Jetpack Compose chrome; GeckoView is hosted in AndroidView.
-- Browser chrome theme is independent of web content.
-- Dark, Light and Premium Glass share semantic tokens.
-- Quick Appearance Picker is a secondary menu, not a permanent toolbar icon.
+- Browser chrome theme is independent of website content.
+- Dark, Light and Premium Glass use centralized semantic color schemes.
+- Glass uses translucent surfaces without expensive real-time blur.
+- Quick Appearance Picker is a secondary overflow control, not a permanent toolbar icon.
