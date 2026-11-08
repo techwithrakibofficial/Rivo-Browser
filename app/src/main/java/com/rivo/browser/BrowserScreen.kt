@@ -207,6 +207,25 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
         )
     }
 
+    browser.permissionPrompt?.let { request ->
+        AlertDialog(
+            onDismissRequest = { browser.respondToSitePermission(false) },
+            title = { Text("Website permission") },
+            text = {
+                Text(
+                    "${request.origin} wants to access ${request.permission}. " +
+                        if (request.privateMode) "This decision applies only to this private tab." else "Allow only if you trust this website."
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { browser.respondToSitePermission(true) }) { Text("Allow") }
+            },
+            dismissButton = {
+                TextButton(onClick = { browser.respondToSitePermission(false) }) { Text("Deny") }
+            }
+        )
+    }
+
     if (browser.notice != null) {
         AlertDialog(
             onDismissRequest = { browser.dismissNotice() },
