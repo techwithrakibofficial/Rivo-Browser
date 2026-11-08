@@ -9,30 +9,29 @@
 
 ## Verified product differences
 - Android WebView is an embeddable View; navigation UI and browser-level behavior are application responsibilities.
-- Android documents WebView as Chromium-based. The installed WebView provider can vary by device and is updated separately from the app.
-- Mozilla describes GeckoView as a self-contained engine intended for apps and browsers; the engine is bundled with the application.
-- GeckoView uses GeckoRuntime and GeckoSession. Mozilla documents GeckoRuntime creation as process-scoped and GeckoSession as the per-content/session object.
-- GeckoView exposes browser-oriented APIs, including WebExtension controller and content-blocking APIs. These do not imply universal Firefox/Chrome extension compatibility.
+- Android documents WebView as Chromium-based; installed provider may vary and updates separately from app.
+- Mozilla describes GeckoView as a self-contained engine intended for apps and browsers.
+- GeckoView uses GeckoRuntime and GeckoSession; the runtime is process-scoped and sessions represent browser content contexts.
+- GeckoView exposes browser-oriented APIs, including WebExtension controller and content-blocking APIs. This does not guarantee universal Firefox/Chrome extension compatibility.
 
-## Phase 0 dependency candidate
-- Channel: Stable
-- Candidate artifact: `org.mozilla.geckoview:geckoview:159.0.20261022150525`
-- The public Maven version index lists 159.0.20261022150525 as the 159.0.x release. Mozilla's current quick start documents the channel placeholder, while the published Stable universal artifact is named geckoview (not geckoview-stable). The first CI attempt confirmed that the latter artifact name is required.
-- Dependency resolution and compilation still require a successful GitHub Actions build; the pin is not considered validated until CI confirms it.
+## Phase 0/1 dependency
+- Channel: Stable.
+- Published artifact coordinate: org.mozilla.geckoview:geckoview:159.0.20261022150525.
+- The artifactId is geckoview, not geckoview-stable. CI confirmed resolution and Kotlin compilation.
+- Compile SDK baseline is Android API 37.2 due GeckoView AAR metadata; targetSdk remains 36.
 
-## Implemented comparison setup
-- `:engine-webview` and `:engine-gecko` are isolated adapter modules behind `:engine-api`.
-- `:app` has `webview` and `gecko` product flavors so each APK packages one engine adapter.
-- Both variants load the same deterministic local HTML data URL from the Phase 0 probe screen.
-- WebView enables JavaScript and DOM storage for parity with GeckoView defaults, enables Safe Browsing, disallows mixed content and installs no JavaScript-native bridge.
-- GeckoView uses one process-scoped GeckoRuntime and one GeckoSession for the probe; disposing the probe closes the session but does not shut down the shared runtime.
+## Phase 1 implementation
+- Separate engine-gecko adapter module; GeckoView is the provisional MVP engine.
+- Process-scoped GeckoRuntime provider.
+- One GeckoSession per tab; native private mode and tracking protection.
+- Activity-context GeckoView instances are attached/detached separately from ViewModel session state.
+- Permission delegate denies content, Android and media permissions until permission UX exists.
+- Downloads are streamed to app-specific storage and exposed through scoped FileProvider.
 
-## Caveats
-- The deterministic local page isolates HTML/CSS engine rendering from network variability. A separate network workload is still required before choosing an engine for real browsing.
-- Debug APK size is not a substitute for Play-delivered download size or ABI-split measurements.
-- No measured APK size, PSS, startup, navigation, battery or crash result is available yet.
-- GeckoView may increase package size and requires the app to manage engine update cadence and compatibility testing.
-- WebView does not provide a full WebExtensions runtime. GeckoView does not guarantee every Firefox or Chrome extension will work.
+## Benchmark status
+- WebView and GeckoView physical-device benchmark has not been performed.
+- CI verifies build/lint/unit tests, not runtime performance.
+- Previous combined debug artifact ZIP was 215,087,168 bytes; ARM split build is configured to reduce per-device payload. Individual APK sizes remain to be measured.
 
 ## Current recommendation
-Keep both adapters buildable and compare them on physical 3–4 GB devices. GeckoView remains a candidate, not a final engine decision. ADR-0001 stays Proposed until reproducible build and device evidence is reviewed.
+GeckoView is the Phase 1 implementation candidate, not a final benchmark winner. Keep WebView comparison adapter and ADR-0001 Proposed until controlled 3–4 GB device results are available.
