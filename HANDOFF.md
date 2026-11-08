@@ -19,7 +19,7 @@ https://github.com/techwithrakibofficial/Rivo-Browser
 - Tracking protection enabled; HTTPS notifications and persistent-storage requests receive an explicit Allow/Deny prompt; unsupported content, Android runtime and media permissions remain denied.
 - Engine-reported TLS connection status.
 - Local bookmarks/history, clear history and persisted Dark/Light/Premium Glass appearance.
-- Downloads stream to app-specific storage, max 250 MB per file; scoped FileProvider supports open/share.
+- Downloads require confirmation, stream through temporary files and atomically finalize in app-specific storage (250 MB cap); metadata persists/restores with canonical-path validation; scoped FileProvider supports open/share.
 - Centralized semantic color, spacing and shape tokens; secondary Quick Appearance Picker; system bar contrast.
 - JUnit tests for URL/search input resolution.
 - ABI split configuration for arm64-v8a and armeabi-v7a.
@@ -47,7 +47,7 @@ https://github.com/techwithrakibofficial/Rivo-Browser
 ## Known limitations
 - Private mode does not hide traffic from websites, ISPs, DNS resolvers or network operators.
 - Downloaded files remain on-device in app-specific storage and are not automatically erased by private mode.
-- Permission prompts are currently denied; user-facing per-site controls are pending.
+- Site permission mediation covers HTTPS notifications and persistent storage only; hardware/media permissions remain denied.
 - History/bookmarks are local-only and not separately encrypted by the app.
 - GeckoView remains the provisional MVP engine, not a benchmark-confirmed final choice.
 
