@@ -91,6 +91,10 @@ The current source has a known scope defect: `BrowserScreen` closes its `Materia
 - Privacy Intelligence Center and Transfer Studio: not implemented; listed as later-phase features, not audited as existing screens.
 - Dedicated settings, reader mode, QR and advanced tab-management screens: not present in the current Phase 1 UI.
 
+## Verification checkpoint
+
+The documentation/source audit is complete, but no device-based accessibility validation is claimed. Latest integrated Main CI run [#246](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42481870810) passed on commit `84303588c2560db55bfb7ae2081d8f714be532e7`; this verifies the configured build/lint/JVM/release-bundle workflow, not rendered contrast, TalkBack, touch bounds or responsive behavior. All checklist items below remain open until evidence is recorded.
+
 ## Release acceptance checklist
 
 - [ ] Selected appearance is applied to every native surface and overlay.

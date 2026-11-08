@@ -1,6 +1,6 @@
 # Handoff
 
-Updated: 2026-11-08 12:44 UTC
+Updated: 2026-11-08 12:52 UTC
 
 ## Current phase
 Phase 1 — Functional Browser MVP.
@@ -8,16 +8,15 @@ Phase 1 — Functional Browser MVP.
 ## Canonical checkpoint
 - Repository: https://github.com/techwithrakibofficial/Rivo-Browser
 - Branch: `main`
-- HEAD: `1683ffb57dda1d1a9d15f85e892cb8139b06d23c`
-- PR #1 (security), PR #2 (Android engine) and PR #3 (UI/UX documentation) are merged.
-- Their work is integrated; do not ask those worker accounts to repeat the completed tasks.
-- Main CI run #244: https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42481557821. At handoff update, debug assembly passed and lint was running; tests/AAB/artifact steps had not completed. Verify live run before claiming success.
+- HEAD: `84303588c2560db55bfb7ae2081d8f714be532e7`
+- PR #1 (security), PR #2 (Android engine) and PR #3 (UI/UX documentation) are merged; their work is integrated.
+- Main CI run [#246](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42481870810) passed on this HEAD: assembleDebug, lintDebug, testDebugUnitTest, minified bundleRelease, size reports and QA artifact uploads.
 
 ## Completed in this integration
 - Security PR: fail-closed encrypted metadata handling, validation before direct replacement/clear-history, malformed record rejection and JVM guard tests.
 - Android PR: selected-tab restoration by record index, omnibox edit preservation, repeated-history URL key correction, IDN-to-ASCII normalization and JVM regression tests.
 - UI documentation PR: three-theme contract, accurate no-real-time-blur Glass specification and source-level accessibility audit.
-- Three PR CI workflows #237, #240 and #241 completed successfully. Integrated Main CI is separate and must be verified independently.
+- PR CI workflows #237, #240 and #241 and integrated Main CI run #246 completed successfully at their respective commit checkpoints. Recheck CI for every newer HEAD.
 
 ## Existing Phase 1 implementation
 - GeckoView runtime/session architecture, navigation, omnibox, tabs, private sessions, tracking protection and Gecko security status.
@@ -36,7 +35,7 @@ Phase 1 — Functional Browser MVP.
 8. GeckoView is provisional until measured against WebView on target devices.
 
 ## Next actions
-1. Verify run #244 on the integrated Main HEAD.
+1. Preserve run #246 as the current successful CI checkpoint; recheck CI after subsequent source changes.
 2. Implement the P1 UI theme-scope and responsive toolbar fixes, then add UI/accessibility verification.
 3. Add Android storage instrumentation and force-stop/relaunch tests.
 4. Run physical ARM64/ARMv7 smoke tests and 3–4 GB performance benchmark.

@@ -29,5 +29,5 @@
 | QR / reader mode | Not started | Phase 2 |
 | WebExtensions | Research only | No compatibility claim |
 | Developer Mode | Research only | Future secure opt-in |
-| CI | Integrated run pending | Worker PR runs #237/#240/#241 passed; Main run #244 must be checked |
+| CI | Verified on current checkpoint | Main run #246 passed assembleDebug, lintDebug, testDebugUnitTest, bundleRelease and configured QA artifact steps on commit `84303588c2560db55bfb7ae2081d8f714be532e7` |
 | Production release signing | Pending | QA AAB is unsigned |
