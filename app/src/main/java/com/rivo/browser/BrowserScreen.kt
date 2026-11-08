@@ -293,6 +293,12 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                                     Text(download.filename, maxLines = 1)
                                     Text(download.status, style = MaterialTheme.typography.labelSmall)
                                     download.mimeType?.let { Text(it, style = MaterialTheme.typography.labelSmall) }
+                                    if (download.file != null) {
+                                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            TextButton(onClick = { browser.openDownload(download) }) { Text("Open") }
+                                            TextButton(onClick = { browser.shareDownload(download) }) { Text("Share") }
+                                        }
+                                    }
                                 }
                             }
                         }
