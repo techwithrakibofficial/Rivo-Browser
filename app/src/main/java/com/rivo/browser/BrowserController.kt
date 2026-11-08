@@ -8,7 +8,9 @@ import androidx.core.content.FileProvider
 import com.rivo.browser.data.BrowserStorage
 import com.rivo.browser.data.SavedPage
 import com.rivo.browser.data.SavedDownload
-import com.rivo.browser.data.SavedTab
+import com.rivo.browser.data.RestorableTabCandidate
+import com.rivo.browser.data.RestorableTabPolicy
+import com.rivo.browser.data.HistoryVisitPolicy
 import com.rivo.browser.engine.gecko.GeckoBrowserRuntime
 import com.rivo.browser.engine.gecko.GeckoBrowserTab
 import com.rivo.browser.engine.gecko.GeckoTabListener
@@ -20,6 +22,8 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import java.io.InputStream
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -190,7 +194,11 @@ class BrowserController(context: Context) {
     fun selectTab(id: Long) {
         tabs.firstOrNull { it.id == activeTabId }?.engine?.setActive(false)
         activeTabId = id
-        tabs.firstOrNull { it.id == id }?.engine?.setActive(hostStarted)
+        tabs.firstOrNull { it.id == id }?.let { tab ->
+            tab.engine.setActive(
+                TabSessionActivationPolicy.shouldActivate(tab.id, activeTabId, hostStarted)
+            )
+        }
         persistOpenTabs()
     }
 
@@ -224,7 +232,11 @@ class BrowserController(context: Context) {
     /** Called by the Activity when its window becomes visible to the user. */
     fun onHostResumed() {
         hostStarted = true
-        tabs.forEach { tab -> tab.engine.setActive(tab.id == activeTabId) }
+        tabs.forEach { tab ->
+            tab.engine.setActive(
+                TabSessionActivationPolicy.shouldActivate(tab.id, activeTabId, hostStarted)
+            )
+        }
     }
 
     /** Release Gecko's foreground/focus state while the Activity is backgrounded. */
@@ -232,7 +244,11 @@ class BrowserController(context: Context) {
         hostStarted = false
         if (permissionPrompt != null) respondToSitePermission(false)
         if (pendingDownload != null) cancelPendingDownload()
-        tabs.forEach { it.engine.setActive(false) }
+        tabs.forEach { tab ->
+            tab.engine.setActive(
+                TabSessionActivationPolicy.shouldActivate(tab.id, activeTabId, hostStarted)
+            )
+        }
     }
 
     fun goBack() { activeTab?.engine?.goBack() }
@@ -387,57 +403,24 @@ class BrowserController(context: Context) {
             return
         }
 
-        val dispositionName = Regex("filename\\s*=\\s*\\\"?([^\\\";]+)", RegexOption.IGNORE_CASE)
-            .find(disposition.orEmpty())?.groupValues?.getOrNull(1)
-        val rawName = dispositionName ?: uri.lastPathSegment ?: "download-" + System.currentTimeMillis()
-        val safeName = rawName.substringAfterLast('/')
-            .replace(Regex("[^A-Za-z0-9._-]"), "_")
-            .take(120)
-            .ifBlank { "download-" + System.currentTimeMillis() }
-            .let { if (it == "." || it == "..") "download-" + System.currentTimeMillis() else it }
-
+        val safeName = DownloadFileWriter.sanitizeFilename(
+            disposition,
+            uri.lastPathSegment,
+            System.currentTimeMillis()
+        )
         val item = BrowserDownload(nextId++, safeName, mimeType)
         downloads.add(0, item)
         scope.launch(Dispatchers.IO) {
             val result = runCatching {
                 val directory = appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
                     ?: File(appContext.filesDir, "downloads")
-                if (!directory.exists() && !directory.mkdirs()) error("Unable to create downloads directory")
-                val temporary = File.createTempFile(".rivo-", ".part", directory)
-                try {
-                    body.use { input ->
-                        FileOutputStream(temporary).use { output ->
-                            val buffer = ByteArray(64 * 1024)
-                            var totalBytes = 0L
-                            while (true) {
-                                val count = input.read(buffer)
-                                if (count < 0) break
-                                totalBytes += count
-                                if (totalBytes > MAX_DOWNLOAD_BYTES) {
-                                    error("Download exceeds the 250 MB MVP safety limit")
-                                }
-                                output.write(buffer, 0, count)
-                            }
-                        }
-                    }
-                    var target = File(directory, safeName)
-                    var suffix = 1
-                    while (target.exists()) {
-                        val base = safeName.substringBeforeLast('.', safeName)
-                        val extension = safeName.substringAfterLast('.', "").let { if (it.isBlank()) "" else ".$it" }
-                        target = File(directory, "$base ($suffix)$extension")
-                        suffix++
-                    }
-                    if (!temporary.renameTo(target)) error("Unable to finalize downloaded file")
-                    target
-                } catch (error: Throwable) {
-                    temporary.delete()
-                    throw error
-                }
+                DownloadFileWriter.save(body, directory, safeName, MAX_DOWNLOAD_BYTES)
             }
             withContext(Dispatchers.Main.immediate) {
                 result.onSuccess { file ->
+                    // Persist the collision-resolved name, not the requested name.
                     item.file = file
+                    item.filename = file.name
                     item.status = "Saved in app Downloads"
                     persistDownloads()
                     notice = if (tab.privateMode) {
@@ -506,13 +489,12 @@ class BrowserController(context: Context) {
     }
 
     private fun persistOpenTabs() {
-        val saved = tabs.filterNot { it.privateMode }.map { tab ->
-            SavedTab(
-                url = tab.url,
-                title = tab.title,
-                selected = tab.id == activeTabId
-            )
-        }
+        val saved = RestorableTabPolicy.snapshot(
+            tabs.map { tab ->
+                RestorableTabCandidate(tab.id, tab.privateMode, tab.url, tab.title)
+            },
+            activeTabId
+        )
         scope.launch {
             runCatching { storage.saveOpenTabs(saved) }
                 .onFailure { notice = it.message ?: "Tab restoration data could not be saved." }
@@ -524,9 +506,9 @@ class BrowserController(context: Context) {
         scope.launch {
             runCatching { storage.addHistory(page) }
                 .onSuccess {
-                    history.removeAll { it.url == page.url }
-                    history.add(0, page)
-                    while (history.size > 300) history.removeAt(history.lastIndex)
+                    val updated = HistoryVisitPolicy.recordVisit(history.toList(), page)
+                    history.clear()
+                    history.addAll(updated)
                 }
                 .onFailure { notice = it.message ?: "History could not be saved." }
         }
@@ -567,9 +549,118 @@ data class SitePermissionPrompt(
     val respond: (Boolean) -> Unit
 )
 
-class BrowserDownload(val id: Long, val filename: String, val mimeType: String?) {
+class BrowserDownload(val id: Long, filename: String, val mimeType: String?) {
+    var filename by mutableStateOf(filename)
     var status by mutableStateOf("Downloading")
     var file: File? = null
 }
 
 enum class BrowserPanel { TABS, BOOKMARKS, HISTORY, DOWNLOADS, APPEARANCE, MENU }
+
+
+/** Only the selected tab on a started host may activate/focus Gecko. */
+internal object TabSessionActivationPolicy {
+    fun shouldActivate(tabId: Long, selectedTabId: Long, hostStarted: Boolean): Boolean =
+        hostStarted && tabId == selectedTabId
+}
+
+/**
+ * Writes downloads through an app-private staging file. A createNewFile reservation
+ * gives concurrent downloads distinct names before the staging file is atomically
+ * renamed, preventing an existing completed file from being overwritten.
+ */
+internal object DownloadFileWriter {
+    private val extendedFilenamePattern =
+        Regex("""filename\*\s*=\s*[^']*'[^']*'([^;]+)""", RegexOption.IGNORE_CASE)
+    private val quotedFilenamePattern =
+        Regex("filename\\s*=\\s*\\\"([^\\\"]*)\\\"", RegexOption.IGNORE_CASE)
+    private val plainFilenamePattern =
+        Regex("""filename\s*=\s*([^;]+)""", RegexOption.IGNORE_CASE)
+
+    fun sanitizeFilename(contentDisposition: String?, fallbackName: String?, nowMillis: Long): String {
+        val header = contentDisposition.orEmpty()
+        val encoded = extendedFilenamePattern.find(header)?.groupValues?.getOrNull(1)?.trim()
+        val decoded = encoded?.let {
+            runCatching {
+                URLDecoder.decode(it.replace("+", "%2B"), StandardCharsets.UTF_8.name())
+            }.getOrNull()
+        }
+        val quoted = quotedFilenamePattern.find(header)?.groupValues?.getOrNull(1)
+        val plain = plainFilenamePattern.find(header)?.groupValues?.getOrNull(1)?.trim()?.trim('"')
+        val rawName = decoded ?: quoted ?: plain ?: fallbackName.orEmpty()
+        val name = rawName.trim()
+            .substringAfterLast('/')
+            .substringAfterLast('\\')
+            .replace(Regex("[^A-Za-z0-9._-]"), "_")
+            .take(120)
+        val normalized = if (name.isBlank() || name == "." || name == "..") {
+            "download-$nowMillis"
+        } else {
+            name
+        }
+        // Startup cleanup owns .rivo-*.part; a final user file must not match it.
+        return if (normalized.startsWith(".rivo-") && normalized.endsWith(".part")) {
+            "download-$normalized"
+        } else normalized
+    }
+
+    /** Always closes input and removes staging/reservation files on every failure path. */
+    fun save(input: InputStream, directory: File, requestedFilename: String, maxBytes: Long): File {
+        require(maxBytes > 0) { "Download size limit must be positive" }
+        val safeFilename = sanitizeFilename(null, requestedFilename, System.currentTimeMillis())
+        var stagingFile: File? = null
+        var reservedTarget: File? = null
+        var finalizedTarget: File? = null
+        try {
+            val saved = input.use { source ->
+                if (!directory.isDirectory && !directory.mkdirs()) {
+                    throw IOException("Unable to create downloads directory")
+                }
+                val staging = File.createTempFile(".rivo-", ".part", directory)
+                stagingFile = staging
+                FileOutputStream(staging).use { output ->
+                    val buffer = ByteArray(64 * 1024)
+                    var totalBytes = 0L
+                    while (true) {
+                        val count = source.read(buffer)
+                        if (count < 0) break
+                        if (count == 0) continue
+                        if (count.toLong() > maxBytes - totalBytes) {
+                            throw IOException("Download exceeds the configured size limit")
+                        }
+                        totalBytes += count
+                        output.write(buffer, 0, count)
+                    }
+                    output.fd.sync()
+                }
+                val target = reserveUniqueTarget(directory, safeFilename)
+                reservedTarget = target
+                if (!staging.renameTo(target)) throw IOException("Unable to finalize downloaded file")
+                stagingFile = null
+                reservedTarget = null
+                finalizedTarget = target
+                target
+            }
+            finalizedTarget = null
+            return saved
+        } finally {
+            stagingFile?.delete()
+            reservedTarget?.delete()
+            finalizedTarget?.delete()
+        }
+    }
+
+    private fun reserveUniqueTarget(directory: File, filename: String): File {
+        for (suffix in 0..9999) {
+            val candidateName = if (suffix == 0) filename else withSuffix(filename, suffix)
+            val candidate = File(directory, candidateName)
+            if (candidate.createNewFile()) return candidate
+        }
+        throw IOException("Unable to allocate a unique download filename")
+    }
+
+    private fun withSuffix(filename: String, suffix: Int): String {
+        val dot = filename.lastIndexOf('.').takeIf { it > 0 } ?: filename.length
+        return filename.substring(0, dot) + " ($suffix)" + filename.substring(dot)
+    }
+}
