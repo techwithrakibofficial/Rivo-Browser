@@ -439,28 +439,26 @@ class BrowserController(context: Context) {
         }
     }
 
-    private fun cleanupInterruptedDownloads() {
-        scope.launch(Dispatchers.IO) {
-            val directories = listOfNotNull(
-                appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
-                File(appContext.filesDir, "downloads")
-            )
-            directories.forEach { directory ->
-                directory.listFiles { file ->
-                    file.isFile && file.name.startsWith(".rivo-") && file.name.endsWith(".part")
-                }?.forEach { it.delete() }
-            }
+    private suspend fun cleanupInterruptedDownloads() = withContext(Dispatchers.IO) {
+        val directories = listOfNotNull(
+            appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
+            File(appContext.filesDir, "downloads")
+        )
+        directories.forEach { directory ->
+            directory.listFiles { file ->
+                file.isFile && file.name.startsWith(".rivo-") && file.name.endsWith(".part")
+            }?.forEach { it.delete() }
         }
     }
 
-    private fun restoreDownloads() {
+    private suspend fun restoreDownloads() {
         val externalRoot = appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
         val internalRoot = File(appContext.filesDir, "downloads")
         val allowedRoots = listOfNotNull(externalRoot, internalRoot).mapNotNull {
             runCatching { it.canonicalFile }.getOrNull()
         }
-        scope.launch(Dispatchers.IO) {
-            val restored = storage.loadDownloads().mapNotNull { saved ->
+        val restored = withContext(Dispatchers.IO) {
+            storage.loadDownloads().mapNotNull { saved ->
                 runCatching {
                     val file = File(saved.absolutePath).canonicalFile
                     val allowed = allowedRoots.any { root ->
@@ -473,15 +471,13 @@ class BrowserController(context: Context) {
                     }
                 }.getOrNull()
             }
-            withContext(Dispatchers.Main.immediate) {
-                downloads.addAll(restored.map { (saved, file) ->
-                    BrowserDownload(nextId++, saved.filename, saved.mimeType).apply {
-                        this.file = file
-                        status = "Saved in app Downloads"
-                    }
-                })
-            }
         }
+        downloads.addAll(restored.map { (saved, file) ->
+            BrowserDownload(nextId++, saved.filename, saved.mimeType).apply {
+                this.file = file
+                status = "Saved in app Downloads"
+            }
+        })
     }
 
     private fun persistDownloads() {
