@@ -12,7 +12,7 @@
 | Multi-tab management | Implemented | Inactive session handling; cap 8 |
 | Selected-tab restoration | Implemented in source | Uses saved record index; duplicate URLs supported; force-stop test pending |
 | Private tabs | Implemented | Native private mode; no app history/bookmark writes or persisted private tabs |
-| Tracking protection | Enabled in source | Per GeckoSession; UI reports engine setting only; no fabricated tracker count |
+| Tracking protection | Enabled in source | Per GeckoSession; UI reports active session setting and Gecko-reported site exception; no fabricated tracker count |
 | Site permissions | Implemented in source (limited capabilities) | HTTPS notifications/autoplay prompts; Gecko StorageController review/reset; persistent storage, location, camera, microphone and unsupported requests default-deny; private records excluded |
 | Connection security indicator | Implemented | GeckoView security callback |
 | Bookmarks | Implemented | Local DataStore; max 500; Android Keystore AES-GCM at rest |
@@ -24,7 +24,7 @@
 | UI accessibility audit | Completed (source review) | Device/TalkBack/Scanner verification and listed fixes pending |
 | Responsive toolbar | Pending | Five actions may crowd at narrow widths/large font scales |
 | ABI-specific APKs | Build configured | ARM64 and ARMv7 QA artifacts |
-| Privacy & site permissions panel | Implemented in source | Lists GeckoView's stored normal-mode permissions, resets revocable records and reports actual tracking-protection setting; device validation pending |
+| Privacy & site permissions panel | Implemented in source | Lists GeckoView's stored normal-mode permissions, resets revocable records and reports actual session setting and active-site exception; device validation pending |
 | Transfer Studio | Not started | Phase 2 |
 | QR / reader mode | Not started | Phase 2 |
 | WebExtensions | Research only | No compatibility claim |
