@@ -140,7 +140,7 @@ class BrowserStorage internal constructor(
 
     suspend fun addHistory(page: SavedPage) {
         ensureSensitiveWritesAllowed()
-        context.rivoDataStore.edit { prefs ->
+        dataStore.edit { prefs ->
             sensitiveWriteGuard.withAllowed {
                 val current = decodeProtected(decryptProtected(prefs[historyKey].orEmpty()))
                 prefs[historyKey] = cipher.encrypt(encode(HistoryVisitPolicy.recordVisit(current, page)))
