@@ -26,3 +26,8 @@
 - Harden navigation input, history visit policy, restorable tab snapshots, Gecko session activation and collision-safe bounded download writes.
 - Preserve fail-closed encrypted metadata behavior when the original Keystore key is missing.
 - Run API 35 emulator instrumentation in CI; hardware-backed and physical-device checks remain outstanding.
+
+
+## RIVO-09 release readiness and signing (2026-11-09)
+- Add opt-in Android upload signing using protected environment variables; CI remains unsigned unless explicitly requested.
+- Add release candidate checklist and current release readiness report. Production distribution remains NO-GO until physical-device, security, dependency/SBOM, MASVS and signing evidence is complete.
