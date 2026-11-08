@@ -41,6 +41,7 @@ class DownloadSecurityPolicyTest {
         val outside = createTempDirectory("rivo-download-outside").toFile()
         try {
             val allowed = File(root, "report.pdf").apply { writeBytes(byteArrayOf(1, 2, 3)) }
+            val empty = File(root, "empty.txt").apply { createNewFile() }
             val escaped = File(outside, "report.pdf").apply { writeBytes(byteArrayOf(1, 2, 3)) }
             assertTrue(
                 DownloadSecurityPolicy.isAllowedRestoredFile(
@@ -50,6 +51,11 @@ class DownloadSecurityPolicyTest {
             assertFalse(
                 DownloadSecurityPolicy.isAllowedRestoredFile(
                     escaped, "report.pdf", listOf(root), maxBytes = 10
+                )
+            )
+            assertTrue(
+                DownloadSecurityPolicy.isAllowedRestoredFile(
+                    empty, "empty.txt", listOf(root), maxBytes = 10
                 )
             )
             assertFalse(
