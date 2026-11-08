@@ -70,21 +70,22 @@ class BrowserStorage(private val context: Context) {
     suspend fun saveDownloads(downloads: List<SavedDownload>) {
         ensureSensitiveWritesAllowed()
         context.rivoDataStore.edit { prefs ->
-            ensureSensitiveWritesAllowed()
-            sensitiveWriteGuard.validateExisting(
-                prefs[downloadsKey].orEmpty(),
-                cipher::decryptOrLegacy,
-                ::parseDownloads
-            )
-            prefs[downloadsKey] = cipher.encrypt(JSONArray().apply {
-                downloads.take(100).forEach { item ->
-                    put(JSONObject().apply {
-                        put("filename", item.filename)
-                        put("mimeType", item.mimeType ?: "")
-                        put("path", item.absolutePath)
-                    })
-                }
-            }.toString())
+            sensitiveWriteGuard.withAllowed {
+                sensitiveWriteGuard.validateExisting(
+                    prefs[downloadsKey].orEmpty(),
+                    cipher::decryptOrLegacy,
+                    ::parseDownloads
+                )
+                prefs[downloadsKey] = cipher.encrypt(JSONArray().apply {
+                    downloads.take(100).forEach { item ->
+                        put(JSONObject().apply {
+                            put("filename", item.filename)
+                            put("mimeType", item.mimeType ?: "")
+                            put("path", item.absolutePath)
+                        })
+                    }
+                }.toString())
+            }
         }
     }
 
@@ -92,64 +93,69 @@ class BrowserStorage(private val context: Context) {
         ensureSensitiveWritesAllowed()
         val safeTabs = tabs.filter { RestorableTabPolicy.isSafeUrl(it.url) }.take(8)
         context.rivoDataStore.edit { prefs ->
-            ensureSensitiveWritesAllowed()
-            sensitiveWriteGuard.validateExisting(
-                prefs[openTabsKey].orEmpty(),
-                cipher::decryptOrLegacy,
-                ::parseOpenTabs
-            )
-            prefs[openTabsKey] = cipher.encrypt(JSONArray().apply {
-                safeTabs.forEach { tab ->
-                    put(JSONObject().apply {
-                        put("url", tab.url)
-                        put("title", tab.title)
-                        put("selected", tab.selected)
-                    })
-                }
-            }.toString())
+            sensitiveWriteGuard.withAllowed {
+                sensitiveWriteGuard.validateExisting(
+                    prefs[openTabsKey].orEmpty(),
+                    cipher::decryptOrLegacy,
+                    ::parseOpenTabs
+                )
+                prefs[openTabsKey] = cipher.encrypt(JSONArray().apply {
+                    safeTabs.forEach { tab ->
+                        put(JSONObject().apply {
+                            put("url", tab.url)
+                            put("title", tab.title)
+                            put("selected", tab.selected)
+                        })
+                    }
+                }.toString())
+            }
         }
     }
 
     suspend fun addBookmark(page: SavedPage) {
         ensureSensitiveWritesAllowed()
         context.rivoDataStore.edit { prefs ->
-            ensureSensitiveWritesAllowed()
-            val current = decodeProtected(decryptProtected(prefs[bookmarksKey].orEmpty())).toMutableList()
-            current.removeAll { it.url == page.url }
-            current.add(0, page)
-            prefs[bookmarksKey] = cipher.encrypt(encode(current.take(500)))
+            sensitiveWriteGuard.withAllowed {
+                val current = decodeProtected(decryptProtected(prefs[bookmarksKey].orEmpty())).toMutableList()
+                current.removeAll { it.url == page.url }
+                current.add(0, page)
+                prefs[bookmarksKey] = cipher.encrypt(encode(current.take(500)))
+            }
         }
     }
 
     suspend fun removeBookmark(url: String) {
         ensureSensitiveWritesAllowed()
         context.rivoDataStore.edit { prefs ->
-            ensureSensitiveWritesAllowed()
-            val current = decodeProtected(decryptProtected(prefs[bookmarksKey].orEmpty()))
-            prefs[bookmarksKey] = cipher.encrypt(encode(current.filterNot { it.url == url }))
+            sensitiveWriteGuard.withAllowed {
+                val current = decodeProtected(decryptProtected(prefs[bookmarksKey].orEmpty()))
+                prefs[bookmarksKey] = cipher.encrypt(encode(current.filterNot { it.url == url }))
+            }
         }
     }
 
     suspend fun addHistory(page: SavedPage) {
         ensureSensitiveWritesAllowed()
         context.rivoDataStore.edit { prefs ->
-            ensureSensitiveWritesAllowed()
-            val current = decodeProtected(decryptProtected(prefs[historyKey].orEmpty())).toMutableList()
-            if (current.firstOrNull()?.url != page.url) current.add(0, page)
-            prefs[historyKey] = cipher.encrypt(encode(current.take(300)))
+            sensitiveWriteGuard.withAllowed {
+                val current = decodeProtected(decryptProtected(prefs[historyKey].orEmpty())).toMutableList()
+                if (current.firstOrNull()?.url != page.url) current.add(0, page)
+                prefs[historyKey] = cipher.encrypt(encode(current.take(300)))
+            }
         }
     }
 
     suspend fun clearHistory() {
         ensureSensitiveWritesAllowed()
         context.rivoDataStore.edit { prefs ->
-            ensureSensitiveWritesAllowed()
-            sensitiveWriteGuard.validateExisting(
-                prefs[historyKey].orEmpty(),
-                cipher::decryptOrLegacy,
-                ::decode
-            )
-            prefs[historyKey] = cipher.encrypt("[]")
+            sensitiveWriteGuard.withAllowed {
+                sensitiveWriteGuard.validateExisting(
+                    prefs[historyKey].orEmpty(),
+                    cipher::decryptOrLegacy,
+                    ::decode
+                )
+                prefs[historyKey] = cipher.encrypt("[]")
+            }
         }
     }
 
@@ -161,8 +167,9 @@ class BrowserStorage(private val context: Context) {
             // Migrate legacy plaintext only after successful read; encrypted write failure
             // leaves the original DataStore value intact because edit is transactional.
             context.rivoDataStore.edit { prefs ->
-                ensureSensitiveWritesAllowed()
-                if (prefs[key] == raw) prefs[key] = cipher.encrypt(plainText)
+                sensitiveWriteGuard.withAllowed {
+                    if (prefs[key] == raw) prefs[key] = cipher.encrypt(plainText)
+                }
             }
         }
         return plainText
@@ -272,6 +279,12 @@ internal class SensitiveWriteGuard {
         check(!blocked) {
             "Saved browser data is unreadable; sensitive writes are disabled to preserve existing records."
         }
+    }
+
+    /** Serialize each sensitive mutation with integrity-failure publication. */
+    fun <T> withAllowed(action: () -> T): T = synchronized(this) {
+        ensureAllowed()
+        action()
     }
 
     /**
