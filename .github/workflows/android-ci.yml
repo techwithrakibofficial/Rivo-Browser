@@ -73,4 +73,4 @@ jobs:
           target: google_apis
           arch: x86_64
           disable-animations: true
-          script: gradle --no-daemon :app:connectedDebugAndroidTest
+          script: gradle --no-daemon -Privo.abiSplits=false :app:connectedDebugAndroidTest

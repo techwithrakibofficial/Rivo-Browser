@@ -4,6 +4,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Environment
+import android.security.keystore.KeyInfo
 import android.util.Base64
 import androidx.core.content.FileProvider
 import androidx.datastore.core.DataStore
@@ -33,6 +34,7 @@ import org.junit.runner.RunWith
 import java.io.File
 import java.security.KeyStore
 import java.util.UUID
+import javax.crypto.SecretKeyFactory
 
 @RunWith(AndroidJUnit4::class)
 class LocalDataCipherInstrumentedTest {
@@ -63,6 +65,12 @@ class LocalDataCipherInstrumentedTest {
         val second = cipher.encrypt(plainText)
 
         assertTrue(first.startsWith("enc:v1:"))
+        val key = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+            .getKey(keyAlias, null) as java.security.Key
+        val secretKey = key as javax.crypto.SecretKey
+        val keyInfo = SecretKeyFactory.getInstance("AES", "AndroidKeyStore")
+            .getKeySpec(secretKey, KeyInfo::class.java)
+        assertEquals("Keystore must generate AES-256", 256, keyInfo.keySize)
         assertNotEquals("AES-GCM encryptions should use fresh randomized IVs", first, second)
         assertEquals(plainText, cipher.decryptOrLegacy(first))
         assertEquals(plainText, cipher.decryptOrLegacy(second))
