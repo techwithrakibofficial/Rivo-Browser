@@ -8,8 +8,7 @@ import com.rivo.browser.engine.api.BrowserEngine
 
 /**
  * Phase 0 comparison probe. No JavaScript-to-native bridge is installed.
- * The caller owns the view lifecycle and must call dispose() exactly once
- * when finished (repeated calls are safe).
+ * The caller owns the view lifecycle and must call dispose() when finished.
  */
 class WebViewEngineProbe(context: Context) : BrowserEngine {
     override val engineName: String = "Android System WebView"
@@ -22,8 +21,10 @@ class WebViewEngineProbe(context: Context) : BrowserEngine {
             domStorageEnabled = true
             mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
             setSupportMultipleWindows(false)
+            allowFileAccess = false
+            allowContentAccess = false
+            safeBrowsingEnabled = true
         }
-        view.settings.safeBrowsingEnabled = true
     }
 
     fun loadUrl(url: String) {
