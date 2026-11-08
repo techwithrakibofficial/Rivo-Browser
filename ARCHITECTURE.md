@@ -50,3 +50,6 @@
 
 ## Verification boundary
 This document describes the current source architecture. Integrated Main commit `84303588c2560db55bfb7ae2081d8f714be532e7` passed GitHub Actions run [#246](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42481870810), including assembleDebug, lintDebug, JVM unit tests and minified bundleRelease. CI validates build/static/JVM checks only; physical-device lifecycle, encryption instrumentation and runtime behavior remain unverified.
+
+## Engine benchmark harness
+The isolated `:engine-benchmark` app compares GeckoView and Android System WebView using the same host Activity, offline deterministic HTML/JavaScript workload, tab lifecycle controls and package ID. It is a controlled engine-level probe, not full Rivo feature parity. GeckoView remains the shipping engine provisionally until physical-device results establish a defensible choice. See `docs/adr/0001-browser-engine.md` and `docs/research/BENCHMARK_PROTOCOL.md`.
