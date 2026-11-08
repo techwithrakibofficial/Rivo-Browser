@@ -8,13 +8,15 @@
 - Upload separate ARM64 and ARMv7 debug APK artifacts (latest workflow update pending verification).
 
 ## Last verified CI checkpoint
-Run 42460649170 completed successfully:
+GitHub Actions run #143 (`42461668698`) completed successfully on commit `89139a036bb36829e52681df9eae7c47ae77197e`:
 - :app:assembleDebug — PASS
 - :app:lintDebug — PASS
 - :app:testDebugUnitTest — PASS
-- Debug artifact upload — PASS
+- ABI APK size reporting — PASS
+- ARM64 debug artifact upload — PASS (`rivo-browser-arm64-debug`, ZIP 109,529,496 bytes)
+- ARMv7 debug artifact upload — PASS (`rivo-browser-armv7-debug`, ZIP 105,557,703 bytes)
 
-A later workflow change added separate ARM64/ARMv7 artifact upload; its result must be verified independently.
+Artifacts expire 2026-11-22. ZIP sizes are not individual APK sizes; archive inspection remains pending.
 
 ## Phase 1 functional checks
 1. Initial home page.
