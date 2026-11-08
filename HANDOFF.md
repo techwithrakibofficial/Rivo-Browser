@@ -18,7 +18,7 @@ https://github.com/techwithrakibofficial/Rivo-Browser
 - Private Gecko sessions, excluded from app-side history/bookmarks.
 - Tracking protection enabled; HTTPS notifications and persistent-storage requests receive an explicit Allow/Deny prompt; unsupported content, Android runtime and media permissions remain denied.
 - Engine-reported TLS connection status.
-- Local bookmarks/history, clear history and persisted Dark/Light/Premium Glass appearance.
+- Local bookmarks/history, clear history and persisted Dark/Light/Premium Glass appearance; sensitive metadata is encrypted with Android Keystore AES-GCM.
 - Downloads require confirmation, stream through temporary files and atomically finalize in app-specific storage (250 MB cap); metadata persists/restores with canonical-path validation; scoped FileProvider supports open/share.
 - Centralized semantic color, spacing and shape tokens; secondary Quick Appearance Picker; system bar contrast.
 - JUnit tests for URL/search input resolution.
