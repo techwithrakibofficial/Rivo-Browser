@@ -1,6 +1,5 @@
 package com.rivo.browser.data
 
-import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
 
