@@ -76,7 +76,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     var menuExpanded by remember { mutableStateOf(false) }
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { granted -> browser.respondToSitePermission(granted) }
+    ) { granted -> browser.completeNotificationPermissionRequest(granted) }
 
     SideEffect {
         val window = (view.context as? Activity)?.window
@@ -279,6 +279,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                         ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
                         PackageManager.PERMISSION_GRANTED
                     ) {
+                        browser.beginNotificationPermissionRequest()
                         notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                     } else {
                         browser.respondToSitePermission(true)
