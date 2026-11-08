@@ -1,4 +1,4 @@
-# Changelog
+# Changelog\n\n## RIVO-09 release readiness audit (2026-11-09)\n- Main CI run #246 passed assembleDebug, lintDebug, JVM unit tests, minified bundleRelease, and QA uploads for ARM64/ARMv7 debug APKs and unsigned AAB.\n- Production release remains NO-GO: Phase 1 PRs #6, #8, #9 and #10 are open; device QA, Android Keystore instrumentation, dependency vulnerability/SBOM review, OWASP MASVS evidence and production signing are incomplete.\n- Added environment-only upload signing configuration; no signing keys or passwords are committed. CI output remains unsigned unless explicitly configured.\n- See docs/release/RELEASE_READINESS.md for artifact archive sizes, blockers, test matrix, signing procedure and rollback plan.\n
 
 ## Unreleased — Phase 1 Functional Browser MVP
 - Integrate security QA: fail-closed encrypted metadata handling, validation before direct replacement/clear-history, malformed-record rejection and sensitive-write guard regression tests.
