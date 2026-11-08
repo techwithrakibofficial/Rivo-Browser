@@ -1,23 +1,29 @@
 # Testing Plan
 
-## Phase 0
-- Gradle configuration/build validation.
-- Lint and unit-test task validation.
-- Engine probe startup and disposal.
-- WebView and GeckoView same-page test matrix.
-- Cold start, warm start, navigation and tab/session memory measurements.
-- APK/AAB size comparison.
+## Phase 0 automated checks
+- Resolve and compile the WebView and GeckoView variants.
+- Run unit-test tasks.
+- Verify GeckoView stable artifact availability in CI.
+- Keep CI permissions read-only.
+
+## Phase 0 manual checks
+- Install one engine variant at a time.
+- Confirm the same deterministic local HTML workload renders.
+- Verify Activity recreation and background/foreground behavior.
+- Confirm WebView destroy and GeckoSession close behavior.
+- Capture APK size, cold launch, PSS, frame diagnostics and crash/ANR observations.
 
 ## Benchmark controls
-Use same physical device, OS build, network, test pages, cache state and test order. Repeat each run; report median and p95 where meaningful. Record engine version, Android version, RAM, thermal state and battery state.
+Use the same physical device, OS build, display/power conditions, test page and test order. Run cold and warm cases separately. Repeat at least five times where practical. Record device RAM, thermal state, battery state and WebView provider version.
 
 ## Required scenarios
 - Cold launch.
 - Warm launch.
-- First navigation and repeat navigation.
-- 1, 5 and 10 sessions/tabs (where both prototypes support comparable sessions).
+- Local HTML workload render.
+- Separate network navigation workload.
 - Background/foreground transition.
 - Session close/disposal and memory recovery.
+- Future 1/5/10 session workload after a multi-session harness is implemented.
 
 ## Status
-No build, device test or benchmark has been executed yet.
+Probe source and build variants are committed. CI build status, APK installation, device tests and benchmark measurements are not yet confirmed.
