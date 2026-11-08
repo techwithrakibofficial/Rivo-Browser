@@ -203,7 +203,7 @@ class BrowserStorage(private val context: Context) {
             }
             val filename = item.optString("filename")
             val path = item.optString("path")
-            require(filename.isNotBlank() && !filename.contains('/') && !filename.contains('\\\\')) {
+            require(filename.isNotBlank() && !filename.contains('/') && !filename.contains(92.toChar())) {
                 "Saved download filename is invalid"
             }
             require(path.isNotBlank()) { "Saved download path is missing" }
