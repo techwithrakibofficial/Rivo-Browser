@@ -33,8 +33,8 @@ jobs:
       - name: Run unit tests
         run: gradle --no-daemon :app:testDebugUnitTest
       - name: Build minified release bundle
-        run: gradle --no-daemon :app:bundleRelease
-      - name: Report debug APK size
+        run: gradle --no-daemon -Privo.abiSplits=false :app:bundleRelease
+      - name: Report ABI APK sizes
         shell: bash
         run: |
           find app/build/outputs/apk/debug -maxdepth 2 -type f -name '*.apk' -printf '%P %s bytes\\n' | tee /tmp/rivo-apk-sizes.txt
@@ -52,10 +52,17 @@ jobs:
           path: app/build/outputs/bundle/release/*.aab
           if-no-files-found: error
           retention-days: 14
-      - name: Upload universal debug APK (QA only)
+      - name: Upload ARM64 debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: rivo-browser-debug-universal
-          path: app/build/outputs/apk/debug/*.apk
+          name: rivo-browser-arm64-debug
+          path: app/build/outputs/apk/debug/*arm64-v8a*.apk
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload ARMv7 debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: rivo-browser-armv7-debug
+          path: app/build/outputs/apk/debug/*armeabi-v7a*.apk
           if-no-files-found: error
           retention-days: 14
