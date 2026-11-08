@@ -134,10 +134,11 @@ class GeckoBrowserTab(
         session.setNavigationDelegate(object : GeckoSession.NavigationDelegate {
             override fun onLocationChange(
                 session: GeckoSession,
-                url: String,
-                permissions: List<GeckoSession.PermissionDelegate.ContentPermission>?,
-                hasUserGesture: Boolean?
+                url: String?,
+                permissions: List<GeckoSession.PermissionDelegate.ContentPermission>,
+                hasUserGesture: Boolean
             ) {
+                if (url.isNullOrBlank()) return
                 currentUrl = url
                 listener.onLocationChanged(url)
             }
