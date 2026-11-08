@@ -10,22 +10,21 @@ import org.mozilla.geckoview.GeckoSession
 class GeckoSitePermissionPolicyTest {
     @Test
     fun promptsOnlyForMediatedGeckoCapabilitiesOnHttps() {
-        val permissions = GeckoSession.PermissionDelegate
         assertTrue(
             GeckoSitePermissionPolicy.shouldPrompt(
-                permissions.PERMISSION_DESKTOP_NOTIFICATION,
+                GeckoSession.PermissionDelegate.PERMISSION_DESKTOP_NOTIFICATION,
                 secureOrigin = true
             )
         )
         assertTrue(
             GeckoSitePermissionPolicy.shouldPrompt(
-                permissions.PERMISSION_AUTOPLAY_AUDIBLE,
+                GeckoSession.PermissionDelegate.PERMISSION_AUTOPLAY_AUDIBLE,
                 secureOrigin = true
             )
         )
         assertTrue(
             GeckoSitePermissionPolicy.shouldPrompt(
-                permissions.PERMISSION_AUTOPLAY_INAUDIBLE,
+                GeckoSession.PermissionDelegate.PERMISSION_AUTOPLAY_INAUDIBLE,
                 secureOrigin = true
             )
         )
@@ -35,12 +34,12 @@ class GeckoSitePermissionPolicyTest {
     fun rejectsSensitiveAndUnsupportedCapabilitiesByDefault() {
         val permissions = GeckoSession.PermissionDelegate
         val unsupported = listOf(
-            permissions.PERMISSION_GEOLOCATION,
-            permissions.PERMISSION_PERSISTENT_STORAGE,
-            permissions.PERMISSION_XR,
-            permissions.PERMISSION_MEDIA_KEY_SYSTEM_ACCESS,
-            permissions.PERMISSION_TRACKING,
-            permissions.PERMISSION_STORAGE_ACCESS
+            GeckoSession.PermissionDelegate.PERMISSION_GEOLOCATION,
+            GeckoSession.PermissionDelegate.PERMISSION_PERSISTENT_STORAGE,
+            GeckoSession.PermissionDelegate.PERMISSION_XR,
+            GeckoSession.PermissionDelegate.PERMISSION_MEDIA_KEY_SYSTEM_ACCESS,
+            GeckoSession.PermissionDelegate.PERMISSION_TRACKING,
+            GeckoSession.PermissionDelegate.PERMISSION_STORAGE_ACCESS
         )
         unsupported.forEach { permission ->
             assertFalse(GeckoSitePermissionPolicy.shouldPrompt(permission, secureOrigin = true))
@@ -52,13 +51,13 @@ class GeckoSitePermissionPolicyTest {
         val permissions = GeckoSession.PermissionDelegate
         assertFalse(
             GeckoSitePermissionPolicy.shouldPrompt(
-                permissions.PERMISSION_DESKTOP_NOTIFICATION,
+                GeckoSession.PermissionDelegate.PERMISSION_DESKTOP_NOTIFICATION,
                 secureOrigin = false
             )
         )
         assertFalse(
             GeckoSitePermissionPolicy.shouldPrompt(
-                permissions.PERMISSION_AUTOPLAY_AUDIBLE,
+                GeckoSession.PermissionDelegate.PERMISSION_AUTOPLAY_AUDIBLE,
                 secureOrigin = false
             )
         )
@@ -81,22 +80,22 @@ class GeckoSitePermissionPolicyTest {
     fun persistentStorageIsNotMarkedRevocable() {
         val permissions = GeckoSession.PermissionDelegate
         assertFalse(
-            GeckoSitePermissionPolicy.canRevoke(permissions.PERMISSION_PERSISTENT_STORAGE)
+            GeckoSitePermissionPolicy.canRevoke(GeckoSession.PermissionDelegate.PERMISSION_PERSISTENT_STORAGE)
         )
         assertTrue(
-            GeckoSitePermissionPolicy.canRevoke(permissions.PERMISSION_DESKTOP_NOTIFICATION)
+            GeckoSitePermissionPolicy.canRevoke(GeckoSession.PermissionDelegate.PERMISSION_DESKTOP_NOTIFICATION)
         )
         assertTrue(
-            GeckoSitePermissionPolicy.canRevoke(permissions.PERMISSION_AUTOPLAY_AUDIBLE)
+            GeckoSitePermissionPolicy.canRevoke(GeckoSession.PermissionDelegate.PERMISSION_AUTOPLAY_AUDIBLE)
         )
     }
 
     @Test
     fun labelsExistOnlyForRecognizedGeckoPermissionTypes() {
         val permissions = GeckoSession.PermissionDelegate
-        assertEquals("Notifications", GeckoSitePermissionPolicy.label(permissions.PERMISSION_DESKTOP_NOTIFICATION))
-        assertEquals("Location", GeckoSitePermissionPolicy.label(permissions.PERMISSION_GEOLOCATION))
-        assertEquals("Persistent storage", GeckoSitePermissionPolicy.label(permissions.PERMISSION_PERSISTENT_STORAGE))
+        assertEquals("Notifications", GeckoSitePermissionPolicy.label(GeckoSession.PermissionDelegate.PERMISSION_DESKTOP_NOTIFICATION))
+        assertEquals("Location", GeckoSitePermissionPolicy.label(GeckoSession.PermissionDelegate.PERMISSION_GEOLOCATION))
+        assertEquals("Persistent storage", GeckoSitePermissionPolicy.label(GeckoSession.PermissionDelegate.PERMISSION_PERSISTENT_STORAGE))
         assertEquals(null, GeckoSitePermissionPolicy.label(Int.MAX_VALUE))
     }
 }
