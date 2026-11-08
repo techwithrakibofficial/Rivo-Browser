@@ -27,12 +27,13 @@ https://github.com/techwithrakibofficial/Rivo-Browser
 - ARMv7 artifact `rivo-browser-armv7-debug`: ZIP 105,557,703 bytes; expires 2026-11-22.
 - Compile SDK is Android 17 API 37.2; targetSdk remains 36.
 - GeckoView dependency coordinate is org.mozilla.geckoview:geckoview:159.0.20261022150525.
-- Artifact ZIP sizes are not individual APK sizes; inspect archives before reporting APK size.
+- Extracted APK sizes: ARM64 208,688,414 bytes (~199.0 MiB); ARMv7 169,493,492 bytes (~161.7 MiB). Native library paths inside each APK are limited to the matching ABI.
+- SHA-256 ARM64: `9bca287c9407d8d060903be24db0405c759aacd39828af32f643fa92d7641223`; ARMv7: `5af075f25765f209dff18f304cb0bf26803e9655f7b9bb7b71ae7b84f4ce892d`.
 - No physical-device install, emulator smoke test or performance benchmark is claimed.
 
 ## Remaining
-1. Confirm CI for separate ARM64 and ARMv7 APK artifacts.
-2. Verify individual APK file sizes and install both split outputs on supported devices.
+1. Investigate GeckoView binary footprint and safe APK-size optimization.
+2. Install both APKs on physical supported devices and run smoke tests.
 3. Add per-site permission UI.
 4. Add process-death tab/session restoration.
 5. Complete accessibility and MASVS review.
