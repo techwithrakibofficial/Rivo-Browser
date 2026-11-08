@@ -3,47 +3,51 @@
 Updated: 2026-11-08
 
 ## Current phase
-Phase 1 — Functional Browser MVP (authorized by user on 2026-11-08).
+Phase 1 — Functional Browser MVP, authorized by user on 2026-11-08.
 
 ## Repository
 - Canonical repository: https://github.com/techwithrakibofficial/Rivo-Browser
-- Default branch: main
-- Phase 2 and Phase 3 have not been started.
+- Branch: main
+- Phase 2 and Phase 3 have not started.
 
-## Phase 0 status
-- Android foundation, modular engine adapters and engine comparison harness committed.
+## Phase 0
+- Android foundation, modular engine probes and comparison protocol committed.
 - Physical-device WebView vs GeckoView benchmark remains outstanding.
-- Final engine decision remains open. GeckoView is the provisional Phase 1 MVP implementation candidate, not a final measured winner.
+- Final engine decision remains open. GeckoView is the provisional Phase 1 implementation candidate, not a measured final winner.
 
-## Phase 1 implementation committed
-- GeckoRuntime wrapper and one GeckoSession per browser tab.
-- Browser navigation and URL/search omnibox resolver (HTTPS-preferring; unsupported schemes are treated as search queries).
-- Back, forward, reload and stop.
-- Multiple tabs with active/inactive session management and an 8-tab MVP safety cap.
-- Private tabs use GeckoView native private-session settings; app history and bookmarks are not written for private tabs.
+## Phase 1 source implemented
+- Process-scoped GeckoRuntime provider; one GeckoSession per tab.
+- GeckoView is created with the current Activity context and detached on composition lifecycle changes; sessions remain in ViewModel.
+- Omnibox resolves HTTP/HTTPS URLs and plain-text searches; unsupported schemes are sent to search.
+- Back, forward, reload and stop; Gecko navigation capability state comes from delegate callbacks.
+- Multiple tabs with active/inactive session handling and an 8-tab cap.
+- Native Gecko private sessions; private pages are excluded from app-side history/bookmarks.
 - Tracking protection enabled per session.
-- Site content, Android and media permissions are denied until an explicit permission mediation UI is implemented.
-- Engine-reported connection security state shown in browser chrome.
-- Local DataStore bookmarks, bounded browsing history (300 entries), and persisted Dark/Light/Glass appearance selection.
-- Downloads are streamed from GeckoView response bodies into the app-specific Downloads directory; no broad storage permission is requested.
-- Centralized semantic color schemes for Dark, Light and Premium Glass.
-- Lifecycle-aware ViewModel and Compose browser UI.
-- JUnit tests for URL/search input resolver.
-- CI updated to build/lint the GeckoView MVP and run unit tests; old superseded runs were failing due CI action setup and AGP 9 built-in Kotlin plugin changes. Latest CI result remains pending.
+- Content, Android runtime and media permissions denied until a user-facing permission mediation flow exists.
+- Connection security indicator uses GeckoView security callbacks.
+- Local DataStore bookmarks (max 500), history (max 300) and persisted Dark/Light/Glass appearance.
+- Downloads stream into app-specific Downloads storage, have a 250 MB per-file safety cap, and can be opened/shared through a non-exported scoped FileProvider.
+- Centralized semantic colors, spacing and shape tokens; Quick Appearance Picker is in secondary menu; system-bar icon contrast follows appearance.
+- URL/search resolver JUnit tests added.
 
-## Pending verification / known limitations
-- Successful final CI build, lint and unit-test run not yet confirmed.
-- No APK artifact has been verified/downloaded.
-- No physical-device install or smoke test.
-- No 3–4 GB device memory/performance benchmark.
-- Downloads currently remain in app-specific storage; user-facing file open/share/export workflow is not yet implemented.
-- Site permissions are deny-by-default; user-facing per-site allow/deny controls are not yet implemented.
-- Browser tab state/session restoration across process death is not yet implemented.
-- Final engine selection remains pending Phase 0 device benchmark.
+## Build verification
+- GitHub Actions run 42460649170 completed successfully: assembleDebug, Android lint, unit tests and artifact upload.
+- ABI split build configuration was then added. A follow-up CI run is pending for the updated separate ARM64/ARMv7 artifact workflow.
+- The previous combined debug artifact ZIP was 215,087,168 bytes; individual split APK sizes have not yet been independently measured.
+- No APK has been installed on a physical device in this session.
+
+## Remaining / known limitations
+- Latest CI after separate ABI artifact upload changes must be confirmed.
+- No physical device install/smoke test or 3–4 GB memory benchmark.
+- Per-site permission allow/deny UI is not implemented; permissions remain denied.
+- Download files are app-specific; downloads list metadata is not persisted after process death.
+- Open-tab restoration after process death is not implemented.
+- History/bookmarks are app-private but not separately encrypted with an app-managed key.
+- Final engine selection awaits controlled WebView/GeckoView device benchmark.
 
 ## Next steps
-1. Complete CI build/lint/test and fix all compile/runtime blockers.
-2. Add safe download open/share/export UI and per-site permission mediation.
-3. Test navigation, tab lifecycle, private mode, persistence, security state and downloads on emulator/device.
-4. Benchmark on representative 3–4 GB Android devices.
-5. Update feature matrix, security review and release readiness after evidence is collected.
+1. Verify CI builds and publishes both ARM64 and ARMv7 split APK artifacts.
+2. Install and smoke-test on physical ARM64 and ARMv7 Android devices.
+3. Measure actual per-APK size, cold/warm startup, PSS, CPU and stability on 3–4 GB devices.
+4. Implement per-site permission UX and tab restoration.
+5. Complete security/accessibility review before release.
