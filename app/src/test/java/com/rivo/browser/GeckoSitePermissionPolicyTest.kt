@@ -48,6 +48,24 @@ class GeckoSitePermissionPolicyTest {
     }
 
     @Test
+    fun privateBrowsingDoesNotAllowPersistentOsNotifications() {
+        assertFalse(
+            GeckoSitePermissionPolicy.shouldPrompt(
+                GeckoSession.PermissionDelegate.PERMISSION_DESKTOP_NOTIFICATION,
+                secureOrigin = true,
+                privateMode = true
+            )
+        )
+        assertTrue(
+            GeckoSitePermissionPolicy.shouldPrompt(
+                GeckoSession.PermissionDelegate.PERMISSION_AUTOPLAY_AUDIBLE,
+                secureOrigin = true,
+                privateMode = true
+            )
+        )
+    }
+
+    @Test
     fun rejectsAllPermissionPromptsForInsecureOrigins() {
         assertFalse(
             GeckoSitePermissionPolicy.shouldPrompt(
