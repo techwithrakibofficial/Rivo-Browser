@@ -26,6 +26,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,6 +38,9 @@ import com.rivo.browser.designsystem.RivoColorSchemes
 import com.rivo.browser.designsystem.RivoSpacing
 import com.rivo.browser.designsystem.RivoShapes
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
+import android.app.Activity
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -51,8 +55,19 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     val browser = viewModel.browser
     val active = browser.activeTab
     val keyboard = LocalSoftwareKeyboardController.current
+    val view = LocalView.current
     var address by remember(active?.id) { mutableStateOf(active?.url.orEmpty()) }
     var menuExpanded by remember { mutableStateOf(false) }
+
+    SideEffect {
+        val window = (view.context as? Activity)?.window
+        if (window != null) {
+            val controller = WindowCompat.getInsetsController(window, view)
+            val useLightSystemIcons = browser.appearance == BrowserAppearance.LIGHT
+            controller.isAppearanceLightStatusBars = useLightSystemIcons
+            controller.isAppearanceLightNavigationBars = useLightSystemIcons
+        }
+    }
 
     LaunchedEffect(active?.url) {
         if (active != null) address = active.url
