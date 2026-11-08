@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "com.rivo.browser.engine.gecko"
-    compileSdk = 37
+    compileSdk = 36
     defaultConfig { minSdk = 26 }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
