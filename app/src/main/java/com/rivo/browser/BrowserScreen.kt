@@ -26,6 +26,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,6 +39,7 @@ import com.rivo.browser.designsystem.RivoColorSchemes
 import com.rivo.browser.designsystem.RivoSpacing
 import com.rivo.browser.designsystem.RivoShapes
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import android.app.Activity
@@ -55,6 +57,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     val browser = viewModel.browser
     val active = browser.activeTab
     val keyboard = LocalSoftwareKeyboardController.current
+    val context = LocalContext.current
     val view = LocalView.current
     var address by remember(active?.id) { mutableStateOf(active?.url.orEmpty()) }
     var menuExpanded by remember { mutableStateOf(false) }
@@ -67,6 +70,10 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
             controller.isAppearanceLightStatusBars = useLightSystemIcons
             controller.isAppearanceLightNavigationBars = useLightSystemIcons
         }
+    }
+
+    DisposableEffect(active?.id) {
+        onDispose { active?.engine?.releaseView() }
     }
 
     LaunchedEffect(active?.url) {
@@ -162,7 +169,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                 if (active != null) {
                     keyTab(active.id) {
                         AndroidView(
-                            factory = { active.engine.view },
+                            factory = { active.engine.createView(context) },
                             modifier = Modifier.weight(1f).fillMaxWidth()
                         )
                     }
