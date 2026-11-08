@@ -51,7 +51,7 @@ class BrowserController(context: Context) {
     private val appContext = context.applicationContext
     private val storage = BrowserStorage(appContext)
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-    private val runtime = GeckoBrowserRuntime(appContext).runtime
+    private val runtime = GeckoBrowserRuntime.get(appContext)
     private var nextId = 1L
 
     val tabs = mutableStateListOf<BrowserTabState>()
