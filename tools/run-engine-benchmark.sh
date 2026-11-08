@@ -2,7 +2,7 @@
 set -euo pipefail
 usage() { echo "Usage: $0 <gecko|webview> <apk> <output-dir> [runs=5] [tabs=1..10]" >&2; exit 2; }
 [[ $# -ge 3 ]] || usage
-ENGINE="$1"; APK="$2"; OUT="$3"; RUNS="${{4:-5}"; TABS="${{5:-1}"
+ENGINE="$1"; APK="$2"; OUT="$3"; RUNS="${4:-5}"; TABS="${5:-1}"
 PKG="com.rivo.browser.enginebenchmark"; COMPONENT="$PKG/.BenchmarkActivity"
 case "$ENGINE" in gecko|webview) ;; *) usage ;; esac
 [[ -f "$APK" ]] || { echo "APK not found: $APK" >&2; exit 1; }
@@ -43,7 +43,7 @@ for run in $(seq 1 "$RUNS"); do
       [[ -n "$marker" ]] && break
       sleep 1
     done
-    printf '%s\n' "${{marker:-DOM_READY_TIMEOUT}" > "$prefix-dom-ready-tab-$tab.txt"
+    printf '%s\n' "${marker:-DOM_READY_TIMEOUT}" > "$prefix-dom-ready-tab-$tab.txt"
   done
   sleep 10
   adb shell dumpsys meminfo "$PKG" > "$prefix-meminfo.txt" 2>&1 || true
