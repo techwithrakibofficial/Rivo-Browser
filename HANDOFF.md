@@ -1,44 +1,47 @@
 # Handoff
 
 ## Current phase
-Phase 1 — Functional Browser MVP, authorized on 2026-11-08.
+Phase 1 — Functional Browser MVP (authorized 2026-11-08).
 
 ## Repository
 https://github.com/techwithrakibofficial/Rivo-Browser
 
-## Implemented source
-- GeckoView process runtime wrapper and per-tab GeckoSession.
-- Navigation/search resolver, back/forward/reload/stop.
-- Multi-tab UI and lifecycle; inactive sessions are marked inactive and MVP is capped at eight tabs.
-- Private sessions use GeckoView native private mode and do not enter app-side history/bookmarks.
-- Tracking protection enabled; content, Android and media permissions are denied until user-facing permission mediation exists.
-- TLS/security status is taken from GeckoView callbacks.
-- DataStore persistence for appearance, bookmarks and bounded history.
-- GeckoView downloads streamed into app-specific Downloads storage.
-- Compose browser chrome with centralized Dark, Light and Premium Glass color schemes.
-- Quick Appearance Picker lives in the secondary overflow menu.
-- Unit tests added for URL/search resolver.
+## Implemented
+- GeckoView Stable candidate with process-scoped GeckoRuntime and per-tab GeckoSession.
+- Activity-context GeckoView lifecycle is separated from ViewModel-owned browser sessions.
+- URL/search omnibox; back, forward, reload and stop.
+- Tab switching/closing; inactive sessions are deactivated; 8-tab cap.
+- Private Gecko sessions, excluded from app-side history/bookmarks.
+- Tracking protection enabled; site content, Android and media permissions denied by default.
+- Engine-reported TLS connection status.
+- Local bookmarks/history, clear history and persisted Dark/Light/Premium Glass appearance.
+- Downloads stream to app-specific storage, max 250 MB per file; scoped FileProvider supports open/share.
+- Centralized semantic color, spacing and shape tokens; secondary Quick Appearance Picker; system bar contrast.
+- JUnit tests for URL/search input resolution.
+- ABI split configuration for arm64-v8a and armeabi-v7a.
 
-## Verified facts
-- GitHub commits and source files are present.
-- A GitHub Actions build was attempted and failed before compilation because the setup-android action requested the removed SDK tools package. The action was updated to v4.
-- A subsequent build reached Gradle and failed because AGP 9.5.0 provides built-in Kotlin support; the redundant Kotlin Android plugin was removed from app/library modules.
-- New CI runs after those fixes are still pending confirmation.
-- No successful APK build, install, device test or benchmark is claimed.
+## Verified
+- CI run 42460649170: assembleDebug SUCCESS, Android lint SUCCESS, unit tests SUCCESS, artifact upload SUCCESS.
+- CI run URL: https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42460649170
+- Compile SDK is Android 17 API 37.2; targetSdk remains 36.
+- GeckoView dependency coordinate is org.mozilla.geckoview:geckoview:159.0.20261022150525.
+- Separate ABI artifact workflow has just been configured; its latest run must be checked before reporting those artifacts as available.
+- No physical-device install, emulator smoke test or performance benchmark is claimed.
 
 ## Remaining
-1. Confirm latest CI build/lint/test and fix errors.
-2. Complete download open/share/export.
-3. Implement explicit per-site permission UI.
-4. Add process-death tab/session restoration where feasible.
-5. Run manual tests on emulator and 3–4 GB physical devices.
-6. Complete Phase 0 comparative benchmark before final engine selection.
+1. Confirm CI for separate ARM64 and ARMv7 APK artifacts.
+2. Verify individual APK file sizes and install both split outputs on supported devices.
+3. Add per-site permission UI.
+4. Add process-death tab/session restoration.
+5. Complete accessibility and MASVS review.
+6. Perform 3–4 GB device benchmark before final engine decision.
 
 ## Known limitations
-- Downloaded files are app-specific; they are not yet exported to the public Downloads collection.
-- Camera, microphone, location, notifications and other content permissions are denied by default.
-- Browser history/bookmarks are local-only; no sync or account service.
-- GeckoView is the provisional Phase 1 engine choice, not a benchmark-confirmed final choice.
+- Private mode does not hide traffic from websites, ISPs, DNS resolvers or network operators.
+- Downloaded files remain on-device in app-specific storage and are not automatically erased by private mode.
+- Permission prompts are currently denied; user-facing per-site controls are pending.
+- History/bookmarks are local-only and not separately encrypted by the app.
+- GeckoView remains the provisional MVP engine, not a benchmark-confirmed final choice.
 
 ## Scope boundary
 Phase 2/3 features are not started.
