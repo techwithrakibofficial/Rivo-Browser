@@ -17,6 +17,13 @@ android {
         versionName = "0.2.0-phase1"
     }
     buildFeatures { compose = true }
+    buildTypes {
+        getByName("release") {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
+        }
+    }
     splits {
         abi {
             isEnable = true
