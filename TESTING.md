@@ -4,7 +4,7 @@
 - Android compile platform: API 37.2; targetSdk 36.
 - Assemble GeckoView MVP debug APKs.
 - Android lint.
-- JVM unit tests for URL/search resolution and safe restorable-tab URL policy.
+- JVM unit tests for URL/search resolution, safe restorable-tab URL policy, and the sensitive metadata write guard.
 - Build minified release AAB with R8 and resource shrinking.
 - Report APK/AAB sizes and upload unsigned QA AAB plus separate ARM64/ARMv7 debug APK artifacts.
 
@@ -18,6 +18,10 @@ GitHub Actions run #143 (42461668698) completed successfully on commit 89139a036
 - ARMv7 debug artifact upload — PASS (rivo-browser-armv7-debug, ZIP 105,557,703 bytes)
 
 Run #143 predates the latest Activity lifecycle, tab restoration, R8/AAB and encrypted-metadata commits. Its recorded job steps did not include the current workflow's minified release AAB step. It must not be reported as verification of the latest source.
+
+## Security QA branch coverage
+- `SensitiveWriteGuardTest` verifies the guard permits writes before an integrity failure, remains blocked after repeated failures, and exposes a shared process-wide guard.
+- These are JVM tests of the guard only; they do not exercise Android DataStore transactions or Android Keystore cryptography.
 
 ## Latest source verification status
 - Latest source checkpoint before this documentation update: 9df07aa84f2b3e94c8a383cea486ced09652b8e5.
