@@ -17,6 +17,7 @@ import org.mozilla.geckoview.GeckoRuntime
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoRuntimeSettings
 import org.mozilla.geckoview.GeckoSession
+import org.mozilla.geckoview.ExperimentalGeckoViewApi
 import org.mozilla.geckoview.GeckoSessionSettings
 import org.mozilla.geckoview.GeckoView
 import org.mozilla.geckoview.WebResponse
@@ -54,7 +55,7 @@ interface GeckoTabListener {
     fun onContentCrashed()
     fun onSecurityChanged(secure: Boolean, exception: Boolean)
     fun onExternalDownload(url: String, mimeType: String?, disposition: String?, body: InputStream?)
-    fun onSitePermissionRequest(origin: String, permission: String, privateMode: Boolean, respond: (Boolean) -> Unit)
+    fun onSitePermissionRequest(origin: String, permission: String, privateMode: Boolean, onShown: () -> Unit, respond: (Boolean) -> Unit)
 }
 
 data class GeckoStoredSitePermission(
@@ -143,6 +144,7 @@ class GeckoBrowserTab(
             }
         })
         session.setPermissionDelegate(object : GeckoSession.PermissionDelegate {
+            @OptIn(ExperimentalGeckoViewApi::class)
             override fun onContentPermissionRequest(
                 session: GeckoSession,
                 permission: GeckoSession.PermissionDelegate.ContentPermission
@@ -167,9 +169,13 @@ class GeckoBrowserTab(
                     append(requestUri.host)
                     if (requestUri.port != -1) append(":").append(requestUri.port)
                 }
-                permission.notifyShown()
                 val result = GeckoResult<Int>()
-                listener.onSitePermissionRequest(origin, permissionName, permission.privateMode) { granted ->
+                listener.onSitePermissionRequest(
+                    origin,
+                    permissionName,
+                    permission.privateMode,
+                    onShown = { permission.notifyShown() }
+                ) { granted ->
                     result.complete(
                         if (granted) GeckoSession.PermissionDelegate.ContentPermission.VALUE_ALLOW
                         else GeckoSession.PermissionDelegate.ContentPermission.VALUE_DENY
