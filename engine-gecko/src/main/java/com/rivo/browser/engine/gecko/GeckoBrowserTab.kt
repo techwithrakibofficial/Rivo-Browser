@@ -42,7 +42,7 @@ interface GeckoTabListener {
 
 /** One GeckoSession per browser tab. */
 class GeckoBrowserTab(
-    runtime: GeckoRuntime,
+    private val runtime: GeckoRuntime,
     val isPrivate: Boolean,
     private val listener: GeckoTabListener
 ) {
