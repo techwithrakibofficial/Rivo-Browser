@@ -21,11 +21,13 @@ https://github.com/techwithrakibofficial/Rivo-Browser
 - ABI split configuration for arm64-v8a and armeabi-v7a.
 
 ## Verified
-- CI run 42460649170: assembleDebug SUCCESS, Android lint SUCCESS, unit tests SUCCESS, artifact upload SUCCESS.
-- CI run URL: https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42460649170
+- CI run #143 (`42461668698`) on commit `89139a036bb36829e52681df9eae7c47ae77197e`: assembleDebug PASS, Android lint PASS, unit tests PASS, ABI size report PASS, ARM64 artifact upload PASS, ARMv7 artifact upload PASS.
+- CI run URL: https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42461668698
+- ARM64 artifact `rivo-browser-arm64-debug`: ZIP 109,529,496 bytes; expires 2026-11-22.
+- ARMv7 artifact `rivo-browser-armv7-debug`: ZIP 105,557,703 bytes; expires 2026-11-22.
 - Compile SDK is Android 17 API 37.2; targetSdk remains 36.
 - GeckoView dependency coordinate is org.mozilla.geckoview:geckoview:159.0.20261022150525.
-- Separate ABI artifact workflow has just been configured; its latest run must be checked before reporting those artifacts as available.
+- Artifact ZIP sizes are not individual APK sizes; inspect archives before reporting APK size.
 - No physical-device install, emulator smoke test or performance benchmark is claimed.
 
 ## Remaining
