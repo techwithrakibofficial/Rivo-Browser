@@ -507,7 +507,8 @@ class BrowserController(context: Context) {
             uri.lastPathSegment,
             System.currentTimeMillis()
         )
-        val item = BrowserDownload(nextId++, safeName, mimeType, tab.privateMode, if (tab.privateMode) tab.id else null)
+        val safeMimeType = DownloadSecurityPolicy.normalizeMimeType(mimeType) ?: "application/octet-stream"
+        val item = BrowserDownload(nextId++, safeName, safeMimeType, tab.privateMode, if (tab.privateMode) tab.id else null)
         downloads.add(0, item)
         scope.launch(Dispatchers.IO) {
             val result = runCatching {
@@ -557,7 +558,7 @@ class BrowserController(context: Context) {
             }
         }
         downloads.addAll(restored.map { (saved, file) ->
-            BrowserDownload(nextId++, saved.filename, saved.mimeType).apply {
+            BrowserDownload(nextId++, saved.filename, DownloadSecurityPolicy.normalizeMimeType(saved.mimeType) ?: "application/octet-stream").apply {
                 this.file = file
                 status = "Saved in app Downloads"
             }
