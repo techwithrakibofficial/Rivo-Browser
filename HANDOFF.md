@@ -64,3 +64,16 @@ PR #23 and PR #24 are integrated. PR #27 (`test(tabs): expand Tab Universe searc
 - Added `docs/research/GECKOVIEW_CAPABILITIES.md` with verified reader extraction, WebExtensions, QR scanner and developer-tool boundaries.
 - No CI or device test result is claimed yet. Create/review the worker PR only after inspecting fresh CI; physical-device QR, reader readability, transfer file deletion, TalkBack and narrow-screen checks remain.
 - Open PR #10 and #21 still need Account B integration/review; this branch preserves their existing permission/download code and may require conflict resolution when those changes are integrated.
+
+
+## Account A latest continuation — 2026-11-09
+
+- PR #35: https://github.com/techwithrakibofficial/Rivo-Browser/pull/35
+- Branch: `worker/account-a-core-features-2026-11-09`; based on Main `0d77826e655267c671498334c11ffad8d1dd5b14`.
+- Reader Mode now refuses gated content, checks GeckoView readerability, uses plain text extraction with boilerplate removal, and caps output at 120,000 characters.
+- QR scanning uses Google Code Scanner without CAMERA permission; payloads are sanitized and explicitly confirmed before safe resolver navigation.
+- Transfer Studio now adds Content-Length-aware progress, indeterminate progress when length is absent, best-effort cancellation by closing the input stream, recent-100 filtering, and managed-file actions. Cancellation can remain in Cancelling if the stream read does not return after close; pause/resume/retry remain unsupported.
+- Developer Mode is read-only diagnostics. Gecko remote debugging and console logging stay disabled.
+- Added tests for QR sanitization, transfer state filters and download progress monotonicity.
+- Latest PR head still needs a fresh green Android CI run. OSV workflow may pass while finding no Gradle lockfiles; source SBOM remains a small source-level inventory, not full dependency inventory.
+- PR #10 and #21 remain open and untouched.
