@@ -79,6 +79,12 @@ class BrowserController(context: Context) {
         private set
     var pendingDownload by mutableStateOf<PendingDownload?>(null)
         private set
+    var readerArticle by mutableStateOf<ReaderArticle?>(null)
+        private set
+    var readerLoading by mutableStateOf(false)
+        private set
+    var qrScanResult by mutableStateOf<String?>(null)
+        private set
 
     val activeTab: BrowserTabState?
         get() = tabs.firstOrNull { it.id == activeTabId }
@@ -130,6 +136,10 @@ class BrowserController(context: Context) {
             object : GeckoTabListener {
                 override fun onLocationChanged(url: String) {
                     tab.url = url
+                    if (readerArticle?.tabId == tab.id && readerArticle?.url != url) {
+                        readerArticle = null
+                        readerLoading = false
+                    }
                     if (!tab.privateMode && url.startsWith("http")) {
                         saveHistory(tab)
                         persistOpenTabs()
@@ -208,6 +218,7 @@ class BrowserController(context: Context) {
         if (index < 0) return
         val closing = tabs[index]
         val wasActive = closing.id == activeTabId
+        if (readerArticle?.tabId == id) readerArticle = null
         if (permissionPrompt?.tabId == id) respondToSitePermission(false)
         if (pendingDownload?.tabId == id) cancelPendingDownload()
         closing.engine.dispose()
@@ -226,6 +237,7 @@ class BrowserController(context: Context) {
         if (input.isEmpty()) return
         val url = resolveInput(input)
         val tab = activeTab ?: return
+        if (readerArticle?.tabId == tab.id) readerArticle = null
         tab.url = url
         tab.engine.load(url)
     }
@@ -250,6 +262,97 @@ class BrowserController(context: Context) {
                 TabSessionActivationPolicy.shouldActivate(tab.id, activeTabId, hostStarted)
             )
         }
+    }
+
+    fun openReaderMode() {
+        val tab = activeTab ?: return
+        if (!tab.url.startsWith("https://") && !tab.url.startsWith("http://")) {
+            notice = "Reader Mode is available only for web pages."
+            return
+        }
+        if (tab.loading) {
+            notice = "Wait until the page finishes loading, then try Reader Mode again."
+            return
+        }
+        readerArticle = null
+        readerLoading = true
+        val requestedUrl = tab.url
+        tab.engine.extractReaderContent { result ->
+            if (tabs.none { it.id == tab.id } || activeTabId != tab.id || tab.url != requestedUrl) {
+                if (activeTabId == tab.id) readerLoading = false
+                return@extractReaderContent
+            }
+            readerLoading = false
+            result.onSuccess { extracted ->
+                readerArticle = ReaderArticle(
+                    tabId = tab.id,
+                    title = tab.title,
+                    url = requestedUrl,
+                    content = extracted.content,
+                    language = extracted.language,
+                    wordCount = extracted.wordCount,
+                    wasTruncated = extracted.wasTruncated
+                )
+            }.onFailure { error ->
+                notice = error.message ?: "Reader Mode could not extract this page."
+            }
+        }
+    }
+
+    fun closeReaderMode() {
+        readerArticle = null
+        readerLoading = false
+    }
+
+    fun showQrScanResult(value: String?) {
+        val cleaned = value.orEmpty()
+            .filter { it == '\\n' || it == '\\t' || it >= ' ' }
+            .trim()
+        if (cleaned.isBlank()) {
+            notice = "The QR code did not contain readable text."
+            return
+        }
+        if (cleaned.length > MAX_QR_RESULT_CHARS) {
+            notice = "This QR result is too long to open safely."
+            return
+        }
+        qrScanResult = cleaned
+    }
+
+    fun openQrScanResult() {
+        val value = qrScanResult ?: return
+        qrScanResult = null
+        // NavigationInputResolver only permits HTTP(S); other schemes become a search.
+        navigate(value)
+    }
+
+    fun dismissQrScanResult() {
+        qrScanResult = null
+    }
+
+    fun removeDownload(download: BrowserDownload) {
+        if (download.status == "Downloading") {
+            notice = "An active transfer cannot be removed."
+            return
+        }
+        val file = download.file
+        if (file != null && file.exists()) {
+            val allowedRoots = listOfNotNull(
+                appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
+                File(appContext.filesDir, "downloads")
+            ).mapNotNull { runCatching { it.canonicalFile }.getOrNull() }
+            val canonical = runCatching { file.canonicalFile }.getOrNull()
+            if (canonical == null || allowedRoots.none { canonical.parentFile == it }) {
+                notice = "This file is outside Rivo's managed Downloads folder."
+                return
+            }
+            if (!canonical.delete()) {
+                notice = "The downloaded file could not be deleted."
+                return
+            }
+        }
+        downloads.removeAll { it.id == download.id }
+        persistDownloads()
     }
 
     fun goBack() { activeTab?.engine?.goBack() }
@@ -515,6 +618,8 @@ class BrowserController(context: Context) {
 
     fun dispose() {
         cancelPendingDownload()
+        closeReaderMode()
+        dismissQrScanResult()
         permissionPrompt?.respond?.invoke(false)
         permissionPrompt = null
         tabs.toList().forEach { it.engine.dispose() }
@@ -526,6 +631,7 @@ class BrowserController(context: Context) {
         const val HOME_URL = "https://duckduckgo.com/"
         const val MAX_TABS = 8
         const val MAX_DOWNLOAD_BYTES = 250L * 1024L * 1024L
+        const val MAX_QR_RESULT_CHARS = 2048
     }
 }
 
@@ -536,6 +642,16 @@ data class PendingDownload(
     val mimeType: String?,
     val disposition: String?,
     val body: InputStream
+)
+
+data class ReaderArticle(
+    val tabId: Long,
+    val title: String,
+    val url: String,
+    val content: String,
+    val language: String,
+    val wordCount: Int,
+    val wasTruncated: Boolean
 )
 
 data class SitePermissionPrompt(
@@ -552,7 +668,7 @@ class BrowserDownload(val id: Long, filename: String, val mimeType: String?) {
     var file: File? = null
 }
 
-enum class BrowserPanel { TABS, BOOKMARKS, HISTORY, DOWNLOADS, APPEARANCE, MENU }
+enum class BrowserPanel { TABS, BOOKMARKS, HISTORY, DOWNLOADS, APPEARANCE, DEVELOPER, MENU }
 
 
 /** Only the selected tab on a started host may activate/focus Gecko. */
