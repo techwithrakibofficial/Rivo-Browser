@@ -1,21 +1,19 @@
 # Changelog
 
+## 2026-11-09 — GitHub recovery audit synchronization
+- Audited Main HEAD `72700fa6e599af94317d5e7d76eaa211e992281d`; previous `84303588...` checkpoint is historical.
+- Recorded open PR dependencies: #10 permissions, #20 security/benchmark integration, #21 privacy center (stacked on #10).
+- Recorded closed-but-unmerged PR #16 benchmark and PR #17 Advanced Tab Universe as not integrated until their branches are verified.
+- Corrected feature, testing and handoff status to distinguish Main source, open PR implementation, CI evidence and device verification.
+- No application source changes, PR merges or release actions performed in this documentation synchronization.
+
 ## 2026-11-08 — CI and documentation synchronization
-- Verified integrated Main commit `84303588c2560db55bfb7ae2081d8f714be532e7` with [GitHub Actions run #246](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42481870810): assembleDebug, lintDebug, testDebugUnitTest, minified bundleRelease, size reporting and unsigned QA artifact uploads passed.
-- Reconciled project status, handoff, plan, architecture, design, feature matrix, testing and security documentation with the verified checkpoint.
-- No application source or CI workflow was changed. Device, accessibility, instrumentation and production-signing gates remain open.
+- Verified integrated Main commit `84303588c2560db55bfb7ae2081d8f714be532e7` with GitHub Actions run #246.
+- Historical CI success applies only to that exact commit, not later Main commits.
+- Security, engine and design-system documentation was aligned with that checkpoint.
 
 ## Unreleased — Phase 1 Functional Browser MVP
-- Integrate security QA: fail-closed encrypted metadata handling, validation before direct replacement/clear-history, malformed-record rejection and sensitive-write guard regression tests.
-- Integrate Android engine fixes: selected-tab restoration by saved record index, omnibox edit preservation, repeated-history URL key correction and IDN normalization.
-- Expand the three-theme design contract and align Premium Glass documentation with translucent surfaces and no real-time blur.
-- Add source-level UI/UX and accessibility audit with severity-ranked findings and device verification checklist.
-- Retain GeckoView runtime/session architecture, navigation, private sessions, tracking protection, local bookmarks/history, encrypted metadata and confirmation-gated downloads.
-- CI worker runs #237, #240 and #241 and integrated Main run #246 completed successfully at their recorded commit checkpoints.
-- Physical-device validation, Android Keystore/DataStore instrumentation, responsive UI fixes and production signing remain outstanding.
-
-## Phase 0 — Foundation and engine evaluation
-- Initialize Android project foundation and modular engine adapters.
-- Add WebView and GeckoView comparison probes.
-- Add benchmark protocol and engine research.
-- Physical-device benchmark and final engine selection remain pending.
+- GeckoView runtime/session architecture, navigation, private sessions, tracking protection, local bookmarks/history, encrypted metadata and confirmation-gated downloads.
+- Security fail-closed metadata handling and Android engine regression fixes.
+- Dark, Light and Premium Glass design foundations.
+- Device validation, permission mediation, advanced features and production signing remain open.
