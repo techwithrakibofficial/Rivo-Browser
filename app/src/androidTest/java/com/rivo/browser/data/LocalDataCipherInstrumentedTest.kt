@@ -277,7 +277,9 @@ class LocalDataCipherInstrumentedTest {
 
         assertTrue(storage.loadDownloads().isEmpty())
         assertTrue("Migration must not delete user file bytes", savedFile.exists())
-        assertTrue(fixture.dataStore.data.first()[key].orEmpty().startsWith("enc:v1:"))
+        val migratedPrefs = fixture.dataStore.data.first()
+        assertNull("Ambiguous legacy download index must be removed", migratedPrefs[key])
+        assertTrue(migratedPrefs[booleanPreferencesKey("private_download_metadata_v2")] == true)
 
         val newRecord = SavedDownload("new.bin", "application/octet-stream", "/app/downloads/new.bin")
         storage.saveDownloads(listOf(newRecord))
