@@ -75,3 +75,16 @@
 - Accessibility and performance polish.
 - Dependency/security review and release hardening.
 - Production signing and distribution only after all release gates pass.
+
+
+## Account A Phase 2 implementation increment — 2026-11-09
+
+Branch `worker/account-a-core-features-2026-11-09`, based on Main `0d77826e655267c671498334c11ffad8d1dd5b14`:
+
+- Reader Mode: native Compose reader using GeckoView PageExtractionController; extraction is readability-gated and memory-bounded.
+- QR Scanner: Google Code Scanner QR-only integration; no camera permission; confirmation before navigation.
+- Transfer Studio: search/filter, completed size, Open/Share/Remove; no unsupported pause/resume/retry claims.
+- Developer Mode: read-only diagnostics; remote debugging and console output remain disabled.
+- Extensions: official GeckoView APIs support built-in extensions and Mozilla-signed XPI installs, but no end-user manager/store is implemented. See `docs/research/GECKOVIEW_CAPABILITIES.md`.
+
+All four UI increments require fresh branch CI, device testing, accessibility review and merge before they count as Main-integrated. Advanced Tab Universe is preserved unchanged.
