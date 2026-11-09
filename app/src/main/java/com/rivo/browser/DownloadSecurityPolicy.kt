@@ -10,17 +10,16 @@ internal object DownloadSecurityPolicy {
         return uri.scheme?.lowercase(Locale.ROOT) == "https" &&
             !uri.host.isNullOrBlank() && uri.rawUserInfo == null
     }
+
     fun normalizeMimeType(rawMimeType: String?): String? {
         val mimeType = rawMimeType?.substringBefore(';')?.trim()?.lowercase(Locale.ROOT) ?: return null
         if (mimeType.length !in 3..255) return null
-        val mimePattern = Regex("^[a-z0-9][a-z0-9!#\\$&^_.+-]{0,126}/[a-z0-9][a-z0-9!#\\$&^_.+-]{0,126}$")
+        val mimePattern = Regex("^[a-z0-9][a-z0-9!#$&^_.+-]{0,126}/[a-z0-9][a-z0-9!#$&^_.+-]{0,126}$")
         return mimeType.takeIf { mimePattern.matches(it) }
-    }
-    fun shouldPersistMetadata(privateMode: Boolean): Boolean = !privateMode^_.+-]{0,126}"
-        return mimeType.takeIf { Regex("^" + token + "/" + token + "$").matches(it) }
     }
 
     fun shouldPersistMetadata(privateMode: Boolean): Boolean = !privateMode
+
     fun isAllowedRestoredFile(file: File, expectedFilename: String, allowedRoots: List<File>, maxBytes: Long): Boolean =
         runCatching {
             val canonical = file.canonicalFile
