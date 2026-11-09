@@ -7,9 +7,16 @@ import java.util.Locale
 internal object DownloadSecurityPolicy {
     fun isAllowedUrl(rawUrl: String): Boolean {
         val uri = runCatching { URI(rawUrl) }.getOrNull() ?: return false
-        return uri.scheme?.lowercase(Locale.ROOT) in setOf("http", "https") &&
+        return uri.scheme?.lowercase(Locale.ROOT) == "https" &&
             !uri.host.isNullOrBlank() && uri.rawUserInfo == null
     }
+    fun normalizeMimeType(rawMimeType: String?): String? {
+        val mimeType = rawMimeType?.substringBefore(';')?.trim()?.lowercase(Locale.ROOT) ?: return null
+        if (mimeType.length !in 3..255) return null
+        val token = "[a-z0-9][a-z0-9!#    fun shouldPersistMetadata(privateMode: Boolean): Boolean = !privateMode^_.+-]{0,126}"
+        return mimeType.takeIf { Regex("^" + token + "/" + token + "$").matches(it) }
+    }
+
     fun shouldPersistMetadata(privateMode: Boolean): Boolean = !privateMode
     fun isAllowedRestoredFile(file: File, expectedFilename: String, allowedRoots: List<File>, maxBytes: Long): Boolean =
         runCatching {
