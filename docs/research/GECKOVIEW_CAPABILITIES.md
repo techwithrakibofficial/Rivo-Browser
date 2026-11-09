@@ -12,14 +12,14 @@ This note distinguishes capabilities exposed by the pinned engine from features 
 The pinned GeckoView generation includes `GeckoSession.getSessionPageExtractor()`, `SessionPageExtractor.getPageMetadata()`, and `getPageContent(ContentParams)`. The page metadata includes `isReaderable`; the extraction options can request boilerplate removal and plain text. These APIs were introduced before the pinned 159 release (GeckoView changelog v151).
 
 Rivo's first implementation:
-- Checks Gecko's `isReaderable` metadata before extraction.
+- Refuses pages marked `isGated`, then checks Gecko's `isReaderable` metadata before extraction.
 - Requests boilerplate removal and plain text.
 - Displays the extracted article in a native, theme-aware reader surface with a user-adjustable text size.
-- Caps extracted text at 250,000 characters to bound memory use.
+- Caps extracted text at 120,000 characters to bound memory use.
 - Does not inject JavaScript, modify the source page or persist extracted text.
 - Returns to the original live page when the reader surface is closed.
 
-This is article extraction, not a promise that every page can be converted. Paywalled, dynamic, unsupported or non-article pages can fail or return no readable content.
+This is article extraction, not a promise that every page can be converted. Gated/paywalled, dynamic, unsupported or non-article pages are not bypassed and can fail or return no readable content.
 
 ## QR scanning
 
