@@ -190,8 +190,8 @@ class BrowserController(context: Context) {
                         respond(false)
                         return
                     }
-                    val host = Uri.parse(origin).host ?: origin
-                    permissionPrompt = SitePermissionPrompt(tab.id, host, permission, privateMode, onShown, respond)
+                    // Preserve scheme and non-default port so users can distinguish full origins.
+                    permissionPrompt = SitePermissionPrompt(tab.id, origin, permission, privateMode, onShown, respond)
                 }
             }
         )
