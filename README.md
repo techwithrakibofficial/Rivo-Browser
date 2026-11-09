@@ -55,3 +55,13 @@ This validates CI for that exact commit only. It does not establish physical-dev
 - Private browsing does not hide traffic from websites, ISPs or network operators.
 - GeckoView remains the provisional MVP engine; final selection awaits controlled 3–4 GB device benchmarking.
 - Phase 2 and Phase 3 features have not started.
+
+## Account A feature work in progress (not yet in Main)
+
+The current Account A worker branch adds:
+- Native Reader Mode backed by GeckoView article extraction.
+- QR-only scanning through Google Code Scanner without requesting camera permission; scanned content requires user confirmation.
+- Transfer Studio search/filter and managed file actions.
+- Read-only Developer Mode diagnostics; remote debugging stays disabled.
+
+These changes are not part of Main until the worker PR passes CI and is merged. Google Code Scanner requires compatible Google Play services. Reader Mode is limited to pages GeckoView identifies as readerable. Transfer pause/resume/retry are not implemented.
