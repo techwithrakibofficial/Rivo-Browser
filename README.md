@@ -61,7 +61,7 @@ This validates CI for that exact commit only. It does not establish physical-dev
 The current Account A worker branch adds:
 - Native Reader Mode backed by GeckoView article extraction.
 - QR-only scanning through Google Code Scanner without requesting camera permission; scanned content requires user confirmation.
-- Transfer Studio search/filter and managed file actions.
+- Transfer Studio search/filter, live received-byte progress, best-effort cancellation and managed file actions.
 - Read-only Developer Mode diagnostics; remote debugging stays disabled.
 
 These changes are not part of Main until the worker PR passes CI and is merged. Google Code Scanner requires compatible Google Play services. Reader Mode is limited to pages GeckoView identifies as readerable. Transfer pause/resume/retry are not implemented.
