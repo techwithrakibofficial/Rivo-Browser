@@ -108,6 +108,18 @@ object GeckoSitePermissionPolicy {
         permission != GeckoSession.PermissionDelegate.PERMISSION_PERSISTENT_STORAGE
 }
 
+object GeckoAndroidPermissionPolicy {
+    fun shouldRequest(permissions: List<String>, secureOrigin: Boolean): Boolean {
+        val supported = setOf(
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO
+        )
+        return secureOrigin && permissions.isNotEmpty() && permissions.all { it in supported }
+    }
+}
+
 /** One GeckoSession per browser tab. */
 class GeckoBrowserTab(
     private val runtime: GeckoRuntime,
@@ -199,16 +211,8 @@ class GeckoBrowserTab(
                 callback: GeckoSession.PermissionDelegate.Callback
             ) {
                 val requested = permissions?.distinct().orEmpty()
-                val supported = setOf(
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.CAMERA,
-                    Manifest.permission.RECORD_AUDIO
-                )
                 if (session !== this@GeckoBrowserTab.session ||
-                    !isSecureOrigin(currentUrl) ||
-                    requested.isEmpty() ||
-                    requested.any { it !in supported }
+                    !GeckoAndroidPermissionPolicy.shouldRequest(requested, isSecureOrigin(currentUrl))
                 ) {
                     callback.reject()
                     return
