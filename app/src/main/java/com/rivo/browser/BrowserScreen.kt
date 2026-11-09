@@ -553,7 +553,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                                 }
                             }
                         }
-                        Text("Private permission records are not listed. Unsupported location, camera, microphone and persistent-storage capabilities remain denied.", style = MaterialTheme.typography.bodySmall)
+                        Text("Location, camera and microphone requests require HTTPS, Android runtime permission and explicit site consent. Private site grants are not persisted. Unsupported capabilities and persistent-storage grants remain denied.", style = MaterialTheme.typography.bodySmall)
                     }
                     BrowserPanel.APPEARANCE -> {
                         BrowserAppearance.values().forEach { appearance ->
