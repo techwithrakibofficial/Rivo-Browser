@@ -199,7 +199,7 @@ class BrowserController(context: Context) {
                     val devicePermissionMissing =
                         (cameraNeeded && appContext.checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) ||
                         (microphoneNeeded && appContext.checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
-                    if (devicePermissionMissing || permissionPrompt != null || tab.id !in tabs.map { it.id }) {
+                    if (devicePermissionMissing || permissionPrompt != null || tab.id != activeTabId || tab.id !in tabs.map { it.id }) {
                         respond(false)
                         return
                     }
