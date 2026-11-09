@@ -128,3 +128,14 @@ jobs:
           disable-animations: true
           emulator-boot-timeout: 600
           script: gradle --no-daemon -Privo.abiSplits=false :app:connectedDebugAndroidTest --stacktrace --info
+
+      - name: Upload Android instrumentation reports for diagnosis
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-instrumentation-reports
+          path: |
+            app/build/outputs/androidTest-results/connected/debug/
+            app/build/reports/androidTests/connected/debug/
+          if-no-files-found: ignore
+          retention-days: 7
