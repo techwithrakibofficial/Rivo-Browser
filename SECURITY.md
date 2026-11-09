@@ -36,3 +36,10 @@ OWASP MASVS is the assessment baseline for storage, cryptography, network, platf
 5. Dependency vulnerability/SBOM review.
 6. OWASP MASVS control-by-control source review and documented residual risks.
 7. Physical-device validation before release.
+
+## Automated supply-chain validation (proposed; PR CI pending)
+- `.github/workflows/osv-scanner-pr.yml` invokes the official OSV-Scanner reusable PR workflow on pull requests and merge queues; it is intended to report dependency vulnerabilities introduced by a change.
+- `.github/workflows/osv-scanner-scheduled.yml` invokes the official full OSV-Scanner workflow on pushes to Main, weekly, and manually.
+- `.github/workflows/source-sbom.yml` generates an SPDX JSON source SBOM and uploads it as a 14-day workflow artifact.
+- These workflows have been committed on a dedicated branch but have not yet run successfully. Do not report vulnerability-free status or a reviewed SBOM until their artifacts/results are inspected.
+- Coverage depends on dependency manifests and lockfiles recognized by OSV-Scanner/Syft. The repository currently does not contain committed Gradle dependency lockfiles; therefore a successful source scan/SBOM alone must not be interpreted as a complete, reproducible inventory of every resolved Gradle transitive dependency. Gradle dependency locking and checked-in lockfiles remain a follow-up requirement.
