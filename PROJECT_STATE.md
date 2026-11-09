@@ -124,3 +124,14 @@ Phase 1 — Functional Browser MVP stabilization and verification. Do not declar
 - PR #33 Main baseline CI #42563889346 passed all configured tasks including API 35 instrumentation and static APK/native ELF 16 KB alignment. No 16 KB runtime or physical-device claim.
 - PR #35 and #36 share BrowserController/BrowserScreen/GeckoBrowserTab. If PR #35 merges first, rebase and resolve PR #36 without overwriting Account A code.
 - Release remains NO-GO: current-head Android CI, device QA, 16 KB runtime, full resolved dependency advisory scan, lock/verification metadata, independent MASVS review and production signing remain open.
+
+
+## Final Account B CI checkpoint — 2026-11-09
+
+- PR #36 latest code head: 9113b9a0a48b6d3aa6cae6fd8fb192d0fddb41f8; 51 commits ahead / 0 behind Main; draft/open.
+- Exact-head OSV run #42572673279 completed successfully but reports no package sources/lockfiles; this is not a clean dependency scan.
+- Exact-head source SBOM run #42572672745 succeeded after retry using Syft v1.55.0; artifact size 2,937 bytes, source-level only.
+- Exact-head Gradle dependency graph run #42572672769 succeeded; artifact size 10,819 bytes. GitHub Dependency Graph is disabled in repository settings; no automated Dependency Review is available.
+- Exact-head Android CI #42572672741 remained in progress at Assemble shipping Rivo Browser at this checkpoint. Earlier attempts failed/cancelled during upstream HTTP 504 downloads; do not claim PR #36 build/tests passed until this run completes.
+- PR #33 Main baseline CI #42563889346 passed configured lint/JVM/instrumentation, benchmark packaging, minified AAB and static 16 KB APK/ELF alignment. This is not device runtime verification.
+- Current code includes private-tab restore snapshot regression and metadata migration instrumentation coverage. Device QA, 16 KB runtime, dependency locking/full OSV scan, independent MASVS review and production signing remain open.
