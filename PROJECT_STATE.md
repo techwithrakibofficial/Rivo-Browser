@@ -135,3 +135,15 @@ Phase 1 — Functional Browser MVP stabilization and verification. Do not declar
 - Exact-head Android CI #42572672741 remained in progress at Assemble shipping Rivo Browser at this checkpoint. Earlier attempts failed/cancelled during upstream HTTP 504 downloads; do not claim PR #36 build/tests passed until this run completes.
 - PR #33 Main baseline CI #42563889346 passed configured lint/JVM/instrumentation, benchmark packaging, minified AAB and static 16 KB APK/ELF alignment. This is not device runtime verification.
 - Current code includes private-tab restore snapshot regression and metadata migration instrumentation coverage. Device QA, 16 KB runtime, dependency locking/full OSV scan, independent MASVS review and production signing remain open.
+
+
+## PR #36 current candidate checkpoint — 2026-11-09
+
+- Canonical source remains `main`; all work is committed to `worker/account-b-security-qa-2026-11-09`. Main has not been modified or merged by this work.
+- PR #36 is open and Draft at the time of this checkpoint. Current candidate head is shown by the PR; this document must not be used instead of exact-head GitHub checks.
+- Candidate implementation covers GeckoView secure-origin site permissions (location/camera/microphone/notifications), encrypted Android app-level permission denials, normal site-permission inventory/reset, tracking-protection status, confirmation-gated Clear Browsing Data, private download file cleanup, HTTPS-only download policy and MIME normalization.
+- Five Gradle lockfiles are committed for app, engine-api, engine-gecko, engine-webview and engine-benchmark. OSV #42578249254 passed with no issues across 788 package instances; Source SBOM #42578248119 uploaded SPDX with 809 packages; Gradle Dependency Graph #42578248161 succeeded. GitHub Dependency Graph submission remains disabled in repository settings.
+- Android CI code-equivalent run #42576548217 passed assembleDebug, lint, app JVM tests, Gecko policy tests, benchmark APK/AAB builds, minified shipping AAB, static 16 KB alignment and QA artifact uploads. Instrumentation was cancelled while the emulator runner was being reconfigured; a fresh API 35 emulator run is required on the final documentation head.
+- PR #35 is still open and separate. Its changes overlap AndroidManifest.xml, BrowserController.kt, BrowserScreen.kt and GeckoBrowserTab.kt. No PR #35 changes were overwritten or cherry-picked. If #35 merges first, rebase #36 and manually preserve both implementations.
+- No physical-device validation, 16 KB runtime verification, independent MASVS certification or production signing is claimed. Production release remains NO-GO until those separate gates pass.
+- Next exact steps: complete the fresh Android CI/instrumentation run on the final docs commit; fix any failures; recheck mergeability; then mark PR #36 Ready for Review. Do not merge Main.

@@ -8,9 +8,9 @@ OWASP MASVS is the assessment baseline for storage, cryptography, network, platf
 - Per-session tracking protection.
 - No JavaScript-to-native bridge and no TLS certificate validation override.
 - HTTP/HTTPS URL handling; unsupported schemes resolve as search.
-- HTTP(S)-only confirmed downloads, filename sanitization, 250 MB per-file cap, temporary files, atomic finalization and app-specific storage.
+- HTTPS-only confirmed downloads, bounded MIME normalization, filename sanitization, 250 MB per-file cap, temporary files, atomic finalization and app-specific storage.
 - Scoped, non-exported FileProvider for explicit open/share.
-- Android backup disabled, cleartext traffic disabled and no broad storage/camera/microphone/location permissions.
+- Android backup disabled and cleartext traffic disabled; camera, microphone and coarse/fine location runtime permissions are requested only for secure, user-initiated site requests. Camera and microphone hardware features are optional.
 - Browser metadata uses AES-256-GCM with an Android Keystore key; JVM/source-level safeguards exist. On-device Keystore behavior still needs instrumentation verification.
 - No account, telemetry or mandatory backend.
 
@@ -21,10 +21,10 @@ OWASP MASVS is the assessment baseline for storage, cryptography, network, platf
 
 ## Known limitations
 - Private browsing does not hide network activity from websites, ISPs, DNS resolvers or network operators.
-- User-saved downloaded file contents are not encrypted by the metadata cipher and are not automatically erased by private mode.
+- Normal downloaded file contents are not encrypted by the metadata cipher. Private downloads use a dedicated app-private directory and are deleted when their private tab/controller closes and during next-process startup cleanup.
 - Hardware-backed/StrongBox Keystore is not guaranteed.
 - Tracking protection does not justify claims of complete tracker blocking, tracker counts or anonymity.
-- Unsupported hardware/media permissions remain denied unless explicitly and safely supported.
+- Unsupported screen-capture, persistent-storage and unknown permission capabilities remain default-denied.
 - WebExtensions support is not established.
 - No MASVS certification is claimed.
 
@@ -85,7 +85,7 @@ Assessment scope: current Main plus Account B PR #36 candidate. This is a develo
 - SPDX source SBOM is source-level and does not prove a complete resolved dependency inventory.
 - Added .github/workflows/gradle-dependency-graph.yml: PRs generate a resolved Gradle dependency graph artifact without write permission; Main pushes/manual runs submit the resolved graph to GitHub Dependency Graph.
 - Added .github/workflows/gradle-dependency-graph.yml to generate resolved Gradle dependency graph artifacts for PRs and Main pushes using read-only permissions. Repository Dependency Graph is disabled in repository settings, so GitHub Dependency Review/submission is not available; the workflow intentionally does not request write permissions or fail CI on that setting. The owner must enable the repository feature before automated GitHub advisory review can be restored.
-- No Gradle lockfiles/checksum verification metadata are currently committed. Dependency graph submission improves resolved transitive visibility but is not equivalent to dependency locking or reproducible verification.
+- Five Gradle module lockfiles are committed for app, engine-api, engine-gecko, engine-webview and engine-benchmark. Lockfiles improve reproducibility but do not replace checksum verification or independent build provenance.
 
 
 ## PR #36 follow-up hardening — 2026-11-09
@@ -95,3 +95,15 @@ Assessment scope: current Main plus Account B PR #36 candidate. This is a develo
 - Clear Browsing Data now closes active Gecko sessions before requesting GeckoView `SITE_DATA` and `SITE_SETTINGS` clearing, then clears local history and download metadata. Bookmarks and user-downloaded file bytes are intentionally retained. The UI requires explicit confirmation.
 - Gradle dependency locking is enabled for all project configurations. The PR OSV workflow resolves each Android module's lockfiles, scans the resolved lockfiles, uploads them, and commits generated lockfiles to this PR branch. Exact-head workflow results must pass before claiming dependency coverage.
 - Runtime behavior for Gecko data clearing and physical permission flows still requires emulator/device verification; source implementation alone is not runtime evidence.
+
+
+## PR #36 candidate security checkpoint — 2026-11-09 (not Main-integrated)
+
+- GeckoView site permissions: HTTPS-origin geolocation, camera and microphone requests are mediated through Android runtime permissions plus explicit site consent. Notifications retain site-level consent and Android notification permission coordination. Background-tab requests and unsupported capabilities are denied.
+- Android app-level camera/microphone/location denials are stored encrypted through BrowserStorage and Android Keystore AES-256-GCM. If the user later grants the Android permission in Settings, the saved denial is cleared when the next request is observed.
+- Privacy Intelligence Center includes normal-mode site permission inventory/reset, actual GeckoView tracking-protection status, private-session boundaries and confirmation-gated Clear Browsing Data. Clearing closes Gecko sessions before SITE_DATA/SITE_SETTINGS clearing, then clears local history and download metadata; bookmarks and normal downloaded files are retained.
+- Private downloads are kept outside the normal download index in `.rivo-private`; they are deleted on private-tab close, controller disposal and next-process startup. In-progress temporary files retain startup cleanup.
+- Download policy is HTTPS-only; malformed MIME values fall back to `application/octet-stream`; canonical app-specific restore roots and the 250 MB cap remain enforced.
+- Supply chain: five Gradle lockfiles are committed. OSV run #42578249254 scanned 788 resolved package instances and reported “No issues found”. Source SBOM run #42578248119 uploaded SPDX with 809 packages. Gradle Dependency Graph run #42578248161 succeeded; GitHub Dependency Graph submission remains disabled by repository settings.
+- Android CI: build, lint, JVM tests, Gecko policy tests, benchmark APK/AAB builds, minified shipping AAB, static 16 KB alignment and artifact uploads passed on the code-equivalent run #42576548217. Its emulator instrumentation step was cancelled while the emulator workflow was being hardened; the current candidate must pass a fresh API 35 emulator run before Ready for Review. No physical-device test or MASVS certification is claimed.
+- PR #35 remains separate. Overlap reviewed in AndroidManifest.xml, BrowserController.kt, BrowserScreen.kt and GeckoBrowserTab.kt; no PR #35 changes were cherry-picked or overwritten. Coordinate merge order and manually preserve both branches if PR #35 lands first.

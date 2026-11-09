@@ -62,3 +62,13 @@
 - Added a confirmation-gated Clear Browsing Data action that closes Gecko sessions before clearing Gecko site data/site settings and local history/download metadata while retaining bookmarks and downloaded files.
 - Enabled Gradle dependency locking and added a PR-specific workflow to resolve, scan, upload and commit module lockfiles for OSV vulnerability coverage.
 - Exact-head CI, lockfile generation, OSV scan and emulator/device validation remain pending; no completion claim is made until those checks finish.
+
+
+## 2026-11-09 — PR #36 security and supply-chain candidate (not Main-integrated)
+
+- Added secure-origin GeckoView geolocation, camera and microphone permission mediation with Android runtime coordination, per-site consent, background-tab denial and encrypted app-level denial persistence; unsupported permission capabilities remain default-denied.
+- Added Privacy Intelligence Center site-permission inventory/reset and Clear Browsing Data orchestration that closes Gecko sessions before clearing site data/settings and local history/download metadata.
+- Isolated private downloads in a dedicated app-private directory and delete them on private-tab close, browser-controller disposal and next-process startup; private metadata is not persisted.
+- Enforced HTTPS-only download URLs, bounded MIME normalization with octet-stream fallback, and retained canonical restore-path checks, atomic staging and the 250 MB limit.
+- Enabled Gradle dependency locking and committed five module lockfiles. OSV scanned 788 resolved package instances with no issues; SPDX source SBOM uploaded with 809 packages; Gradle dependency graph artifact generated successfully.
+- Android CI code-equivalent run passed build/lint/JVM/Gecko tests, benchmark builds, minified QA AAB and static 16 KB alignment. Emulator instrumentation is being rerun with KVM-enabled AOSP API 35 configuration; physical-device validation is not claimed.

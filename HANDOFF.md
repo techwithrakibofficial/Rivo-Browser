@@ -109,3 +109,14 @@ PR #23 and PR #24 are integrated. PR #27 (`test(tabs): expand Tab Universe searc
 - GitHub Dependency Graph remains disabled in repository settings; no automated Dependency Review. Enable this setting before restoring submission/review workflows.
 - PR #35 overlap on BrowserController/BrowserScreen/GeckoBrowserTab requires manual rebase/preservation if Account A merges first. PR #10/#21 have comments linking this consolidation PR and remain open until acceptance.
 - Production remains NO-GO pending exact-head CI, device tests, 16 KB runtime, full dependency vulnerability scan, independent MASVS review and signing.
+
+
+## PR #36 current handoff — 2026-11-09
+
+- Work branch: `worker/account-b-security-qa-2026-11-09`; PR #36 remains open/Draft until final exact-head checks pass. Main was not modified or merged.
+- Implemented candidate scope: secure-origin Gecko site permission mediation (location/camera/microphone/notifications), encrypted Android runtime-denial state, Privacy Intelligence Center site permission inventory/reset and tracking status, confirmation-gated Clear Browsing Data, private download cleanup on tab close/controller disposal/process restart, HTTPS-only downloads and MIME normalization.
+- Supply-chain state: five Gradle lockfiles committed; OSV #42578249254 scanned 788 package instances and found no issues; SPDX SBOM #42578248119 contains 809 packages; Gradle Dependency Graph #42578248161 succeeded. GitHub Dependency Graph submission is disabled in repository settings.
+- Android CI code-equivalent run #42576548217 passed build, lint, JVM tests, Gecko policy tests, benchmark builds, minified AAB, static 16 KB alignment and artifact uploads. Emulator instrumentation was cancelled during runner reconfiguration; a fresh run with KVM setup, AOSP API 35 and bounded timeout must pass before marking Ready.
+- PR #35 is separate and open. Overlapping files: AndroidManifest.xml, BrowserController.kt, BrowserScreen.kt and GeckoBrowserTab.kt. Do not overwrite or cherry-pick its Reader Mode/QR/Transfer Studio/Developer Mode changes. If #35 merges first, rebase #36 and resolve these overlaps manually; regenerate lockfiles after any dependency change.
+- Physical-device permission flow, private-session process-death, 16 KB runtime and independent MASVS assessment remain unverified. Do not claim device validation or production release readiness.
+- Next: inspect all checks on the final PR #36 head, resolve any failures, verify mergeability, update PR checklist, then mark Ready for Review. Never merge to Main without owner approval.

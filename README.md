@@ -9,12 +9,13 @@ A free, privacy-focused Android browser targeting low- and mid-range devices.
 - URL/search omnibox, back, forward, reload and stop; Android system Back follows page history when available.
 - Multiple tabs; Advanced Tab Universe adds title/URL search, Normal/Private/Active filters and active-first/title/type sorting; semantic filter chips scroll horizontally; tab search has a persistent label and active/close actions expose TalkBack semantics; inactive Gecko sessions are deactivated; Activity backgrounding deactivates and unfocuses all sessions; current cap is eight.
 - Regular HTTP(S) tabs are persisted/restored after process recreation; private tabs are never persisted.
-- Native private sessions; private tabs do not enter app-side history or bookmarks.
+- Native private sessions; private tabs do not enter app-side history or bookmarks. PR #36 candidate also deletes private download files on tab close/controller disposal and next-process startup.
 - Tracking protection enabled per session.
-- Site/device/media permissions denied until proper permission mediation is implemented; HTTPS notification and persistent-storage requests have explicit Allow/Deny prompts.
+- PR #36 candidate adds secure-origin geolocation/camera/microphone mediation with Android runtime permissions and explicit per-site consent; notification consent is coordinated with Android 13+ permission. Unsupported capabilities remain default-denied.
 - Local bookmarks and bounded history.
+- PR #36 candidate adds a confirmation-gated Clear Browsing Data action for Gecko site data/settings and local history/download metadata; bookmarks and normal downloaded files are retained.
 - Bookmarks, history, restorable-tab metadata and download metadata are encrypted at rest with Android Keystore AES-256-GCM; legacy plaintext is migrated on read.
-- Downloads saved to app-specific storage (250 MB per file), with Open/Share actions; metadata is persisted and restored after path validation.
+- PR #36 candidate hardens downloads to HTTPS-only, normalizes MIME metadata, enforces filename/path and 250 MB limits, and keeps private download files in a cleanup-only directory.
 - Dark, Light and Premium Glass themes with a secondary Quick Appearance Picker.
 
 ## Build environment
@@ -55,3 +56,7 @@ This validates CI for that exact commit only. It does not establish physical-dev
 - Private browsing does not hide traffic from websites, ISPs or network operators.
 - GeckoView remains the provisional MVP engine; final selection awaits controlled 3–4 GB device benchmarking.
 - Phase 2 and Phase 3 features have not started.
+
+## PR #36 candidate (not yet Main-integrated)
+
+The security/QA candidate adds GeckoView site-permission mediation, encrypted Android permission-denial state, private-download cleanup, Clear Browsing Data, HTTPS-only downloads and resolved dependency lockfiles. Check PR #36's latest GitHub Actions results for exact-head validation; source implementation and CI artifacts do not replace physical-device QA or independent security certification.

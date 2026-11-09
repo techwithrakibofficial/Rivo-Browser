@@ -90,7 +90,7 @@ Production release remains NO-GO until current Main CI is green, security/instru
 - CI now runs :engine-gecko:testDebugUnitTest in addition to app JVM tests.
 - PR and Main builds generate a resolved Gradle dependency graph artifact with read-only permissions. GitHub Dependency Review was tested but reports repository Dependency Graph is disabled; its workflow was removed to avoid a permanent failing check. Enable Dependency Graph in repository settings before restoring automated advisory review/submission.
 - PR #36 exact-head CI/OSV/SBOM results must be rechecked after the last source/doc commit. Earlier runs on previous SHAs are not evidence for the final head.
-- OSV Scanner completed successfully on candidate head e413dfe, but its logs state “No package sources found” and “No lockfiles found”. Do not interpret this as a clean dependency vulnerability scan; the resolved Gradle graph artifact is a separate visibility improvement and still needs automated advisory scanning.
+- Historical OSV runs without lockfiles were not a clean dependency scan. PR #36 now commits five resolved Gradle lockfiles and its latest OSV lockfile scan reports no issues across 788 package instances.
 - Physical-device notification grant/deny/click, permission inventory/reset, private-tab process-death, and 16 KB runtime are still required.
 
 - Added RestorableTabPolicyTest.processRestorationSnapshotExcludesPrivateTabsAndUnsafeUrls: verifies a process-restoration snapshot excludes private tabs and unsafe URLs, preserves duplicate normal tabs, and does not restore a private selected-tab ID.
@@ -102,3 +102,13 @@ Production release remains NO-GO until current Main CI is green, security/instru
 - Clear Browsing Data implementation closes active Gecko sessions before clearing Gecko site data/site settings, then clears local history and download metadata. Verify cookies, DOM storage, caches and permissions are absent after clearing; confirm bookmarks and actual download files remain.
 - OSV workflow now resolves Gradle dependency locks for app, engine-api, engine-webview, engine-gecko and engine-benchmark, validates lockfile contents, scans them with OSV-Scanner and commits lockfiles to PR #36. Exact-head OSV result is pending.
 - Latest Android CI must complete all build, lint, JVM, release bundle, static 16 KB and API 35 instrumentation steps before this candidate can be marked CI-verified. Physical-device permission and privacy checks remain separate acceptance items.
+
+
+## PR #36 current verification checkpoint — 2026-11-09
+
+- Source tests added/expanded: HTTPS-only URL policy, MIME normalization/rejection, private download metadata exclusion, private download directory cleanup, Gecko secure-origin/runtime permission policy, location site-permission policy and encrypted Android permission-denial persistence.
+- Existing instrumentation coverage includes AES-256-GCM fresh ciphertext/nonce behavior, authentication-tag tamper rejection, truncated payload rejection, missing-key fail-closed behavior, legacy migration, DataStore corruption preservation and encrypted metadata round trips.
+- Five module lockfiles are committed and verified non-empty. OSV run #42578249254 scanned app (284), engine-api (101), engine-gecko (152), engine-webview (101) and engine-benchmark (150): 788 package instances, no issues found.
+- Source SBOM run #42578248119 uploaded an SPDX artifact containing 809 packages. Gradle Dependency Graph run #42578248161 succeeded; GitHub Dependency Graph submission is unavailable while the repository setting is disabled.
+- The latest full Android run on the code-equivalent head passed assemble, lint, JVM tests, Gecko policy tests, benchmark builds, minified AAB, static 16 KB alignment and all configured artifact uploads. Instrumentation was cancelled during emulator-runner reconfiguration, not reported as passed. A fresh run with KVM setup, AOSP API 35 image and a bounded emulator timeout is required on the final documentation commit.
+- Physical-device camera/microphone/location grant/deny/revoke, private process-death behavior, and 16 KB runtime behavior remain separate manual QA; no physical-device validation is claimed.
