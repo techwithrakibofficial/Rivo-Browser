@@ -318,7 +318,7 @@ class BrowserController(context: Context) {
 
     fun showQrScanResult(value: String?) {
         val cleaned = value.orEmpty()
-            .filter { it == '\\n' || it == '\\t' || it >= ' ' }
+            .filter { it == '\n' || it == '\t' || it >= ' ' }
             .trim()
         if (cleaned.isBlank()) {
             notice = "The QR code did not contain readable text."
