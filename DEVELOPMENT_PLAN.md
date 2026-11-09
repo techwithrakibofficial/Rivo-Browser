@@ -88,3 +88,8 @@ Branch `worker/account-a-core-features-2026-11-09`, based on Main `0d77826e65526
 - Extensions: official GeckoView APIs support built-in extensions and Mozilla-signed XPI installs, but no end-user manager/store is implemented. See `docs/research/GECKOVIEW_CAPABILITIES.md`.
 
 All four UI increments require fresh branch CI, device testing, accessibility review and merge before they count as Main-integrated. Advanced Tab Universe is preserved unchanged.
+
+
+### Account A PR #35 follow-up
+
+Transfer Studio now includes received-byte progress and best-effort cancellation via stream close, in addition to search/filter and managed-file actions. It deliberately does not claim pause/resume/retry because the current Gecko response stream is not resumable. The PR's fresh CI and device tests must pass before these branch features count as Main-integrated.
