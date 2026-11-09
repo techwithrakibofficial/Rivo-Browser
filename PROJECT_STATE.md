@@ -1,14 +1,14 @@
 # Project State
 
-Updated: 2026-11-09 (Tab Universe accessibility merge)
+Updated: 2026-11-09 (Tab Universe policy regression tests merged)
 
 ## Canonical repository state
 - Repository: https://github.com/techwithrakibofficial/Rivo-Browser
 - Default branch: `main`
-- Main HEAD after PR #24 merge: `350d4f3cabcaeea63f5860cffb5669c4e0cd3bc5`
+- Main HEAD after PR #27 merge: `ad607a7a97f9e9bce8cd57a206b2a438e6003f20`
 - Latest commit: `fix(tabs): improve Tab Universe accessibility`
 - The earlier checkpoint `84303588c2560db55bfb7ae2081d8f714be532e7` is no longer current.
-- PR #23 head passed CI #293; PR #24 head `4e1a404b50b96d17388fd6839068f9622fb02804` passed CI run [#300](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42561554513), including assembleDebug, lintDebug, JVM unit tests, minified bundleRelease, size reports and QA artifact uploads. PR #24 merged as `350d4f3...`; no push-triggered workflow result for the merge SHA has been returned.
+- PR #23 head passed CI #293; PR #24 head `4e1a404b50b96d17388fd6839068f9622fb02804` passed CI run [#300](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42561554513), including assembleDebug, lintDebug, JVM unit tests, minified bundleRelease, size reports and QA artifact uploads. PR #24 merged as `350d4f3...`; PR #27 adds two Tab Universe search/filter regression tests and merged as `ad607a7...` after CI #306 passed all configured steps. No push-triggered workflow result for the #27 merge SHA has been returned.
 
 ## Open pull requests observed
 - PR #24 — Tab Universe accessibility/narrow-layout follow-up; merged to Main as `350d4f3...` after CI #300 passed.
@@ -19,6 +19,7 @@ Updated: 2026-11-09 (Tab Universe accessibility merge)
 - Branch/PR status is a snapshot from this audit and may change.
 
 ## Implemented in Main source (not equivalent to device-verified)
+- Tab Universe policy regression tests: trimmed search combined with Normal/Private filter and empty search-result behavior; PR #27 CI #306 passed all configured build, lint, JVM test, minified release bundle, size-report and QA artifact steps before merge.
 - Process-scoped GeckoRuntime and per-tab GeckoSession architecture.
 - Navigation, URL/search omnibox, back/forward/reload/stop and Gecko-reported connection security.
 - Up to eight tabs; native Gecko private sessions; private tabs excluded from app-side history/bookmarks/restoration.
@@ -38,7 +39,7 @@ Updated: 2026-11-09 (Tab Universe accessibility merge)
 - Privacy Intelligence Center, fail-closed missing-key decryption, private-download metadata exclusion, download validation and Keystore instrumentation: PR #21 (stacked on #10).
 
 ## Known release blockers
-1. Verify post-merge Main CI for `350d4f3...` when available; PR-head CI #300 passed all configured jobs.
+1. Verify push-triggered Main CI for `ad607a7...` when available; PR-head CI #306 passed all configured jobs.
 2. PR #10 is 6 commits behind current Main and reports mergeable=false; resolve/rebase before integration.
 3. PR #20 is 4 commits behind current Main and reports mergeable=false; reconcile conflicts, rerun CI on the rebased head and review API 35 instrumentation/16 KB static/runtime evidence.
 4. PR #21 depends on PR #10 and needs rebase plus fresh CI.
