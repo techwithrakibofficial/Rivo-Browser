@@ -242,6 +242,30 @@ class LocalDataCipherInstrumentedTest {
     }
 
     @Test
+    fun ambiguousLegacyDownloadIndexIsClearedButFilesRemainAndNewWritesSurvive() = runBlocking {
+        val fixture = newFixture()
+        val cipher = LocalDataCipher(keyAlias)
+        val key = stringPreferencesKey("downloads_json")
+        val savedFile = File(context.cacheDir, "legacy-download-${UUID.randomUUID()}.bin")
+            .apply { writeBytes(byteArrayOf(1, 2, 3, 4)) }
+        temporaryFiles.add(savedFile)
+        val legacy = cipher.encrypt(
+            """[{"filename":"${savedFile.name}","mimeType":"application/octet-stream","path":"${savedFile.absolutePath}"}]"""
+        )
+        fixture.dataStore.edit { it[key] = legacy }
+        val storage = BrowserStorage(fixture.dataStore, cipher, SensitiveWriteGuard())
+
+        assertTrue(storage.loadDownloads().isEmpty())
+        assertTrue("Migration must not delete user file bytes", savedFile.exists())
+        assertTrue(fixture.dataStore.data.first()[key].orEmpty().startsWith("enc:v1:"))
+
+        val newRecord = SavedDownload("new.bin", "application/octet-stream", "/app/downloads/new.bin")
+        storage.saveDownloads(listOf(newRecord))
+        assertEquals(listOf(newRecord), storage.loadDownloads())
+        assertTrue(savedFile.exists())
+    }
+
+    @Test
     fun unsafeDownloadMetadataIsRejectedWithoutReplacingItsRecord() = runBlocking {
         val fixture = newFixture()
         val cipher = LocalDataCipher(keyAlias)
