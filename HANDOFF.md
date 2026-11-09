@@ -53,3 +53,14 @@ Updated: 2026-11-09 — current integration divergence audit
 
 ## Session status
 PR #23 and PR #24 are integrated. PR #27 (`test(tabs): expand Tab Universe search regression coverage`) passed CI #306 on its PR head and merged as `ad607a7a97f9e9bce8cd57a206b2a438e6003f20`. The two new JVM policy regressions are now in Main. Post-merge Main CI and physical-device verification remain open.
+
+
+## Account A continuation — 2026-11-09
+
+- Re-inspected latest Main before starting: `0d77826e655267c671498334c11ffad8d1dd5b14` (PR #33 security integration and PR #34 supply-chain automation are merged).
+- Created isolated branch `worker/account-a-core-features-2026-11-09`; no direct Main writes.
+- Added GeckoView page extraction for native Reader Mode, QR-only Google Code Scanner integration without CAMERA permission, Transfer Studio search/filter and managed-file actions, and read-only Developer Mode diagnostics.
+- Added unit coverage for transfer filtering and QR payload sanitation.
+- Added `docs/research/GECKOVIEW_CAPABILITIES.md` with verified reader extraction, WebExtensions, QR scanner and developer-tool boundaries.
+- No CI or device test result is claimed yet. Create/review the worker PR only after inspecting fresh CI; physical-device QR, reader readability, transfer file deletion, TalkBack and narrow-screen checks remain.
+- Open PR #10 and #21 still need Account B integration/review; this branch preserves their existing permission/download code and may require conflict resolution when those changes are integrated.
