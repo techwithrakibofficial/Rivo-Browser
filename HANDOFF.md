@@ -62,3 +62,14 @@ PR #23 and PR #24 are integrated. PR #27 (`test(tabs): expand Tab Universe searc
 - Confirm the latest PR head has green Android CI, OSV scan and source SBOM. The first Android CI run was cancelled by subsequent pushes and is not evidence of success.
 - Do not merge while checks are pending or failing. Do not claim physical device, 16 KB runtime or production signing verification.
 - PR #10 and #21 remain open historical branches; PR #36 is the current Main-based security integration candidate.
+
+
+## Account B security QA continuation — 2026-11-09
+
+- Current candidate: PR #36, branch worker/account-b-security-qa-2026-11-09, based on Main 0d77826e655267c671498334c11ffad8d1dd5b14; branch was 6 commits ahead and 0 behind at review.
+- Source review confirmed Android Keystore AES-256-GCM, fail-closed encrypted metadata, cleartext disabled, scoped non-exported FileProvider, and API 35 instrumentation suite on Main.
+- Found and fixed a download metadata migration ordering defect: saveDownloads now sets the v2 migration marker in the same DataStore transaction as writing the new-format encrypted list.
+- Added private/insecure-origin notification suppression and policy tests. CI now runs the engine Gecko policy unit tests.
+- Added Gradle Dependency Submission workflow: PR graph artifact only (read permission); Main push/manual graph submission (contents write). This complements OSV and source SBOM; it does not create lockfiles.
+- Do not merge until latest PR #36 head has green Android CI, OSV scan and source SBOM and a code review. Earlier workflow runs on older SHAs do not qualify.
+- Device validation, 16 KB runtime, dependency lock/verification metadata, full MASVS independent assessment and production signing remain release gates.
