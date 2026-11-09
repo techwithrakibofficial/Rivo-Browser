@@ -79,3 +79,14 @@ Production release remains NO-GO until current Main CI is green, security/instru
 - Required candidate CI: assembleDebug, lintDebug, testDebugUnitTest, benchmark APK/AAB builds, minified app bundle, static 16 KB APK/ELF alignment, API 35 connected instrumentation.
 - Required manual checks: HTTPS permission grant/deny, notification runtime permission/channel/delivery/click, private notification denial, permission reset/read-back, private tab close/process death, download path/metadata migration, and actual 16 KB device runtime.
 - Production release remains NO-GO until current-head CI, device QA, dependency review and signing verification are complete.
+
+
+## Account B security candidate tests — PR #36
+
+- DownloadSecurityPolicyTest covers HTTP(S)-only URL acceptance, host requirement, user-info rejection, private metadata policy and canonical restored-file root/size constraints.
+- GeckoSitePermissionPolicyTest covers HTTPS-only mediated permission prompts, unsupported capability default-deny, private notification denial, private/prompt permission inventory exclusion and non-revocable persistent-storage policy.
+- WebNotificationPolicyTest covers normal-mode HTTPS-only Android notification display and rejects private, HTTP, file, user-info and malformed sources.
+- LocalDataCipherInstrumentedTest covers AES-256-GCM round-trip/randomized ciphertext, tampering, truncated payload, missing-key no-regeneration, DataStore corruption, migration and FileProvider scope. Added a regression for ambiguous legacy download-index migration and preservation of actual downloaded files/new metadata writes.
+- CI now runs :engine-gecko:testDebugUnitTest in addition to app JVM tests.
+- PR #36 exact-head CI/OSV/SBOM results must be rechecked after the last source/doc commit. Earlier runs on previous SHAs are not evidence for the final head.
+- Physical-device notification grant/deny/click, permission inventory/reset, private-tab process-death, and 16 KB runtime are still required.
