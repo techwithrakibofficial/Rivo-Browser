@@ -81,6 +81,7 @@ class BrowserController(context: Context) {
         private set
     private var pendingAndroidPermissionResponse: ((Boolean) -> Unit)? = null
     private var awaitingAndroidPermissionResult = false
+    private val deniedAndroidPermissions = mutableSetOf<String>()
 
     var activeTabId by mutableStateOf(0L)
         private set
@@ -106,6 +107,7 @@ class BrowserController(context: Context) {
             try {
                 bookmarks.addAll(storage.loadBookmarks())
                 history.addAll(storage.loadHistory())
+                deniedAndroidPermissions.addAll(storage.loadDeniedAndroidPermissions())
                 cleanupInterruptedDownloads()
                 restoreDownloads()
                 val restoredTabs = storage.loadOpenTabs()
@@ -215,22 +217,19 @@ class BrowserController(context: Context) {
                         android.Manifest.permission.CAMERA,
                         android.Manifest.permission.RECORD_AUDIO
                     )
-                    if (requested.isEmpty() || requested.any { it !in supported } ||
+                    if (tab.id != activeTabId || requested.isEmpty() || requested.any { it !in supported } ||
                         pendingAndroidPermissionResponse != null
                     ) {
                         respond(false)
                         return
                     }
-                    val alreadyGranted = requested.all { permission ->
-                        if (permission == android.Manifest.permission.ACCESS_COARSE_LOCATION ||
-                            permission == android.Manifest.permission.ACCESS_FINE_LOCATION
-                        ) {
-                            appContext.checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-                                appContext.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                        } else {
-                            appContext.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
-                        }
+                    val newlyGranted = requested.filter(::hasAndroidPermission).toSet()
+                    if (deniedAndroidPermissions.removeAll(newlyGranted)) persistDeniedAndroidPermissions()
+                    if (requested.any { it in deniedAndroidPermissions && !hasAndroidPermission(it) }) {
+                        respond(false)
+                        return
                     }
+                    val alreadyGranted = requested.all(::hasAndroidPermission)
                     if (alreadyGranted) {
                         respond(true)
                     } else {
@@ -509,8 +508,32 @@ class BrowserController(context: Context) {
                 appContext.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
         }
         val granted = locationGranted && otherPermissionsGranted
+        if (granted) {
+            deniedAndroidPermissions.removeAll(requested.toSet())
+        } else {
+            requested.filterNot(::hasAndroidPermission).forEach(deniedAndroidPermissions::add)
+        }
         respond(granted)
-        if (!granted) notice = "Android device permission was denied."
+        persistDeniedAndroidPermissions()
+        if (!granted) notice = "Android device permission was denied for this app; future site requests will be blocked until the permission is enabled in Android Settings."
+    }
+
+    private fun hasAndroidPermission(permission: String): Boolean =
+        if (permission == android.Manifest.permission.ACCESS_COARSE_LOCATION ||
+            permission == android.Manifest.permission.ACCESS_FINE_LOCATION
+        ) {
+            appContext.checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                appContext.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        } else {
+            appContext.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
+        }
+
+    private fun persistDeniedAndroidPermissions() {
+        val snapshot = deniedAndroidPermissions.toSet()
+        scope.launch {
+            runCatching { storage.saveDeniedAndroidPermissions(snapshot) }
+                .onFailure { notice = "Android permission denial could not be saved securely." }
+        }
     }
 
     fun beginNotificationPermissionRequest() {
