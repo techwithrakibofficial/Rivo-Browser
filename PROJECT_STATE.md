@@ -97,3 +97,17 @@ Phase 1 — Functional Browser MVP stabilization and verification. Do not declar
 - Source-level MASVS assessment and residual risks are recorded in SECURITY.md. This is not certification or independent penetration testing.
 - Current PR #36 CI is pending/retriggered after the latest code and docs changes. No current-head green CI is claimed yet.
 - Release remains NO-GO pending current-head CI, device QA, 16 KB runtime, dependency verification/lockfiles, MASVS assessment completion and production signing.
+
+
+## Account B final checkpoint — 2026-11-09
+
+- PR #36 current branch: worker/account-b-security-qa-2026-11-09; latest source/documentation commit 93b035aba55cb47f1f32550e4996b5508a559b3a; based on Main 0d77826e655267c671498334c11ffad8d1dd5b14; 42 commits ahead, 0 behind at the latest comparison.
+- PR #36 is open and draft. It contains the current Main-based integration of PR #10 site permissions and PR #21 privacy/download security work. Main remains untouched.
+- Added notification privacy policy and unit tests; full-origin permission prompt display; atomic download-metadata migration marker fix; API 35 migration regression; and private-tab process-restoration snapshot regression.
+- PR #36 OSV scan succeeded but explicitly found no package sources/lockfiles. Do not call this a clean dependency scan.
+- PR #36 source SBOM run #42571406272 succeeded and uploaded a 2,941-byte SPDX source SBOM. It is not a resolved transitive dependency SBOM.
+- PR #36 Gradle dependency graph run #42571406249 succeeded and uploaded a 10,829-byte resolved dependency graph artifact. GitHub Dependency Graph is disabled in repository settings; Dependency Review workflow was removed after it failed for this setting. Owner must enable the setting before advisory review/submission can be restored.
+- PR #36 Android CI run #42571406314 first failed because Maven redirected Kotlin compiler artifact download returned HTTP 504. A retry was interrupted by subsequent code/test updates; current exact-head CI must be checked again.
+- PR #33 Main baseline CI #42563889346 passed all configured tasks including Android lint/JVM tests, benchmark APK/AAB packaging, minified AAB, static APK/ELF 16 KB alignment and API 35 security instrumentation. This is not physical-device or 16 KB runtime evidence.
+- PR #35 Account A and PR #36 both touch BrowserController/BrowserScreen/GeckoBrowserTab. If #35 merges first, rebase #36 onto Main and manually preserve both changes before merge.
+- Release remains NO-GO: no device QA, 16 KB runtime, dependency lockfiles/verification metadata, full advisory scan, independent MASVS assessment or production signing.
