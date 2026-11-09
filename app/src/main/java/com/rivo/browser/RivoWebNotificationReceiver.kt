@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.app.NotificationManager
+import androidx.core.content.IntentCompat
 import org.mozilla.geckoview.WebNotification
 
 /**
@@ -12,7 +13,7 @@ import org.mozilla.geckoview.WebNotification
  */
 class RivoWebNotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        val notification = intent.getParcelableExtra(EXTRA_NOTIFICATION) as? WebNotification ?: return
+        val notification = IntentCompat.getParcelableExtra(intent, EXTRA_NOTIFICATION, WebNotification::class.java) ?: return
         runCatching {
             notification.click()
             notification.dismiss()
