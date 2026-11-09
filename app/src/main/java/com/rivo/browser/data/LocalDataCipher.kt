@@ -18,7 +18,7 @@ import javax.crypto.spec.GCMParameterSpec
  * Encrypted payload failures are deliberately propagated. Returning an empty string here
  * would make callers treat unreadable saved data as an empty collection and overwrite it.
  */
-internal class LocalDataCipher {
+internal class LocalDataCipher(private val keyAlias: String = DEFAULT_KEY_ALIAS) {
     fun encrypt(plainText: String): String {
         val cipher = Cipher.getInstance(TRANSFORMATION)
         cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKey())
@@ -43,7 +43,7 @@ internal class LocalDataCipher {
             val iv = ByteArray(GCM_IV_BYTES).also(buffer::get)
             val encrypted = ByteArray(buffer.remaining()).also(buffer::get)
             val cipher = Cipher.getInstance(TRANSFORMATION)
-            cipher.init(Cipher.DECRYPT_MODE, getOrCreateKey(), GCMParameterSpec(GCM_TAG_BITS, iv))
+            cipher.init(Cipher.DECRYPT_MODE, getExistingKey(), GCMParameterSpec(GCM_TAG_BITS, iv))
             return String(cipher.doFinal(encrypted), StandardCharsets.UTF_8)
         } catch (failure: Exception) {
             throw EncryptedDataException(
@@ -54,14 +54,23 @@ internal class LocalDataCipher {
     }
 
     @Synchronized
+    private fun getExistingKey(): SecretKey {
+        val keyStore = KeyStore.getInstance(ANDROID_KEY_STORE).apply { load(null) }
+        return keyStore.getKey(keyAlias, null) as? SecretKey
+            ?: throw IllegalStateException(
+                "Saved browser encryption key is unavailable; existing records were preserved."
+            )
+    }
+
+    @Synchronized
     private fun getOrCreateKey(): SecretKey {
         val keyStore = KeyStore.getInstance(ANDROID_KEY_STORE).apply { load(null) }
-        (keyStore.getKey(KEY_ALIAS, null) as? SecretKey)?.let { return it }
+        (keyStore.getKey(keyAlias, null) as? SecretKey)?.let { return it }
 
         val generator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEY_STORE)
         generator.init(
             KeyGenParameterSpec.Builder(
-                KEY_ALIAS,
+                keyAlias,
                 KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
             )
                 .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
@@ -75,7 +84,7 @@ internal class LocalDataCipher {
 
     private companion object {
         const val ANDROID_KEY_STORE = "AndroidKeyStore"
-        const val KEY_ALIAS = "rivo.local-data.v1"
+        const val DEFAULT_KEY_ALIAS = "rivo.local-data.v1"
         const val TRANSFORMATION = "AES/GCM/NoPadding"
         const val PREFIX = "enc:v1:"
         const val GCM_IV_BYTES = 12
