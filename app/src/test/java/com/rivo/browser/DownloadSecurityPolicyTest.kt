@@ -50,4 +50,26 @@ class DownloadSecurityPolicyTest {
             assertFalse(DownloadSecurityPolicy.isAllowedRestoredFile(allowed,"safe.bin",listOf(root),2))
         } finally { root.deleteRecursively(); outside.deleteRecursively() }
     }
+    @Test fun restoredSymlinkCannotEscapeManagedRoot() {
+        val root = Files.createTempDirectory("rivo-managed-root").toFile()
+        val outsideRoot = Files.createTempDirectory("rivo-outside-root").toFile()
+        try {
+            val outsideTarget = File(outsideRoot, "linked.bin").apply { writeBytes(byteArrayOf(1, 2, 3)) }
+            val link = File(root, "linked.bin")
+            Files.createSymbolicLink(link.toPath(), outsideTarget.toPath())
+
+            assertFalse(
+                DownloadSecurityPolicy.isAllowedRestoredFile(
+                    link,
+                    "linked.bin",
+                    listOf(root),
+                    16L
+                )
+            )
+        } finally {
+            root.deleteRecursively()
+            outsideRoot.deleteRecursively()
+        }
+    }
+
 }
