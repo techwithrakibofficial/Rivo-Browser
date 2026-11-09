@@ -31,7 +31,7 @@ object GeckoBrowserRuntime {
                 context.applicationContext,
                 GeckoRuntimeSettings.Builder()
                     .remoteDebuggingEnabled(false)
-                    .consoleOutputEnabled(false)
+                    .consoleOutput(false)
                     .build()
             ).also { instance = it }
         }
@@ -242,7 +242,9 @@ class GeckoBrowserTab(
         val extractor = session.getSessionPageExtractor()
         extractor.getPageMetadata().accept(
             { metadata ->
-                if (metadata.isGated) {
+                if (metadata == null) {
+                    finish(Result.failure(IllegalStateException("GeckoView did not return page metadata.")))
+                } else if (metadata.isGated) {
                     finish(Result.failure(IllegalStateException("This page marks its content as gated. Reader Mode will not bypass it.")))
                 } else if (!metadata.isReaderable) {
                     finish(Result.failure(IllegalStateException("This page does not appear to contain a readable article.")))
@@ -265,11 +267,15 @@ class GeckoBrowserTab(
                                 )
                             }
                         },
-                        { error -> finish(Result.failure(error)) }
+                        { error ->
+                            finish(Result.failure(error ?: IllegalStateException("GeckoView could not extract page content.")))
+                        }
                     )
                 }
             },
-            { error -> finish(Result.failure(error)) }
+            { error ->
+                finish(Result.failure(error ?: IllegalStateException("GeckoView could not read page metadata.")))
+            }
         )
     }
 
