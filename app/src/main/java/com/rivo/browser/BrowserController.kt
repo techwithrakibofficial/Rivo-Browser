@@ -398,7 +398,7 @@ class BrowserController(context: Context) {
                 restoreNormalTabs()
                 clearingBrowsingData = false
                 notice = if (localClear.isSuccess) {
-                    "Browsing history, cookies, cache, site permissions and download history cleared. Bookmarks and downloaded files were kept."
+                    "Browsing history, cookies, cache, site permissions and download history cleared. Bookmarks and normal downloads were kept; private downloads were removed."
                 } else {
                     "Website data was cleared, but local history or download metadata could not be cleared: " +
                         (localClear.exceptionOrNull()?.message ?: "storage error")
