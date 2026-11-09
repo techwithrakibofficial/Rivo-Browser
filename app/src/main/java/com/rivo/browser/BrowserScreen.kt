@@ -627,7 +627,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                                 TransferFilter.ALL to "All",
                                 TransferFilter.ACTIVE to "Active",
                                 TransferFilter.COMPLETED to "Completed",
-                                TransferFilter.FAILED to "Failed"
+                                TransferFilter.FAILED to "Failed / cancelled"
                             ).forEach { (filter, label) ->
                                 FilterChip(
                                     selected = transferFilter == filter,
