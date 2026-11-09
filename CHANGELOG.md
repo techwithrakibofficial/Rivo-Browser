@@ -54,3 +54,11 @@
 - Added resolved Gradle dependency graph generation for PR artifacts and Main GitHub Dependency Graph submission to improve transitive dependency visibility.
 
 - Added a regression test proving process-restoration snapshots exclude private tabs and unsafe URLs, preserve duplicate normal tabs, and never restore a private selected-tab ID.
+
+
+## 2026-11-09 — PR #36 completion hardening
+
+- Added HTTPS-only download URL enforcement and MIME metadata normalization with a safe octet-stream fallback for malformed server values.
+- Added a confirmation-gated Clear Browsing Data action that closes Gecko sessions before clearing Gecko site data/site settings and local history/download metadata while retaining bookmarks and downloaded files.
+- Enabled Gradle dependency locking and added a PR-specific workflow to resolve, scan, upload and commit module lockfiles for OSV vulnerability coverage.
+- Exact-head CI, lockfile generation, OSV scan and emulator/device validation remain pending; no completion claim is made until those checks finish.
