@@ -1,6 +1,7 @@
 # Development Plan
 
 ## Current audit checkpoint — 2026-11-09
+- Main HEAD after PR #27 merge: `ad607a7a97f9e9bce8cd57a206b2a438e6003f20`. PR #27 adds two Tab Universe search/filter JVM regressions; CI #306 passed all configured jobs on PR head before merge. Post-merge Main CI remains unconfirmed.
 - Main HEAD after PR #23 merge: `d192baf0f38db835904aa76a901d7e7cb2a24e31`; Advanced Tab Universe is now integrated.
 - PR #23 head passed CI #293; PR #24 head passed CI #300 (assembleDebug, lint, JVM tests, minified release bundle, size reports and QA artifact uploads) before merge as `350d4f3...`. A separate push-triggered Main CI result is not yet confirmed.
 - Open PR #10: permission controls; 7 commits behind Main, mergeability conflict reported, rebase required. CI #268 passed its configured build/lint/JVM/release-bundle/QA artifact steps, but no instrumentation/device validation.
@@ -48,6 +49,7 @@
 10. Verify 16 KB runtime behavior, dependency/SBOM and OWASP MASVS controls.
 11. Complete current UI/theme/accessibility defects and regression testing.
 12. Verify PR #24's merged filter semantics on a 320 dp device, large font and TalkBack.
+13. Verify PR #27's trimmed-search/filter-combination and empty-result policies in the broader UI/device workflow; JVM regression tests now pass on its PR head.
 13. Only after Phase 1 acceptance, proceed to remaining Phase 2 features.
 
 ### Acceptance criteria
