@@ -6,7 +6,7 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class DownloadSecurityPolicyTest {
-    @Test fun onlyHttpAndHttpsWithHostAndNoUserInfoAreAllowed() {
+    @Test fun onlyHttpsWithHostAndNoUserInfoIsAllowed() {
         assertTrue(DownloadSecurityPolicy.isAllowedUrl("https://example.com/a"))
         assertFalse(DownloadSecurityPolicy.isAllowedUrl("http://example.com/a"))
         assertFalse(DownloadSecurityPolicy.isAllowedUrl("file:///sdcard/a"))
@@ -20,6 +20,21 @@ class DownloadSecurityPolicyTest {
         assertNull(DownloadSecurityPolicy.normalizeMimeType("not-a-mime-type"))
         assertNull(DownloadSecurityPolicy.normalizeMimeType(null))
     }
+    @Test fun startupCleanupRemovesPrivateDownloadFilesButKeepsNormalDownloads() {
+        val root = Files.createTempDirectory("rivo-download-root").toFile()
+        val privateDirectory = File(root, DownloadTempFileCleanup.PRIVATE_DOWNLOAD_DIRECTORY).apply { mkdirs() }
+        val privateFile = File(privateDirectory, "private.pdf").apply { writeBytes(byteArrayOf(1, 2, 3)) }
+        val normalFile = File(root, "normal.pdf").apply { writeBytes(byteArrayOf(4, 5, 6)) }
+        try {
+            DownloadTempFileCleanup.removePrivateDownloads(listOf(root))
+            assertFalse(privateFile.exists())
+            assertFalse(privateDirectory.exists())
+            assertTrue(normalFile.exists())
+        } finally {
+            root.deleteRecursively()
+        }
+    }
+
     @Test fun privateDownloadMetadataIsNotPersisted() {
         assertFalse(DownloadSecurityPolicy.shouldPersistMetadata(true))
         assertTrue(DownloadSecurityPolicy.shouldPersistMetadata(false))
