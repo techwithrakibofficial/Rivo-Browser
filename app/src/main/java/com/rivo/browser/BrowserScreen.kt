@@ -429,7 +429,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
         BrowserPanel.TABS -> "Your tabs"
         BrowserPanel.BOOKMARKS -> "Bookmarks"
         BrowserPanel.HISTORY -> "History"
-        BrowserPanel.DOWNLOADS -> "Downloads"
+        BrowserPanel.DOWNLOADS -> "Transfer Studio"
         BrowserPanel.APPEARANCE -> "Quick appearance"
         BrowserPanel.DEVELOPER -> "Developer mode"
         BrowserPanel.MENU -> "Browser menu"
@@ -593,13 +593,15 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                                 status = download.status,
                                 mimeType = download.mimeType,
                                 sizeBytes = download.file?.let { file -> runCatching { file.length() }.getOrNull() },
-                                hasFile = download.file?.exists() == true
+                                hasFile = download.file?.exists() == true,
+                                bytesReceived = download.bytesReceived,
+                                totalBytes = download.totalBytes
                             )
                         }
                         val visibleTransfers = TransferStudioPolicy.visible(records, transferQuery, transferFilter)
                         val completedCount = browser.downloads.count { it.file?.exists() == true }
-                        val activeCount = browser.downloads.count { it.status == "Downloading" }
-                        val failedCount = browser.downloads.count { it.status == "Failed" }
+                        val activeCount = browser.downloads.count { it.status == "Downloading" || it.status == "Cancelling" }
+                        val failedCount = browser.downloads.count { it.status == "Failed" || it.status == "Cancelled" }
                         Text(
                             "$completedCount completed · $activeCount active · $failedCount failed",
                             style = MaterialTheme.typography.bodySmall
@@ -653,12 +655,33 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                                             },
                                             style = MaterialTheme.typography.labelSmall
                                         )
+                                        if (item.status == "Downloading" || item.status == "Cancelling") {
+                                            if (item.totalBytes != null && item.totalBytes > 0) {
+                                                LinearProgressIndicator(
+                                                    progress = (item.bytesReceived.toFloat() / item.totalBytes.toFloat()).coerceIn(0f, 1f),
+                                                    modifier = Modifier.fillMaxWidth()
+                                                )
+                                                Text(
+                                                    "${formatTransferSize(item.bytesReceived)} / ${formatTransferSize(item.totalBytes)}",
+                                                    style = MaterialTheme.typography.labelSmall
+                                                )
+                                            } else {
+                                                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                                                Text(
+                                                    "${formatTransferSize(item.bytesReceived)} received",
+                                                    style = MaterialTheme.typography.labelSmall
+                                                )
+                                            }
+                                        }
                                         Row(horizontalArrangement = Arrangement.spacedBy(RivoSpacing.compact)) {
                                             if (item.hasFile) {
                                                 TextButton(onClick = { browser.openDownload(download) }) { Text("Open") }
                                                 TextButton(onClick = { browser.shareDownload(download) }) { Text("Share") }
                                             }
-                                            if (item.status != "Downloading") {
+                                            if (item.status == "Downloading") {
+                                                TextButton(onClick = { browser.cancelDownload(download) }) { Text("Cancel") }
+                                            }
+                                            if (item.status != "Downloading" && item.status != "Cancelling") {
                                                 TextButton(onClick = { browser.removeDownload(download) }) { Text("Remove") }
                                             }
                                         }
