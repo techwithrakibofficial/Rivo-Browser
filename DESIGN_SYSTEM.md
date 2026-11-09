@@ -79,3 +79,12 @@ Main HEAD after PR #23 merge: `d192baf0f38db835904aa76a901d7e7cb2a24e31`. PR #23
 - [ ] Reduced-motion settings are respected by any future animation.
 - [ ] Glass remains legible with transparency disabled and no GPU-heavy blur.
 - [ ] Manual TalkBack, Accessibility Scanner, contrast and device screenshot checks are recorded.
+
+
+## Account A feature surfaces (worker branch; pending CI/merge)
+
+- Reader Mode uses the selected semantic Material 3 color scheme, scrollable article text and an adjustable text-size control. It is an overlay over the live Gecko page, so closing it returns to the unchanged page.
+- Transfer Studio uses the same semantic surfaces and FilterChip pattern as Tab Universe; search and filters scroll horizontally on narrow screens. Completed file actions remain explicit text buttons.
+- QR results are shown in a confirmation dialog; a decoded value is never navigated automatically.
+- Developer diagnostics are read-only and avoid exposing sensitive page content. Remote debugging and console output remain disabled.
+- Dark, Light and Glass modes are inherited through the existing MaterialTheme subtree; physical contrast, TalkBack, 320 dp and large-font validation remain required.
