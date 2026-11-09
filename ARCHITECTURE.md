@@ -35,7 +35,7 @@
 - Omnibox parser accepts HTTP/HTTPS URLs; unsupported schemes become search queries.
 - No JavaScript-to-native bridge.
 - TLS certificate validation is not overridden.
-- Site content, Android runtime and media permissions are denied until user-facing mediation exists, except currently mediated HTTPS notification and persistent-storage prompts.
+- Main's current site permission mediation is partial; see FEATURE_MATRIX.md. Expanded Gecko permission mediation is in open PR #10, not yet integrated.
 - Downloads are restricted to HTTP(S) response streams, filenames sanitized, 250 MB per file, app-specific storage and scoped non-exported FileProvider.
 - Browser chrome security state comes from GeckoView callbacks.
 - Android backup disabled; no broad storage permission.
@@ -49,4 +49,4 @@
 - Status/navigation system icon contrast follows appearance mode.
 
 ## Verification boundary
-This document describes the current source architecture. Integrated Main commit `84303588c2560db55bfb7ae2081d8f714be532e7` passed GitHub Actions run [#246](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42481870810), including assembleDebug, lintDebug, JVM unit tests and minified bundleRelease. CI validates build/static/JVM checks only; physical-device lifecycle, encryption instrumentation and runtime behavior remain unverified.
+This document describes source architecture, not device acceptance. Audited Main HEAD is `72700fa6e599af94317d5e7d76eaa211e992281d`; no CI run was returned for this exact SHA during the 2026-11-09 audit. Historical run #246 on `84303588...` does not validate later commits. Physical-device lifecycle, encryption instrumentation, performance and permission runtime behavior remain unverified.
