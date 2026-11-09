@@ -33,7 +33,7 @@ Operational limitation: the scanner is an unbundled Play services module. Device
 
 **Decision: provide a richer manager for the existing safe-download pipeline, without claiming unsupported transfer controls.**
 
-The first increment provides filename/MIME search, All/Active/Completed/Failed filters, completed file size, Open, Share and safe Remove actions. Remove is limited to files whose canonical parent is one of Rivo's app-specific Downloads roots.
+The first increment provides filename/MIME search, All/Active/Completed/Failed filters, completed file size, Open, Share and safe Remove actions. The UI processes only the 100 most recent records per view to bound work on low-memory devices. Remove is limited to files whose canonical parent is one of Rivo's app-specific Downloads roots.
 
 The current Gecko external-response integration provides an input stream and does not expose a resumable transfer contract to this UI. Therefore this increment does **not** claim pause, resume, retry, queue scheduling or byte-accurate live progress. Those require a separately designed download transport with validated range requests, server support and durable transfer state.
 
