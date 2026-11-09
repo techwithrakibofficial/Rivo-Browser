@@ -168,6 +168,10 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                                     menuExpanded = false
                                     browser.openPanel(BrowserPanel.APPEARANCE)
                                 })
+                                DropdownMenuItem(text = { Text("Privacy Intelligence Center") }, onClick = {
+                                    menuExpanded = false
+                                    browser.openPanel(BrowserPanel.SITE_PERMISSIONS)
+                                })
                             }
                         }
                     }
@@ -310,6 +314,9 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
     var tabFilter by remember(panel) { mutableStateOf(TabUniverseFilter.ALL) }
     var tabSort by remember(panel) { mutableStateOf(TabUniverseSort.ACTIVE_FIRST) }
     var sortMenuExpanded by remember(panel) { mutableStateOf(false) }
+    LaunchedEffect(panel) {
+        if (panel == BrowserPanel.SITE_PERMISSIONS) browser.refreshSitePermissions()
+    }
     val title = when (panel) {
         BrowserPanel.TABS -> "Your tabs"
         BrowserPanel.BOOKMARKS -> "Bookmarks"
