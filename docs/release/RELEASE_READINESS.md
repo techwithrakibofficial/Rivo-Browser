@@ -23,7 +23,7 @@ Main baseline used by Account A/B worker branches: `0d77826e655267c671498334c11f
 - PR #36 CI run #42570822775 is the current Android CI candidate and must complete on the exact latest PR head before merge. Earlier cancelled runs do not count.
 - PR #36 OSV scan run #42570823051 completed successfully but logs explicitly state “No package sources found” / “No lockfiles found”. This is not evidence that dependencies are vulnerability-free.
 - PR #36 source SBOM run #42570822827 succeeded and uploaded `rivo-source-sbom` (2,940 bytes). It is source-level, not a complete resolved dependency SBOM.
-- New Gradle dependency graph workflow generates a resolved dependency graph artifact for PRs and submits it to GitHub Dependency Graph on Main pushes/manual runs. A PR artifact was generated successfully on an earlier docs-only head (run #42570645165, 10,834 bytes); the latest run #42570822781 must finish.
+- New Gradle dependency graph workflow generates resolved dependency graph artifacts for PRs and Main pushes using read-only permissions. GitHub Dependency Graph is disabled in repository settings, so automated GitHub advisory review/submission is unavailable until the owner enables it.
 
 ## Release blockers
 
