@@ -3,11 +3,11 @@
 A free, privacy-focused Android browser targeting low- and mid-range devices.
 
 ## Current phase
-**Phase 1 — Functional Browser MVP.** Source includes GeckoView browser sessions, navigation, tabs, private sessions, local bookmarks/history, downloads, encrypted local browsing metadata and Dark/Light/Premium Glass chrome. Activity lifecycle handling and regular-tab restoration are implemented in source. The latest source changes still require CI and physical-device verification.
+**Phase 1 — Functional Browser MVP.** Source includes GeckoView browser sessions, navigation, tabs, private sessions, local bookmarks/history, downloads, encrypted local browsing metadata and Dark/Light/Premium Glass chrome. Activity lifecycle handling and regular-tab restoration are implemented in source. PR #24's Tab Universe accessibility improvements have passed PR-head CI; physical-device verification remains pending.
 
 ## MVP source capabilities
 - URL/search omnibox, back, forward, reload and stop; Android system Back follows page history when available.
-- Multiple tabs; Advanced Tab Universe adds title/URL search, Normal/Private/Active filters and active-first/title/type sorting; inactive Gecko sessions are deactivated; Activity backgrounding deactivates and unfocuses all sessions; current cap is eight.
+- Multiple tabs; Advanced Tab Universe adds title/URL search, Normal/Private/Active filters and active-first/title/type sorting; semantic filter chips scroll horizontally; tab search has a persistent label and active/close actions expose TalkBack semantics; inactive Gecko sessions are deactivated; Activity backgrounding deactivates and unfocuses all sessions; current cap is eight.
 - Regular HTTP(S) tabs are persisted/restored after process recreation; private tabs are never persisted.
 - Native private sessions; private tabs do not enter app-side history or bookmarks.
 - Tracking protection enabled per session.

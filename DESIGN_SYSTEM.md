@@ -59,7 +59,7 @@ The selected `MaterialTheme` must wrap the complete native screen subtree: brows
 ## Current UI inventory
 - Initial tab navigates to DuckDuckGo; no dedicated native start-page dashboard is confirmed.
 - Omnibox and Go action are implemented; accessibility and large-font verification remain.
-- Advanced Tab Universe is implemented in Main through PR #23: searchable title/URL list, Normal/Private/Active filters, sorting, active state, and tab close/switch. Narrow-width filter scrolling and stronger TalkBack semantics are in open PR #24; CI and physical-device verification are pending.
+- Advanced Tab Universe is implemented in Main through PR #23: searchable title/URL list, Normal/Private/Active filters, sorting, active state, and tab close/switch. Narrow-width filter scrolling and stronger TalkBack semantics merged via PR #24 (`350d4f3...`); CI #300 passed on the PR head. Physical-device and TalkBack verification are still pending.
 - Three appearance modes and secondary picker exist; overlay and selected-state verification remain.
 - Private-tab status label exists.
 - Bookmarks, history and downloads native panels exist; device theme/scroll verification remains.
