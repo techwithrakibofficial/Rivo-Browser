@@ -33,7 +33,6 @@ class GeckoSitePermissionPolicyTest {
     @Test
     fun rejectsSensitiveAndUnsupportedCapabilitiesByDefault() {
         val unsupported = listOf(
-            GeckoSession.PermissionDelegate.PERMISSION_GEOLOCATION,
             GeckoSession.PermissionDelegate.PERMISSION_PERSISTENT_STORAGE,
             GeckoSession.PermissionDelegate.PERMISSION_XR,
             GeckoSession.PermissionDelegate.PERMISSION_MEDIA_KEY_SYSTEM_ACCESS,
@@ -45,6 +44,29 @@ class GeckoSitePermissionPolicyTest {
         unsupported.forEach { permission ->
             assertFalse(GeckoSitePermissionPolicy.shouldPrompt(permission, secureOrigin = true))
         }
+    }
+
+    @Test
+    fun geolocationRequiresHttpsAndIsSessionScopedInPrivateMode() {
+        assertTrue(
+            GeckoSitePermissionPolicy.shouldPrompt(
+                GeckoSession.PermissionDelegate.PERMISSION_GEOLOCATION,
+                secureOrigin = true
+            )
+        )
+        assertTrue(
+            GeckoSitePermissionPolicy.shouldPrompt(
+                GeckoSession.PermissionDelegate.PERMISSION_GEOLOCATION,
+                secureOrigin = true,
+                privateMode = true
+            )
+        )
+        assertFalse(
+            GeckoSitePermissionPolicy.shouldPrompt(
+                GeckoSession.PermissionDelegate.PERMISSION_GEOLOCATION,
+                secureOrigin = false
+            )
+        )
     }
 
     @Test
