@@ -586,7 +586,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                         }
                     }
                     BrowserPanel.DOWNLOADS -> {
-                        val records = browser.downloads.map { download ->
+                        val records = browser.downloads.take(100).map { download ->
                             TransferRecord(
                                 id = download.id,
                                 filename = download.filename,
@@ -597,13 +597,17 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                             )
                         }
                         val visibleTransfers = TransferStudioPolicy.visible(records, transferQuery, transferFilter)
-                        val completedCount = records.count { it.hasFile }
-                        val activeCount = records.count { it.status == "Downloading" }
-                        val failedCount = records.count { it.status == "Failed" }
+                        val completedCount = browser.downloads.count { it.file?.exists() == true }
+                        val activeCount = browser.downloads.count { it.status == "Downloading" }
+                        val failedCount = browser.downloads.count { it.status == "Failed" }
                         Text(
                             "$completedCount completed · $activeCount active · $failedCount failed",
                             style = MaterialTheme.typography.bodySmall
                         )
+                        if (browser.downloads.size > records.size) {
+                            Text("Showing the most recent ${records.size} of ${browser.downloads.size} transfers.",
+                                style = MaterialTheme.typography.labelSmall)
+                        }
                         OutlinedTextField(
                             value = transferQuery,
                             onValueChange = { transferQuery = it },
