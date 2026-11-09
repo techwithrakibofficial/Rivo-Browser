@@ -241,7 +241,9 @@ class GeckoBrowserTab(
         val extractor = session.getSessionPageExtractor()
         extractor.getPageMetadata().accept(
             { metadata ->
-                if (!metadata.isReaderable) {
+                if (metadata.isGated) {
+                    finish(Result.failure(IllegalStateException("This page marks its content as gated. Reader Mode will not bypass it.")))
+                } else if (!metadata.isReaderable) {
                     finish(Result.failure(IllegalStateException("This page does not appear to contain a readable article.")))
                 } else {
                     extractor.getPageContent(PageExtractionController.ContentParams(true, true)).accept(
@@ -293,4 +295,4 @@ data class ReaderPageContent(
     val wasTruncated: Boolean
 )
 
-private const val MAX_READER_CONTENT_CHARS = 250_000
+private const val MAX_READER_CONTENT_CHARS = 120_000
