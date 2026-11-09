@@ -396,6 +396,7 @@ class BrowserController(context: Context) {
                 history.clear()
                 downloads.clear()
                 restoreNormalTabs()
+                refreshSitePermissions()
                 clearingBrowsingData = false
                 notice = if (localClear.isSuccess) {
                     "Browsing history, cookies, cache, site permissions and download history cleared. Bookmarks and normal downloads were kept; private downloads were removed."
@@ -407,6 +408,7 @@ class BrowserController(context: Context) {
         }, { error ->
             scope.launch {
                 restoreNormalTabs()
+                refreshSitePermissions()
                 clearingBrowsingData = false
                 notice = "Website data could not be cleared: " + (error.message ?: "GeckoView storage error")
             }
