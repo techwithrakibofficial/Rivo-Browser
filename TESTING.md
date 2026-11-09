@@ -94,3 +94,11 @@ Production release remains NO-GO until current Main CI is green, security/instru
 - Physical-device notification grant/deny/click, permission inventory/reset, private-tab process-death, and 16 KB runtime are still required.
 
 - Added RestorableTabPolicyTest.processRestorationSnapshotExcludesPrivateTabsAndUnsafeUrls: verifies a process-restoration snapshot excludes private tabs and unsafe URLs, preserves duplicate normal tabs, and does not restore a private selected-tab ID.
+
+
+## PR #36 follow-up regression coverage — 2026-11-09
+
+- `DownloadSecurityPolicyTest` now verifies HTTPS-only downloads, rejection of HTTP/file/user-info URLs, MIME normalization, rejection of malformed MIME values and private metadata exclusion.
+- Clear Browsing Data implementation closes active Gecko sessions before clearing Gecko site data/site settings, then clears local history and download metadata. Verify cookies, DOM storage, caches and permissions are absent after clearing; confirm bookmarks and actual download files remain.
+- OSV workflow now resolves Gradle dependency locks for app, engine-api, engine-webview, engine-gecko and engine-benchmark, validates lockfile contents, scans them with OSV-Scanner and commits lockfiles to PR #36. Exact-head OSV result is pending.
+- Latest Android CI must complete all build, lint, JVM, release bundle, static 16 KB and API 35 instrumentation steps before this candidate can be marked CI-verified. Physical-device permission and privacy checks remain separate acceptance items.
