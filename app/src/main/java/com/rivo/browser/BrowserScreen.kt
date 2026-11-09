@@ -257,7 +257,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
         AlertDialog(
             onDismissRequest = { showClearDataConfirmation = false },
             title = { Text("Clear browsing data?") },
-            text = { Text("This closes all open tabs and clears browsing history, cookies, site storage, cache, site permissions and download history. Bookmarks and downloaded files are kept.") },
+            text = { Text("This closes all open tabs and clears browsing history, cookies, site storage, cache, site permissions and download history. Bookmarks and normal downloads are kept; private downloads are deleted.") },
             confirmButton = {
                 TextButton(onClick = {
                     showClearDataConfirmation = false
