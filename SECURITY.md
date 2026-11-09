@@ -36,3 +36,9 @@ OWASP MASVS is the assessment baseline for storage, cryptography, network, platf
 5. Dependency vulnerability/SBOM review.
 6. OWASP MASVS control-by-control source review and documented residual risks.
 7. Physical-device validation before release.
+
+
+## Supply-chain automation (PR #34)
+- CI adds the official OSV-Scanner reusable pull-request scan and scheduled/full scan workflow, plus an SPDX JSON source SBOM artifact.
+- A green source scan/SBOM is not proof that all resolved/transitive Gradle dependencies were inventoried: this repository does not yet commit Gradle dependency lockfiles.
+- Review scanner findings and SBOM contents before making any vulnerability-free or complete-inventory claim. These workflows are security signals, not MASVS certification.
