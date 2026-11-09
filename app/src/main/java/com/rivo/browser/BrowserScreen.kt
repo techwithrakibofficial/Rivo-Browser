@@ -705,13 +705,14 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                                             style = MaterialTheme.typography.labelSmall
                                         )
                                         if (item.status == "Downloading" || item.status == "Cancelling") {
-                                            if (item.totalBytes != null && item.totalBytes > 0) {
+                                            val totalBytes = item.totalBytes
+                                            if (totalBytes != null && totalBytes > 0) {
                                                 LinearProgressIndicator(
-                                                    progress = { (item.bytesReceived.toFloat() / item.totalBytes.toFloat()).coerceIn(0f, 1f) },
+                                                    progress = { (item.bytesReceived.toFloat() / totalBytes.toFloat()).coerceIn(0f, 1f) },
                                                     modifier = Modifier.fillMaxWidth()
                                                 )
                                                 Text(
-                                                    "${formatTransferSize(item.bytesReceived)} / ${formatTransferSize(item.totalBytes)}",
+                                                    "${formatTransferSize(item.bytesReceived)} / ${formatTransferSize(totalBytes)}",
                                                     style = MaterialTheme.typography.labelSmall
                                                 )
                                             } else {
