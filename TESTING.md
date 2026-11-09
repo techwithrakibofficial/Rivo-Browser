@@ -52,3 +52,10 @@ Build, lint, JVM tests, emulator instrumentation, physical-device tests and rele
 
 ## Release gate
 Production release remains NO-GO until current Main CI is green, security/instrumentation checks pass, device QA is recorded, dependency/MASVS review is complete, and a production-signed artifact is produced securely.
+
+## Supply-chain CI (new workflows; execution pending)
+- `.github/workflows/osv-scanner-pr.yml`: official OSV-Scanner PR comparison workflow; requires inspection of the resulting check before merge.
+- `.github/workflows/osv-scanner-scheduled.yml`: official full vulnerability scan on Main push, weekly schedule and manual dispatch.
+- `.github/workflows/source-sbom.yml`: SPDX JSON source SBOM artifact, retained for 14 days.
+- No scan or SBOM result is claimed until the workflows execute on a commit and their outputs are reviewed.
+- The current repository has no committed Gradle dependency lockfiles. OSV/Syft coverage may therefore be incomplete for resolved/transitive Gradle dependencies; add and review Gradle lockfiles before treating the scan as a complete dependency audit.
