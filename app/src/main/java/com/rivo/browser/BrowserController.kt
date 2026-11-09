@@ -265,6 +265,9 @@ class BrowserController(context: Context) {
         val wasActive = closing.id == activeTabId
         if (permissionPrompt?.tabId == id) respondToSitePermission(false)
         if (pendingDownload?.tabId == id) cancelPendingDownload()
+        if (closing.privateMode) downloads.filter { it.privateTabId == id }.forEach { download ->
+            download.file?.let(::deletePrivateDownloadFile)
+        }
         closing.engine.dispose()
         downloads.removeAll { it.privateTabId == id }
         tabs.removeAt(index)
@@ -361,6 +364,9 @@ class BrowserController(context: Context) {
         pendingAndroidPermissionNames = null
         awaitingAndroidPermissionResult = false
         awaitingNotificationPermissionResult = false
+        downloads.filter { it.privateMode }.forEach { download ->
+            download.file?.let(::deletePrivateDownloadFile)
+        }
         tabs.toList().forEach { it.engine.dispose() }
         tabs.clear()
         activeTabId = 0L
@@ -592,19 +598,26 @@ class BrowserController(context: Context) {
         downloads.add(0, item)
         scope.launch(Dispatchers.IO) {
             val result = runCatching {
-                val directory = appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+                val downloadsRoot = appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
                     ?: File(appContext.filesDir, "downloads")
+                val directory = if (tab.privateMode) {
+                    File(downloadsRoot, DownloadTempFileCleanup.PRIVATE_DOWNLOAD_DIRECTORY)
+                } else downloadsRoot
                 DownloadFileWriter.save(body, directory, safeName, MAX_DOWNLOAD_BYTES)
             }
             withContext(Dispatchers.Main.immediate) {
                 result.onSuccess { file ->
+                    if (tab.privateMode && tabs.none { it.id == tab.id }) {
+                        deletePrivateDownloadFile(file)
+                        return@onSuccess
+                    }
                     // Persist the collision-resolved name, not the requested name.
                     item.file = file
                     item.filename = file.name
-                    item.status = "Saved in app Downloads"
+                    item.status = if (tab.privateMode) "Private download (deleted when tab closes)" else "Saved in app Downloads"
                     persistDownloads()
                     notice = if (tab.privateMode) {
-                        "Download saved. Private browsing does not automatically erase downloaded files."
+                        "Private download saved. It will be deleted when this tab closes."
                     } else {
                         "Download saved: " + file.name
                     }
@@ -616,12 +629,27 @@ class BrowserController(context: Context) {
         }
     }
 
+    private fun deletePrivateDownloadFile(file: File) {
+        runCatching {
+            val root = appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+                ?: File(appContext.filesDir, "downloads")
+            val privateRoot = File(root, DownloadTempFileCleanup.PRIVATE_DOWNLOAD_DIRECTORY).canonicalFile
+            val canonical = file.canonicalFile
+            if (privateRoot.parentFile == root.canonicalFile &&
+                canonical.parentFile == privateRoot && canonical.isFile
+            ) {
+                canonical.delete()
+            }
+        }
+    }
+
     private suspend fun cleanupInterruptedDownloads() = withContext(Dispatchers.IO) {
         val directories = listOfNotNull(
             appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
             File(appContext.filesDir, "downloads")
         )
         DownloadTempFileCleanup.removeInterruptedFiles(directories)
+        DownloadTempFileCleanup.removePrivateDownloads(directories)
     }
 
     private suspend fun restoreDownloads() {
