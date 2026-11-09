@@ -1,10 +1,9 @@
 # Rivo Browser Design System
 
-**Status:** Phase 1 browser-chrome baseline; RIVO-02 theme-scope implementation in progress (2026-11-08).  
+**Status:** Phase 1 browser-chrome baseline; implementation exists in Main source, with device/UI acceptance still pending.  
 **Scope:** Native Android/Compose browser UI. Website-rendered content is controlled by the visited site and is not recolored by Rivo's chrome theme.
 
 ## Product principles
-
 - Premium, calm, distinctive browser chrome with predictable navigation.
 - Consistent Dark, Light and Premium Glass appearance modes across every native surface, including dialogs, prompts, menus and empty/error states.
 - Accessible by default: semantic controls, TalkBack names, scalable text, clear focus, and WCAG AA text contrast.
@@ -12,7 +11,6 @@
 - Never communicate state by color alone; pair color with text, iconography or semantics.
 
 ## Implemented foundations
-
 - `RivoColorSchemes.forAppearance`: Material 3 semantic palettes for Dark, Light and Glass.
 - `RivoSpacing`: 4, 8, 12, 18 and 24 dp spacing scale.
 - `RivoShapes`: 18 dp controls, 20 dp cards and 24 dp panels.
@@ -22,87 +20,62 @@
 - Premium Glass uses translucent surfaces, not real-time blur.
 
 ## Theme contract
-
-**The selected `MaterialTheme` must wrap the complete native screen subtree.** That includes the browser chrome, tab/bookmark/history/download/appearance panels, permission prompts, download confirmations and notice dialogs. A dialog composed outside the selected theme silently falls back to the ambient/default Material theme and breaks three-mode consistency.
-
-RIVO-02 moves the panel dialog and all browser `AlertDialog` overlays inside the same selected `MaterialTheme` scope as the main `Surface`. This prevents dialogs from falling back to the ambient/default Material theme.
+The selected `MaterialTheme` must wrap the complete native screen subtree: browser chrome, panels, permission prompts, download confirmations and notice dialogs. Verify every overlay inherits the selected theme in all three appearance modes.
 
 ## Appearance specifications
-
 ### Dark
-
 - Background: `#0D1118`; surface: `#171E28`.
 - Primary: `#9CCBFF`; secondary: `#B8CDE2`.
 - Foreground: `#E8EEF7`; error: `#FFB4AB`.
-- Use deep graphite surfaces and light foregrounds. An OLED-black variant is not currently implemented; do not advertise it as an available setting.
 
 ### Light
-
 - Background: `#F3F6FA`; surface: `#FFFFFF`.
-- Primary: `#315B85`; secondary: `#4D7192` (updated to exceed 4.5:1 against white).
+- Primary: `#315B85`; secondary: `#4D7192`.
 - Foreground: `#172333`; error: `#BA1A1A`.
-- Keep surfaces neutral and controls clearly separated.
-- **Contrast:** secondary `#4D7192` is approximately 5.13:1 against white and clears the 4.5:1 WCAG AA normal-text threshold.
+- Secondary `#4D7192` is approximately 5.13:1 against white.
 
 ### Premium Glass
-
 - Background: `#101827`; surface token: `#CC26354B` (about 80% opaque).
 - Primary: `#B7D5FF`; secondary: `#C4D8F0`; foreground: `#F3F7FF`.
-- Use restrained translucent layers over a stable dark base. Do not require blur or gradients for legibility.
-- Provide an opaque dark-surface fallback when transparency is unsupported, visually noisy or expensive.
-- Glass must not reduce text contrast or obscure focus, selection or security states.
+- Use restrained translucent layers over a stable dark base; no real-time blur.
+- Provide an opaque fallback when transparency is unsupported, noisy or expensive.
 
-## Typography
+## Typography and accessibility
+- Use Material 3 typography roles consistently; do not clamp user text scaling.
+- Body copy and important controls must remain readable at system font scale.
+- Interactive targets should be at least 48 × 48 dp.
+- Icon-only actions need localized TalkBack labels and state descriptions.
+- Text fields need persistent labels or equivalent semantics, not placeholders alone.
+- Selected appearance and active-tab states must be exposed semantically.
+- Security and private-browsing states require explicit text labels.
 
-- Use Material 3 typography roles consistently; do not assign arbitrary sizes screen by screen.
-- Body copy and important controls should remain comfortably readable at the user's system font scale.
-- Reserve `labelSmall` / compact metadata for secondary information, not essential warnings, permission decisions or security explanations.
-- Do not clamp user text scaling. Check long translated labels and large font settings for clipping and overlap.
-- A dedicated Rivo typography token set is not yet implemented; current Compose UI relies on Material 3 defaults.
-
-## Layout, touch and navigation
-
-- Preserve the 4 dp spacing rhythm and use shared shape tokens.
-- Interactive targets should be at least 48 × 48 dp, with adequate separation.
-- Keep primary navigation discoverable and stable. On narrow phones, adapt or horizontally scroll secondary toolbar actions rather than squeezing labels.
-- Avoid fixed-height content panels where font scaling or a small display can clip content. Prefer available-window constraints with internal scrolling.
-- Every icon-only action needs a localized TalkBack label and a meaningful state description.
-- Text fields need a persistent label or equivalent semantics, not only a placeholder.
-- Selected appearance and active-tab states must be exposed semantically, not only by a checkmark or color.
-- Security and private-browsing states must retain explicit text labels; color is supplemental.
-
-## Motion and performance
-
-- No decorative motion is currently used in browser chrome. This naturally avoids introducing motion for users who prefer reduced motion.
-- If transitions are added, keep them short and functional, respect Android animation/reduced-motion settings, and never animate essential status information.
-- Do not add real-time blur, animated gradients or continuously moving glass effects to the low-RAM MVP.
-- Prefer stable alpha surfaces and a solid-color fallback. Profile on representative 3–4 GB devices before increasing effects.
+## Layout and performance
+- Preserve the 4 dp spacing rhythm and shared shape tokens.
+- Adapt secondary toolbar actions for narrow screens; do not squeeze labels.
+- Avoid fixed-height panels; use available-window constraints and internal scrolling.
+- Respect reduced-motion settings for any future transitions.
+- Avoid real-time blur, animated gradients and continuously moving effects on low-RAM devices.
 
 ## Current UI inventory
-
-- Browser home: the initial tab navigates to DuckDuckGo; there is no dedicated native Rivo start-page/home dashboard yet.
-- Omnibox and Go action: implemented; accessibility label/large-font review remains.
-- Tab interface: a basic “Your tabs” list dialog exists; a visual Tab Universe/grid is not implemented.
-- Appearance: three modes and a secondary-menu picker exist; selected-state semantics and overlay theme scope need correction.
-- Private browsing: an explicit private-tab status label exists; the tab list prefixes private tabs.
-- Bookmarks, history and downloads: implemented as native panels with empty states; dialogs need theme-scope and responsive-height fixes.
-- Loading: a linear page progress indicator and initial “Starting Rivo Browser…” state exist.
-- Errors and permissions: native AlertDialogs provide messages and Allow/Deny decisions; they currently sit outside the selected theme scope.
-- Privacy Intelligence Center and Transfer Studio: not implemented; listed as later-phase features, not audited as existing screens.
-- Dedicated settings, reader mode, QR and advanced tab-management screens: not present in the current Phase 1 UI.
+- Initial tab navigates to DuckDuckGo; no dedicated native start-page dashboard is confirmed.
+- Omnibox and Go action are implemented; accessibility and large-font verification remain.
+- Basic tab list exists; visual Tab Universe is not confirmed in Main.
+- Three appearance modes and secondary picker exist; overlay and selected-state verification remain.
+- Private-tab status label exists.
+- Bookmarks, history and downloads native panels exist; device theme/scroll verification remains.
+- Privacy Intelligence Center and Transfer Studio are not confirmed in Main; privacy center is in open PR #21 stacked on #10.
+- Reader mode, QR and advanced tab-management screens are not confirmed in Main.
 
 ## Verification checkpoint
-
-The documentation/source audit is complete, but no device-based accessibility validation is claimed. Latest integrated Main CI run [#246](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42481870810) passed on commit `84303588c2560db55bfb7ae2081d8f714be532e7`; this verifies the configured build/lint/JVM/release-bundle workflow, not rendered contrast, TalkBack, touch bounds or responsive behavior. All checklist items below remain open until evidence is recorded.
+Audited Main HEAD: `72700fa6e599af94317d5e7d76eaa211e992281d`. No CI result was returned for this exact SHA during the 2026-11-09 audit. Historical CI run #246 is tied to an older commit and does not establish rendered contrast, TalkBack, touch bounds or responsive behavior.
 
 ## Release acceptance checklist
-
 - [ ] Selected appearance is applied to every native surface and overlay.
-- [ ] Text contrast meets WCAG AA (4.5:1 normal, 3:1 large) in all three modes; non-text controls/focus indicators meet 3:1 where applicable.
-- [ ] TalkBack announces useful names, roles, values and selected states for every interactive control.
-- [ ] All touch targets are at least 48 × 48 dp and remain usable at 320 dp width.
+- [ ] Text contrast meets WCAG AA in all three modes.
+- [ ] TalkBack announces useful names, roles, values and selected states.
+- [ ] Touch targets are at least 48 × 48 dp and usable at 320 dp width.
 - [ ] System font scaling and long labels do not clip or overlap.
 - [ ] Dialogs/panels scroll within the available window on small screens.
 - [ ] Reduced-motion settings are respected by any future animation.
-- [ ] Glass remains legible with transparency disabled and does not require GPU-heavy blur.
-- [ ] Manual TalkBack, Accessibility Scanner, contrast and device screenshot checks are recorded before claiming compliance.
+- [ ] Glass remains legible with transparency disabled and no GPU-heavy blur.
+- [ ] Manual TalkBack, Accessibility Scanner, contrast and device screenshot checks are recorded.
