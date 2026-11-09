@@ -7,6 +7,7 @@
 - Open PR #20: security/benchmark/API 35 integration; fresh CI required.
 - Open PR #21: privacy center/private download hardening; stacked on #10, rebase required after #10.
 - PR #17 was superseded by merged PR #23 (Advanced Tab Universe); PR #16 benchmark remains closed/unmerged.
+- PR #24 adds Tab Universe accessibility and narrow-width polish; fresh CI is pending before merge.
 - Current priority is Phase 1 stabilization, integration and verification, not declaring Phase 2 complete.
 
 ## Phase 0 — foundation
@@ -46,7 +47,8 @@
 9. Run ARM64/ARMv7 physical-device smoke tests and 3–4 GB RAM performance benchmarks.
 10. Verify 16 KB runtime behavior, dependency/SBOM and OWASP MASVS controls.
 11. Complete current UI/theme/accessibility defects and regression testing.
-12. Only after acceptance, proceed to Phase 2 features.
+12. Merge PR #24 only after its CI is green, then verify 320 dp width, large font and TalkBack.
+13. Only after Phase 1 acceptance, proceed to remaining Phase 2 features.
 
 ### Acceptance criteria
 - Current Main CI passes assemble, lint, JVM tests, instrumentation and minified release AAB packaging.
