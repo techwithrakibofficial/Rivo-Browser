@@ -99,6 +99,15 @@ class BrowserController(context: Context) {
     val activeTab: BrowserTabState?
         get() = tabs.firstOrNull { it.id == activeTabId }
 
+    val deniedAndroidPermissionLabels: List<String>
+        get() = buildList {
+            if (android.Manifest.permission.ACCESS_COARSE_LOCATION in deniedAndroidPermissions ||
+                android.Manifest.permission.ACCESS_FINE_LOCATION in deniedAndroidPermissions
+            ) add("Location")
+            if (android.Manifest.permission.CAMERA in deniedAndroidPermissions) add("Camera")
+            if (android.Manifest.permission.RECORD_AUDIO in deniedAndroidPermissions) add("Microphone")
+        }
+
     init {
         scope.launch {
             appearance = runCatching {
