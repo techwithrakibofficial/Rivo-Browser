@@ -39,8 +39,8 @@ Status is classified by evidence level. "Implemented in Main source" does not me
 - Site permissions: HTTPS notifications/autoplay mediation, unsupported/media/Android permission default-deny, normal-mode Gecko permission inventory and revocation read-back; private records excluded; persistent-storage grant marked non-revocable.
 - Privacy Intelligence Center: tracking-protection state from actual Gecko session, stored permission inventory/reset, AES-GCM metadata and private-mode boundaries disclosed; no tracker count claim.
 - Website notifications: Android 13+ runtime notification permission requested after site-level user consent; private-mode and non-HTTPS/malformed-origin notifications dismissed; notification receiver is non-exported.
-- Private downloads: new private-tab download metadata excluded from encrypted browser download index; in-memory record removed when originating private tab closes; downloaded bytes remain app-specific files and are not automatically erased/encrypted.
-- Download hardening: only HTTP(S) URLs with host/no user-info; restored files must be direct children of canonical app-specific roots and remain under size cap.
+- Private downloads: metadata excluded from persistent index; files isolated in `.rivo-private` and deleted on tab close, controller disposal and next-process startup.
+- Download hardening: HTTPS-only URLs with host/no user-info; MIME normalization; restored files must be direct children of canonical app-specific roots and remain under size cap.
 - Legacy download metadata: one-time migration clears ambiguous historical index while preserving files; new-format write marks migration complete atomically.
 - CI: API 35 Android Keystore/DataStore instrumentation and Gecko policy unit tests; current PR #36 exact-head CI pending.
 

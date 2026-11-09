@@ -50,7 +50,7 @@ OWASP MASVS is the assessment baseline for storage, cryptography, network, platf
 - Normal-mode permission inventory is sourced from GeckoView StorageController. Private records are filtered; persistent-storage grants are not presented as revocable.
 - Website notification delivery uses an app notification channel and a non-exported receiver. Android 13+ runtime notification consent is a separate required gate.
 - Download URL validation rejects unsupported schemes, missing hosts and URL user-info. Restored files must be direct children of canonical app-specific roots and within the existing size cap.
-- New private-tab download metadata is excluded from persistent browser download history and its in-memory entry is removed when the tab closes. Downloaded file bytes remain user-saved on-device.
+- Private download metadata is excluded from persistent history; private files are isolated in `.rivo-private` and deleted on tab close, controller disposal and next-process startup.
 - One-time migration clears ambiguous legacy browser download-history metadata, after authenticating and validating the old record; actual downloaded files are preserved. Key-loss/corruption aborts migration.
 - Main's existing AES-256-GCM/Keystore, DataStore fail-closed, atomic download writer and 16 KB build checks are reused, not duplicated.
 - No MASVS certification, physical-device test, 16 KB runtime test, vulnerability-free claim or production signing is claimed.
@@ -76,12 +76,12 @@ Assessment scope: current Main plus Account B PR #36 candidate. This is a develo
 - Android notification permission is requested only after the user accepts a site notification prompt. Notifications from private browsing, non-HTTPS, malformed or user-info-bearing origins are dismissed before Android notification UI.
 - Notification click PendingIntent is explicit, immutable and targets a non-exported receiver.
 - Download URL validation rejects unsupported schemes, missing hosts and URL user-info. Restored download files must resolve directly under canonical app-specific download roots and remain within the existing size cap.
-- New private-tab download metadata is not persisted and the in-memory item is removed when its private tab closes. Actual saved file bytes remain on-device.
+- Private-tab download metadata is not persisted; private file bytes are deleted on tab close, controller disposal and next-process startup.
 - One-time migration clears ambiguous legacy download-index metadata after authenticating and validating it; user files are preserved. Corrupt data or unavailable keys abort the migration.
 - Fixed migration ordering so a new-format download metadata write atomically marks the migration complete; otherwise the first subsequent load could incorrectly clear a just-written record.
 
 ### Supply-chain coverage
-- OSV-Scanner remains the PR source scan. The latest successful PR scan log explicitly reported “No package sources found” and “No lockfiles found”; therefore the green workflow means the scanner job completed, not that Gradle runtime dependencies were scanned or found vulnerability-free.
+- OSV-Scanner remains the PR source scan. The latest resolved-lockfile scan covered five Gradle modules and 788 package instances and reported “No issues found”; older no-lockfile scans are historical only.
 - SPDX source SBOM is source-level and does not prove a complete resolved dependency inventory.
 - Added .github/workflows/gradle-dependency-graph.yml: PRs generate a resolved Gradle dependency graph artifact without write permission; Main pushes/manual runs submit the resolved graph to GitHub Dependency Graph.
 - Added .github/workflows/gradle-dependency-graph.yml to generate resolved Gradle dependency graph artifacts for PRs and Main pushes using read-only permissions. Repository Dependency Graph is disabled in repository settings, so GitHub Dependency Review/submission is not available; the workflow intentionally does not request write permissions or fail CI on that setting. The owner must enable the repository feature before automated GitHub advisory review can be restored.

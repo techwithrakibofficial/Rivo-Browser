@@ -52,7 +52,7 @@ This validates CI for that exact commit only. It does not establish physical-dev
 ## Limitations and release blockers
 - Encrypted metadata failures now propagate and sensitive writes use fail-closed validation; Android Keystore/DataStore instrumentation is still required for on-device verification.
 - Per-site permission management/revoke UI and process-death tab restoration validation are pending.
-- Download file contents are stored as ordinary files in app-specific storage and are not encrypted by the metadata cipher; private mode does not erase user-saved downloads.
+- Normal download file contents are ordinary app-specific files and are not encrypted by the metadata cipher. Private downloads are isolated and deleted on private-tab close, controller disposal and next-process startup.
 - Private browsing does not hide traffic from websites, ISPs or network operators.
 - GeckoView remains the provisional MVP engine; final selection awaits controlled 3–4 GB device benchmarking.
 - Phase 2 and Phase 3 features have not started.
