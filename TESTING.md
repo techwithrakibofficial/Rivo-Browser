@@ -12,15 +12,17 @@ Keep PR-head CI, Main push CI, emulator instrumentation and physical-device QA d
 
 ## Source PR evidence
 - PR #35 exposed GeckoView API compile issues and malformed AndroidManifest metadata. The GeckoView builder call and nullable extraction handling were corrected; the ML Kit metadata element was moved inside the application element.
-- PR #36 Android CI reached successful assemble, lint, JVM tests, Gecko policy tests, benchmark APK/AAB builds, minified bundle, static 16 KB alignment and artifact upload steps; API 35 instrumentation was still running at last observation.
+- PR #36 Android CI passed assemble, lint, JVM tests, Gecko policy tests, benchmark APK/AAB builds, minified release bundle, static 16 KB alignment and QA artifact uploads.
+- PR #36 API 35 emulator instrumentation failed at `:app:connectedDebugAndroidTest`. The workflow log confirms failing tests but did not expose the failing test name/assertion; its XML/HTML report was not uploaded in that source run.
 - PR #36 source SBOM retry succeeded. Verify the exact artifact and resolved dependency graph before claiming dependency coverage.
 - OSV Scanner results must be reviewed for package-source/lockfile coverage; skipped or neutral is not a clean scan.
 
 ## Integration PR #37
-- PR #37 combines the two source workstreams into one 44-file integration candidate.
-- The first exact-head Android CI attempt was cancelled when the branch was updated; cancelled runs are not passes.
-- Exact-head CI must be rechecked after the latest documentation commit. Required tasks include shipping assemble, lint, JVM tests, Gecko policy tests, benchmark APK/AAB builds, minified release bundle, static 16 KB alignment, artifact upload and API 35 instrumentation.
+- PR #37 combines the two source workstreams into one integration candidate.
+- Android CI workflow now uploads `app/build/reports/androidTests/connected/debug` and connected-test XML reports even when instrumentation fails.
+- Exact-head Android CI must be checked after the latest integration commit. Required tasks include shipping assemble, lint, JVM tests, Gecko policy tests, benchmark APK/AAB builds, minified release bundle, static 16 KB alignment, artifact upload and API 35 instrumentation.
 - Source SBOM and Gradle dependency graph workflows must complete on the same exact head.
+- If instrumentation fails, inspect the uploaded `rivo-android-test-reports` artifact and fix the exact failing assertion before merge.
 
 ## Manual/device QA still required
 - Process death and normal-tab restoration; duplicate URLs; private-tab exclusion.
