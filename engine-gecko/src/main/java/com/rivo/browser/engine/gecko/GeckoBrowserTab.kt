@@ -382,6 +382,16 @@ class GeckoBrowserTab(
 }
 
 
+internal object WebNotificationPolicy {
+    /** Private-session notifications and non-HTTPS origins must never escape to Android UI. */
+    fun isAllowed(privateBrowsing: Boolean, source: String?): Boolean {
+        if (privateBrowsing || source.isNullOrBlank()) return false
+        val uri = runCatching { java.net.URI(source) }.getOrNull() ?: return false
+        return uri.scheme.equals("https", ignoreCase = true) &&
+            !uri.host.isNullOrBlank() && uri.rawUserInfo == null
+    }
+}
+
 private class RivoWebNotificationDelegate(context: Context) : WebNotificationDelegate {
     private val appContext = context.applicationContext
     private val manager = appContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -401,6 +411,10 @@ private class RivoWebNotificationDelegate(context: Context) : WebNotificationDel
 
     override fun onShowNotification(notification: WebNotification) {
         mainHandler.post {
+            if (!WebNotificationPolicy.isAllowed(notification.privateBrowsing, notification.source)) {
+                notification.dismiss()
+                return@post
+            }
             if ((Build.VERSION.SDK_INT >= 33 &&
                     appContext.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) !=
                     PackageManager.PERMISSION_GRANTED) ||
