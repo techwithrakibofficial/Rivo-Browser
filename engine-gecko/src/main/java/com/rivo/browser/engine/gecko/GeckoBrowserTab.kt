@@ -45,7 +45,7 @@ interface GeckoTabListener {
     fun onNavigationChanged(canGoBack: Boolean, canGoForward: Boolean)
     fun onContentCrashed()
     fun onSecurityChanged(secure: Boolean, exception: Boolean)
-    fun onExternalDownload(url: String, mimeType: String?, disposition: String?, body: InputStream?)
+    fun onExternalDownload(url: String, mimeType: String?, disposition: String?, contentLength: Long?, body: InputStream?)
     fun onSitePermissionRequest(origin: String, permission: String, privateMode: Boolean, respond: (Boolean) -> Unit)
 }
 
@@ -89,6 +89,7 @@ class GeckoBrowserTab(
                     response.uri,
                     response.headers["content-type"],
                     response.headers["content-disposition"],
+                    response.headers["content-length"]?.toLongOrNull(),
                     response.body
                 )
             }
