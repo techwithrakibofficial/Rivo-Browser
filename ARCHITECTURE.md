@@ -54,7 +54,7 @@ This document describes source architecture, not device acceptance. Audited Main
 
 ## Account A Phase 2 implementation increment (worker branch; not yet Main)
 
-- Reader Mode uses GeckoView `GeckoSession.getSessionPageExtractor()` to check `PageMetadata.isReaderable`, then extract plain prose with boilerplate removal. The Compose reader is an ephemeral overlay; it does not inject page JavaScript or persist article content. Extraction is capped at 250,000 characters.
+- Reader Mode uses GeckoView `GeckoSession.getSessionPageExtractor()` to check `PageMetadata.isReaderable`, then extract plain prose with boilerplate removal. The Compose reader is an ephemeral overlay; it does not inject page JavaScript or persist article content. Extraction is capped at 120,000 characters.
 - QR scanning delegates to Google Code Scanner / Play services. No camera permission is declared. Payloads are bounded and sanitized; the result is shown for explicit confirmation before it is routed through the existing safe navigation resolver.
 - Transfer Studio is a native view over the existing download model. It supports search, state filters, managed-file open/share/remove. The existing Gecko external-response InputStream is not a resumable transfer API; pause/resume/retry and live byte progress are not claimed.
 - Developer Mode is read-only diagnostics. GeckoRuntime remote debugging and console output are explicitly disabled; no arbitrary Gecko preference editor is exposed.
