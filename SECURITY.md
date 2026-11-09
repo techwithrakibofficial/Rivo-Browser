@@ -83,5 +83,6 @@ Assessment scope: current Main plus Account B PR #36 candidate. This is a develo
 ### Supply-chain coverage
 - OSV-Scanner remains the PR source scan. The latest successful PR scan log explicitly reported “No package sources found” and “No lockfiles found”; therefore the green workflow means the scanner job completed, not that Gradle runtime dependencies were scanned or found vulnerability-free.
 - SPDX source SBOM is source-level and does not prove a complete resolved dependency inventory.
-- Added .github/workflows/gradle-dependency-graph.yml: PRs generate a resolved Gradle dependency graph artifact without write permission; Main pushes/manual runs submit the resolved graph to GitHub Dependency Graph, enabling dependency alerts.
+- Added .github/workflows/gradle-dependency-graph.yml: PRs generate a resolved Gradle dependency graph artifact without write permission; Main pushes/manual runs submit the resolved graph to GitHub Dependency Graph.
+- Added .github/workflows/gradle-dependency-graph-submit.yml to submit the PR-generated artifact in a separate trusted workflow_run with contents:write, following Gradle's documented untrusted-PR pattern; added .github/workflows/dependency-review.yml to compare resolved PR dependencies against GitHub advisories (runtime scope, high+ threshold, retry for graph timing).
 - No Gradle lockfiles/checksum verification metadata are currently committed. Dependency graph submission improves resolved transitive visibility but is not equivalent to dependency locking or reproducible verification.
