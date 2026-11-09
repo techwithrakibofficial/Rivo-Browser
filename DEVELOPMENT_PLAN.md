@@ -3,8 +3,8 @@
 ## Current audit checkpoint — 2026-11-09
 - Main HEAD after PR #23 merge: `d192baf0f38db835904aa76a901d7e7cb2a24e31`; Advanced Tab Universe is now integrated.
 - PR #23 head passed CI #293; PR #24 head passed CI #300 (assembleDebug, lint, JVM tests, minified release bundle, size reports and QA artifact uploads) before merge as `350d4f3...`. A separate push-triggered Main CI result is not yet confirmed.
-- Open PR #10: permission controls; old Main base, mergeability conflict reported, rebase required.
-- Open PR #20: security/benchmark/API 35 integration; 4 commits behind Main, mergeability conflict reported. CI #288 passed on its PR head; rebase and fresh CI required.
+- Open PR #10: permission controls; 7 commits behind Main, mergeability conflict reported, rebase required. CI #268 passed its configured build/lint/JVM/release-bundle/QA artifact steps, but no instrumentation/device validation.
+- Open PR #20: security/benchmark/API 35 integration; 5 commits behind Main, mergeability conflict reported. CI #288 passed all configured tasks on its old head, including benchmark builds, static 16 KB checks and API 35 emulator instrumentation; rebase and fresh CI required.
 - Open PR #21: privacy center/private download hardening; stacked on #10, rebase required after #10.
 - PR #17 was superseded by merged PR #23 (Advanced Tab Universe); PR #16 benchmark remains closed/unmerged.
 - PR #24 Tab Universe accessibility and narrow-width polish is merged; manual 320 dp, large-font and TalkBack verification remains.
@@ -37,7 +37,7 @@
 
 ### Remaining Phase 1 work (ordered)
 1. Obtain/verify push-triggered CI for Main merge SHA `350d4f3...`; PR #24 CI #300 is green on its tested PR head.
-2. Reconcile PR #20's four-commit divergence from Main; review changes and rerun CI/API 35 instrumentation before integration.
+2. Reconcile PR #20's five-commit divergence from Main; review changes and rerun CI/API 35 instrumentation before integration.
 3. Rebase PR #10 to current Main, resolve conflicts, run CI and verify Gecko permission/notification behavior.
 4. Rebase PR #21 after #10 integration; run fresh CI and API 35 instrumentation.
 5. Recover/review PR #16 benchmark work if still useful; Advanced Tab Universe is integrated through PR #23.
