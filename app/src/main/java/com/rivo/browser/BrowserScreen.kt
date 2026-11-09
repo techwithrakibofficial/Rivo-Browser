@@ -60,7 +60,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Build.VERSION_CODES
 import android.app.Activity
-import android.os.Build
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
@@ -708,7 +707,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                                         if (item.status == "Downloading" || item.status == "Cancelling") {
                                             if (item.totalBytes != null && item.totalBytes > 0) {
                                                 LinearProgressIndicator(
-                                                    progress = (item.bytesReceived.toFloat() / item.totalBytes.toFloat()).coerceIn(0f, 1f),
+                                                    progress = { (item.bytesReceived.toFloat() / item.totalBytes.toFloat()).coerceIn(0f, 1f) },
                                                     modifier = Modifier.fillMaxWidth()
                                                 )
                                                 Text(
