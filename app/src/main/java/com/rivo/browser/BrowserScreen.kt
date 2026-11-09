@@ -187,7 +187,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                     }
                     if (active?.loading == true) {
                         LinearProgressIndicator(
-                            progress = active.progress / 100f,
+                            progress = { active.progress / 100f },
                             modifier = Modifier.fillMaxWidth().padding(top = 6.dp)
                         )
                     }
