@@ -13,7 +13,10 @@ internal object DownloadSecurityPolicy {
     fun normalizeMimeType(rawMimeType: String?): String? {
         val mimeType = rawMimeType?.substringBefore(';')?.trim()?.lowercase(Locale.ROOT) ?: return null
         if (mimeType.length !in 3..255) return null
-        val token = "[a-z0-9][a-z0-9!#    fun shouldPersistMetadata(privateMode: Boolean): Boolean = !privateMode^_.+-]{0,126}"
+        val mimePattern = Regex("^[a-z0-9][a-z0-9!#\\$&^_.+-]{0,126}/[a-z0-9][a-z0-9!#\\$&^_.+-]{0,126}$")
+        return mimeType.takeIf { mimePattern.matches(it) }
+    }
+    fun shouldPersistMetadata(privateMode: Boolean): Boolean = !privateMode^_.+-]{0,126}"
         return mimeType.takeIf { Regex("^" + token + "/" + token + "$").matches(it) }
     }
 
