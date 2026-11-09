@@ -128,3 +128,15 @@ jobs:
           disable-animations: true
           emulator-boot-timeout: 600
           script: gradle --no-daemon -Privo.abiSplits=false :app:connectedDebugAndroidTest --stacktrace --info
+      - name: Upload Android test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rivo-android-test-reports
+          path: |
+            app/build/reports/androidTests/connected/debug/**
+            app/build/outputs/androidTest-results/connected/debug/**
+            app/build/reports/tests/testDebugUnitTest/**
+            engine-gecko/build/reports/tests/testDebugUnitTest/**
+          if-no-files-found: ignore
+          retention-days: 7
