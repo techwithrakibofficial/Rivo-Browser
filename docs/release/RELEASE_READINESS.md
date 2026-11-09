@@ -101,3 +101,13 @@ OWASP MASVS source-level mapping is recorded in `SECURITY.md`. It is a gap-track
 - Android CI run #42571406314 initially failed due HTTP 504 while downloading kotlin-compiler-embeddable 2.4.10 from GitHub release assets. A retry was superseded by subsequent test/documentation changes. Exact-head Android CI remains pending and must pass before merge.
 - New Account B JVM regression verifies private tabs and unsafe URLs never enter process-restoration snapshots. API 35 instrumentation includes metadata migration/store-reopen tests.
 - Main baseline PR #33 CI #42563889346 passed configured tests, API 35 instrumentation, benchmark packaging, minified bundle and static APK/native ELF 16 KB alignment. No physical 16 KB runtime test is claimed.
+
+
+## Exact-head status refresh — 2026-11-09
+
+- PR #36 head at this checkpoint: `2b543be35c8621b0589c1ce68e1b31d273032464`; 45 commits ahead / 0 behind Main; draft/open.
+- Android CI #42571935131 was cancelled during retry after the build failed on upstream HTTP 504 fetching kotlin-compiler-embeddable 2.4.10 from a GitHub release asset. The retry was cancelled; no PR #36 build/test pass is claimed.
+- OSV #42571935564 completed successfully but logs explicitly report no package sources and no lockfiles. No resolved Gradle dependencies were scanned by OSV.
+- Source SBOM #42571935161 succeeded and uploaded a 2,939-byte source SPDX artifact. Gradle dependency graph #42571935225 succeeded and uploaded a 10,834-byte resolved dependency graph artifact.
+- GitHub Dependency Graph is disabled in repository settings. The Dependency Review action failed with an explicit unsupported-repository message and was removed; owner must enable Dependency Graph before that workflow can be restored.
+- Private-tab restoration policy regression added; API 35 instrumentation suite covers encrypted-store reopen/corruption/migration. Exact-head execution still pending.
