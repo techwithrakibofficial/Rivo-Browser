@@ -18,7 +18,7 @@ Keep PR-head CI, Main push CI, emulator instrumentation and physical-device QA d
 - OSV Scanner results must be reviewed for package-source/lockfile coverage; skipped or neutral is not a clean scan.
 
 ## Integration PR #37
-- PR #37 combines the two source workstreams into one integration candidate.
+- PR #37 combines the two source workstreams into one integration candidate. The lockfile workflow generated and committed the updated app dependency lockfile; OSV scanned five lockfiles (814 packages) and reported no issues. Source SBOM and Gradle dependency graph workflows succeeded on the pre-lockfile-refresh head.
 - Android CI workflow now uploads `app/build/reports/androidTests/connected/debug` and connected-test XML reports even when instrumentation fails.
 - Exact-head Android CI must be checked after the latest integration commit. Required tasks include shipping assemble, lint, JVM tests, Gecko policy tests, benchmark APK/AAB builds, minified release bundle, static 16 KB alignment, artifact upload and API 35 instrumentation.
 - Source SBOM and Gradle dependency graph workflows must complete on the same exact head.
