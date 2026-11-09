@@ -188,7 +188,7 @@ class LocalDataCipherInstrumentedTest {
 
         assertEquals(denied, storage.loadDeniedAndroidPermissions())
         val key = stringPreferencesKey("denied_android_permissions_json")
-        assertFalse("Ambiguous legacy download index must be removed", fixture.dataStore.data.first().contains(key))
+        assertTrue("Denied Android permissions must be stored encrypted", fixture.dataStore.data.first()[key].orEmpty().startsWith("enc:v1:"))
 
         storage.saveDeniedAndroidPermissions(emptySet())
         assertTrue(storage.loadDeniedAndroidPermissions().isEmpty())
