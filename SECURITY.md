@@ -42,3 +42,15 @@ OWASP MASVS is the assessment baseline for storage, cryptography, network, platf
 - CI adds the official OSV-Scanner reusable pull-request scan and scheduled/full scan workflow, plus an SPDX JSON source SBOM artifact.
 - A green source scan/SBOM is not proof that all resolved/transitive Gradle dependencies were inventoried: this repository does not yet commit Gradle dependency lockfiles.
 - Review scanner findings and SBOM contents before making any vulnerability-free or complete-inventory claim. These workflows are security signals, not MASVS certification.
+
+## Account B security integration candidate — 2026-11-09
+
+- Worker branch: `worker/account-b-security-qa-2026-11-09`; current work is isolated from Main and Account A branches.
+- GeckoView permission requests are mediated only for secure HTTPS notifications and autoplay; unsupported/device/media capabilities default-deny. Private-mode website notifications are denied.
+- Normal-mode permission inventory is sourced from GeckoView StorageController. Private records are filtered; persistent-storage grants are not presented as revocable.
+- Website notification delivery uses an app notification channel and a non-exported receiver. Android 13+ runtime notification consent is a separate required gate.
+- Download URL validation rejects unsupported schemes, missing hosts and URL user-info. Restored files must be direct children of canonical app-specific roots and within the existing size cap.
+- New private-tab download metadata is excluded from persistent browser download history and its in-memory entry is removed when the tab closes. Downloaded file bytes remain user-saved on-device.
+- One-time migration clears ambiguous legacy browser download-history metadata, after authenticating and validating the old record; actual downloaded files are preserved. Key-loss/corruption aborts migration.
+- Main's existing AES-256-GCM/Keystore, DataStore fail-closed, atomic download writer and 16 KB build checks are reused, not duplicated.
+- No MASVS certification, physical-device test, 16 KB runtime test, vulnerability-free claim or production signing is claimed.

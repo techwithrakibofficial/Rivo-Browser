@@ -53,3 +53,12 @@ Updated: 2026-11-09 — current integration divergence audit
 
 ## Session status
 PR #23 and PR #24 are integrated. PR #27 (`test(tabs): expand Tab Universe search regression coverage`) passed CI #306 on its PR head and merged as `ad607a7a97f9e9bce8cd57a206b2a438e6003f20`. The two new JVM policy regressions are now in Main. Post-merge Main CI and physical-device verification remain open.
+
+## Account B handoff — 2026-11-09
+
+- Review PR #36: https://github.com/techwithrakibofficial/Rivo-Browser/pull/36
+- Worker branch: `worker/account-b-security-qa-2026-11-09`; Main remains untouched.
+- Review GeckoBrowserTab permission callbacks, permission storage inventory/reset, notification receiver and runtime consent, private download metadata filtering, and BrowserStorage legacy metadata migration.
+- Confirm the latest PR head has green Android CI, OSV scan and source SBOM. The first Android CI run was cancelled by subsequent pushes and is not evidence of success.
+- Do not merge while checks are pending or failing. Do not claim physical device, 16 KB runtime or production signing verification.
+- PR #10 and #21 remain open historical branches; PR #36 is the current Main-based security integration candidate.

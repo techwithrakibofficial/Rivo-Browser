@@ -34,3 +34,12 @@
 - PR #10 #268 passed all configured build/lint/JVM/release bundle and QA artifact steps; no instrumentation step was present.
 - PR #20 #288 passed benchmark builds, static 16 KB checks, API 35 emulator security instrumentation and configured artifacts on its recorded PR head. Rebase and fresh CI are still required because the branch is five commits behind Main.
 - Neither CI run establishes physical-device behavior or 16 KB runtime support.
+
+## 2026-11-09 — Account B security integration candidate
+
+- Added GeckoView secure-origin permission mediation and default-deny behavior for unsupported permissions.
+- Added GeckoView site-permission inventory/reset API and Privacy Intelligence Center surface.
+- Added website notification delegate/receiver and Android notification permission gate.
+- Added private download metadata exclusion, private tab close cleanup, URL validation and canonical restore-file checks.
+- Added one-time migration that removes ambiguous legacy in-app download-history metadata while preserving downloaded file bytes and failing closed on corrupt/unavailable encrypted records.
+- Added JVM policy regression tests. Current-head CI and device validation remain pending.

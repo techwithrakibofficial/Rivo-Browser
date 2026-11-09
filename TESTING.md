@@ -68,3 +68,14 @@ Production release remains NO-GO until current Main CI is green, security/instru
 - OSV-Scanner pull-request workflow and SPDX source-SBOM workflow ran successfully on the initial PR #28 head.
 - Latest-Main integration PR #34 requires its own fresh CI run; do not infer its result from PR #28.
 - Review OSV output and SBOM artifact contents. No committed Gradle dependency lockfiles currently exist, so transitive dependency coverage is not yet complete or proven.
+
+## Account B candidate validation — 2026-11-09
+
+- PR #36: https://github.com/techwithrakibofficial/Rivo-Browser/pull/36
+- Candidate head after the latest documentation-independent source work must be validated by its exact SHA.
+- Added JVM tests cover HTTP(S)-only download URLs, URL user-info rejection, private metadata persistence policy, canonical restored-file root and size constraints, and Gecko site-permission policy.
+- Android CI run #42570107226 on the initial candidate was cancelled by a subsequent branch update before build tasks; do not count it as passed.
+- Source SBOM and OSV scan completed successfully on the initial candidate head. Re-run both after the final branch commit.
+- Required candidate CI: assembleDebug, lintDebug, testDebugUnitTest, benchmark APK/AAB builds, minified app bundle, static 16 KB APK/ELF alignment, API 35 connected instrumentation.
+- Required manual checks: HTTPS permission grant/deny, notification runtime permission/channel/delivery/click, private notification denial, permission reset/read-back, private tab close/process death, download path/metadata migration, and actual 16 KB device runtime.
+- Production release remains NO-GO until current-head CI, device QA, dependency review and signing verification are complete.

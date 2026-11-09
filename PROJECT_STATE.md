@@ -74,3 +74,13 @@ Phase 1 — Functional Browser MVP stabilization and verification. Do not declar
 - A merged PR, passing JVM test, successful build, emulator instrumentation run and physical-device test are different evidence levels.
 - Never claim unexecuted tests, hardware-backed Keystore, full tracker blocking, anonymity, extension support or production readiness.
 - PR #23 and PR #24 were merged after their respective PR-head CI runs #293 and #300 passed. Post-merge Main CI and all physical-device/UI validation remain separate evidence gates.
+
+## Account B security integration candidate — 2026-11-09
+
+- Main baseline at branch creation: `0d77826e655267c671498334c11ffad8d1dd5b14`.
+- Worker branch: `worker/account-b-security-qa-2026-11-09`.
+- PR #36 is open as a draft; do not merge until current-head CI and review pass.
+- Integrated candidate changes: GeckoView HTTPS site permission mediation, default-deny policy, normal permission inventory/reset, notification delegate/receiver, private download metadata suppression, URL and restored-file checks, one-time migration of legacy ambiguous download metadata, and regression tests.
+- Main's existing Keystore/DataStore hardening, API 35 Keystore instrumentation, atomic download writer, Account A Tab Universe work and static 16 KB checks are preserved.
+- The previous candidate CI run was cancelled due to rapid commits; current final SHA requires a fresh complete run.
+- Device validation, 16 KB runtime validation, full transitive dependency inventory, MASVS independent assessment and production signing remain open.
