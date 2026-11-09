@@ -8,6 +8,7 @@ import androidx.core.content.FileProvider
 import com.rivo.browser.data.BrowserStorage
 import com.rivo.browser.data.SavedPage
 import com.rivo.browser.data.SavedDownload
+import com.rivo.browser.data.SavedTab
 import com.rivo.browser.data.RestorableTabCandidate
 import com.rivo.browser.data.RestorableTabPolicy
 import com.rivo.browser.data.HistoryVisitPolicy
@@ -31,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import org.mozilla.geckoview.StorageController
 
 enum class BrowserAppearance { DARK, LIGHT, GLASS }
 
@@ -72,6 +74,7 @@ class BrowserController(context: Context) {
     val sitePermissions = mutableStateListOf<GeckoStoredSitePermission>()
     var sitePermissionsLoading by mutableStateOf(false)
     var sitePermissionsLoadError by mutableStateOf(false)
+    var clearingBrowsingData by mutableStateOf(false)
     private var awaitingNotificationPermissionResult = false
 
     var activeTabId by mutableStateOf(0L)
@@ -294,6 +297,63 @@ class BrowserController(context: Context) {
                 .onSuccess { bookmarks.removeAll { it.url == url } }
                 .onFailure { notice = it.message ?: "Bookmark could not be removed." }
         }
+    }
+
+    fun clearBrowsingData() {
+        if (clearingBrowsingData) return
+        clearingBrowsingData = true
+        val savedTabs = tabs.filterNot { it.privateMode }.map { tab ->
+            SavedTab(tab.url, tab.title, tab.id == activeTabId)
+        }.take(MAX_TABS)
+
+        cancelPendingDownload()
+        permissionPrompt?.respond?.invoke(false)
+        permissionPrompt = null
+        awaitingNotificationPermissionResult = false
+        tabs.toList().forEach { it.engine.dispose() }
+        tabs.clear()
+        activeTabId = 0L
+        sitePermissions.clear()
+        sitePermissionsLoading = false
+        sitePermissionsLoadError = false
+
+        fun restoreNormalTabs() {
+            if (savedTabs.isEmpty()) {
+                createTab()
+                return
+            }
+            savedTabs.forEach { saved -> createTab(url = saved.url, restoredTitle = saved.title) }
+            val selectedIndex = savedTabs.indexOfFirst { it.selected }.takeIf { it >= 0 } ?: savedTabs.lastIndex
+            tabs.getOrNull(selectedIndex)?.let { selectTab(it.id) }
+        }
+
+        runtime.storageController.clearData(
+            StorageController.ClearFlags.SITE_DATA or StorageController.ClearFlags.SITE_SETTINGS
+        ).accept({
+            scope.launch {
+                val localClear = runCatching {
+                    storage.clearHistory()
+                    storage.saveDownloads(emptyList())
+                    storage.saveOpenTabs(emptyList())
+                }
+                history.clear()
+                downloads.clear()
+                restoreNormalTabs()
+                clearingBrowsingData = false
+                notice = if (localClear.isSuccess) {
+                    "Browsing history, cookies, cache, site permissions and download history cleared. Bookmarks and downloaded files were kept."
+                } else {
+                    "Website data was cleared, but local history or download metadata could not be cleared: " +
+                        (localClear.exceptionOrNull()?.message ?: "storage error")
+                }
+            }
+        }, { error ->
+            scope.launch {
+                restoreNormalTabs()
+                clearingBrowsingData = false
+                notice = "Website data could not be cleared: " + (error.message ?: "GeckoView storage error")
+            }
+        })
     }
 
     fun clearHistory() {
