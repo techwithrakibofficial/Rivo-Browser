@@ -2,12 +2,12 @@
 
 ## Current audit checkpoint — 2026-11-09
 - Main HEAD after PR #23 merge: `d192baf0f38db835904aa76a901d7e7cb2a24e31`; Advanced Tab Universe is now integrated.
-- PR #23 head passed CI run #293 (assembleDebug, lint, JVM tests and minified release bundle). A separate push-triggered Main CI result for merge SHA `d192baf0...` is not yet confirmed.
+- PR #23 head passed CI #293; PR #24 head passed CI #300 (assembleDebug, lint, JVM tests, minified release bundle, size reports and QA artifact uploads) before merge as `350d4f3...`. A separate push-triggered Main CI result is not yet confirmed.
 - Open PR #10: permission controls; old Main base, mergeability conflict reported, rebase required.
-- Open PR #20: security/benchmark/API 35 integration; fresh CI required.
+- Open PR #20: security/benchmark/API 35 integration; 4 commits behind Main, mergeability conflict reported. CI #288 passed on its PR head; rebase and fresh CI required.
 - Open PR #21: privacy center/private download hardening; stacked on #10, rebase required after #10.
 - PR #17 was superseded by merged PR #23 (Advanced Tab Universe); PR #16 benchmark remains closed/unmerged.
-- PR #24 adds Tab Universe accessibility and narrow-width polish; fresh CI is pending before merge.
+- PR #24 Tab Universe accessibility and narrow-width polish is merged; manual 320 dp, large-font and TalkBack verification remains.
 - Current priority is Phase 1 stabilization, integration and verification, not declaring Phase 2 complete.
 
 ## Phase 0 — foundation
@@ -36,8 +36,8 @@
 - No backend, account, telemetry or paid service.
 
 ### Remaining Phase 1 work (ordered)
-1. Obtain/verify push-triggered CI for Main merge SHA `d192baf0...`; PR #23 CI #293 is green on the tested PR head.
-2. Review/integrate PR #20 only after fresh CI, API 35 instrumentation and code review.
+1. Obtain/verify push-triggered CI for Main merge SHA `350d4f3...`; PR #24 CI #300 is green on its tested PR head.
+2. Reconcile PR #20's four-commit divergence from Main; review changes and rerun CI/API 35 instrumentation before integration.
 3. Rebase PR #10 to current Main, resolve conflicts, run CI and verify Gecko permission/notification behavior.
 4. Rebase PR #21 after #10 integration; run fresh CI and API 35 instrumentation.
 5. Recover/review PR #16 benchmark work if still useful; Advanced Tab Universe is integrated through PR #23.
@@ -47,7 +47,7 @@
 9. Run ARM64/ARMv7 physical-device smoke tests and 3–4 GB RAM performance benchmarks.
 10. Verify 16 KB runtime behavior, dependency/SBOM and OWASP MASVS controls.
 11. Complete current UI/theme/accessibility defects and regression testing.
-12. Merge PR #24 only after its CI is green, then verify 320 dp width, large font and TalkBack.
+12. Verify PR #24's merged filter semantics on a 320 dp device, large font and TalkBack.
 13. Only after Phase 1 acceptance, proceed to remaining Phase 2 features.
 
 ### Acceptance criteria
