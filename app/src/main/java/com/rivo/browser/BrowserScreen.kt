@@ -1,6 +1,8 @@
 package com.rivo.browser
 
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -51,7 +53,12 @@ import com.rivo.browser.designsystem.RivoShapes
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import android.os.Build.VERSION_CODES
 import android.app.Activity
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -73,6 +80,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     var address by remember(active?.id) { mutableStateOf(active?.url.orEmpty()) }
     var isEditingAddress by remember(active?.id) { mutableStateOf(false) }
     var menuExpanded by remember { mutableStateOf(false) }
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> browser.completeNotificationPermissionRequest(granted) }
 
     SideEffect {
         val window = (view.context as? Activity)?.window
@@ -91,6 +99,8 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     LaunchedEffect(active?.url, isEditingAddress) {
         if (active != null && !isEditingAddress) address = active.url
     }
+    val currentPermissionPrompt = browser.permissionPrompt
+    LaunchedEffect(currentPermissionPrompt) { currentPermissionPrompt?.onShown?.invoke() }
 
     MaterialTheme(colorScheme = RivoColorSchemes.forAppearance(browser.appearance)) {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
@@ -250,7 +260,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
         )
     }
 
-    browser.permissionPrompt?.let { request ->
+    currentPermissionPrompt?.let { request ->
         AlertDialog(
             onDismissRequest = { browser.respondToSitePermission(false) },
             title = { Text("Website permission") },
@@ -476,7 +486,36 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
-                    BrowserPanel.SITE_PERMISSIONS -> Unit
+                    BrowserPanel.SITE_PERMISSIONS -> {
+                        Text("Secure storage", style = MaterialTheme.typography.titleSmall)
+                        Text("Browser metadata uses AES-256-GCM with Android Keystore. Downloaded file contents are not encrypted by this metadata cipher.", style = MaterialTheme.typography.bodySmall)
+                        Spacer(Modifier.height(RivoSpacing.small))
+                        Text("Private browsing", style = MaterialTheme.typography.titleSmall)
+                        Text("Private tabs are excluded from app history, bookmarks and tab restoration. Private download entries are not persisted; downloaded files remain on the device. Private browsing does not hide network activity or your IP address.", style = MaterialTheme.typography.bodySmall)
+                        Spacer(Modifier.height(RivoSpacing.small))
+                        Text("Tracking protection", style = MaterialTheme.typography.titleSmall)
+                        Text(when {
+                            browser.activeTab == null -> "Status unavailable."
+                            !browser.activeTab!!.trackingProtectionEnabled -> "Disabled for this GeckoView session."
+                            browser.activeTab!!.trackingProtectionException -> "GeckoView reports a site-specific exception."
+                            else -> "Enabled; no site exception reported."
+                        })
+                        if (browser.sitePermissionsLoading) Text("Loading permissions from GeckoView…")
+                        else if (browser.sitePermissionsLoadError) Text("Permission data unavailable; no state is assumed.")
+                        else if (browser.sitePermissions.isEmpty()) Text("No saved normal-mode site permissions.")
+                        LazyColumn(modifier = Modifier.heightIn(max = 260.dp)) {
+                            items(browser.sitePermissions, key = { it.origin + "|" + it.permissionName + "|" + it.contextKey.orEmpty() }) { permission ->
+                                Column(Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
+                                    Text(permission.origin, style = MaterialTheme.typography.titleSmall)
+                                    Text(permission.permissionName)
+                                    Text(if (permission.allowed) "Allowed" else "Denied")
+                                    if (permission.canRevoke) TextButton(onClick = { browser.revokeSitePermission(permission) }) { Text("Reset permission") }
+                                    else Text("This GeckoView permission cannot be revoked after grant.", style = MaterialTheme.typography.bodySmall)
+                                }
+                            }
+                        }
+                        Text("Private permission records are not listed. Unsupported location, camera, microphone and persistent-storage capabilities remain denied.", style = MaterialTheme.typography.bodySmall)
+                    }
                     BrowserPanel.APPEARANCE -> {
                         BrowserAppearance.values().forEach { appearance ->
                             TextButton(
