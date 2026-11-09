@@ -23,6 +23,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -43,6 +44,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.stateDescription
 import com.rivo.browser.designsystem.RivoColorSchemes
 import com.rivo.browser.designsystem.RivoSpacing
 import com.rivo.browser.designsystem.RivoShapes
@@ -320,18 +322,27 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                             onValueChange = { tabQuery = it },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
+                            label = { Text("Search tabs by title or URL") },
                             placeholder = { Text("Search open tabs") }
                         )
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(0.dp)) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(RivoSpacing.compact),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             listOf(
                                 TabUniverseFilter.ALL to "All",
                                 TabUniverseFilter.NORMAL to "Normal",
                                 TabUniverseFilter.PRIVATE to "Private",
                                 TabUniverseFilter.ACTIVE to "Active"
                             ).forEach { (filter, label) ->
-                                TextButton(onClick = { tabFilter = filter }) {
-                                    Text((if (tabFilter == filter) "✓ " else "") + label)
-                                }
+                                FilterChip(
+                                    selected = tabFilter == filter,
+                                    onClick = { tabFilter = filter },
+                                    label = { Text(label) }
+                                )
                             }
                         }
                         Box {
@@ -368,15 +379,24 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                                         TextButton(onClick = {
                                             browser.selectTab(tab.id)
                                             onDismiss()
-                                        }, modifier = Modifier.weight(1f)) {
+                                        }, modifier = Modifier
+                                            .weight(1f)
+                                            .semantics {
+                                                stateDescription = if (item.active) "Active tab" else "Inactive tab"
+                                            }) {
                                             Column(horizontalAlignment = Alignment.Start) {
-                                                Text((if (item.active) "● " else "") +
+                                                Text((if (item.active) "Active · " else "") +
                                                     (if (item.privateMode) "Private · " else "Normal · ") + item.title,
                                                     maxLines = 1)
                                                 Text(item.url, style = MaterialTheme.typography.labelSmall, maxLines = 1)
                                             }
                                         }
-                                        TextButton(onClick = { browser.closeTab(tab.id) }, modifier = Modifier.semantics { contentDescription = "Close tab" }) { Text("×") }
+                                        TextButton(
+                                            onClick = { browser.closeTab(tab.id) },
+                                            modifier = Modifier.semantics {
+                                                contentDescription = "Close tab: ${tab.title}"
+                                            }
+                                        ) { Text("×") }
                                     }
                                 }
                             }
