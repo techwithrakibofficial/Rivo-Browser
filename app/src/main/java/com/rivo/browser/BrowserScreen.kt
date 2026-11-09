@@ -82,6 +82,9 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     var menuExpanded by remember { mutableStateOf(false) }
     var showClearDataConfirmation by remember { mutableStateOf(false) }
     val notificationPermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> browser.completeNotificationPermissionRequest(granted) }
+    val devicePermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { results ->
+        browser.completeAndroidPermissionRequest(results)
+    }
 
     SideEffect {
         val window = (view.context as? Activity)?.window
@@ -100,6 +103,12 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     LaunchedEffect(active?.url, isEditingAddress) {
         if (active != null && !isEditingAddress) address = active.url
     }
+    LaunchedEffect(browser.pendingAndroidPermissionNames) {
+        val requested = browser.pendingAndroidPermissionNames ?: return@LaunchedEffect
+        browser.beginAndroidPermissionRequest()
+        devicePermissionLauncher.launch(requested.toTypedArray())
+    }
+
     val currentPermissionPrompt = browser.permissionPrompt
     LaunchedEffect(currentPermissionPrompt) { currentPermissionPrompt?.onShown?.invoke() }
 
