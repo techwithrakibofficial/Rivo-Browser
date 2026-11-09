@@ -8,10 +8,17 @@ import org.junit.Test
 class DownloadSecurityPolicyTest {
     @Test fun onlyHttpAndHttpsWithHostAndNoUserInfoAreAllowed() {
         assertTrue(DownloadSecurityPolicy.isAllowedUrl("https://example.com/a"))
-        assertTrue(DownloadSecurityPolicy.isAllowedUrl("http://example.com/a"))
+        assertFalse(DownloadSecurityPolicy.isAllowedUrl("http://example.com/a"))
         assertFalse(DownloadSecurityPolicy.isAllowedUrl("file:///sdcard/a"))
         assertFalse(DownloadSecurityPolicy.isAllowedUrl("https://u:p@example.com/a"))
         assertFalse(DownloadSecurityPolicy.isAllowedUrl("https:///missing"))
+    }
+    @Test fun mimeTypesAreNormalizedAndInvalidValuesAreRejected() {
+        assertEquals("application/pdf", DownloadSecurityPolicy.normalizeMimeType("Application/PDF; charset=binary"))
+        assertEquals("application/octet-stream", DownloadSecurityPolicy.normalizeMimeType("application/octet-stream"))
+        assertNull(DownloadSecurityPolicy.normalizeMimeType("text/html" + 13.toChar() + 10.toChar() + "X-Evil: yes"))
+        assertNull(DownloadSecurityPolicy.normalizeMimeType("not-a-mime-type"))
+        assertNull(DownloadSecurityPolicy.normalizeMimeType(null))
     }
     @Test fun privateDownloadMetadataIsNotPersisted() {
         assertFalse(DownloadSecurityPolicy.shouldPersistMetadata(true))
