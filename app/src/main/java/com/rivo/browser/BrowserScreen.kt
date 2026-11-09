@@ -53,6 +53,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import android.app.Activity
+import android.os.Build
+import com.google.mlkit.vision.barcode.common.Barcode
+import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
+import androidx.compose.material3.Slider
+import androidx.compose.foundation.verticalScroll
+import java.util.Locale
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -73,6 +80,14 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     var address by remember(active?.id) { mutableStateOf(active?.url.orEmpty()) }
     var isEditingAddress by remember(active?.id) { mutableStateOf(false) }
     var menuExpanded by remember { mutableStateOf(false) }
+    val qrScanner = remember(context) {
+        GmsBarcodeScanning.getClient(
+            context,
+            GmsBarcodeScannerOptions.Builder()
+                .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
+                .build()
+        )
+    }
 
     SideEffect {
         val window = (view.context as? Activity)?.window
@@ -158,6 +173,23 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                                     menuExpanded = false
                                     browser.openPanel(BrowserPanel.APPEARANCE)
                                 })
+                                DropdownMenuItem(text = { Text("Reader Mode") }, onClick = {
+                                    menuExpanded = false
+                                    browser.openReaderMode()
+                                })
+                                DropdownMenuItem(text = { Text("Scan QR code") }, onClick = {
+                                    menuExpanded = false
+                                    qrScanner.startScan()
+                                        .addOnSuccessListener { barcode -> browser.showQrScanResult(barcode.rawValue) }
+                                        .addOnCanceledListener { }
+                                        .addOnFailureListener {
+                                            browser.showNotice("QR scanner is unavailable. Check Google Play services and try again.")
+                                        }
+                                })
+                                DropdownMenuItem(text = { Text("Developer mode") }, onClick = {
+                                    menuExpanded = false
+                                    browser.openPanel(BrowserPanel.DEVELOPER)
+                                })
                             }
                         }
                     }
@@ -228,6 +260,40 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
         )
     }
 
+    browser.readerArticle?.takeIf { it.tabId == browser.activeTabId }?.let { article ->
+        ReaderModeDialog(article = article, onDismiss = { browser.closeReaderMode() })
+    }
+
+    if (browser.readerLoading) {
+        AlertDialog(
+            onDismissRequest = { browser.closeReaderMode() },
+            title = { Text("Preparing Reader Mode") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(RivoSpacing.small)) {
+                    Text("Extracting the article using GeckoView.")
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { browser.closeReaderMode() }) { Text("Cancel") }
+            }
+        )
+    }
+
+    browser.qrScanResult?.let { value ->
+        AlertDialog(
+            onDismissRequest = { browser.dismissQrScanResult() },
+            title = { Text("QR code result") },
+            text = { Text(value, maxLines = 8) },
+            confirmButton = {
+                TextButton(onClick = { browser.openQrScanResult() }) { Text("Open or search") }
+            },
+            dismissButton = {
+                TextButton(onClick = { browser.dismissQrScanResult() }) { Text("Cancel") }
+            }
+        )
+    }
+
     browser.pendingDownload?.let { request ->
         val downloadUri = android.net.Uri.parse(request.url)
         val fileName = downloadUri.lastPathSegment ?: "download"
@@ -283,6 +349,69 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
 }
 
 @Composable
+private fun ReaderModeDialog(article: ReaderArticle, onDismiss: () -> Unit) {
+    var textScale by remember(article.url) { mutableStateOf(1f) }
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(RivoShapes.panel),
+            color = MaterialTheme.colorScheme.surface,
+            modifier = Modifier.fillMaxWidth().heightIn(max = 640.dp)
+        ) {
+            Column(modifier = Modifier.padding(RivoSpacing.large)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("Reader Mode", style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+                    TextButton(onClick = onDismiss) { Text("Close") }
+                }
+                Text(article.title, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    article.language + " · " + article.wordCount + " words",
+                    style = MaterialTheme.typography.labelSmall
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("Text size", style = MaterialTheme.typography.labelMedium)
+                    Slider(
+                        value = textScale,
+                        onValueChange = { textScale = it },
+                        valueRange = 0.85f..1.5f,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Column(
+                    modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())
+                ) {
+                    Text(
+                        article.content,
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontSize = MaterialTheme.typography.bodyLarge.fontSize * textScale,
+                            lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * textScale
+                        )
+                    )
+                    if (article.wasTruncated) {
+                        Text(
+                            "Article preview shortened to protect memory use.",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun formatTransferSize(bytes: Long): String {
+    if (bytes < 1024) return "$bytes B"
+    val units = listOf("KB", "MB", "GB")
+    var size = bytes.toDouble()
+    var unitIndex = -1
+    do {
+        size /= 1024.0
+        unitIndex++
+    } while (size >= 1024.0 && unitIndex < units.lastIndex)
+    return String.format(Locale.ROOT, "%.1f %s", size, units[unitIndex])
+}
+
+@Composable
 private fun keyTab(id: Long, content: @Composable () -> Unit) {
     androidx.compose.runtime.key(id) { content() }
 }
@@ -294,12 +423,15 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
     var tabFilter by remember(panel) { mutableStateOf(TabUniverseFilter.ALL) }
     var tabSort by remember(panel) { mutableStateOf(TabUniverseSort.ACTIVE_FIRST) }
     var sortMenuExpanded by remember(panel) { mutableStateOf(false) }
+    var transferQuery by remember(panel) { mutableStateOf("") }
+    var transferFilter by remember(panel) { mutableStateOf(TransferFilter.ALL) }
     val title = when (panel) {
         BrowserPanel.TABS -> "Your tabs"
         BrowserPanel.BOOKMARKS -> "Bookmarks"
         BrowserPanel.HISTORY -> "History"
         BrowserPanel.DOWNLOADS -> "Downloads"
         BrowserPanel.APPEARANCE -> "Quick appearance"
+        BrowserPanel.DEVELOPER -> "Developer mode"
         BrowserPanel.MENU -> "Browser menu"
     }
     Dialog(onDismissRequest = onDismiss) {
@@ -454,24 +586,107 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                         }
                     }
                     BrowserPanel.DOWNLOADS -> {
-                        if (browser.downloads.isEmpty()) Text("No downloads yet.")
-                        LazyColumn(modifier = Modifier.heightIn(max = 300.dp)) {
-                            items(browser.downloads, key = { it.id }) { download ->
-                                Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-                                    Text(download.filename, maxLines = 1)
-                                    Text(download.status, style = MaterialTheme.typography.labelSmall)
-                                    download.mimeType?.let { Text(it, style = MaterialTheme.typography.labelSmall) }
-                                    if (download.file != null) {
-                                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                            TextButton(onClick = { browser.openDownload(download) }) { Text("Open") }
-                                            TextButton(onClick = { browser.shareDownload(download) }) { Text("Share") }
+                        val records = browser.downloads.map { download ->
+                            TransferRecord(
+                                id = download.id,
+                                filename = download.filename,
+                                status = download.status,
+                                mimeType = download.mimeType,
+                                sizeBytes = download.file?.let { file -> runCatching { file.length() }.getOrNull() },
+                                hasFile = download.file?.exists() == true
+                            )
+                        }
+                        val visibleTransfers = TransferStudioPolicy.visible(records, transferQuery, transferFilter)
+                        val completedCount = records.count { it.hasFile }
+                        val activeCount = records.count { it.status == "Downloading" }
+                        val failedCount = records.count { it.status == "Failed" }
+                        Text(
+                            "$completedCount completed · $activeCount active · $failedCount failed",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        OutlinedTextField(
+                            value = transferQuery,
+                            onValueChange = { transferQuery = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            label = { Text("Search transfers") },
+                            placeholder = { Text("Filename or file type") }
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(RivoSpacing.compact),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            listOf(
+                                TransferFilter.ALL to "All",
+                                TransferFilter.ACTIVE to "Active",
+                                TransferFilter.COMPLETED to "Completed",
+                                TransferFilter.FAILED to "Failed"
+                            ).forEach { (filter, label) ->
+                                FilterChip(
+                                    selected = transferFilter == filter,
+                                    onClick = { transferFilter = filter },
+                                    label = { Text(label) }
+                                )
+                            }
+                        }
+                        if (visibleTransfers.isEmpty()) {
+                            Text(
+                                if (records.isEmpty()) "No transfers yet." else "No transfers match this search or filter.",
+                                modifier = Modifier.padding(vertical = RivoSpacing.medium)
+                            )
+                        } else {
+                            LazyColumn(modifier = Modifier.heightIn(max = 340.dp)) {
+                                items(visibleTransfers, key = { it.id }) { item ->
+                                    val download = browser.downloads.firstOrNull { it.id == item.id } ?: return@items
+                                    Column(modifier = Modifier.fillMaxWidth().padding(vertical = RivoSpacing.small)) {
+                                        Text(item.filename, style = MaterialTheme.typography.titleSmall, maxLines = 2)
+                                        Text(
+                                            buildString {
+                                                append(item.status)
+                                                item.sizeBytes?.let { append(" · ").append(formatTransferSize(it)) }
+                                                item.mimeType?.let { append(" · ").append(it) }
+                                            },
+                                            style = MaterialTheme.typography.labelSmall
+                                        )
+                                        Row(horizontalArrangement = Arrangement.spacedBy(RivoSpacing.compact)) {
+                                            if (item.hasFile) {
+                                                TextButton(onClick = { browser.openDownload(download) }) { Text("Open") }
+                                                TextButton(onClick = { browser.shareDownload(download) }) { Text("Share") }
+                                            }
+                                            if (item.status != "Downloading") {
+                                                TextButton(onClick = { browser.removeDownload(download) }) { Text("Remove") }
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
                         Text(
-                            "Files are stored in Rivo's app-specific Downloads folder. Private mode does not erase files you download.",
+                            "Files stay in Rivo's app-specific Downloads folder. Removing a completed transfer deletes its managed file. Private browsing does not automatically erase saved files.",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    BrowserPanel.DEVELOPER -> {
+                        val tab = browser.activeTab
+                        val settings = tab?.engine?.session?.settings
+                        Text("Engine: GeckoView 159.0.20261022150525")
+                        Text("Android API: " + Build.VERSION.SDK_INT)
+                        Text("Supported ABIs: " + Build.SUPPORTED_ABIS.joinToString())
+                        Text("Session: " + when {
+                            tab == null -> "No active tab"
+                            tab.privateMode -> "Private"
+                            else -> "Normal"
+                        })
+                        Text("JavaScript: " + if (settings?.getAllowJavascript() == false) "Disabled" else "Enabled")
+                        Text("Tracking protection: " + if (settings?.getUseTrackingProtection() == true) "Enabled" else "Not reported")
+                        Text("Remote debugging: Disabled")
+                        Text(
+                            "GeckoView supports WebExtensions, but Rivo does not yet ship an add-on manager or marketplace. Only Mozilla-signed external XPI installs and APK-bundled built-in extensions are documented integration paths.",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Text(
+                            "Developer mode is read-only diagnostics in this build. Remote debugging, console logging and about:config are not exposed, to avoid creating a production attack surface.",
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
