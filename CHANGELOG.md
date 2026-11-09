@@ -43,3 +43,12 @@
 - Added private download metadata exclusion, private tab close cleanup, URL validation and canonical restore-file checks.
 - Added one-time migration that removes ambiguous legacy in-app download-history metadata while preserving downloaded file bytes and failing closed on corrupt/unavailable encrypted records.
 - Added JVM policy regression tests. Current-head CI and device validation remain pending.
+
+
+## 2026-11-09 — Account B security QA follow-up
+
+- Added defense-in-depth suppression of private-session, insecure-origin and malformed-source web notifications before they can reach Android notification UI.
+- Added unit coverage for Gecko web notification origin/privacy policy and included the Gecko engine unit-test task in Android CI.
+- Fixed a legacy download metadata migration ordering issue: successful writes of the new metadata format now mark migration complete atomically.
+- Added API 35 instrumentation coverage for clearing ambiguous legacy download metadata without deleting user file bytes and preserving subsequent new-format records.
+- Added resolved Gradle dependency graph generation for PR artifacts and Main GitHub Dependency Graph submission to improve transitive dependency visibility.
