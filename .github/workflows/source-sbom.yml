@@ -1,0 +1,28 @@
+name: Source SBOM
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sbom:
+    name: Generate source SBOM
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v7
+      - name: Generate SPDX source SBOM
+        uses: anchore/sbom-action@v0.24.3
+        with:
+          path: .
+          format: spdx-json
+          output-file: rivo-source-sbom.spdx.json
+          artifact-name: rivo-source-sbom
+          upload-artifact: true
+          upload-artifact-retention: 14
