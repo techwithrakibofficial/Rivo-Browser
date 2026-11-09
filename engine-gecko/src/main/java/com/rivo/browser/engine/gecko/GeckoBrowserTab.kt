@@ -56,6 +56,7 @@ interface GeckoTabListener {
     fun onSecurityChanged(secure: Boolean, exception: Boolean)
     fun onExternalDownload(url: String, mimeType: String?, disposition: String?, body: InputStream?)
     fun onSitePermissionRequest(origin: String, permission: String, privateMode: Boolean, onShown: () -> Unit, respond: (Boolean) -> Unit)
+    fun onAndroidPermissionRequest(permissions: List<String>, respond: (Boolean) -> Unit)
 }
 
 data class GeckoStoredSitePermission(
@@ -77,6 +78,7 @@ object GeckoSitePermissionPolicy {
         !(privateMode && permission == GeckoSession.PermissionDelegate.PERMISSION_DESKTOP_NOTIFICATION) &&
         permission in setOf(
             GeckoSession.PermissionDelegate.PERMISSION_DESKTOP_NOTIFICATION,
+            GeckoSession.PermissionDelegate.PERMISSION_GEOLOCATION,
             GeckoSession.PermissionDelegate.PERMISSION_AUTOPLAY_AUDIBLE,
             GeckoSession.PermissionDelegate.PERMISSION_AUTOPLAY_INAUDIBLE
         )
@@ -196,7 +198,24 @@ class GeckoBrowserTab(
                 permissions: Array<String>?,
                 callback: GeckoSession.PermissionDelegate.Callback
             ) {
-                callback.reject()
+                val requested = permissions?.distinct().orEmpty()
+                val supported = setOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.RECORD_AUDIO
+                )
+                if (session !== this@GeckoBrowserTab.session ||
+                    !isSecureOrigin(currentUrl) ||
+                    requested.isEmpty() ||
+                    requested.any { it !in supported }
+                ) {
+                    callback.reject()
+                    return
+                }
+                listener.onAndroidPermissionRequest(requested) { granted ->
+                    if (granted) callback.grant() else callback.reject()
+                }
             }
 
             override fun onMediaPermissionRequest(
@@ -206,7 +225,35 @@ class GeckoBrowserTab(
                 audio: Array<GeckoSession.PermissionDelegate.MediaSource>?,
                 callback: GeckoSession.PermissionDelegate.MediaCallback
             ) {
-                callback.reject()
+                val videoSource = video?.firstOrNull {
+                    it.source == GeckoSession.PermissionDelegate.MediaSource.SOURCE_CAMERA
+                }
+                val audioSource = audio?.firstOrNull {
+                    it.source == GeckoSession.PermissionDelegate.MediaSource.SOURCE_MICROPHONE
+                }
+                if (session !== this@GeckoBrowserTab.session ||
+                    !isSecureOrigin(uri) ||
+                    (video != null && videoSource == null) ||
+                    (audio != null && audioSource == null) ||
+                    (video == null && audio == null)
+                ) {
+                    callback.reject()
+                    return
+                }
+                val requestUri = Uri.parse(uri)
+                val origin = buildString {
+                    append(requestUri.scheme)
+                    append("://")
+                    append(requestUri.host)
+                    if (requestUri.port != -1) append(":").append(requestUri.port)
+                }
+                val requested = buildList {
+                    if (videoSource != null) add("Camera")
+                    if (audioSource != null) add("Microphone")
+                }.joinToString(" and ")
+                listener.onSitePermissionRequest(origin, requested, isPrivate, onShown = {}) { granted ->
+                    if (granted) callback.grant(videoSource, audioSource) else callback.reject()
+                }
             }
         })
         session.setProgressDelegate(object : GeckoSession.ProgressDelegate {
@@ -258,6 +305,12 @@ class GeckoBrowserTab(
             }
         })
         session.open(runtime)
+    }
+
+    private fun isSecureOrigin(rawUri: String): Boolean {
+        val uri = Uri.parse(rawUri)
+        return uri.scheme.equals("https", ignoreCase = true) &&
+            !uri.host.isNullOrBlank() && uri.userInfo == null
     }
 
     val isTrackingProtectionEnabled: Boolean
