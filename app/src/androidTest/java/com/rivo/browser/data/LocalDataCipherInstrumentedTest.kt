@@ -174,6 +174,26 @@ class LocalDataCipherInstrumentedTest {
     }
 
     @Test
+    fun deniedAndroidPermissionsAreStoredEncryptedAndCanBeCleared() = runBlocking {
+        val fixture = newFixture()
+        val storage = BrowserStorage(fixture.dataStore, LocalDataCipher(keyAlias), SensitiveWriteGuard())
+        val denied = setOf(
+            android.Manifest.permission.CAMERA,
+            android.Manifest.permission.RECORD_AUDIO
+        )
+
+        storage.saveDeniedAndroidPermissions(denied)
+
+        assertEquals(denied, storage.loadDeniedAndroidPermissions())
+        val key = stringPreferencesKey("denied_android_permissions_json")
+        assertTrue(fixture.dataStore.data.first()[key].orEmpty().startsWith("enc:v1:"))
+
+        storage.saveDeniedAndroidPermissions(emptySet())
+        assertTrue(storage.loadDeniedAndroidPermissions().isEmpty())
+        assertTrue(fixture.dataStore.data.first()[key].orEmpty().startsWith("enc:v1:"))
+    }
+
+    @Test
     fun legacyPlaintextMigratesToEncryptedStorageAndSurvivesStoreReopen() = runBlocking {
         val file = newPreferencesFile()
         val legacy = """[{"url":"https://legacy.example","title":"legacy page","visitedAt":42}]"""
