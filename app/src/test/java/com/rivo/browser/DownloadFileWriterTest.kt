@@ -94,6 +94,25 @@ class DownloadFileWriterTest {
         assertFalse(directory.listFiles().orEmpty().any { it.name.endsWith(".part") })
     }
 
+    @Test
+    fun reportsMonotonicProgressAndFinalByteCount() {
+        val directory = temporaryFolder.newFolder("progress")
+        val payload = ByteArray(700 * 1024) { (it % 251).toByte() }
+        val progress = mutableListOf<Long>()
+
+        val file = DownloadFileWriter.save(
+            ByteArrayInputStream(payload),
+            directory,
+            "progress.bin",
+            1024L * 1024L
+        ) { bytes -> progress.add(bytes) }
+
+        assertEquals(payload.size.toLong(), file.length())
+        assertTrue(progress.isNotEmpty())
+        assertEquals(payload.size.toLong(), progress.last())
+        assertTrue(progress.zipWithNext().all { (previous, next) -> next >= previous })
+    }
+
     private class TrackingInputStream(bytes: ByteArray) : ByteArrayInputStream(bytes) {
         var closed = false
         override fun close() {

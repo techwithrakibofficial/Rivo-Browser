@@ -174,6 +174,26 @@ class LocalDataCipherInstrumentedTest {
     }
 
     @Test
+    fun deniedAndroidPermissionsAreStoredEncryptedAndCanBeCleared() = runBlocking {
+        val fixture = newFixture()
+        val storage = BrowserStorage(fixture.dataStore, LocalDataCipher(keyAlias), SensitiveWriteGuard())
+        val denied = setOf(
+            android.Manifest.permission.CAMERA,
+            android.Manifest.permission.RECORD_AUDIO
+        )
+
+        storage.saveDeniedAndroidPermissions(denied)
+
+        assertEquals(denied, storage.loadDeniedAndroidPermissions())
+        val key = stringPreferencesKey("denied_android_permissions_json")
+        assertTrue(fixture.dataStore.data.first()[key].orEmpty().startsWith("enc:v1:"))
+
+        storage.saveDeniedAndroidPermissions(emptySet())
+        assertTrue(storage.loadDeniedAndroidPermissions().isEmpty())
+        assertTrue(fixture.dataStore.data.first()[key].orEmpty().startsWith("enc:v1:"))
+    }
+
+    @Test
     fun legacyPlaintextMigratesToEncryptedStorageAndSurvivesStoreReopen() = runBlocking {
         val file = newPreferencesFile()
         val legacy = """[{"url":"https://legacy.example","title":"legacy page","visitedAt":42}]"""
@@ -239,6 +259,30 @@ class LocalDataCipherInstrumentedTest {
         val savedValues = fixture.dataStore.data.first().asMap().filterKeys { it.name in keys }
         assertEquals(4, savedValues.size)
         assertTrue(savedValues.values.all { (it as? String).orEmpty().startsWith("enc:v1:") })
+    }
+
+    @Test
+    fun ambiguousLegacyDownloadIndexIsClearedButFilesRemainAndNewWritesSurvive() = runBlocking {
+        val fixture = newFixture()
+        val cipher = LocalDataCipher(keyAlias)
+        val key = stringPreferencesKey("downloads_json")
+        val savedFile = File(context.cacheDir, "legacy-download-${UUID.randomUUID()}.bin")
+            .apply { writeBytes(byteArrayOf(1, 2, 3, 4)) }
+        temporaryFiles.add(savedFile)
+        val legacy = cipher.encrypt(
+            """[{"filename":"${savedFile.name}","mimeType":"application/octet-stream","path":"${savedFile.absolutePath}"}]"""
+        )
+        fixture.dataStore.edit { it[key] = legacy }
+        val storage = BrowserStorage(fixture.dataStore, cipher, SensitiveWriteGuard())
+
+        assertTrue(storage.loadDownloads().isEmpty())
+        assertTrue("Migration must not delete user file bytes", savedFile.exists())
+        assertTrue(fixture.dataStore.data.first()[key].orEmpty().startsWith("enc:v1:"))
+
+        val newRecord = SavedDownload("new.bin", "application/octet-stream", "/app/downloads/new.bin")
+        storage.saveDownloads(listOf(newRecord))
+        assertEquals(listOf(newRecord), storage.loadDownloads())
+        assertTrue(savedFile.exists())
     }
 
     @Test

@@ -32,6 +32,8 @@ jobs:
         run: gradle --no-daemon :app:lintDebug
       - name: Run unit tests
         run: gradle --no-daemon :app:testDebugUnitTest
+      - name: Run Gecko engine policy unit tests
+        run: gradle --no-daemon :engine-gecko:testDebugUnitTest
       - name: Assemble engine benchmark debug APKs
         run: |
           gradle --no-daemon \
@@ -103,11 +105,26 @@ jobs:
           path: app/build/outputs/apk/debug/*armeabi-v7a*.apk
           if-no-files-found: error
           retention-days: 14
+      - name: Enable KVM for Android emulator
+        if: runner.os == 'Linux'
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          if [ -e /dev/kvm ]; then
+            sudo udevadm control --reload-rules
+            sudo udevadm trigger --name-match=kvm
+            sudo chmod 666 /dev/kvm
+            ls -l /dev/kvm
+          else
+            echo "::warning::/dev/kvm is unavailable; emulator may use software acceleration."
+          fi
       - name: Run Android security instrumentation tests
         uses: ReactiveCircus/android-emulator-runner@v2
+        timeout-minutes: 20
         with:
           api-level: 35
-          target: google_apis
+          target: default
           arch: x86_64
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          script: gradle --no-daemon -Privo.abiSplits=false :app:connectedDebugAndroidTest
+          emulator-boot-timeout: 600
+          script: gradle --no-daemon -Privo.abiSplits=false :app:connectedDebugAndroidTest --stacktrace --info

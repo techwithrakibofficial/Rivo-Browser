@@ -34,3 +34,51 @@
 - PR #10 #268 passed all configured build/lint/JVM/release bundle and QA artifact steps; no instrumentation step was present.
 - PR #20 #288 passed benchmark builds, static 16 KB checks, API 35 emulator security instrumentation and configured artifacts on its recorded PR head. Rebase and fresh CI are still required because the branch is five commits behind Main.
 - Neither CI run establishes physical-device behavior or 16 KB runtime support.
+
+
+## Unreleased — Account A core feature increment (worker branch; 2026-11-09)
+
+- Added GeckoView page-extraction based native Reader Mode with article-readability detection, boilerplate removal, adjustable text size and bounded in-memory content.
+- Added QR-only Google Code Scanner integration with no camera permission, bounded/sanitized payload handling and explicit open/search confirmation.
+- Expanded Downloads into Transfer Studio with search, state filters, completed file sizes, live received-byte progress, best-effort Cancel, managed Open/Share/Remove actions and a bounded recent-100 UI list.
+- Added read-only Developer Mode diagnostics while explicitly keeping Gecko remote debugging and console output disabled.
+- Added GeckoView capability decision documentation: WebExtensions exist at engine level, but no Rivo add-on manager or marketplace is claimed.
+- Added JVM policy tests for transfer filtering and QR payload sanitation. Branch CI and runtime/device validation remain pending.
+
+## 2026-11-09 — Account B security integration candidate
+
+- Added GeckoView secure-origin permission mediation and default-deny behavior for unsupported permissions.
+- Added GeckoView site-permission inventory/reset API and Privacy Intelligence Center surface.
+- Added website notification delegate/receiver and Android notification permission gate.
+- Added private download metadata exclusion, private tab close cleanup, URL validation and canonical restore-file checks.
+- Added one-time migration that removes ambiguous legacy in-app download-history metadata while preserving downloaded file bytes and failing closed on corrupt/unavailable encrypted records.
+- Added JVM policy regression tests. Current-head CI and device validation remain pending.
+
+
+## 2026-11-09 — Account B security QA follow-up
+
+- Added defense-in-depth suppression of private-session, insecure-origin and malformed-source web notifications before they can reach Android notification UI.
+- Added unit coverage for Gecko web notification origin/privacy policy and included the Gecko engine unit-test task in Android CI.
+- Fixed a legacy download metadata migration ordering issue: successful writes of the new metadata format now mark migration complete atomically.
+- Added API 35 instrumentation coverage for clearing ambiguous legacy download metadata without deleting user file bytes and preserving subsequent new-format records.
+- Added resolved Gradle dependency graph generation for PR artifacts and Main GitHub Dependency Graph submission to improve transitive dependency visibility.
+
+- Added a regression test proving process-restoration snapshots exclude private tabs and unsafe URLs, preserve duplicate normal tabs, and never restore a private selected-tab ID.
+
+
+## 2026-11-09 — PR #36 completion hardening
+
+- Added HTTPS-only download URL enforcement and MIME metadata normalization with a safe octet-stream fallback for malformed server values.
+- Added a confirmation-gated Clear Browsing Data action that closes Gecko sessions before clearing Gecko site data/site settings and local history/download metadata while retaining bookmarks and downloaded files.
+- Enabled Gradle dependency locking and added a PR-specific workflow to resolve, scan, upload and commit module lockfiles for OSV vulnerability coverage.
+- Exact-head CI, lockfile generation, OSV scan and emulator/device validation remain pending; no completion claim is made until those checks finish.
+
+
+## 2026-11-09 — PR #36 security and supply-chain candidate (not Main-integrated)
+
+- Added secure-origin GeckoView geolocation, camera and microphone permission mediation with Android runtime coordination, per-site consent, background-tab denial and encrypted app-level denial persistence; unsupported permission capabilities remain default-denied.
+- Added Privacy Intelligence Center site-permission inventory/reset and Clear Browsing Data orchestration that closes Gecko sessions before clearing site data/settings and local history/download metadata.
+- Isolated private downloads in a dedicated app-private directory and delete them on private-tab close, browser-controller disposal and next-process startup; private metadata is not persisted.
+- Enforced HTTPS-only download URLs, bounded MIME normalization with octet-stream fallback, and retained canonical restore-path checks, atomic staging and the 250 MB limit.
+- Enabled Gradle dependency locking and committed five module lockfiles. OSV scanned 788 resolved package instances with no issues; SPDX source SBOM uploaded with 809 packages; Gradle dependency graph artifact generated successfully.
+- Android CI code-equivalent run passed build/lint/JVM/Gecko tests, benchmark builds, minified QA AAB and static 16 KB alignment. Emulator instrumentation is being rerun with KVM-enabled AOSP API 35 configuration; physical-device validation is not claimed.

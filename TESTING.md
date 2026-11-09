@@ -68,3 +68,47 @@ Production release remains NO-GO until current Main CI is green, security/instru
 - OSV-Scanner pull-request workflow and SPDX source-SBOM workflow ran successfully on the initial PR #28 head.
 - Latest-Main integration PR #34 requires its own fresh CI run; do not infer its result from PR #28.
 - Review OSV output and SBOM artifact contents. No committed Gradle dependency lockfiles currently exist, so transitive dependency coverage is not yet complete or proven.
+
+## Account B candidate validation — 2026-11-09
+
+- PR #36: https://github.com/techwithrakibofficial/Rivo-Browser/pull/36
+- Candidate head after the latest documentation-independent source work must be validated by its exact SHA.
+- Added JVM tests cover HTTPS-only download URLs, URL user-info rejection, private metadata persistence policy, canonical restored-file root and size constraints, and Gecko site-permission policy.
+- Android CI run #42570107226 on the initial candidate was cancelled by a subsequent branch update before build tasks; do not count it as passed.
+- Source SBOM and OSV scan completed successfully on the initial candidate head. Re-run both after the final branch commit.
+- Required candidate CI: assembleDebug, lintDebug, testDebugUnitTest, benchmark APK/AAB builds, minified app bundle, static 16 KB APK/ELF alignment, API 35 connected instrumentation.
+- Required manual checks: HTTPS permission grant/deny, notification runtime permission/channel/delivery/click, private notification denial, permission reset/read-back, private tab close/process death, download path/metadata migration, and actual 16 KB device runtime.
+- Production release remains NO-GO until current-head CI, device QA, dependency review and signing verification are complete.
+
+
+## Account B security candidate tests — PR #36
+
+- DownloadSecurityPolicyTest covers HTTPS-only URL acceptance, host requirement, user-info rejection, private metadata policy and canonical restored-file root/size constraints.
+- GeckoSitePermissionPolicyTest covers HTTPS-only mediated permission prompts, unsupported capability default-deny, private notification denial, private/prompt permission inventory exclusion and non-revocable persistent-storage policy.
+- WebNotificationPolicyTest covers normal-mode HTTPS-only Android notification display and rejects private, HTTP, file, user-info and malformed sources.
+- LocalDataCipherInstrumentedTest covers AES-256-GCM round-trip/randomized ciphertext, tampering, truncated payload, missing-key no-regeneration, DataStore corruption, migration and FileProvider scope. Added a regression for ambiguous legacy download-index migration and preservation of actual downloaded files/new metadata writes.
+- CI now runs :engine-gecko:testDebugUnitTest in addition to app JVM tests.
+- PR and Main builds generate a resolved Gradle dependency graph artifact with read-only permissions. GitHub Dependency Review was tested but reports repository Dependency Graph is disabled; its workflow was removed to avoid a permanent failing check. Enable Dependency Graph in repository settings before restoring automated advisory review/submission.
+- PR #36 exact-head CI/OSV/SBOM results must be rechecked after the last source/doc commit. Earlier runs on previous SHAs are not evidence for the final head.
+- Historical OSV runs without lockfiles were not a clean dependency scan. PR #36 now commits five resolved Gradle lockfiles and its latest OSV lockfile scan reports no issues across 788 package instances.
+- Physical-device notification grant/deny/click, permission inventory/reset, private-tab process-death, and 16 KB runtime are still required.
+
+- Added RestorableTabPolicyTest.processRestorationSnapshotExcludesPrivateTabsAndUnsafeUrls: verifies a process-restoration snapshot excludes private tabs and unsafe URLs, preserves duplicate normal tabs, and does not restore a private selected-tab ID.
+
+
+## PR #36 follow-up regression coverage — 2026-11-09
+
+- `DownloadSecurityPolicyTest` now verifies HTTPS-only downloads, rejection of HTTP/file/user-info URLs, MIME normalization, rejection of malformed MIME values and private metadata exclusion.
+- Clear Browsing Data implementation closes active Gecko sessions before clearing Gecko site data/site settings, then clears local history and download metadata. Verify cookies, DOM storage, caches and permissions are absent after clearing; confirm bookmarks and actual download files remain.
+- OSV workflow now resolves Gradle dependency locks for app, engine-api, engine-webview, engine-gecko and engine-benchmark, validates lockfile contents, scans them with OSV-Scanner and commits lockfiles to PR #36. Exact-head OSV result is pending.
+- Latest Android CI must complete all build, lint, JVM, release bundle, static 16 KB and API 35 instrumentation steps before this candidate can be marked CI-verified. Physical-device permission and privacy checks remain separate acceptance items.
+
+
+## PR #36 current verification checkpoint — 2026-11-09
+
+- Source tests added/expanded: HTTPS-only URL policy, MIME normalization/rejection, private download metadata exclusion, private download directory cleanup, Gecko secure-origin/runtime permission policy, location site-permission policy and encrypted Android permission-denial persistence.
+- Existing instrumentation coverage includes AES-256-GCM fresh ciphertext/nonce behavior, authentication-tag tamper rejection, truncated payload rejection, missing-key fail-closed behavior, legacy migration, DataStore corruption preservation and encrypted metadata round trips.
+- Five module lockfiles are committed and verified non-empty. OSV run #42578249254 scanned app (284), engine-api (101), engine-gecko (152), engine-webview (101) and engine-benchmark (150): 788 package instances, no issues found.
+- Source SBOM run #42578248119 uploaded an SPDX artifact containing 809 packages. Gradle Dependency Graph run #42578248161 succeeded; GitHub Dependency Graph submission is unavailable while the repository setting is disabled.
+- The latest full Android run on the code-equivalent head passed assemble, lint, JVM tests, Gecko policy tests, benchmark builds, minified AAB, static 16 KB alignment and all configured artifact uploads. Instrumentation was cancelled during emulator-runner reconfiguration, not reported as passed. A fresh run with KVM setup, AOSP API 35 image and a bounded emulator timeout is required on the final documentation commit.
+- Physical-device camera/microphone/location grant/deny/revoke, private process-death behavior, and 16 KB runtime behavior remain separate manual QA; no physical-device validation is claimed.

@@ -74,3 +74,88 @@ Phase 1 — Functional Browser MVP stabilization and verification. Do not declar
 - A merged PR, passing JVM test, successful build, emulator instrumentation run and physical-device test are different evidence levels.
 - Never claim unexecuted tests, hardware-backed Keystore, full tracker blocking, anonymity, extension support or production readiness.
 - PR #23 and PR #24 were merged after their respective PR-head CI runs #293 and #300 passed. Post-merge Main CI and all physical-device/UI validation remain separate evidence gates.
+
+
+## Account A core-feature continuation — 2026-11-09
+
+- Latest inspected Main base: `0d77826e655267c671498334c11ffad8d1dd5b14`. PR #33 core security integration and PR #34 supply-chain workflow integration are merged into Main.
+- Account A work is isolated on `worker/account-a-core-features-2026-11-09`; PR #35 is open: https://github.com/techwithrakibofficial/Rivo-Browser/pull/35.
+- PR #35 includes native GeckoView Reader Mode (readability and gated-content checks, 120,000-character cap), QR-only Google Code Scanner (no CAMERA permission, confirmation before navigation), Transfer Studio (recent-100 list, filters, progress from response bytes, best-effort cancel, Open/Share/Remove), and read-only Developer Mode diagnostics.
+- Gecko remote debugging and console output are explicitly disabled. WebExtensions engine capability is documented, but Rivo has no extension manager/marketplace; no end-user extension support is claimed.
+- New JVM coverage: QR sanitation, transfer filtering/cancellation classification and download progress monotonicity.
+- Fresh Android CI, OSV and source-SBOM workflows must be reviewed on the final PR head. The SBOM artifact is source-level and does not represent a complete resolved Gradle inventory; OSV warns that no lockfiles are found.
+- PR #10 (site permissions) and PR #21 (Privacy Intelligence Center) remain open and separate; their integration may require conflict resolution in BrowserController.
+- Device QA remains outstanding: reader extraction, Play-services QR scan, transfer cancellation/file deletion, TalkBack, narrow width, large font, theme matrix and low-RAM profiling.
+
+## Account B security integration candidate — 2026-11-09
+
+- Main baseline at branch creation: `0d77826e655267c671498334c11ffad8d1dd5b14`.
+- Worker branch: `worker/account-b-security-qa-2026-11-09`.
+- PR #36 is open as a draft; do not merge until current-head CI and review pass.
+- Integrated candidate changes: GeckoView HTTPS site permission mediation, default-deny policy, normal permission inventory/reset, notification delegate/receiver, private download metadata suppression, URL and restored-file checks, one-time migration of legacy ambiguous download metadata, and regression tests.
+- Main's existing Keystore/DataStore hardening, API 35 Keystore instrumentation, atomic download writer, Account A Tab Universe work and static 16 KB checks are preserved.
+- The previous candidate CI run was cancelled due to rapid commits; current final SHA requires a fresh complete run.
+- Device validation, 16 KB runtime validation, full transitive dependency inventory, MASVS independent assessment and production signing remain open.
+
+
+## Account B security review update — 2026-11-09
+
+- Reconfirmed Main base at branch creation: 0d77826e655267c671498334c11ffad8d1dd5b14. PR #36 is based directly on Main and is six commits ahead, zero behind at the time of the comparison.
+- Open PR #35 is Account A core feature work; PR #36 is Account B security/privacy integration. Both remain unmerged and require their own current-head CI.
+- Historical PR #10 and #21 remain open on older/stacked branches and are not merge candidates; their relevant changes are being reviewed/transplanted through PR #36.
+- PR #33 and #34 are merged into Main. Their API 35 instrumentation, static 16 KB checks, OSV scan and source SBOM workflows are part of the current baseline.
+- Account B found and fixed the new-download-write/legacy-download-migration ordering defect, added private/insecure-origin notification suppression, added notification policy unit tests and expanded CI to run engine Gecko unit tests.
+- Added Gradle dependency graph generation for PR artifact review and GitHub Dependency Graph submission on Main pushes/manual runs. This is improved resolved transitive dependency visibility, not lockfile/checksum verification.
+- Source-level MASVS assessment and residual risks are recorded in SECURITY.md. This is not certification or independent penetration testing.
+- Current PR #36 CI is pending/retriggered after the latest code and docs changes. No current-head green CI is claimed yet.
+- Release remains NO-GO pending current-head CI, device QA, 16 KB runtime, dependency verification/lockfiles, MASVS assessment completion and production signing.
+
+
+## Account B final checkpoint — 2026-11-09
+
+- PR #36 current branch: worker/account-b-security-qa-2026-11-09; latest source/documentation commit 93b035aba55cb47f1f32550e4996b5508a559b3a; based on Main 0d77826e655267c671498334c11ffad8d1dd5b14; 42 commits ahead, 0 behind at the latest comparison.
+- PR #36 is open and draft. It contains the current Main-based integration of PR #10 site permissions and PR #21 privacy/download security work. Main remains untouched.
+- Added notification privacy policy and unit tests; full-origin permission prompt display; atomic download-metadata migration marker fix; API 35 migration regression; and private-tab process-restoration snapshot regression.
+- PR #36 OSV scan succeeded but explicitly found no package sources/lockfiles. Do not call this a clean dependency scan.
+- PR #36 source SBOM run #42571406272 succeeded and uploaded a 2,941-byte SPDX source SBOM. It is not a resolved transitive dependency SBOM.
+- PR #36 Gradle dependency graph run #42571406249 succeeded and uploaded a 10,829-byte resolved dependency graph artifact. GitHub Dependency Graph is disabled in repository settings; Dependency Review workflow was removed after it failed for this setting. Owner must enable the setting before advisory review/submission can be restored.
+- PR #36 Android CI run #42571406314 first failed because Maven redirected Kotlin compiler artifact download returned HTTP 504. A retry was interrupted by subsequent code/test updates; current exact-head CI must be checked again.
+- PR #33 Main baseline CI #42563889346 passed all configured tasks including Android lint/JVM tests, benchmark APK/AAB packaging, minified AAB, static APK/ELF 16 KB alignment and API 35 security instrumentation. This is not physical-device or 16 KB runtime evidence.
+- PR #35 Account A and PR #36 both touch BrowserController/BrowserScreen/GeckoBrowserTab. If #35 merges first, rebase #36 onto Main and manually preserve both changes before merge.
+- Release remains NO-GO: no device QA, 16 KB runtime, dependency lockfiles/verification metadata, full advisory scan, independent MASVS assessment or production signing.
+
+
+## Account B verification refresh — 2026-11-09
+
+- PR #36 latest head: 8d0cdfc84269e0dd01b7a744758cdd742dfe5b26; 45 commits ahead / 0 behind Main; draft/open. Main was not modified.
+- Exact-head source SBOM run #42571935161 succeeded; artifact rivo-source-sbom, 2,939 bytes. This is source-level only.
+- Exact-head Gradle dependency graph run #42571935225 succeeded; artifact 10,834 bytes. GitHub Dependency Graph is disabled in repository settings; Dependency Review was attempted, failed on that repository setting and was removed. The workflow now produces read-only artifacts only.
+- Exact-head OSV run #42571935564 succeeded but logs state no package sources and no lockfiles. It does not establish a vulnerability-free dependency inventory.
+- Exact-head Android CI run #42571935131 was cancelled during retry after earlier failures caused by upstream HTTP 504 fetching Kotlin compiler artifacts; no app build/test pass is claimed for PR #36 yet.
+- Added private tab process-restoration snapshot regression to RestorableTabPolicyTest; DataStore instrumentation suite covers store reopen, corruption and metadata migration.
+- PR #33 Main baseline CI #42563889346 passed all configured tasks including API 35 instrumentation and static APK/native ELF 16 KB alignment. No 16 KB runtime or physical-device claim.
+- PR #35 and #36 share BrowserController/BrowserScreen/GeckoBrowserTab. If PR #35 merges first, rebase and resolve PR #36 without overwriting Account A code.
+- Release remains NO-GO: current-head Android CI, device QA, 16 KB runtime, full resolved dependency advisory scan, lock/verification metadata, independent MASVS review and production signing remain open.
+
+
+## Final Account B CI checkpoint — 2026-11-09
+
+- PR #36 latest code head: 9113b9a0a48b6d3aa6cae6fd8fb192d0fddb41f8; 51 commits ahead / 0 behind Main; draft/open.
+- Exact-head OSV run #42572673279 completed successfully but reports no package sources/lockfiles; this is not a clean dependency scan.
+- Exact-head source SBOM run #42572672745 succeeded after retry using Syft v1.55.0; artifact size 2,937 bytes, source-level only.
+- Exact-head Gradle dependency graph run #42572672769 succeeded; artifact size 10,819 bytes. GitHub Dependency Graph is disabled in repository settings; no automated Dependency Review is available.
+- Exact-head Android CI #42572672741 remained in progress at Assemble shipping Rivo Browser at this checkpoint. Earlier attempts failed/cancelled during upstream HTTP 504 downloads; do not claim PR #36 build/tests passed until this run completes.
+- PR #33 Main baseline CI #42563889346 passed configured lint/JVM/instrumentation, benchmark packaging, minified AAB and static 16 KB APK/ELF alignment. This is not device runtime verification.
+- Current code includes private-tab restore snapshot regression and metadata migration instrumentation coverage. Device QA, 16 KB runtime, dependency locking/full OSV scan, independent MASVS review and production signing remain open.
+
+
+## PR #36 current candidate checkpoint — 2026-11-09
+
+- Canonical source remains `main`; all work is committed to `worker/account-b-security-qa-2026-11-09`. Main has not been modified or merged by this work.
+- PR #36 is open and Draft at the time of this checkpoint. Current candidate head is shown by the PR; this document must not be used instead of exact-head GitHub checks.
+- Candidate implementation covers GeckoView secure-origin site permissions (location/camera/microphone/notifications), encrypted Android app-level permission denials, normal site-permission inventory/reset, tracking-protection status, confirmation-gated Clear Browsing Data, private download file cleanup, HTTPS-only download policy and MIME normalization.
+- Five Gradle lockfiles are committed for app, engine-api, engine-gecko, engine-webview and engine-benchmark. OSV #42578249254 passed with no issues across 788 package instances; Source SBOM #42578248119 uploaded SPDX with 809 packages; Gradle Dependency Graph #42578248161 succeeded. GitHub Dependency Graph submission remains disabled in repository settings.
+- Android CI code-equivalent run #42576548217 passed assembleDebug, lint, app JVM tests, Gecko policy tests, benchmark APK/AAB builds, minified shipping AAB, static 16 KB alignment and QA artifact uploads. Instrumentation was cancelled while the emulator runner was being reconfigured; a fresh API 35 emulator run is required on the final documentation head.
+- PR #35 is still open and separate. Its changes overlap AndroidManifest.xml, BrowserController.kt, BrowserScreen.kt and GeckoBrowserTab.kt. No PR #35 changes were overwritten or cherry-picked. If #35 merges first, rebase #36 and manually preserve both implementations.
+- No physical-device validation, 16 KB runtime verification, independent MASVS certification or production signing is claimed. Production release remains NO-GO until those separate gates pass.
+- Next exact steps: complete the fresh Android CI/instrumentation run on the final docs commit; fix any failures; recheck mergeability; then mark PR #36 Ready for Review. Do not merge Main.

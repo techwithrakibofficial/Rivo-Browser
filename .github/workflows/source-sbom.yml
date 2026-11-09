@@ -26,3 +26,4 @@ jobs:
           artifact-name: rivo-source-sbom
           upload-artifact: true
           upload-artifact-retention: 14
+          syft-version: v1.55.0

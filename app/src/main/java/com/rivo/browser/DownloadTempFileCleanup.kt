@@ -18,4 +18,19 @@ internal object DownloadTempFileCleanup {
             }
         }
     }
+
+    /** Private downloads are kept in a dedicated app-private directory and never restored after process death. */
+    fun removePrivateDownloads(directories: List<File>) {
+        directories.forEach { directory ->
+            runCatching {
+                val root = directory.canonicalFile
+                val privateDirectory = File(directory, PRIVATE_DOWNLOAD_DIRECTORY).canonicalFile
+                if (privateDirectory.name == PRIVATE_DOWNLOAD_DIRECTORY && privateDirectory.parentFile == root) {
+                    privateDirectory.deleteRecursively()
+                }
+            }
+        }
+    }
+
+    const val PRIVATE_DOWNLOAD_DIRECTORY = ".rivo-private"
 }
