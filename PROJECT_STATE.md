@@ -12,8 +12,8 @@ Updated: 2026-11-09 (Tab Universe accessibility merge)
 
 ## Open pull requests observed
 - PR #24 — Tab Universe accessibility/narrow-layout follow-up; merged to Main as `350d4f3...` after CI #300 passed.
-- PR #10 — RIVO-06 privacy and per-site permission controls. Open, based on old Main checkpoint `84303588...`; 6 commits behind current Main, connector reports mergeable=false. CI #268 passed assembleDebug, lintDebug and JVM unit tests for its recorded head; release bundle was still in progress in its description. Device validation is explicitly outstanding.
-- PR #20 — RIVO-04/05/07/09 hardening, instrumentation, engine benchmark and 16 KB validation. Open, based on older Main `72700fa6...`; 4 commits behind current Main and connector reports mergeable=false. PR head `71af60e...` has successful CI #288, but that run does not test the current Main integration or prove API 35 device instrumentation.
+- PR #10 — RIVO-06 privacy and per-site permission controls. Open, based on old Main checkpoint `84303588...`; 7 commits behind current Main, connector reports mergeable=false. CI #268 passed all configured steps on its recorded head: assembleDebug, lintDebug, JVM tests, minified release bundle, size reports and QA APK/AAB uploads. No instrumentation or physical-device permission validation was included. Device validation is explicitly outstanding.
+- PR #20 — RIVO-04/05/07/09 hardening, instrumentation, engine benchmark and 16 KB validation. Open, based on older Main `72700fa6...`; 5 commits behind current Main and connector reports mergeable=false. PR head `71af60e...` passed all configured CI #288 steps, including shipping assemble/lint/JVM tests, GeckoView and WebView benchmark APK/AAB builds, minified release bundle, static 16 KB alignment checks, artifact uploads and API 35 Android security instrumentation. It does not test integration with current Main or prove physical-device/16 KB runtime behavior.
 - PR #21 — RIVO-11 privacy center and private-download hardening. Open and stacked on PR #10; no workflow run returned for its current head. Rebase after #10 integration, then run fresh CI.
 - PR #17's preserved Advanced Tab Universe work was superseded by PR #23 and is now integrated in Main at `d192baf0...`. PR #16 benchmark remains closed/unmerged and is not integrated.
 - Branch/PR status is a snapshot from this audit and may change.
@@ -40,7 +40,7 @@ Updated: 2026-11-09 (Tab Universe accessibility merge)
 ## Known release blockers
 1. Verify post-merge Main CI for `350d4f3...` when available; PR-head CI #300 passed all configured jobs.
 2. PR #10 is 6 commits behind current Main and reports mergeable=false; resolve/rebase before integration.
-3. PR #20 is 4 commits behind current Main and reports mergeable=false; reconcile conflicts, rerun CI and review API 35 instrumentation/16 KB checks.
+3. PR #20 is 4 commits behind current Main and reports mergeable=false; reconcile conflicts, rerun CI on the rebased head and review API 35 instrumentation/16 KB static/runtime evidence.
 4. PR #21 depends on PR #10 and needs rebase plus fresh CI.
 5. Recover/review PR #16 benchmark work only if it remains useful; Advanced Tab Universe is now integrated through PR #23.
 6. Keystore round-trip/tampering/key-loss, DataStore corruption/relaunch and process-death restoration require executed instrumentation/device evidence.

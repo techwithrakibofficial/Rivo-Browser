@@ -27,3 +27,10 @@
 - Security fail-closed metadata handling and Android engine regression fixes.
 - Dark, Light and Premium Glass design foundations.
 - Device validation, permission mediation, advanced features and production signing remain open.
+
+
+## 2026-11-09 — CI evidence correction
+- Inspected completed job steps for PR #10 CI #268 and PR #20 CI #288 rather than relying on stale PR descriptions.
+- PR #10 #268 passed all configured build/lint/JVM/release bundle and QA artifact steps; no instrumentation step was present.
+- PR #20 #288 passed benchmark builds, static 16 KB checks, API 35 emulator security instrumentation and configured artifacts on its recorded PR head. Rebase and fresh CI are still required because the branch is five commits behind Main.
+- Neither CI run establishes physical-device behavior or 16 KB runtime support.
