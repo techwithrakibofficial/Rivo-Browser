@@ -1,11 +1,11 @@
 # Handoff
 
-Updated: 2026-11-09 — Tab Universe accessibility merge
+Updated: 2026-11-09 — Tab Universe policy regression tests merged
 
 ## Repository checkpoint
 - Canonical repository: https://github.com/techwithrakibofficial/Rivo-Browser
-- Main HEAD after PR #24 merge: `350d4f3cabcaeea63f5860cffb5669c4e0cd3bc5`
-- Latest Main commit: `fix(tabs): improve Tab Universe accessibility`
+- Main HEAD after PR #27 merge: `ad607a7a97f9e9bce8cd57a206b2a438e6003f20`
+- Latest Main commit: `test(tabs): expand Tab Universe search regression coverage`
 - The previous `84303588...` checkpoint and CI run #246 are historical, not validation of the latest Main HEAD.
 - Audit branch: `docs/recovery-audit-sync-2026-11-09`
 
@@ -16,6 +16,8 @@ Updated: 2026-11-09 — Tab Universe accessibility merge
 - #21 RIVO-11 privacy center/download hardening: open; stacked on #10. Rebase after #10 is integrated, then fresh CI.
 - #17 Advanced Tab Universe was recovered as PR #23, CI #293 passed on its head, and PR #23 is now merged to Main. PR #16 engine benchmark remains closed/unmerged.
  
+- PR #27 adds JVM regression coverage for trimmed search combined with Normal/Private filters and empty results. CI #306 passed all configured jobs before squash merge as `ad607a7...`; post-merge Main CI not yet returned.
+
 ## Main source baseline
 - GeckoView runtime/session architecture; navigation, omnibox and security status.
 - Eight-tab cap; native private sessions; local bookmarks/history/restorable tabs.
@@ -45,4 +47,4 @@ Updated: 2026-11-09 — Tab Universe accessibility merge
 - No physical-device tests, 3–4 GB benchmarks, 16 KB runtime test, production signing or release are claimed.
 
 ## Session status
-PR #23 was merged to Main after its head CI passed. PR #24 (`core/tab-universe-accessibility-2026-11-09`) merged as `350d4f3...` after CI #300 passed. Narrow-screen filter scrolling and accessibility semantics are now in Main; physical-device verification remains open.
+PR #23 and PR #24 are integrated. PR #27 (`test(tabs): expand Tab Universe search regression coverage`) passed CI #306 on its PR head and merged as `ad607a7a97f9e9bce8cd57a206b2a438e6003f20`. The two new JVM policy regressions are now in Main. Post-merge Main CI and physical-device verification remain open.
