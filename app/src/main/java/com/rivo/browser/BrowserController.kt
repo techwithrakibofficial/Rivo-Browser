@@ -2,6 +2,7 @@ package com.rivo.browser
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Environment
 import androidx.core.content.FileProvider
@@ -76,6 +77,10 @@ class BrowserController(context: Context) {
     var sitePermissionsLoadError by mutableStateOf(false)
     var clearingBrowsingData by mutableStateOf(false)
     private var awaitingNotificationPermissionResult = false
+    var pendingAndroidPermissionNames by mutableStateOf<List<String>?>(null)
+        private set
+    private var pendingAndroidPermissionResponse: ((Boolean) -> Unit)? = null
+    private var awaitingAndroidPermissionResult = false
 
     var activeTabId by mutableStateOf(0L)
         private set
@@ -189,12 +194,49 @@ class BrowserController(context: Context) {
                     onShown: () -> Unit,
                     respond: (Boolean) -> Unit
                 ) {
-                    if (permissionPrompt != null || tab.id !in tabs.map { it.id }) {
+                    val cameraNeeded = permission.contains("Camera", ignoreCase = true)
+                    val microphoneNeeded = permission.contains("Microphone", ignoreCase = true)
+                    val devicePermissionMissing =
+                        (cameraNeeded && appContext.checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) ||
+                        (microphoneNeeded && appContext.checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
+                    if (devicePermissionMissing || permissionPrompt != null || tab.id !in tabs.map { it.id }) {
                         respond(false)
                         return
                     }
                     // Preserve scheme and non-default port so users can distinguish full origins.
                     permissionPrompt = SitePermissionPrompt(tab.id, origin, permission, privateMode, onShown, respond)
+                }
+
+                override fun onAndroidPermissionRequest(permissions: List<String>, respond: (Boolean) -> Unit) {
+                    val requested = permissions.distinct()
+                    val supported = setOf(
+                        android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                        android.Manifest.permission.ACCESS_FINE_LOCATION,
+                        android.Manifest.permission.CAMERA,
+                        android.Manifest.permission.RECORD_AUDIO
+                    )
+                    if (requested.isEmpty() || requested.any { it !in supported } ||
+                        pendingAndroidPermissionResponse != null
+                    ) {
+                        respond(false)
+                        return
+                    }
+                    val alreadyGranted = requested.all { permission ->
+                        if (permission == android.Manifest.permission.ACCESS_COARSE_LOCATION ||
+                            permission == android.Manifest.permission.ACCESS_FINE_LOCATION
+                        ) {
+                            appContext.checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                                appContext.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                        } else {
+                            appContext.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
+                        }
+                    }
+                    if (alreadyGranted) {
+                        respond(true)
+                    } else {
+                        pendingAndroidPermissionNames = requested
+                        pendingAndroidPermissionResponse = respond
+                    }
                 }
             }
         )
@@ -257,7 +299,7 @@ class BrowserController(context: Context) {
     /** Release Gecko's foreground/focus state while the Activity is backgrounded. */
     fun onHostPaused() {
         hostStarted = false
-        if (permissionPrompt != null && !awaitingNotificationPermissionResult) respondToSitePermission(false)
+        if (permissionPrompt != null && !awaitingNotificationPermissionResult && !awaitingAndroidPermissionResult) respondToSitePermission(false)
         if (pendingDownload != null) cancelPendingDownload()
         tabs.forEach { tab ->
             tab.engine.setActive(
@@ -425,6 +467,35 @@ class BrowserController(context: Context) {
             else notice = "Permission reset failed."
         }
     }
+    fun beginAndroidPermissionRequest() {
+        if (pendingAndroidPermissionResponse != null) awaitingAndroidPermissionResult = true
+    }
+
+    fun completeAndroidPermissionRequest(results: Map<String, Boolean>) {
+        val requested = pendingAndroidPermissionNames ?: return
+        val respond = pendingAndroidPermissionResponse ?: return
+        pendingAndroidPermissionNames = null
+        pendingAndroidPermissionResponse = null
+        awaitingAndroidPermissionResult = false
+        val locationRequested = requested.any {
+            it == android.Manifest.permission.ACCESS_COARSE_LOCATION ||
+                it == android.Manifest.permission.ACCESS_FINE_LOCATION
+        }
+        val locationGranted = !locationRequested ||
+            appContext.checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+            appContext.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val otherPermissionsGranted = requested.filterNot {
+            it == android.Manifest.permission.ACCESS_COARSE_LOCATION ||
+                it == android.Manifest.permission.ACCESS_FINE_LOCATION
+        }.all { permission ->
+            results[permission] == true ||
+                appContext.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
+        }
+        val granted = locationGranted && otherPermissionsGranted
+        respond(granted)
+        if (!granted) notice = "Android device permission was denied."
+    }
+
     fun beginNotificationPermissionRequest() {
         if (permissionPrompt?.permission == "Notifications") awaitingNotificationPermissionResult = true
     }
@@ -609,6 +680,10 @@ class BrowserController(context: Context) {
         cancelPendingDownload()
         permissionPrompt?.respond?.invoke(false)
         permissionPrompt = null
+        pendingAndroidPermissionResponse?.invoke(false)
+        pendingAndroidPermissionResponse = null
+        pendingAndroidPermissionNames = null
+        awaitingAndroidPermissionResult = false
         tabs.toList().forEach { it.engine.dispose() }
         tabs.clear()
         scope.cancel()
