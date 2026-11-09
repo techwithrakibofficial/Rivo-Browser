@@ -26,43 +26,88 @@ jobs:
         with:
           gradle-version: '9.6.0'
           cache-provider: basic
-      - name: Assemble Rivo Browser MVP
+      - name: Assemble shipping Rivo Browser
         run: gradle --no-daemon :app:assembleDebug
       - name: Run Android lint
         run: gradle --no-daemon :app:lintDebug
       - name: Run unit tests
         run: gradle --no-daemon :app:testDebugUnitTest
-      - name: Build minified release bundle
+      - name: Assemble engine benchmark debug APKs
+        run: |
+          gradle --no-daemon \
+            :engine-benchmark:assembleGeckoDebug \
+            :engine-benchmark:assembleWebviewDebug
+      - name: Build engine benchmark release bundles without ABI splits
+        run: |
+          gradle --no-daemon -Privo.abiSplits=false \
+            :engine-benchmark:bundleGeckoRelease \
+            :engine-benchmark:bundleWebviewRelease
+      - name: Build minified shipping release bundle
         run: gradle --no-daemon -Privo.abiSplits=false :app:bundleRelease
-      - name: Report ABI APK sizes
+      - name: Verify native library and APK 16 KB alignment
         shell: bash
         run: |
-          find app/build/outputs/apk/debug -maxdepth 2 -type f -name '*.apk' -printf '%P %s bytes\\n' | tee /tmp/rivo-apk-sizes.txt
-          test -s /tmp/rivo-apk-sizes.txt
-          cat /tmp/rivo-apk-sizes.txt >> "$GITHUB_STEP_SUMMARY"
-      - name: Report release bundle size
+          mapfile -t apks < <(find app/build/outputs/apk/debug engine-benchmark/build/outputs/apk -type f -name '*.apk' | sort)
+          mapfile -t aabs < <(find app/build/outputs/bundle/release engine-benchmark/build/outputs/bundle -type f -name '*.aab' | sort)
+          args=()
+          for artifact in "${apks[@]}"; do args+=(--apk "$artifact"); done
+          for artifact in "${aabs[@]}"; do args+=(--aab "$artifact"); done
+          (( ${#apks[@]} > 0 ))
+          (( ${#aabs[@]} > 0 ))
+          python3 tools/verify_16kb_alignment.py "${args[@]}"
+      - name: Report artifact sizes
         shell: bash
         run: |
-          find app/build/outputs/bundle/release -maxdepth 1 -type f -name '*.aab' -printf '%f %s bytes\\n' | tee /tmp/rivo-aab-sizes.txt
-          cat /tmp/rivo-aab-sizes.txt >> "$GITHUB_STEP_SUMMARY"
-      - name: Upload unsigned release bundle (QA only)
+          {
+            echo '### APK artifact sizes'
+            find app/build/outputs/apk/debug engine-benchmark/build/outputs/apk -type f -name '*.apk' -printf '%P %s bytes\n' | sort
+            echo '### AAB artifact sizes'
+            find app/build/outputs/bundle/release engine-benchmark/build/outputs/bundle -type f -name '*.aab' -printf '%P %s bytes\n' | sort
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Upload unsigned shipping release AAB (QA only)
         uses: actions/upload-artifact@v4
         with:
           name: rivo-browser-release-aab-unsigned
           path: app/build/outputs/bundle/release/*.aab
           if-no-files-found: error
           retention-days: 14
-      - name: Upload ARM64 debug APK
+      - name: Upload GeckoView benchmark artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: rivo-engine-benchmark-gecko
+          path: |
+            engine-benchmark/build/outputs/apk/gecko/debug/*.apk
+            engine-benchmark/build/outputs/bundle/geckoRelease/*.aab
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload WebView benchmark artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: rivo-engine-benchmark-webview
+          path: |
+            engine-benchmark/build/outputs/apk/webview/debug/*.apk
+            engine-benchmark/build/outputs/bundle/webviewRelease/*.aab
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload ARM64 shipping debug APK
         uses: actions/upload-artifact@v4
         with:
           name: rivo-browser-arm64-debug
           path: app/build/outputs/apk/debug/*arm64-v8a*.apk
           if-no-files-found: error
           retention-days: 14
-      - name: Upload ARMv7 debug APK
+      - name: Upload ARMv7 shipping debug APK
         uses: actions/upload-artifact@v4
         with:
           name: rivo-browser-armv7-debug
           path: app/build/outputs/apk/debug/*armeabi-v7a*.apk
           if-no-files-found: error
           retention-days: 14
+      - name: Run Android security instrumentation tests
+        uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          script: gradle --no-daemon -Privo.abiSplits=false :app:connectedDebugAndroidTest
