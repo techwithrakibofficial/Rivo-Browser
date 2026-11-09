@@ -271,7 +271,13 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                 )
             },
             confirmButton = {
-                TextButton(onClick = { browser.respondToSitePermission(true) }) { Text("Allow") }
+                TextButton(onClick = {
+                    if (request.permission == "Notifications" && Build.VERSION.SDK_INT >= VERSION_CODES.TIRAMISU &&
+                        ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                        browser.beginNotificationPermissionRequest()
+                        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    } else browser.respondToSitePermission(true)
+                }) { Text("Allow") }
             },
             dismissButton = {
                 TextButton(onClick = { browser.respondToSitePermission(false) }) { Text("Deny") }
