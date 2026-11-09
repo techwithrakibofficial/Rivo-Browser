@@ -26,4 +26,22 @@ class TabUniversePolicyTest {
         assertEquals(listOf(3L, 1L, 2L), TabUniversePolicy.visible(tabs, "", TabUniverseFilter.ALL, TabUniverseSort.TITLE).map { it.id })
         assertEquals(listOf(1L, 3L, 2L), TabUniversePolicy.visible(tabs, "", TabUniverseFilter.ALL, TabUniverseSort.TYPE).map { it.id })
     }
+
+    @Test fun trimsSearchInputAndCombinesItWithTheSelectedFilter() {
+        assertEquals(
+            listOf(2L),
+            TabUniversePolicy.visible(tabs, "  PRIVATE.EXAMPLE  ", TabUniverseFilter.PRIVATE, TabUniverseSort.TITLE).map { it.id }
+        )
+        assertEquals(
+            emptyList<Long>(),
+            TabUniversePolicy.visible(tabs, "private", TabUniverseFilter.NORMAL, TabUniverseSort.ACTIVE_FIRST).map { it.id }
+        )
+    }
+
+    @Test fun returnsNoTabsWhenTheSearchHasNoMatches() {
+        assertEquals(
+            emptyList<Long>(),
+            TabUniversePolicy.visible(tabs, "missing-domain.invalid", TabUniverseFilter.ALL, TabUniverseSort.ACTIVE_FIRST)
+        )
+    }
 }

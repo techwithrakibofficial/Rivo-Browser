@@ -15,6 +15,7 @@ Build, lint, JVM tests, emulator instrumentation, physical-device tests and rele
 - PR #21: description explicitly requires fresh Android CI. Added Keystore instrumentation tests are not claimed passing until executed.
 - PR #23 (merged): CI #293 passed assembleDebug, lintDebug, JVM unit tests and minified release bundle on its PR head. The test suite added `TabUniversePolicyTest` coverage for title/URL search, Normal/Private/Active filters and three sorting modes. No Compose UI or device-level tab interaction test is claimed.
 - PR #24 (merged as `350d4f3...`): CI #300 passed assembleDebug, lintDebug, JVM tests, minified release bundle, size reports and QA uploads. Source adds semantic FilterChips, horizontal filter scrolling, persistent search label, active/inactive state and tab-specific close labels. No Compose UI or physical-device/TalkBack test is claimed.
+- Core follow-up branch `core/tab-universe-policy-regressions-2026-11-09`: adds JVM regression cases for trimmed search input combined with Normal/Private filters and empty-result behavior. Fresh CI is required before merge.
 
 ## Required automated checks
 1. `:app:assembleDebug`
