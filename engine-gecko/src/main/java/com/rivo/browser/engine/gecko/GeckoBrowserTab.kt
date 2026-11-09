@@ -29,7 +29,10 @@ object GeckoBrowserRuntime {
         return instance ?: synchronized(this) {
             instance ?: GeckoRuntime.create(
                 context.applicationContext,
-                GeckoRuntimeSettings.Builder().build()
+                GeckoRuntimeSettings.Builder()
+                    .remoteDebuggingEnabled(false)
+                    .consoleOutputEnabled(false)
+                    .build()
             ).also { instance = it }
         }
     }
