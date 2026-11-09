@@ -84,3 +84,16 @@ Phase 1 — Functional Browser MVP stabilization and verification. Do not declar
 - Main's existing Keystore/DataStore hardening, API 35 Keystore instrumentation, atomic download writer, Account A Tab Universe work and static 16 KB checks are preserved.
 - The previous candidate CI run was cancelled due to rapid commits; current final SHA requires a fresh complete run.
 - Device validation, 16 KB runtime validation, full transitive dependency inventory, MASVS independent assessment and production signing remain open.
+
+
+## Account B security review update — 2026-11-09
+
+- Reconfirmed Main base at branch creation: 0d77826e655267c671498334c11ffad8d1dd5b14. PR #36 is based directly on Main and is six commits ahead, zero behind at the time of the comparison.
+- Open PR #35 is Account A core feature work; PR #36 is Account B security/privacy integration. Both remain unmerged and require their own current-head CI.
+- Historical PR #10 and #21 remain open on older/stacked branches and are not merge candidates; their relevant changes are being reviewed/transplanted through PR #36.
+- PR #33 and #34 are merged into Main. Their API 35 instrumentation, static 16 KB checks, OSV scan and source SBOM workflows are part of the current baseline.
+- Account B found and fixed the new-download-write/legacy-download-migration ordering defect, added private/insecure-origin notification suppression, added notification policy unit tests and expanded CI to run engine Gecko unit tests.
+- Added Gradle dependency graph generation for PR artifact review and GitHub Dependency Graph submission on Main pushes/manual runs. This is improved resolved transitive dependency visibility, not lockfile/checksum verification.
+- Source-level MASVS assessment and residual risks are recorded in SECURITY.md. This is not certification or independent penetration testing.
+- Current PR #36 CI is pending/retriggered after the latest code and docs changes. No current-head green CI is claimed yet.
+- Release remains NO-GO pending current-head CI, device QA, 16 KB runtime, dependency verification/lockfiles, MASVS assessment completion and production signing.
