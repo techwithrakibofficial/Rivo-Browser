@@ -4,8 +4,8 @@
 Build, lint, JVM tests, emulator instrumentation, physical-device tests and release signing are separate gates. Report only results tied to the exact commit/PR head tested.
 
 ## Current Main checkpoint
-- Current Main HEAD is documentation-only merge `693ec61009a6bc8fdb9d98977567779f0bc40d1b`; latest application source merge is PR #27 `ad607a7a97f9e9bce8cd57a206b2a438e6003f20`.
-- PR #10 and #20 have diverged from current Main (10 and 8 commits behind respectively); their earlier CI results are not evidence for rebased integration. PR #21 remains stacked on #10.
+- Current Main HEAD is documentation-only merge `159643bb358c5bf9e92d537acfe9ba5ee1c39f00`; latest application source merge is PR #27 `ad607a7a97f9e9bce8cd57a206b2a438e6003f20`.
+- PR #10 and #20 have diverged from current Main (11 and 9 commits behind respectively); their earlier CI results are not evidence for rebased integration. PR #21 remains stacked on #10.
 - Main HEAD after PR #27 merge: `ad607a7a97f9e9bce8cd57a206b2a438e6003f20`.
 - PR #27 head `94e635cc77b93d859016238347811ef5da0d12f4` passed CI run [#306](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42562505360): assembleDebug, lintDebug, JVM unit tests, minified bundleRelease, APK/AAB size reporting and QA artifact uploads. PR #27 merged as `ad607a7...`; no separate push-triggered workflow result for the merge SHA has been returned.
 - Main HEAD after PR #23 merge: `d192baf0f38db835904aa76a901d7e7cb2a24e31`.
