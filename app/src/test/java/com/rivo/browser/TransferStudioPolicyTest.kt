@@ -28,4 +28,20 @@ class TransferStudioPolicyTest {
         assertEquals(listOf(1L), TransferStudioPolicy.visible(transfers, "  pdf  ", TransferFilter.COMPLETED).map { it.id })
         assertEquals(emptyList<Long>(), TransferStudioPolicy.visible(transfers, "pdf", TransferFilter.FAILED).map { it.id })
     }
+    @Test
+    fun classifiesCancellingAsActiveAndCancelledAsFailed() {
+        val withCancellation = transfers + listOf(
+            TransferRecord(4, "large.iso", "Cancelling", "application/octet-stream", null, false),
+            TransferRecord(5, "stopped.bin", "Cancelled", "application/octet-stream", null, false)
+        )
+        assertEquals(
+            listOf(2L, 4L),
+            TransferStudioPolicy.visible(withCancellation, "", TransferFilter.ACTIVE).map { it.id }
+        )
+        assertEquals(
+            listOf(3L, 5L),
+            TransferStudioPolicy.visible(withCancellation, "", TransferFilter.FAILED).map { it.id }
+        )
+    }
+
 }
