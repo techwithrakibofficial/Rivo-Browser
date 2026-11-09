@@ -7,7 +7,7 @@ A free, privacy-focused Android browser targeting low- and mid-range devices.
 
 ## MVP source capabilities
 - URL/search omnibox, back, forward, reload and stop; Android system Back follows page history when available.
-- Multiple tabs; inactive Gecko sessions are deactivated; Activity backgrounding deactivates and unfocuses all sessions; current cap is eight.
+- Multiple tabs; Advanced Tab Universe adds title/URL search, Normal/Private/Active filters and active-first/title/type sorting; inactive Gecko sessions are deactivated; Activity backgrounding deactivates and unfocuses all sessions; current cap is eight.
 - Regular HTTP(S) tabs are persisted/restored after process recreation; private tabs are never persisted.
 - Native private sessions; private tabs do not enter app-side history or bookmarks.
 - Tracking protection enabled per session.
@@ -29,7 +29,7 @@ The app creates separate ARM64 and ARMv7 debug APK outputs. Install only the APK
 
 ## Verification
 
-Latest integrated Main CI checkpoint: [GitHub Actions run #246](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42481870810), on commit `84303588c2560db55bfb7ae2081d8f714be532e7`. Its single build job succeeded.
+Latest feature CI evidence: PR #23 run [#293](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42559942026) passed on PR head `2f4027ac5dd5f8b60241485527c290b8b27916fa` (assembleDebug, lintDebug, JVM unit tests and minified release bundle); PR #23 was merged as `d192baf0f38db835904aa76a901d7e7cb2a24e31`. This is PR-head evidence, not a separately confirmed push-triggered Main run.
 
 Verified: `:app:assembleDebug`, `:app:lintDebug`, `:app:testDebugUnitTest`, minified `-Privo.abiSplits=false :app:bundleRelease`, ABI APK/AAB size reporting, unsigned QA AAB upload, ARM64 APK upload and ARMv7 APK upload.
 
