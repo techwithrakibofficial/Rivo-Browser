@@ -4,4 +4,4 @@ dependencyResolutionManagement {
     repositories { google(); mavenCentral(); maven("https://maven.mozilla.org/maven2/") }
 }
 rootProject.name = "RivoBrowser"
-include(":app", ":engine-api", ":engine-webview", ":engine-gecko")
+include(":app", ":engine-api", ":engine-webview", ":engine-gecko", ":engine-benchmark")

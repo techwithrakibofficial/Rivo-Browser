@@ -23,6 +23,8 @@ object NavigationInputResolver {
             normalized != null &&
             scheme in setOf("http", "https") &&
             !normalized.host.isNullOrBlank() &&
+            normalized.rawUserInfo == null &&
+            (normalized.port == -1 || normalized.port in 0..65535) &&
             input.none(Char::isWhitespace)
         ) {
             return normalized.toASCIIString()
