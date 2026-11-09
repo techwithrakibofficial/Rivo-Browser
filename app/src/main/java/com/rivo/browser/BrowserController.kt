@@ -436,6 +436,7 @@ class BrowserController(context: Context) {
         if (file != null && file.exists()) {
             val downloadsRoot = appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
                 ?: File(appContext.filesDir, "downloads")
+            // The private root is allowlisted only for managed-file deletion while its private tab is active.
             val allowedRoots = listOf(
                 downloadsRoot,
                 File(appContext.filesDir, "downloads"),
