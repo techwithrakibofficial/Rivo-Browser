@@ -43,3 +43,11 @@ Status is classified by evidence level. "Implemented in Main source" does not me
 - Download hardening: only HTTP(S) URLs with host/no user-info; restored files must be direct children of canonical app-specific roots and remain under size cap.
 - Legacy download metadata: one-time migration clears ambiguous historical index while preserving files; new-format write marks migration complete atomically.
 - CI: API 35 Android Keystore/DataStore instrumentation and Gecko policy unit tests; current PR #36 exact-head CI pending.
+
+
+## PR #36 follow-up implementation — 2026-11-09 (not Main-integrated)
+
+- Downloads: HTTPS-only URL policy; host/user-info validation; bounded MIME syntax normalization with octet-stream fallback; existing atomic staging, canonical restore-root checks and 250 MB cap retained.
+- Privacy Intelligence Center: confirmation-gated Clear Browsing Data closes active Gecko sessions, clears Gecko site data/site settings and local history/download metadata, while retaining bookmarks and downloaded files.
+- Supply chain: Gradle dependency locking enabled across project configurations; PR-specific OSV job generates and scans resolved module lockfiles and commits them to the worker branch.
+- These are source-level implementation changes. Exact-head CI/OSV, emulator behavior and physical-device validation are still required before marking the features fully verified.
