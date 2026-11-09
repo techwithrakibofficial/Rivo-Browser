@@ -418,7 +418,7 @@ class BrowserController(context: Context) {
                 restoreNormalTabs()
                 refreshSitePermissions()
                 clearingBrowsingData = false
-                notice = "Website data could not be cleared: " + (error.message ?: "GeckoView storage error")
+                notice = "Website data could not be cleared: " + (error?.message ?: "GeckoView storage error")
             }
         })
     }
