@@ -1,5 +1,6 @@
 package com.rivo.browser
 
+import com.rivo.browser.data.RestorableTabCandidate
 import com.rivo.browser.data.RestorableTabPolicy
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
