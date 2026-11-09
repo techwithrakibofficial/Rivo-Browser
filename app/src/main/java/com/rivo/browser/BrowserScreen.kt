@@ -300,6 +300,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
         BrowserPanel.HISTORY -> "History"
         BrowserPanel.DOWNLOADS -> "Downloads"
         BrowserPanel.APPEARANCE -> "Quick appearance"
+        BrowserPanel.SITE_PERMISSIONS -> "Privacy Intelligence Center"
         BrowserPanel.MENU -> "Browser menu"
     }
     Dialog(onDismissRequest = onDismiss) {
@@ -475,6 +476,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
+                    BrowserPanel.SITE_PERMISSIONS -> Unit
                     BrowserPanel.APPEARANCE -> {
                         BrowserAppearance.values().forEach { appearance ->
                             TextButton(

@@ -14,6 +14,7 @@ import com.rivo.browser.data.HistoryVisitPolicy
 import com.rivo.browser.engine.gecko.GeckoBrowserRuntime
 import com.rivo.browser.engine.gecko.GeckoBrowserTab
 import com.rivo.browser.engine.gecko.GeckoTabListener
+import com.rivo.browser.engine.gecko.GeckoStoredSitePermission
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -47,6 +48,8 @@ class BrowserTabState(
     var secureConnection by mutableStateOf(false)
     var securityKnown by mutableStateOf(false)
     var certificateException by mutableStateOf(false)
+    var trackingProtectionEnabled by mutableStateOf(false)
+    var trackingProtectionException by mutableStateOf(false)
     lateinit var engine: GeckoBrowserTab
 }
 
@@ -66,6 +69,10 @@ class BrowserController(context: Context) {
     val bookmarks = mutableStateListOf<SavedPage>()
     val history = mutableStateListOf<SavedPage>()
     val downloads = mutableStateListOf<BrowserDownload>()
+    val sitePermissions = mutableStateListOf<GeckoStoredSitePermission>()
+    var sitePermissionsLoading by mutableStateOf(false)
+    var sitePermissionsLoadError by mutableStateOf(false)
+    private var awaitingNotificationPermissionResult = false
 
     var activeTabId by mutableStateOf(0L)
         private set
@@ -128,8 +135,9 @@ class BrowserController(context: Context) {
             runtime,
             privateMode,
             object : GeckoTabListener {
-                override fun onLocationChanged(url: String) {
+                override fun onLocationChanged(url: String, trackingProtectionException: Boolean) {
                     tab.url = url
+                    tab.trackingProtectionException = trackingProtectionException
                     if (!tab.privateMode && url.startsWith("http")) {
                         saveHistory(tab)
                         persistOpenTabs()
@@ -175,6 +183,7 @@ class BrowserController(context: Context) {
                     origin: String,
                     permission: String,
                     privateMode: Boolean,
+                    onShown: () -> Unit,
                     respond: (Boolean) -> Unit
                 ) {
                     if (permissionPrompt != null || tab.id !in tabs.map { it.id }) {
@@ -182,10 +191,11 @@ class BrowserController(context: Context) {
                         return
                     }
                     val host = Uri.parse(origin).host ?: origin
-                    permissionPrompt = SitePermissionPrompt(tab.id, host, permission, privateMode, respond)
+                    permissionPrompt = SitePermissionPrompt(tab.id, host, permission, privateMode, onShown, respond)
                 }
             }
         )
+        tab.trackingProtectionEnabled = tab.engine.isTrackingProtectionEnabled
         tabs.add(tab)
         selectTab(tab.id)
         tab.engine.load(url)
@@ -211,6 +221,7 @@ class BrowserController(context: Context) {
         if (permissionPrompt?.tabId == id) respondToSitePermission(false)
         if (pendingDownload?.tabId == id) cancelPendingDownload()
         closing.engine.dispose()
+        downloads.removeAll { it.privateTabId == id }
         tabs.removeAt(index)
         if (tabs.isEmpty()) {
             createTab()
@@ -243,7 +254,7 @@ class BrowserController(context: Context) {
     /** Release Gecko's foreground/focus state while the Activity is backgrounded. */
     fun onHostPaused() {
         hostStarted = false
-        if (permissionPrompt != null) respondToSitePermission(false)
+        if (permissionPrompt != null && !awaitingNotificationPermissionResult) respondToSitePermission(false)
         if (pendingDownload != null) cancelPendingDownload()
         tabs.forEach { tab ->
             tab.engine.setActive(
@@ -336,6 +347,32 @@ class BrowserController(context: Context) {
         }
     }
 
+    fun refreshSitePermissions() {
+        val sourceTab = activeTab ?: tabs.firstOrNull() ?: return
+        sitePermissionsLoading = true
+        sitePermissionsLoadError = false
+        sourceTab.engine.loadStoredSitePermissions { permissions ->
+            sitePermissions.clear()
+            if (permissions == null) sitePermissionsLoadError = true else sitePermissions.addAll(permissions)
+            sitePermissionsLoading = false
+        }
+    }
+    fun revokeSitePermission(permission: GeckoStoredSitePermission) {
+        val sourceTab = activeTab ?: tabs.firstOrNull() ?: return
+        if (!permission.canRevoke) { notice = "This permission cannot be revoked in GeckoView."; return }
+        sourceTab.engine.revokeStoredSitePermission(permission) { ok ->
+            if (ok) { notice = "Site permission reset."; refreshSitePermissions() }
+            else notice = "Permission reset failed."
+        }
+    }
+    fun beginNotificationPermissionRequest() {
+        if (permissionPrompt?.permission == "Notifications") awaitingNotificationPermissionResult = true
+    }
+    fun completeNotificationPermissionRequest(granted: Boolean) {
+        awaitingNotificationPermissionResult = false
+        respondToSitePermission(granted)
+    }
+
     fun updateAppearance(value: BrowserAppearance) {
         appearance = value
         scope.launch { storage.saveTheme(value.name.lowercase()) }
@@ -346,7 +383,8 @@ class BrowserController(context: Context) {
     fun dismissNotice() { notice = null }
 
     fun respondToSitePermission(granted: Boolean) {
-        val pending = permissionPrompt ?: return
+        val pending = permissionPrompt ?: run { awaitingNotificationPermissionResult = false; return }
+        awaitingNotificationPermissionResult = false
         permissionPrompt = null
         pending.respond(granted)
     }
@@ -359,7 +397,7 @@ class BrowserController(context: Context) {
         disposition: String?,
         body: InputStream?
     ) {
-        if (body == null || Uri.parse(url).scheme !in listOf("http", "https")) {
+        if (body == null || !DownloadSecurityPolicy.isAllowedUrl(url)) {
             runCatching { body?.close() }
             notice = "This download could not be safely handled."
             return
@@ -398,7 +436,7 @@ class BrowserController(context: Context) {
         body: InputStream?
     ) {
         val uri = Uri.parse(url)
-        if (uri.scheme !in listOf("http", "https") || body == null) {
+        if (!DownloadSecurityPolicy.isAllowedUrl(url) || body == null) {
             notice = "This download could not be safely handled."
             runCatching { body?.close() }
             return
@@ -409,7 +447,7 @@ class BrowserController(context: Context) {
             uri.lastPathSegment,
             System.currentTimeMillis()
         )
-        val item = BrowserDownload(nextId++, safeName, mimeType)
+        val item = BrowserDownload(nextId++, safeName, mimeType, tab.privateMode, if (tab.privateMode) tab.id else null)
         downloads.add(0, item)
         scope.launch(Dispatchers.IO) {
             val result = runCatching {
@@ -453,17 +491,9 @@ class BrowserController(context: Context) {
         }
         val restored = withContext(Dispatchers.IO) {
             storage.loadDownloads().mapNotNull { saved ->
-                runCatching {
-                    val file = File(saved.absolutePath).canonicalFile
-                    val allowed = allowedRoots.any { root ->
-                        file.parentFile == root && file.name == saved.filename
-                    }
-                    if (!allowed || !file.isFile || !file.exists() || file.length() > MAX_DOWNLOAD_BYTES) {
-                        null
-                    } else {
-                        saved to file
-                    }
-                }.getOrNull()
+                val file = File(saved.absolutePath)
+                if (DownloadSecurityPolicy.isAllowedRestoredFile(file, saved.filename, allowedRoots, MAX_DOWNLOAD_BYTES))
+                    saved to file.canonicalFile else null
             }
         }
         downloads.addAll(restored.map { (saved, file) ->
@@ -475,10 +505,11 @@ class BrowserController(context: Context) {
     }
 
     private fun persistDownloads() {
-        val saved = downloads.mapNotNull { item ->
-            val file = item.file ?: return@mapNotNull null
-            SavedDownload(item.filename, item.mimeType, file.absolutePath)
-        }
+        val saved = downloads.filter { DownloadSecurityPolicy.shouldPersistMetadata(it.privateMode) }
+            .mapNotNull { item ->
+                val file = item.file ?: return@mapNotNull null
+                SavedDownload(item.filename, item.mimeType, file.absolutePath)
+            }
         scope.launch {
             runCatching { storage.saveDownloads(saved) }
                 .onFailure { notice = it.message ?: "Download metadata could not be saved." }
@@ -543,16 +574,17 @@ data class SitePermissionPrompt(
     val origin: String,
     val permission: String,
     val privateMode: Boolean,
+    val onShown: () -> Unit,
     val respond: (Boolean) -> Unit
 )
 
-class BrowserDownload(val id: Long, filename: String, val mimeType: String?) {
+class BrowserDownload(val id: Long, filename: String, val mimeType: String?, val privateMode: Boolean = false, val privateTabId: Long? = null) {
     var filename by mutableStateOf(filename)
     var status by mutableStateOf("Downloading")
     var file: File? = null
 }
 
-enum class BrowserPanel { TABS, BOOKMARKS, HISTORY, DOWNLOADS, APPEARANCE, MENU }
+enum class BrowserPanel { TABS, BOOKMARKS, HISTORY, DOWNLOADS, APPEARANCE, SITE_PERMISSIONS, MENU }
 
 
 /** Only the selected tab on a started host may activate/focus Gecko. */
