@@ -755,6 +755,9 @@ class BrowserController(context: Context) {
         pendingAndroidPermissionResponse = null
         pendingAndroidPermissionNames = null
         awaitingAndroidPermissionResult = false
+        downloads.filter { it.privateMode }.forEach { download ->
+            download.file?.let(::deletePrivateDownloadFile)
+        }
         tabs.toList().forEach { it.engine.dispose() }
         tabs.clear()
         scope.cancel()
