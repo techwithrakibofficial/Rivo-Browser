@@ -107,6 +107,9 @@ class BrowserStorage internal constructor(
                         })
                     }
                 }.toString())
+                // This transaction writes only the new format, so do not let the
+                // first subsequent read mistake it for ambiguous legacy metadata.
+                prefs[privateDownloadMetadataV2Key] = true
             }
         }
     }
