@@ -111,3 +111,16 @@ Phase 1 — Functional Browser MVP stabilization and verification. Do not declar
 - PR #33 Main baseline CI #42563889346 passed all configured tasks including Android lint/JVM tests, benchmark APK/AAB packaging, minified AAB, static APK/ELF 16 KB alignment and API 35 security instrumentation. This is not physical-device or 16 KB runtime evidence.
 - PR #35 Account A and PR #36 both touch BrowserController/BrowserScreen/GeckoBrowserTab. If #35 merges first, rebase #36 onto Main and manually preserve both changes before merge.
 - Release remains NO-GO: no device QA, 16 KB runtime, dependency lockfiles/verification metadata, full advisory scan, independent MASVS assessment or production signing.
+
+
+## Account B verification refresh — 2026-11-09
+
+- PR #36 latest head: 8d0cdfc84269e0dd01b7a744758cdd742dfe5b26; 45 commits ahead / 0 behind Main; draft/open. Main was not modified.
+- Exact-head source SBOM run #42571935161 succeeded; artifact rivo-source-sbom, 2,939 bytes. This is source-level only.
+- Exact-head Gradle dependency graph run #42571935225 succeeded; artifact 10,834 bytes. GitHub Dependency Graph is disabled in repository settings; Dependency Review was attempted, failed on that repository setting and was removed. The workflow now produces read-only artifacts only.
+- Exact-head OSV run #42571935564 succeeded but logs state no package sources and no lockfiles. It does not establish a vulnerability-free dependency inventory.
+- Exact-head Android CI run #42571935131 was cancelled during retry after earlier failures caused by upstream HTTP 504 fetching Kotlin compiler artifacts; no app build/test pass is claimed for PR #36 yet.
+- Added private tab process-restoration snapshot regression to RestorableTabPolicyTest; DataStore instrumentation suite covers store reopen, corruption and metadata migration.
+- PR #33 Main baseline CI #42563889346 passed all configured tasks including API 35 instrumentation and static APK/native ELF 16 KB alignment. No 16 KB runtime or physical-device claim.
+- PR #35 and #36 share BrowserController/BrowserScreen/GeckoBrowserTab. If PR #35 merges first, rebase and resolve PR #36 without overwriting Account A code.
+- Release remains NO-GO: current-head Android CI, device QA, 16 KB runtime, full resolved dependency advisory scan, lock/verification metadata, independent MASVS review and production signing remain open.
