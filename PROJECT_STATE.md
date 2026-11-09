@@ -86,3 +86,14 @@ Phase 1 — Functional Browser MVP stabilization and verification. Do not declar
 - Fresh Android CI, OSV and source-SBOM workflows must be reviewed on the final PR head. The SBOM artifact is source-level and does not represent a complete resolved Gradle inventory; OSV warns that no lockfiles are found.
 - PR #10 (site permissions) and PR #21 (Privacy Intelligence Center) remain open and separate; their integration may require conflict resolution in BrowserController.
 - Device QA remains outstanding: reader extraction, Play-services QR scan, transfer cancellation/file deletion, TalkBack, narrow width, large font, theme matrix and low-RAM profiling.
+
+## Integration checkpoint — 2026-11-10
+
+- PR #35 (Reader Mode, QR scanning and Transfer Studio) was merged to `main` by squash commit `e190903a35a8e76aa0f3bcf1759dd0b71655ef8c`.
+- Exact PR-head Android CI run #440 for `7f3c984747de46a3c83f4d312ffb7e2bef0c7f54` passed: assemble, lint, JVM tests, engine benchmark builds, minified release bundle, static 16 KB alignment, artifact uploads and API 35 Android security instrumentation.
+- PR #35 integration does not constitute physical-device acceptance. Reader extraction, QR scan, transfer cancellation/removal, accessibility, large-font/narrow-screen layout and 3–4 GB device performance remain to be tested on hardware.
+- PR #36 remains an open draft security integration candidate. Its prior head `e9c0863b627858983efccc4e3dc68f5b34779675` passed assemble, lint, JVM tests, engine policy tests, benchmark builds, minified release bundle and static 16 KB checks, but API 35 instrumentation failed. The test report was not uploaded by that run, so the failing case is not yet identified.
+- Added an always-run Android instrumentation report upload to PR #36's workflow in commit `0574b7a95efcaf046b096334b55ee833980a1ee2` to retain XML/HTML diagnostics on the next run.
+- PR #36 was based on the pre-PR-35 Main commit `0d77826e655267c671498334c11ffad8d1dd5b14`; after PR #35 merge, it must be rebased/reconciled before integration. Shared code files include `BrowserController.kt`, `BrowserScreen.kt` and `GeckoBrowserTab.kt`; preserve both feature sets rather than overwriting either branch.
+- Current exact-head Main CI for the PR #35 merge is required. No push-triggered Main run has yet been returned.
+- CI QA artifacts are unsigned; production signing/release remains blocked. Do not claim device verification, complete dependency advisory scanning, MASVS certification or extension support.
