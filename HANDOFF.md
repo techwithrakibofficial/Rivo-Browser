@@ -1,18 +1,23 @@
 # Handoff
 
-Updated: 2026-11-09 — Tab Universe policy regression tests merged
+Updated: 2026-11-09 — current integration divergence audit
 
 ## Repository checkpoint
 - Canonical repository: https://github.com/techwithrakibofficial/Rivo-Browser
-- Main HEAD after PR #27 merge: `ad607a7a97f9e9bce8cd57a206b2a438e6003f20`
+- Main HEAD after PR #30 docs merge: `693ec61009a6bc8fdb9d98977567779f0bc40d1b` (latest application code merge: `ad607a7...`)
 - Latest Main commit: `test(tabs): expand Tab Universe search regression coverage`
 - The previous `84303588...` checkpoint and CI run #246 are historical, not validation of the latest Main HEAD.
 - Audit branch: `docs/recovery-audit-sync-2026-11-09`
 
+## Current integration audit
+- PR #10 is 10 commits behind Main and mergeability is false; overlap includes controller, screen and Gecko permission handling. Owner was asked to rebase and rerun CI.
+- PR #20 is 8 commits behind Main and mergeability is false; overlap includes controller, storage/cipher and build/CI configuration. Owner was asked to coordinate integration and rerun CI.
+- PR #21 remains stacked on #10 and must be rebased only after #10 integration.
+
 ## Open PRs and dependencies
 - #24 Tab Universe accessibility/narrow-layout follow-up: merged to Main as `350d4f3...`; PR-head CI #300 passed all configured jobs.
-- #10 RIVO-06 permissions: open; based on old Main `84303588...`; 7 commits behind current Main, connector reports mergeable=false. CI #268 passed all configured assemble/lint/JVM/release bundle/QA artifact steps on its old head; rebase and fresh CI required.
-- #20 RIVO-04/05/07/09 integration: open; based on old Main `72700fa6...`, 5 commits behind current Main, connector reports mergeable=false. CI #288 passed all configured steps on PR head, including benchmark builds, minified bundle, static 16 KB checks, artifact uploads and API 35 security instrumentation. Rebase and fresh validation are still required.
+- #10 RIVO-06 permissions: open; based on old Main `84303588...`; 10 commits behind current Main, connector reports mergeable=false. CI #268 passed all configured assemble/lint/JVM/release bundle/QA artifact steps on its old head; rebase and fresh CI required.
+- #20 RIVO-04/05/07/09 integration: open; based on old Main `72700fa6...`, 8 commits behind current Main, connector reports mergeable=false. CI #288 passed all configured steps on PR head, including benchmark builds, minified bundle, static 16 KB checks, artifact uploads and API 35 security instrumentation. Rebase and fresh validation are still required.
 - #21 RIVO-11 privacy center/download hardening: open; stacked on #10. Rebase after #10 is integrated, then fresh CI.
 - #17 Advanced Tab Universe was recovered as PR #23, CI #293 passed on its head, and PR #23 is now merged to Main. PR #16 engine benchmark remains closed/unmerged.
  
@@ -29,7 +34,7 @@ Updated: 2026-11-09 — Tab Universe policy regression tests merged
 - Latest responsive panel source change is on Main, but device/UI verification is not established.
 
 ## Highest-priority next actions
-1. Verify push-triggered Main CI for `350d4f3...` when available; PR #24 CI #300 passed all configured checks on its PR head.
+1. Verify push-triggered Main CI for application merge `ad607a7...` when available; PR #27 CI #306 passed on its PR head. Current Main HEAD `693ec61...` is a documentation-only merge.
 2. Review and validate PR #20, then integrate only after successful required checks and code review.
 3. Rebase PR #10 to current Main, resolve conflicts and run fresh CI; manually test Gecko permission/notification flows.
 4. Rebase PR #21 on the integrated PR #10 work and run fresh CI plus API 35 instrumentation.
