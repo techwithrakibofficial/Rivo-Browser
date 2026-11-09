@@ -32,6 +32,8 @@ jobs:
         run: gradle --no-daemon :app:lintDebug
       - name: Run unit tests
         run: gradle --no-daemon :app:testDebugUnitTest
+      - name: Run Gecko engine policy unit tests
+        run: gradle --no-daemon :engine-gecko:testDebugUnitTest
       - name: Assemble engine benchmark debug APKs
         run: |
           gradle --no-daemon \
