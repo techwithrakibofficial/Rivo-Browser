@@ -18,7 +18,7 @@ Status is classified by evidence level. "Implemented in Main source" does not me
 | Privacy Intelligence Center | Not integrated in Main | Open PR #21 stacked on #10 |
 | Bookmarks / history | Implemented in Main | Local DataStore, bounded lists, encrypted metadata; Keystore/DataStore instrumentation pending |
 | Downloads | Implemented in Main | Confirmation, HTTP(S), 250 MB cap, app-specific storage; hardening/private metadata policy in PR #21 |
-| Transfer Studio | First increment implemented on Account A worker branch; not yet in Main | Search/filter All/Active/Completed/Failed, file size, Open/Share/Remove; pause/resume/retry/live byte progress are not claimed because current Gecko external-response stream does not expose a resumable contract |
+| Transfer Studio | First increment implemented on Account A worker branch; not yet in Main | Search/filter All/Active/Completed/Failed, file size, Open/Share/Remove; UI materializes latest 100 only; pause/resume/retry/live byte progress are not claimed because current Gecko external-response stream does not expose a resumable contract |
 | Dark / Light / Premium Glass | Implemented in Main source | Overlay and responsive UI regression evidence required |
 | Quick Appearance Picker | Implemented in Main | Secondary menu |
 | Accessibility | Source improvements integrated in Main via PR #24 | Persistent tab-search label, selected filter semantics, active/inactive tab state and tab-specific close labels; CI #300 passed on PR #24 head; TalkBack/device verification incomplete |
