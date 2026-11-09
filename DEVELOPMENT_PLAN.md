@@ -1,11 +1,12 @@
 # Development Plan
 
 ## Current audit checkpoint — 2026-11-09
+- Current Main HEAD is docs-only merge `693ec61009a6bc8fdb9d98977567779f0bc40d1b`; latest application code merge is PR #27 `ad607a7...`.
 - Main HEAD after PR #27 merge: `ad607a7a97f9e9bce8cd57a206b2a438e6003f20`. PR #27 adds two Tab Universe search/filter JVM regressions; CI #306 passed all configured jobs on PR head before merge. Post-merge Main CI remains unconfirmed.
 - Main HEAD after PR #23 merge: `d192baf0f38db835904aa76a901d7e7cb2a24e31`; Advanced Tab Universe is now integrated.
 - PR #23 head passed CI #293; PR #24 head passed CI #300 (assembleDebug, lint, JVM tests, minified release bundle, size reports and QA artifact uploads) before merge as `350d4f3...`. A separate push-triggered Main CI result is not yet confirmed.
-- Open PR #10: permission controls; 7 commits behind Main, mergeability conflict reported, rebase required. CI #268 passed its configured build/lint/JVM/release-bundle/QA artifact steps, but no instrumentation/device validation.
-- Open PR #20: security/benchmark/API 35 integration; 5 commits behind Main, mergeability conflict reported. CI #288 passed all configured tasks on its old head, including benchmark builds, static 16 KB checks and API 35 emulator instrumentation; rebase and fresh CI required.
+- Open PR #10: permission controls; 10 commits behind Main, mergeability conflict reported, rebase required. CI #268 passed its configured build/lint/JVM/release-bundle/QA artifact steps, but no instrumentation/device validation.
+- Open PR #20: security/benchmark/API 35 integration; 8 commits behind Main, mergeability conflict reported. CI #288 passed all configured tasks on its old head, including benchmark builds, static 16 KB checks and API 35 emulator instrumentation; rebase and fresh CI required.
 - Open PR #21: privacy center/private download hardening; stacked on #10, rebase required after #10.
 - PR #17 was superseded by merged PR #23 (Advanced Tab Universe); PR #16 benchmark remains closed/unmerged.
 - PR #24 Tab Universe accessibility and narrow-width polish is merged; manual 320 dp, large-font and TalkBack verification remains.
