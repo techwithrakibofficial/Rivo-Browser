@@ -62,3 +62,9 @@ Build, lint, JVM tests, emulator instrumentation, physical-device tests and rele
 
 ## Release gate
 Production release remains NO-GO until current Main CI is green, security/instrumentation checks pass, device QA is recorded, dependency/MASVS review is complete, and a production-signed artifact is produced securely.
+
+
+## Supply-chain verification
+- OSV-Scanner pull-request workflow and SPDX source-SBOM workflow ran successfully on the initial PR #28 head.
+- Latest-Main integration PR #34 requires its own fresh CI run; do not infer its result from PR #28.
+- Review OSV output and SBOM artifact contents. No committed Gradle dependency lockfiles currently exist, so transitive dependency coverage is not yet complete or proven.
