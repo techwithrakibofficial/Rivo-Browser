@@ -42,8 +42,9 @@ OWASP MASVS is the assessment baseline. This document is not an independent secu
 3. Site permission grant/deny/revoke, Android permission denial, notification and private isolation tests.
 4. Download URL, filename, path traversal, size cap, private metadata and file cleanup tests.
 5. Review resolved Gradle lockfiles, dependency graph, SBOM and OSV findings; source SBOM alone is insufficient.
-6. OWASP MASVS control-by-control review with residual risks documented.
-7. Physical-device validation before release.
+6. OSV scanned five resolved Gradle lockfiles (814 packages) and reported no issues on the integration candidate. Re-run on every dependency change; this does not replace full dependency review.
+7. OWASP MASVS control-by-control review with residual risks documented.
+8. Physical-device validation before release.
 
 ## Release limitations
 No MASVS certification, 16 KB runtime verification, physical 3–4 GB device benchmark, production signing or store release is claimed.
