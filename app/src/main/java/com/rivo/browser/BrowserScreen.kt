@@ -80,6 +80,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     var address by remember(active?.id) { mutableStateOf(active?.url.orEmpty()) }
     var isEditingAddress by remember(active?.id) { mutableStateOf(false) }
     var menuExpanded by remember { mutableStateOf(false) }
+    var showClearDataConfirmation by remember { mutableStateOf(false) }
     val notificationPermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> browser.completeNotificationPermissionRequest(granted) }
 
     SideEffect {
@@ -238,10 +239,26 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     if (browser.panel != null) {
         BrowserPanelDialog(
             browser = browser,
-            onDismiss = { browser.openPanel(null) }
+            onDismiss = { browser.openPanel(null) },
+            onClearBrowsingData = { showClearDataConfirmation = true }
         )
     }
 
+    if (showClearDataConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showClearDataConfirmation = false },
+            title = { Text("Clear browsing data?") },
+            text = { Text("This closes all open tabs and clears browsing history, cookies, site storage, cache, site permissions and download history. Bookmarks and downloaded files are kept.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showClearDataConfirmation = false
+                    browser.openPanel(null)
+                    browser.clearBrowsingData()
+                }, enabled = !browser.clearingBrowsingData) { Text("Clear data") }
+            },
+            dismissButton = { TextButton(onClick = { showClearDataConfirmation = false }) { Text("Cancel") } }
+        )
+    }
     browser.pendingDownload?.let { request ->
         val downloadUri = android.net.Uri.parse(request.url)
         val fileName = downloadUri.lastPathSegment ?: "download"
@@ -308,7 +325,7 @@ private fun keyTab(id: Long, content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit) {
+private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit, onClearBrowsingData: () -> Unit) {
     val panel = browser.panel ?: return
     var tabQuery by remember(panel) { mutableStateOf("") }
     var tabFilter by remember(panel) { mutableStateOf(TabUniverseFilter.ALL) }
