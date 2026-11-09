@@ -295,6 +295,9 @@ class BrowserController(context: Context) {
         if (permissionPrompt?.tabId == id) respondToSitePermission(false)
         if (pendingDownload?.tabId == id) cancelPendingDownload()
         if (closing.privateMode) downloads.filter { it.privateTabId == id }.forEach { download ->
+            if (download.status == "Downloading" || download.status == "Cancelling") {
+                cancelDownload(download)
+            }
             download.file?.let(::deletePrivateDownloadFile)
         }
         closing.engine.dispose()
@@ -431,9 +434,12 @@ class BrowserController(context: Context) {
         }
         val file = download.file
         if (file != null && file.exists()) {
-            val allowedRoots = listOfNotNull(
-                appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
-                File(appContext.filesDir, "downloads")
+            val downloadsRoot = appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+                ?: File(appContext.filesDir, "downloads")
+            val allowedRoots = listOf(
+                downloadsRoot,
+                File(appContext.filesDir, "downloads"),
+                File(downloadsRoot, DownloadTempFileCleanup.PRIVATE_DOWNLOAD_DIRECTORY)
             ).mapNotNull { runCatching { it.canonicalFile }.getOrNull() }
             val canonical = runCatching { file.canonicalFile }.getOrNull()
             if (canonical == null || allowedRoots.none { canonical.parentFile == it }) {
@@ -490,6 +496,7 @@ class BrowserController(context: Context) {
         }.take(MAX_TABS)
 
         cancelPendingDownload()
+        downloads.filter { it.status == "Downloading" || it.status == "Cancelling" }.forEach(::cancelDownload)
         permissionPrompt?.respond?.invoke(false)
         permissionPrompt = null
         pendingAndroidPermissionResponse?.invoke(false)
@@ -755,7 +762,13 @@ class BrowserController(context: Context) {
             System.currentTimeMillis()
         )
         val safeMimeType = DownloadSecurityPolicy.normalizeMimeType(mimeType) ?: "application/octet-stream"
-        val item = BrowserDownload(nextId++, safeName, safeMimeType, tab.privateMode, if (tab.privateMode) tab.id else null).apply {
+        val item = BrowserDownload(
+            nextId++,
+            safeName,
+            safeMimeType,
+            tab.privateMode,
+            if (tab.privateMode) tab.id else null
+        ).apply {
             inputStream = body
             totalBytes = contentLength
         }
@@ -766,7 +779,9 @@ class BrowserController(context: Context) {
                     ?: File(appContext.filesDir, "downloads")
                 val directory = if (tab.privateMode) {
                     File(downloadsRoot, DownloadTempFileCleanup.PRIVATE_DOWNLOAD_DIRECTORY)
-                } else downloadsRoot
+                } else {
+                    downloadsRoot
+                }
                 DownloadFileWriter.save(body, directory, safeName, MAX_DOWNLOAD_BYTES) { bytes ->
                     mainHandler.post {
                         if (!item.cancelRequested && item.status == "Downloading") {
@@ -778,36 +793,31 @@ class BrowserController(context: Context) {
             withContext(Dispatchers.Main.immediate) {
                 item.inputStream = null
                 result.onSuccess { file ->
-                    if (item.cancelRequested) {
-                        if (tab.privateMode) deletePrivateDownloadFile(file) else file.delete()
-                        item.status = "Cancelled"
-                        notice = "Transfer cancelled"
-                    } else if (tab.privateMode && tabs.none { it.id == tab.id }) {
-                        deletePrivateDownloadFile(file)
-                        return@onSuccess
-                    } else {
-                        item.file = file
-                        item.filename = file.name
-                        item.bytesReceived = file.length()
-                        item.status = if (tab.privateMode) "Private download (deleted when tab closes)" else "Saved in app Downloads"
-                        persistDownloads()
-                        notice = if (tab.privateMode) {
-                            "Private download saved. It will be deleted when this tab closes."
-                        } else {
-                            "Download saved: " + file.name
+                    when {
+                        item.cancelRequested -> {
+                            if (tab.privateMode) deletePrivateDownloadFile(file) else file.delete()
+                            item.status = "Cancelled"
+                            notice = "Transfer cancelled"
                         }
-                    }
-                    } else {
-                        // Persist the collision-resolved name, not the requested name.
-                        item.file = file
-                        item.filename = file.name
-                        item.bytesReceived = file.length()
-                        item.status = "Saved in app Downloads"
-                        persistDownloads()
-                        notice = if (tab.privateMode) {
-                            "Download saved. Private browsing does not automatically erase downloaded files."
-                        } else {
-                            "Download saved: " + file.name
+                        tab.privateMode && tabs.none { it.id == tab.id } -> {
+                            deletePrivateDownloadFile(file)
+                            downloads.removeAll { it.id == item.id }
+                        }
+                        else -> {
+                            item.file = file
+                            item.filename = file.name
+                            item.bytesReceived = file.length()
+                            item.status = if (tab.privateMode) {
+                                "Private download (deleted when tab closes)"
+                            } else {
+                                "Saved in app Downloads"
+                            }
+                            persistDownloads()
+                            notice = if (tab.privateMode) {
+                                "Private download saved. It will be deleted when this tab closes."
+                            } else {
+                                "Download saved: " + file.name
+                            }
                         }
                     }
                 }.onFailure {
