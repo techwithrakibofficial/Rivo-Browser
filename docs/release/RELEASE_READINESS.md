@@ -90,3 +90,14 @@ OWASP MASVS source-level mapping is recorded in `SECURITY.md`. It is a gap-track
 ## Release decision
 
 **NO-GO.** Do not tag, publish, announce or distribute production until all blockers close, current Main CI and device/security evidence are reviewed, production signing is configured, and the owner explicitly authorizes release.
+
+
+## Latest Account B candidate checkpoint — 2026-11-09
+
+- PR #36 latest head at this checkpoint: `4d42f47ee8ba95f14ad34e366470396bd1106ad3`; 42 commits ahead / 0 behind Main; draft and unmerged.
+- OSV PR run #42571406620 completed successfully but logged no package sources and no lockfiles. This is not a clean resolved-dependency vulnerability result.
+- Source SBOM run #42571406272 completed successfully and uploaded a 2,941-byte SPDX source artifact; it is not a complete transitive Gradle SBOM.
+- Gradle dependency graph run #42571406249 completed successfully and uploaded a 10,829-byte resolved dependency graph artifact. GitHub Dependency Graph is disabled in repository settings, so automated Dependency Review is not available; owner action is required to enable it.
+- Android CI run #42571406314 initially failed due HTTP 504 while downloading kotlin-compiler-embeddable 2.4.10 from GitHub release assets. A retry was superseded by subsequent test/documentation changes. Exact-head Android CI remains pending and must pass before merge.
+- New Account B JVM regression verifies private tabs and unsafe URLs never enter process-restoration snapshots. API 35 instrumentation includes metadata migration/store-reopen tests.
+- Main baseline PR #33 CI #42563889346 passed configured tests, API 35 instrumentation, benchmark packaging, minified bundle and static APK/native ELF 16 KB alignment. No physical 16 KB runtime test is claimed.
