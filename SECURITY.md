@@ -86,3 +86,12 @@ Assessment scope: current Main plus Account B PR #36 candidate. This is a develo
 - Added .github/workflows/gradle-dependency-graph.yml: PRs generate a resolved Gradle dependency graph artifact without write permission; Main pushes/manual runs submit the resolved graph to GitHub Dependency Graph.
 - Added .github/workflows/gradle-dependency-graph.yml to generate resolved Gradle dependency graph artifacts for PRs and Main pushes using read-only permissions. Repository Dependency Graph is disabled in repository settings, so GitHub Dependency Review/submission is not available; the workflow intentionally does not request write permissions or fail CI on that setting. The owner must enable the repository feature before automated GitHub advisory review can be restored.
 - No Gradle lockfiles/checksum verification metadata are currently committed. Dependency graph submission improves resolved transitive visibility but is not equivalent to dependency locking or reproducible verification.
+
+
+## PR #36 follow-up hardening — 2026-11-09
+
+- Browser downloads now require an HTTPS URL with a valid host and no URL user-info. HTTP downloads are rejected by policy.
+- Untrusted Content-Type values are normalized to a bounded MIME token; malformed or control-character-bearing values fall back to `application/octet-stream` before storage/open/share.
+- Clear Browsing Data now closes active Gecko sessions before requesting GeckoView `SITE_DATA` and `SITE_SETTINGS` clearing, then clears local history and download metadata. Bookmarks and user-downloaded file bytes are intentionally retained. The UI requires explicit confirmation.
+- Gradle dependency locking is enabled for all project configurations. The PR OSV workflow resolves each Android module's lockfiles, scans the resolved lockfiles, uploads them, and commits generated lockfiles to this PR branch. Exact-head workflow results must pass before claiming dependency coverage.
+- Runtime behavior for Gecko data clearing and physical permission flows still requires emulator/device verification; source implementation alone is not runtime evidence.
