@@ -1,11 +1,16 @@
 # Changelog
 
+## 2026-11-09 — Advanced Tab Universe integration
+- Recovered the preserved Advanced Tab Universe implementation into PR #23 against the updated Main checkpoint and squash-merged it as `d192baf0f38db835904aa76a901d7e7cb2a24e31`.
+- Added case-insensitive title/URL search, All/Normal/Private/Active filters, Active-first/Title/Normal-vs-private sorting, active-state indication and tab close/switch while retaining the eight-tab cap and GeckoSession lifecycle.
+- PR-head CI run [#293](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42559942026) passed assembleDebug, lintDebug, JVM unit tests and minified release bundle; manual device, TalkBack and narrow-screen QA remain open.
+
 ## 2026-11-09 — GitHub recovery audit synchronization
 - Audited Main HEAD `72700fa6e599af94317d5e7d76eaa211e992281d`; previous `84303588...` checkpoint is historical.
 - Recorded open PR dependencies: #10 permissions, #20 security/benchmark integration, #21 privacy center (stacked on #10).
-- Recorded closed-but-unmerged PR #16 benchmark and PR #17 Advanced Tab Universe as not integrated until their branches are verified.
+- Recorded PR #17 as superseded by merged PR #23; PR #16 benchmark remains closed/unmerged and is not counted as integrated.
 - Corrected feature, testing and handoff status to distinguish Main source, open PR implementation, CI evidence and device verification.
-- No application source changes, PR merges or release actions performed in this documentation synchronization.
+- Advanced Tab Universe source was merged through PR #23; no production release or physical-device QA was performed.
 
 ## 2026-11-08 — CI and documentation synchronization
 - Verified integrated Main commit `84303588c2560db55bfb7ae2081d8f714be532e7` with GitHub Actions run #246.
