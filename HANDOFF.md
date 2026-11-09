@@ -99,3 +99,13 @@ PR #23 and PR #24 are integrated. PR #27 (`test(tabs): expand Tab Universe searc
 - PR #10/#21 now link to PR #36 as the consolidation candidate. Keep historical PRs open until #36 is accepted.
 - Account A PR #35 overlaps BrowserController, BrowserScreen and GeckoBrowserTab. Rebase #36 after #35 merges and manually preserve both branches' code.
 - Release remains NO-GO pending CI, device validation, 16 KB runtime, full dependency vulnerability coverage, MASVS evidence and production signing.
+
+
+## Latest Account B verification checkpoint — 2026-11-09
+
+- PR #36 head 9113b9a0a48b6d3aa6cae6fd8fb192d0fddb41f8; 51 ahead / 0 behind Main; draft/open.
+- Android CI #42572672741 is still running at Assemble shipping Rivo Browser. Previous failures were external 504s downloading Kotlin compiler artifacts; no current-head pass claimed.
+- OSV #42572673279 succeeded but reports no package sources/lockfiles. Source SBOM #42572672745 succeeded after retry with Syft v1.55.0 (2,937 bytes). Resolved Gradle dependency graph #42572672769 succeeded (10,819 bytes).
+- GitHub Dependency Graph remains disabled in repository settings; no automated Dependency Review. Enable this setting before restoring submission/review workflows.
+- PR #35 overlap on BrowserController/BrowserScreen/GeckoBrowserTab requires manual rebase/preservation if Account A merges first. PR #10/#21 have comments linking this consolidation PR and remain open until acceptance.
+- Production remains NO-GO pending exact-head CI, device tests, 16 KB runtime, full dependency vulnerability scan, independent MASVS review and signing.
