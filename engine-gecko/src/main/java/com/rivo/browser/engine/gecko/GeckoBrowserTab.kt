@@ -1,9 +1,13 @@
 package com.rivo.browser.engine.gecko
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.net.Uri
 import android.view.ViewGroup
+import org.mozilla.geckoview.ExperimentalGeckoViewApi
 import org.mozilla.geckoview.GeckoRuntime
+import org.mozilla.geckoview.PageExtractionController
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoRuntimeSettings
 import org.mozilla.geckoview.GeckoSession
@@ -25,7 +29,10 @@ object GeckoBrowserRuntime {
         return instance ?: synchronized(this) {
             instance ?: GeckoRuntime.create(
                 context.applicationContext,
-                GeckoRuntimeSettings.Builder().build()
+                GeckoRuntimeSettings.Builder()
+                    .remoteDebuggingEnabled(false)
+                    .consoleOutput(false)
+                    .build()
             ).also { instance = it }
         }
     }
@@ -38,7 +45,7 @@ interface GeckoTabListener {
     fun onNavigationChanged(canGoBack: Boolean, canGoForward: Boolean)
     fun onContentCrashed()
     fun onSecurityChanged(secure: Boolean, exception: Boolean)
-    fun onExternalDownload(url: String, mimeType: String?, disposition: String?, body: InputStream?)
+    fun onExternalDownload(url: String, mimeType: String?, disposition: String?, contentLength: Long?, body: InputStream?)
     fun onSitePermissionRequest(origin: String, permission: String, privateMode: Boolean, respond: (Boolean) -> Unit)
 }
 
@@ -82,6 +89,7 @@ class GeckoBrowserTab(
                     response.uri,
                     response.headers["content-type"],
                     response.headers["content-disposition"],
+                    response.headers["content-length"]?.toLongOrNull(),
                     response.body
                 )
             }
@@ -216,6 +224,61 @@ class GeckoBrowserTab(
     }
     fun stop() { if (!disposed) session.stop() }
 
+    /**
+     * Extracts article text through GeckoView's page-extraction API. The native
+     * reader never injects JavaScript into the page and does not persist content.
+     */
+    @OptIn(ExperimentalGeckoViewApi::class)
+    fun extractReaderContent(callback: (Result<ReaderPageContent>) -> Unit) {
+        if (disposed || !session.isOpen) {
+            callback(Result.failure(IllegalStateException("This tab is not available.")))
+            return
+        }
+        val mainHandler = Handler(Looper.getMainLooper())
+        fun finish(result: Result<ReaderPageContent>) {
+            mainHandler.post { callback(result) }
+        }
+
+        val extractor = session.getSessionPageExtractor()
+        extractor.getPageMetadata().accept(
+            { metadata ->
+                if (metadata == null) {
+                    finish(Result.failure(IllegalStateException("GeckoView did not return page metadata.")))
+                } else if (metadata.isGated) {
+                    finish(Result.failure(IllegalStateException("This page marks its content as gated. Reader Mode will not bypass it.")))
+                } else if (!metadata.isReaderable) {
+                    finish(Result.failure(IllegalStateException("This page does not appear to contain a readable article.")))
+                } else {
+                    extractor.getPageContent(PageExtractionController.ContentParams(true, true)).accept(
+                        { content ->
+                            val normalized = content.orEmpty().trim()
+                            if (normalized.isBlank()) {
+                                finish(Result.failure(IllegalStateException("No readable article text was found.")))
+                            } else {
+                                finish(
+                                    Result.success(
+                                        ReaderPageContent(
+                                            content = normalized.take(MAX_READER_CONTENT_CHARS),
+                                            language = metadata.language,
+                                            wordCount = metadata.wordCount,
+                                            wasTruncated = normalized.length > MAX_READER_CONTENT_CHARS
+                                        )
+                                    )
+                                )
+                            }
+                        },
+                        { error ->
+                            finish(Result.failure(error ?: IllegalStateException("GeckoView could not extract page content.")))
+                        }
+                    )
+                }
+            },
+            { error ->
+                finish(Result.failure(error ?: IllegalStateException("GeckoView could not read page metadata.")))
+            }
+        )
+    }
+
     fun setActive(active: Boolean) {
         if (!disposed) {
             session.setActive(active)
@@ -230,3 +293,13 @@ class GeckoBrowserTab(
         session.close()
     }
 }
+
+/** Plain-text article extracted from the currently loaded GeckoSession. */
+data class ReaderPageContent(
+    val content: String,
+    val language: String,
+    val wordCount: Int,
+    val wasTruncated: Boolean
+)
+
+private const val MAX_READER_CONTENT_CHARS = 120_000

@@ -34,3 +34,13 @@
 - PR #10 #268 passed all configured build/lint/JVM/release bundle and QA artifact steps; no instrumentation step was present.
 - PR #20 #288 passed benchmark builds, static 16 KB checks, API 35 emulator security instrumentation and configured artifacts on its recorded PR head. Rebase and fresh CI are still required because the branch is five commits behind Main.
 - Neither CI run establishes physical-device behavior or 16 KB runtime support.
+
+
+## Unreleased — Account A core feature increment (worker branch; 2026-11-09)
+
+- Added GeckoView page-extraction based native Reader Mode with article-readability detection, boilerplate removal, adjustable text size and bounded in-memory content.
+- Added QR-only Google Code Scanner integration with no camera permission, bounded/sanitized payload handling and explicit open/search confirmation.
+- Expanded Downloads into Transfer Studio with search, state filters, completed file sizes, live received-byte progress, best-effort Cancel, managed Open/Share/Remove actions and a bounded recent-100 UI list.
+- Added read-only Developer Mode diagnostics while explicitly keeping Gecko remote debugging and console output disabled.
+- Added GeckoView capability decision documentation: WebExtensions exist at engine level, but no Rivo add-on manager or marketplace is claimed.
+- Added JVM policy tests for transfer filtering and QR payload sanitation. Branch CI and runtime/device validation remain pending.

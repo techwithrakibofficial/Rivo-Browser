@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import androidx.core.content.FileProvider
 import com.rivo.browser.data.BrowserStorage
 import com.rivo.browser.data.SavedPage
@@ -58,8 +60,10 @@ class BrowserController(context: Context) {
     private val appContext = context.applicationContext
     private val storage = BrowserStorage(appContext)
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    private val mainHandler = Handler(Looper.getMainLooper())
     private val runtime = GeckoBrowserRuntime.get(appContext)
     private var nextId = 1L
+    private var readerRequestId = 0L
     private var hostStarted = true
 
     val tabs = mutableStateListOf<BrowserTabState>()
@@ -78,6 +82,12 @@ class BrowserController(context: Context) {
     var permissionPrompt by mutableStateOf<SitePermissionPrompt?>(null)
         private set
     var pendingDownload by mutableStateOf<PendingDownload?>(null)
+        private set
+    var readerArticle by mutableStateOf<ReaderArticle?>(null)
+        private set
+    var readerLoading by mutableStateOf(false)
+        private set
+    var qrScanResult by mutableStateOf<String?>(null)
         private set
 
     val activeTab: BrowserTabState?
@@ -130,6 +140,11 @@ class BrowserController(context: Context) {
             object : GeckoTabListener {
                 override fun onLocationChanged(url: String) {
                     tab.url = url
+                    if (readerArticle?.tabId == tab.id && readerArticle?.url != url) {
+                        readerArticle = null
+                        readerLoading = false
+                        readerRequestId++
+                    }
                     if (!tab.privateMode && url.startsWith("http")) {
                         saveHistory(tab)
                         persistOpenTabs()
@@ -166,9 +181,10 @@ class BrowserController(context: Context) {
                     url: String,
                     mimeType: String?,
                     disposition: String?,
+                    contentLength: Long?,
                     body: InputStream?
                 ) {
-                    requestDownloadConfirmation(tab, url, mimeType, disposition, body)
+                    requestDownloadConfirmation(tab, url, mimeType, disposition, contentLength, body)
                 }
 
                 override fun onSitePermissionRequest(
@@ -208,6 +224,11 @@ class BrowserController(context: Context) {
         if (index < 0) return
         val closing = tabs[index]
         val wasActive = closing.id == activeTabId
+        if (readerArticle?.tabId == id) {
+            readerArticle = null
+            readerLoading = false
+            readerRequestId++
+        }
         if (permissionPrompt?.tabId == id) respondToSitePermission(false)
         if (pendingDownload?.tabId == id) cancelPendingDownload()
         closing.engine.dispose()
@@ -226,6 +247,11 @@ class BrowserController(context: Context) {
         if (input.isEmpty()) return
         val url = resolveInput(input)
         val tab = activeTab ?: return
+        if (readerArticle?.tabId == tab.id) {
+            readerArticle = null
+            readerLoading = false
+            readerRequestId++
+        }
         tab.url = url
         tab.engine.load(url)
     }
@@ -250,6 +276,105 @@ class BrowserController(context: Context) {
                 TabSessionActivationPolicy.shouldActivate(tab.id, activeTabId, hostStarted)
             )
         }
+    }
+
+    fun openReaderMode() {
+        val tab = activeTab ?: return
+        if (!tab.url.startsWith("https://") && !tab.url.startsWith("http://")) {
+            notice = "Reader Mode is available only for web pages."
+            return
+        }
+        if (tab.loading) {
+            notice = "Wait until the page finishes loading, then try Reader Mode again."
+            return
+        }
+        readerArticle = null
+        readerLoading = true
+        val requestId = ++readerRequestId
+        val requestedUrl = tab.url
+        tab.engine.extractReaderContent { result ->
+            if (requestId != readerRequestId || !readerLoading || tabs.none { it.id == tab.id } || activeTabId != tab.id || tab.url != requestedUrl) {
+                if (activeTabId == tab.id) readerLoading = false
+                return@extractReaderContent
+            }
+            readerLoading = false
+            result.onSuccess { extracted ->
+                readerArticle = ReaderArticle(
+                    tabId = tab.id,
+                    title = tab.title,
+                    url = requestedUrl,
+                    content = extracted.content,
+                    language = extracted.language,
+                    wordCount = extracted.wordCount,
+                    wasTruncated = extracted.wasTruncated
+                )
+            }.onFailure { error ->
+                notice = error.message ?: "Reader Mode could not extract this page."
+            }
+        }
+    }
+
+    fun closeReaderMode() {
+        readerRequestId++
+        readerArticle = null
+        readerLoading = false
+    }
+
+    fun showQrScanResult(value: String?) {
+        val cleaned = QrCodePolicy.sanitize(value)
+        if (cleaned == null) {
+            notice = if ((value?.length ?: 0) > QrCodePolicy.MAX_RESULT_CHARS) {
+                "This QR result is too long to open safely."
+            } else {
+                "The QR code did not contain readable text."
+            }
+            return
+        }
+        qrScanResult = cleaned
+    }
+
+    fun openQrScanResult() {
+        val value = qrScanResult ?: return
+        qrScanResult = null
+        // NavigationInputResolver only permits HTTP(S); other schemes become a search.
+        navigate(value)
+    }
+
+    fun dismissQrScanResult() {
+        qrScanResult = null
+    }
+
+    fun cancelDownload(download: BrowserDownload) {
+        if (download.status != "Downloading") return
+        download.cancelRequested = true
+        download.status = "Cancelling"
+        runCatching { download.inputStream?.close() }
+        notice = "Cancelling transfer…"
+    }
+
+    fun removeDownload(download: BrowserDownload) {
+        if (download.status == "Downloading" || download.status == "Cancelling") {
+            notice = "Cancel the active transfer before removing it."
+            return
+        }
+        val file = download.file
+        if (file != null && file.exists()) {
+            val allowedRoots = listOfNotNull(
+                appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
+                File(appContext.filesDir, "downloads")
+            ).mapNotNull { runCatching { it.canonicalFile }.getOrNull() }
+            val canonical = runCatching { file.canonicalFile }.getOrNull()
+            if (canonical == null || allowedRoots.none { canonical.parentFile == it }) {
+                notice = "This file is outside Rivo's managed Downloads folder."
+                return
+            }
+            if (!canonical.delete()) {
+                notice = "The downloaded file could not be deleted."
+                return
+            }
+        }
+        downloads.removeAll { it.id == download.id }
+        persistDownloads()
     }
 
     fun goBack() { activeTab?.engine?.goBack() }
@@ -357,6 +482,7 @@ class BrowserController(context: Context) {
         url: String,
         mimeType: String?,
         disposition: String?,
+        contentLength: Long?,
         body: InputStream?
     ) {
         if (body == null || Uri.parse(url).scheme !in listOf("http", "https")) {
@@ -369,7 +495,7 @@ class BrowserController(context: Context) {
             notice = "Finish or cancel the current download confirmation first."
             return
         }
-        pendingDownload = PendingDownload(tab.id, tab.privateMode, url, mimeType, disposition, body)
+        pendingDownload = PendingDownload(tab.id, tab.privateMode, url, mimeType, disposition, contentLength?.takeIf { it > 0 }, body)
     }
 
     fun confirmPendingDownload() {
@@ -380,7 +506,7 @@ class BrowserController(context: Context) {
             runCatching { pending.body.close() }
             return
         }
-        saveDownload(tab, pending.url, pending.mimeType, pending.disposition, pending.body)
+        saveDownload(tab, pending.url, pending.mimeType, pending.disposition, pending.contentLength, pending.body)
     }
 
     fun cancelPendingDownload() {
@@ -395,6 +521,7 @@ class BrowserController(context: Context) {
         url: String,
         mimeType: String?,
         disposition: String?,
+        contentLength: Long?,
         body: InputStream?
     ) {
         val uri = Uri.parse(url)
@@ -409,29 +536,50 @@ class BrowserController(context: Context) {
             uri.lastPathSegment,
             System.currentTimeMillis()
         )
-        val item = BrowserDownload(nextId++, safeName, mimeType)
+        val item = BrowserDownload(nextId++, safeName, mimeType).apply {
+            inputStream = body
+            totalBytes = contentLength
+        }
         downloads.add(0, item)
         scope.launch(Dispatchers.IO) {
             val result = runCatching {
                 val directory = appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
                     ?: File(appContext.filesDir, "downloads")
-                DownloadFileWriter.save(body, directory, safeName, MAX_DOWNLOAD_BYTES)
+                DownloadFileWriter.save(body, directory, safeName, MAX_DOWNLOAD_BYTES) { bytes ->
+                    mainHandler.post {
+                        if (!item.cancelRequested && item.status == "Downloading") {
+                            item.bytesReceived = bytes
+                        }
+                    }
+                }
             }
             withContext(Dispatchers.Main.immediate) {
+                item.inputStream = null
                 result.onSuccess { file ->
-                    // Persist the collision-resolved name, not the requested name.
-                    item.file = file
-                    item.filename = file.name
-                    item.status = "Saved in app Downloads"
-                    persistDownloads()
-                    notice = if (tab.privateMode) {
-                        "Download saved. Private browsing does not automatically erase downloaded files."
+                    if (item.cancelRequested) {
+                        file.delete()
+                        item.status = "Cancelled"
+                        notice = "Transfer cancelled"
                     } else {
-                        "Download saved: " + file.name
+                        // Persist the collision-resolved name, not the requested name.
+                        item.file = file
+                        item.filename = file.name
+                        item.bytesReceived = file.length()
+                        item.status = "Saved in app Downloads"
+                        persistDownloads()
+                        notice = if (tab.privateMode) {
+                            "Download saved. Private browsing does not automatically erase downloaded files."
+                        } else {
+                            "Download saved: " + file.name
+                        }
                     }
                 }.onFailure {
-                    item.status = "Failed"
-                    notice = "Download failed: " + (it.message ?: "unknown error")
+                    item.status = if (item.cancelRequested) "Cancelled" else "Failed"
+                    notice = if (item.cancelRequested) {
+                        "Transfer cancelled"
+                    } else {
+                        "Download failed: " + (it.message ?: "unknown error")
+                    }
                 }
             }
         }
@@ -515,8 +663,11 @@ class BrowserController(context: Context) {
 
     fun dispose() {
         cancelPendingDownload()
+        closeReaderMode()
+        dismissQrScanResult()
         permissionPrompt?.respond?.invoke(false)
         permissionPrompt = null
+        downloads.filter { it.status == "Downloading" }.forEach(::cancelDownload)
         tabs.toList().forEach { it.engine.dispose() }
         tabs.clear()
         scope.cancel()
@@ -535,7 +686,18 @@ data class PendingDownload(
     val url: String,
     val mimeType: String?,
     val disposition: String?,
+    val contentLength: Long?,
     val body: InputStream
+)
+
+data class ReaderArticle(
+    val tabId: Long,
+    val title: String,
+    val url: String,
+    val content: String,
+    val language: String,
+    val wordCount: Int,
+    val wasTruncated: Boolean
 )
 
 data class SitePermissionPrompt(
@@ -549,10 +711,14 @@ data class SitePermissionPrompt(
 class BrowserDownload(val id: Long, filename: String, val mimeType: String?) {
     var filename by mutableStateOf(filename)
     var status by mutableStateOf("Downloading")
+    var bytesReceived by mutableStateOf(0L)
+    var totalBytes by mutableStateOf<Long?>(null)
+    var cancelRequested by mutableStateOf(false)
+    var inputStream: InputStream? = null
     var file: File? = null
 }
 
-enum class BrowserPanel { TABS, BOOKMARKS, HISTORY, DOWNLOADS, APPEARANCE, MENU }
+enum class BrowserPanel { TABS, BOOKMARKS, HISTORY, DOWNLOADS, APPEARANCE, DEVELOPER, MENU }
 
 
 /** Only the selected tab on a started host may activate/focus Gecko. */
@@ -602,7 +768,7 @@ internal object DownloadFileWriter {
     }
 
     /** Always closes input and removes staging/reservation files on every failure path. */
-    fun save(input: InputStream, directory: File, requestedFilename: String, maxBytes: Long): File {
+    fun save(input: InputStream, directory: File, requestedFilename: String, maxBytes: Long, onProgress: (Long) -> Unit = {}): File {
         require(maxBytes > 0) { "Download size limit must be positive" }
         val safeFilename = sanitizeFilename(null, requestedFilename, System.currentTimeMillis())
         var stagingFile: File? = null
@@ -627,8 +793,10 @@ internal object DownloadFileWriter {
                         }
                         totalBytes += count
                         output.write(buffer, 0, count)
+                        if (totalBytes % (256L * 1024L) < count || totalBytes - count == 0L) onProgress(totalBytes)
                     }
                     output.fd.sync()
+                    onProgress(totalBytes)
                 }
                 val target = reserveUniqueTarget(directory, safeFilename)
                 reservedTarget = target

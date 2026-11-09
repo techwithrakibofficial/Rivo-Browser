@@ -50,3 +50,12 @@
 
 ## Verification boundary
 This document describes source architecture, not device acceptance. Audited Main HEAD is `72700fa6e599af94317d5e7d76eaa211e992281d`; no CI run was returned for this exact SHA during the 2026-11-09 audit. Historical run #246 on `84303588...` does not validate later commits. Physical-device lifecycle, encryption instrumentation, performance and permission runtime behavior remain unverified.
+
+
+## Account A Phase 2 implementation increment (worker branch; not yet Main)
+
+- Reader Mode uses GeckoView `GeckoSession.getSessionPageExtractor()` to check `PageMetadata.isReaderable`, then extract plain prose with boilerplate removal. The Compose reader is an ephemeral overlay; it does not inject page JavaScript or persist article content. Extraction is capped at 120,000 characters.
+- QR scanning delegates to Google Code Scanner / Play services. No camera permission is declared. Payloads are bounded and sanitized; the result is shown for explicit confirmation before it is routed through the existing safe navigation resolver.
+- Transfer Studio is a native view over the existing download model. It supports search, state filters, managed-file open/share/remove, progress reporting and best-effort cancellation by closing the active response stream; only the 100 most recent transfers are materialized in the UI. The existing Gecko external-response InputStream is not a resumable transfer API; progress is bytes read (indeterminate when Content-Length is absent), and cancellation is best-effort via stream close. Pause/resume/retry are not claimed.
+- Developer Mode is read-only diagnostics. GeckoRuntime remote debugging and console output are explicitly disabled; no arbitrary Gecko preference editor is exposed.
+- GeckoView supports WebExtensions at engine level, but Rivo has no extension manager/marketplace yet. External XPI distribution requires Mozilla signing; built-in extensions must be bundled in APK assets. See `docs/research/GECKOVIEW_CAPABILITIES.md`.

@@ -53,3 +53,27 @@ Updated: 2026-11-09 — current integration divergence audit
 
 ## Session status
 PR #23 and PR #24 are integrated. PR #27 (`test(tabs): expand Tab Universe search regression coverage`) passed CI #306 on its PR head and merged as `ad607a7a97f9e9bce8cd57a206b2a438e6003f20`. The two new JVM policy regressions are now in Main. Post-merge Main CI and physical-device verification remain open.
+
+
+## Account A continuation — 2026-11-09
+
+- Re-inspected latest Main before starting: `0d77826e655267c671498334c11ffad8d1dd5b14` (PR #33 security integration and PR #34 supply-chain automation are merged).
+- Created isolated branch `worker/account-a-core-features-2026-11-09`; no direct Main writes.
+- Added GeckoView page extraction for native Reader Mode, QR-only Google Code Scanner integration without CAMERA permission, Transfer Studio search/filter and managed-file actions, and read-only Developer Mode diagnostics.
+- Added unit coverage for transfer filtering and QR payload sanitation.
+- Added `docs/research/GECKOVIEW_CAPABILITIES.md` with verified reader extraction, WebExtensions, QR scanner and developer-tool boundaries.
+- No CI or device test result is claimed yet. Create/review the worker PR only after inspecting fresh CI; physical-device QR, reader readability, transfer file deletion, TalkBack and narrow-screen checks remain.
+- Open PR #10 and #21 still need Account B integration/review; this branch preserves their existing permission/download code and may require conflict resolution when those changes are integrated.
+
+
+## Account A latest continuation — 2026-11-09
+
+- PR #35: https://github.com/techwithrakibofficial/Rivo-Browser/pull/35
+- Branch: `worker/account-a-core-features-2026-11-09`; based on Main `0d77826e655267c671498334c11ffad8d1dd5b14`.
+- Reader Mode now refuses gated content, checks GeckoView readerability, uses plain text extraction with boilerplate removal, and caps output at 120,000 characters.
+- QR scanning uses Google Code Scanner without CAMERA permission; payloads are sanitized and explicitly confirmed before safe resolver navigation.
+- Transfer Studio now adds Content-Length-aware progress, indeterminate progress when length is absent, best-effort cancellation by closing the input stream, recent-100 filtering, and managed-file actions. Cancellation can remain in Cancelling if the stream read does not return after close; pause/resume/retry remain unsupported.
+- Developer Mode is read-only diagnostics. Gecko remote debugging and console logging stay disabled.
+- Added tests for QR sanitization, transfer state filters and download progress monotonicity.
+- Latest PR head still needs a fresh green Android CI run. OSV workflow may pass while finding no Gradle lockfiles; source SBOM remains a small source-level inventory, not full dependency inventory.
+- PR #10 and #21 remain open and untouched.
