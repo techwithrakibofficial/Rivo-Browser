@@ -59,7 +59,7 @@ The selected `MaterialTheme` must wrap the complete native screen subtree: brows
 ## Current UI inventory
 - Initial tab navigates to DuckDuckGo; no dedicated native start-page dashboard is confirmed.
 - Omnibox and Go action are implemented; accessibility and large-font verification remain.
-- Advanced Tab Universe is implemented in Main through PR #23: searchable title/URL list, Normal/Private/Active filters, sorting, active state, and tab close/switch. Narrow-width filter scrolling and stronger TalkBack semantics are in a follow-up Core branch, not yet merged.
+- Advanced Tab Universe is implemented in Main through PR #23: searchable title/URL list, Normal/Private/Active filters, sorting, active state, and tab close/switch. Narrow-width filter scrolling and stronger TalkBack semantics are in open PR #24; CI and physical-device verification are pending.
 - Three appearance modes and secondary picker exist; overlay and selected-state verification remain.
 - Private-tab status label exists.
 - Bookmarks, history and downloads native panels exist; device theme/scroll verification remains.
@@ -67,7 +67,7 @@ The selected `MaterialTheme` must wrap the complete native screen subtree: brows
 - Reader mode, QR and advanced tab-management screens are not confirmed in Main.
 
 ## Verification checkpoint
-Main HEAD after PR #23 merge: `d192baf0f38db835904aa76a901d7e7cb2a24e31`. PR #23 head passed CI run [#293](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42559942026), including assemble, lint, JVM tests and minified release bundle. This does not establish rendered contrast, TalkBack, touch bounds or responsive behavior; manual UI/device acceptance remains open.
+Main HEAD after PR #23 merge: `d192baf0f38db835904aa76a901d7e7cb2a24e31`. PR #23 head passed CI run [#293](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42559942026), including assemble, lint, JVM tests and minified release bundle. PR #24 adds semantic filter chips, horizontal scrolling and explicit active/close labels; its CI is pending. Neither CI result establishes rendered contrast, TalkBack, touch bounds or responsive behavior; manual UI/device acceptance remains open.
 
 ## Release acceptance checklist
 - [ ] Selected appearance is applied to every native surface and overlay.
