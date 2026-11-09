@@ -74,3 +74,15 @@ Phase 1 — Functional Browser MVP stabilization and verification. Do not declar
 - A merged PR, passing JVM test, successful build, emulator instrumentation run and physical-device test are different evidence levels.
 - Never claim unexecuted tests, hardware-backed Keystore, full tracker blocking, anonymity, extension support or production readiness.
 - PR #23 and PR #24 were merged after their respective PR-head CI runs #293 and #300 passed. Post-merge Main CI and all physical-device/UI validation remain separate evidence gates.
+
+
+## Account A core-feature continuation — 2026-11-09
+
+- Latest inspected Main base: `0d77826e655267c671498334c11ffad8d1dd5b14`. PR #33 core security integration and PR #34 supply-chain workflow integration are merged into Main.
+- Account A work is isolated on `worker/account-a-core-features-2026-11-09`; PR #35 is open: https://github.com/techwithrakibofficial/Rivo-Browser/pull/35.
+- PR #35 includes native GeckoView Reader Mode (readability and gated-content checks, 120,000-character cap), QR-only Google Code Scanner (no CAMERA permission, confirmation before navigation), Transfer Studio (recent-100 list, filters, progress from response bytes, best-effort cancel, Open/Share/Remove), and read-only Developer Mode diagnostics.
+- Gecko remote debugging and console output are explicitly disabled. WebExtensions engine capability is documented, but Rivo has no extension manager/marketplace; no end-user extension support is claimed.
+- New JVM coverage: QR sanitation, transfer filtering/cancellation classification and download progress monotonicity.
+- Fresh Android CI, OSV and source-SBOM workflows must be reviewed on the final PR head. The SBOM artifact is source-level and does not represent a complete resolved Gradle inventory; OSV warns that no lockfiles are found.
+- PR #10 (site permissions) and PR #21 (Privacy Intelligence Center) remain open and separate; their integration may require conflict resolution in BrowserController.
+- Device QA remains outstanding: reader extraction, Play-services QR scan, transfer cancellation/file deletion, TalkBack, narrow width, large font, theme matrix and low-RAM profiling.
