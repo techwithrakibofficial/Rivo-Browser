@@ -603,7 +603,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                         val activeCount = browser.downloads.count { it.status == "Downloading" || it.status == "Cancelling" }
                         val failedCount = browser.downloads.count { it.status == "Failed" || it.status == "Cancelled" }
                         Text(
-                            "$completedCount completed · $activeCount active · $failedCount failed",
+                            "$completedCount completed · $activeCount active · $failedCount failed/cancelled",
                             style = MaterialTheme.typography.bodySmall
                         )
                         if (browser.downloads.size > records.size) {
