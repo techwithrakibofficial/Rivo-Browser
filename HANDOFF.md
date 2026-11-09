@@ -10,6 +10,7 @@ Updated: 2026-11-09 — Advanced Tab Universe integration
 - Audit branch: `docs/recovery-audit-sync-2026-11-09`
 
 ## Open PRs and dependencies
+- #24 Core follow-up: persistent search label, semantic filter chips, horizontal filter scrolling and clearer tab state/action announcements; open against current Main, CI pending.
 - #10 RIVO-06 permissions: open; based on old Main `84303588...`; connector reported mergeable=false. Rebase and fresh CI required.
 - #20 RIVO-04/05/07/09 integration: open; connector reported mergeable=true. Fresh CI on current head required, including API 35 instrumentation.
 - #21 RIVO-11 privacy center/download hardening: open; stacked on #10. Rebase after #10 is integrated, then fresh CI.
@@ -26,7 +27,7 @@ Updated: 2026-11-09 — Advanced Tab Universe integration
 - Latest responsive panel source change is on Main, but device/UI verification is not established.
 
 ## Highest-priority next actions
-1. Verify a push-triggered CI run for Main merge commit `d192baf0...`; PR-head CI #293 passed but does not replace Main CI.
+1. Verify PR #24 CI and push-triggered CI for Main merge commit `d192baf0...`; PR-head CI #293 passed but does not replace Main CI.
 2. Review and validate PR #20, then integrate only after successful required checks and code review.
 3. Rebase PR #10 to current Main, resolve conflicts and run fresh CI; manually test Gecko permission/notification flows.
 4. Rebase PR #21 on the integrated PR #10 work and run fresh CI plus API 35 instrumentation.
@@ -44,4 +45,4 @@ Updated: 2026-11-09 — Advanced Tab Universe integration
 - No physical-device tests, 3–4 GB benchmarks, 16 KB runtime test, production signing or release are claimed.
 
 ## Session status
-PR #23 was merged to Main after its head CI passed. A follow-up branch `core/tab-universe-accessibility-2026-11-09` is adding persistent tab-search labels, semantic filter selection, narrower-screen filter scrolling and clearer tab state/action announcements; this follow-up is not yet merged.
+PR #23 was merged to Main after its head CI passed. PR #24 (`core/tab-universe-accessibility-2026-11-09`) contains persistent tab-search labels, semantic filter selection, narrower-screen filter scrolling and clearer tab state/action announcements; PR #24 is open and its CI result has not yet been returned.
