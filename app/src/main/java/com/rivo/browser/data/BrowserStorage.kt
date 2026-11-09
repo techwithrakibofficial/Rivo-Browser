@@ -3,6 +3,7 @@ package com.rivo.browser.data
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -52,6 +53,7 @@ class BrowserStorage internal constructor(
     private val historyKey = stringPreferencesKey("history_json")
     private val openTabsKey = stringPreferencesKey("open_tabs_json")
     private val downloadsKey = stringPreferencesKey("downloads_json")
+    private val privateDownloadMetadataV2Key = booleanPreferencesKey("private_download_metadata_v2")
 
     suspend fun loadTheme(): String =
         dataStore.data.first()[themeKey] ?: "dark"
@@ -68,8 +70,24 @@ class BrowserStorage internal constructor(
     suspend fun loadOpenTabs(): List<SavedTab> =
         decodeOpenTabs(readProtected(openTabsKey))
 
-    suspend fun loadDownloads(): List<SavedDownload> =
-        decodeDownloads(readProtected(downloadsKey))
+    suspend fun loadDownloads(): List<SavedDownload> {
+        // Old releases did not mark whether a download originated in a private tab.
+        // Clear the ambiguous browser-history index once; never delete user-saved files.
+        dataStore.edit { prefs ->
+            if (prefs[privateDownloadMetadataV2Key] != true) {
+                sensitiveWriteGuard.withAllowed {
+                    sensitiveWriteGuard.validateExisting(
+                        prefs[downloadsKey].orEmpty(),
+                        cipher::decryptOrLegacy,
+                        ::parseDownloads
+                    )
+                    prefs.remove(downloadsKey)
+                    prefs[privateDownloadMetadataV2Key] = true
+                }
+            }
+        }
+        return decodeDownloads(readProtected(downloadsKey))
+    }
 
     suspend fun saveDownloads(downloads: List<SavedDownload>) {
         ensureSensitiveWritesAllowed()
