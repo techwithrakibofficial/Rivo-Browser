@@ -1,8 +1,11 @@
 # Changelog
 
+## 2026-11-09 — Tab Universe accessibility merge
+- Merged PR #24 as `350d4f3cabcaeea63f5860cffb5669c4e0cd3bc5` after PR-head CI run [#300](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42561554513) passed assembleDebug, lintDebug, JVM unit tests, minified release bundle, size reporting and QA artifact uploads.
+- Integrated semantic Material 3 FilterChips, horizontally scrollable filters, persistent search label, active/inactive state announcement and title-specific close action labels.
+- Physical 320 dp, large-font and TalkBack validation remain outstanding.
+
 ## 2026-11-09 — Advanced Tab Universe integration
-- Opened PR #24 to improve narrow-screen and accessibility behavior: horizontally scrollable Material 3 FilterChip controls, persistent tab-search label, active/inactive tab state announcement and title-specific close action labels.
-- PR #24 CI is pending verification; no fresh build/test result or physical-device/TalkBack result is claimed yet.
 - Recovered the preserved Advanced Tab Universe implementation into PR #23 against the updated Main checkpoint and squash-merged it as `d192baf0f38db835904aa76a901d7e7cb2a24e31`.
 - Added case-insensitive title/URL search, All/Normal/Private/Active filters, Active-first/Title/Normal-vs-private sorting, active-state indication and tab close/switch while retaining the eight-tab cap and GeckoSession lifecycle.
 - PR-head CI run [#293](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42559942026) passed assembleDebug, lintDebug, JVM unit tests and minified release bundle; manual device, TalkBack and narrow-screen QA remain open.
