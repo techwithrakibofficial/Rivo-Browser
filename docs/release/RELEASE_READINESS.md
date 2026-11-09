@@ -111,3 +111,13 @@ OWASP MASVS source-level mapping is recorded in `SECURITY.md`. It is a gap-track
 - Source SBOM #42571935161 succeeded and uploaded a 2,939-byte source SPDX artifact. Gradle dependency graph #42571935225 succeeded and uploaded a 10,834-byte resolved dependency graph artifact.
 - GitHub Dependency Graph is disabled in repository settings. The Dependency Review action failed with an explicit unsupported-repository message and was removed; owner must enable Dependency Graph before that workflow can be restored.
 - Private-tab restoration policy regression added; API 35 instrumentation suite covers encrypted-store reopen/corruption/migration. Exact-head execution still pending.
+
+
+## Final Account B verification — 2026-11-09
+
+- PR #36 code head at this checkpoint: `9113b9a0a48b6d3aa6cae6fd8fb192d0fddb41f8` (51 ahead / 0 behind Main, draft/open).
+- Android CI #42572672741 was still running at Assemble shipping Rivo Browser. Earlier attempts were interrupted or failed on upstream HTTP 504 downloads; no PR #36 Android build/test pass is claimed yet.
+- OSV #42572673279 succeeded but reports no package sources/lockfiles; no resolved dependency vulnerability scan is established.
+- Source SBOM #42572672745 succeeded after retry with Syft v1.55.0; 2,937-byte source-level SPDX artifact. Gradle dependency graph #42572672769 succeeded; 10,819-byte resolved graph artifact.
+- GitHub Dependency Graph is disabled in repository settings, so automated Dependency Review is not available. Owner must enable it before advisory review/submission can be restored.
+- Private-tab restore regression and metadata migration instrumentation tests are added; current PR #36 exact-head execution remains pending.
