@@ -36,4 +36,4 @@ Updated: 2026-11-09
 - Production signing and Play Store release are not complete.
 
 ## Session status
-Integration PR #37 is open. Exact-head validation and release gates remain outstanding.
+Integration PR #37 is open. The dependency lockfile workflow has committed the updated app lockfile; OSV scanned five lockfiles (814 packages) with no issues reported. A fresh exact-head Android CI run is required after the bot-authored lockfile commit. Release gates remain outstanding.
