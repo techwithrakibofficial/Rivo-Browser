@@ -300,6 +300,11 @@ class BrowserController(context: Context) {
     fun onHostPaused() {
         hostStarted = false
         if (permissionPrompt != null && !awaitingNotificationPermissionResult && !awaitingAndroidPermissionResult) respondToSitePermission(false)
+        if (pendingAndroidPermissionResponse != null && !awaitingAndroidPermissionResult) {
+            pendingAndroidPermissionResponse?.invoke(false)
+            pendingAndroidPermissionResponse = null
+            pendingAndroidPermissionNames = null
+        }
         if (pendingDownload != null) cancelPendingDownload()
         tabs.forEach { tab ->
             tab.engine.setActive(
@@ -351,6 +356,10 @@ class BrowserController(context: Context) {
         cancelPendingDownload()
         permissionPrompt?.respond?.invoke(false)
         permissionPrompt = null
+        pendingAndroidPermissionResponse?.invoke(false)
+        pendingAndroidPermissionResponse = null
+        pendingAndroidPermissionNames = null
+        awaitingAndroidPermissionResult = false
         awaitingNotificationPermissionResult = false
         tabs.toList().forEach { it.engine.dispose() }
         tabs.clear()
