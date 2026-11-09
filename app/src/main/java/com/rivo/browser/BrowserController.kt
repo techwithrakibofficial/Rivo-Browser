@@ -60,6 +60,7 @@ class BrowserController(context: Context) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val runtime = GeckoBrowserRuntime.get(appContext)
     private var nextId = 1L
+    private var readerRequestId = 0L
     private var hostStarted = true
 
     val tabs = mutableStateListOf<BrowserTabState>()
@@ -139,6 +140,7 @@ class BrowserController(context: Context) {
                     if (readerArticle?.tabId == tab.id && readerArticle?.url != url) {
                         readerArticle = null
                         readerLoading = false
+                        readerRequestId++
                     }
                     if (!tab.privateMode && url.startsWith("http")) {
                         saveHistory(tab)
@@ -218,7 +220,11 @@ class BrowserController(context: Context) {
         if (index < 0) return
         val closing = tabs[index]
         val wasActive = closing.id == activeTabId
-        if (readerArticle?.tabId == id) readerArticle = null
+        if (readerArticle?.tabId == id) {
+            readerArticle = null
+            readerLoading = false
+            readerRequestId++
+        }
         if (permissionPrompt?.tabId == id) respondToSitePermission(false)
         if (pendingDownload?.tabId == id) cancelPendingDownload()
         closing.engine.dispose()
@@ -237,7 +243,11 @@ class BrowserController(context: Context) {
         if (input.isEmpty()) return
         val url = resolveInput(input)
         val tab = activeTab ?: return
-        if (readerArticle?.tabId == tab.id) readerArticle = null
+        if (readerArticle?.tabId == tab.id) {
+            readerArticle = null
+            readerLoading = false
+            readerRequestId++
+        }
         tab.url = url
         tab.engine.load(url)
     }
@@ -276,9 +286,10 @@ class BrowserController(context: Context) {
         }
         readerArticle = null
         readerLoading = true
+        val requestId = ++readerRequestId
         val requestedUrl = tab.url
         tab.engine.extractReaderContent { result ->
-            if (tabs.none { it.id == tab.id } || activeTabId != tab.id || tab.url != requestedUrl) {
+            if (requestId != readerRequestId || !readerLoading || tabs.none { it.id == tab.id } || activeTabId != tab.id || tab.url != requestedUrl) {
                 if (activeTabId == tab.id) readerLoading = false
                 return@extractReaderContent
             }
@@ -300,6 +311,7 @@ class BrowserController(context: Context) {
     }
 
     fun closeReaderMode() {
+        readerRequestId++
         readerArticle = null
         readerLoading = false
     }
