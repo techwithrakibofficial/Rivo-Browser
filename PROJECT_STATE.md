@@ -11,7 +11,7 @@ Updated: 2026-11-09 (Core browser integration)
 - PR #23 head `2f4027ac5dd5f8b60241485527c290b8b27916fa` passed Android CI run [#293](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42559942026). Its squash merge is `d192baf0...`; a separate push-triggered CI result for that merge commit has not been confirmed.
 
 ## Open pull requests observed
-- PR #24 — Core follow-up for Tab Universe accessibility and narrow layouts. Open against Main `d192baf0...`; latest branch head `a004d62eb738d21597b297e1bd2f77c98da18098`. CI result has not yet been returned.
+- PR #24 — Core follow-up for Tab Universe accessibility and narrow layouts. Open against Main `d192baf0...` from branch `core/tab-universe-accessibility-2026-11-09`; CI result has not yet been returned.
 - PR #10 — RIVO-06 privacy and per-site permission controls. Open, based on old Main checkpoint `84303588...`; connector reports mergeable=false. CI #268 passed assembleDebug, lintDebug and JVM unit tests for its recorded head; release bundle was still in progress in its description. Device validation is explicitly outstanding.
 - PR #20 — RIVO-04/05/07/09 hardening, instrumentation, engine benchmark and 16 KB validation. Open, connector reports mergeable=true. Previous run #280 failed only due to an over-broad 32-bit ELF alignment check; run #283 identified/fixed an injected DataStore reference. Fresh CI on current PR head, including API 35 instrumentation, is required.
 - PR #21 — RIVO-11 privacy center and private-download hardening. Open and stacked on PR #10; must be rebased after its dependency is integrated. Fresh CI is required.
