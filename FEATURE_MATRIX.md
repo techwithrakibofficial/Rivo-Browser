@@ -10,7 +10,7 @@ Status is classified by evidence level. "Implemented in Main source" does not me
 | Final engine decision | Pending | Physical 3–4 GB device comparison |
 | Navigation / omnibox | Implemented in Main | JVM regression coverage; manual navigation regression pending |
 | Back / forward / reload / stop | Implemented in Main | Device regression pending |
-| Multi-tab management | Implemented in Main | Eight-tab cap; Advanced Tab Universe is in closed PR #17 and is not counted as Main |
+| Multi-tab management | Implemented in Main | Eight-tab cap; Advanced Tab Universe merged via PR #23: case-insensitive title/URL search, All/Normal/Private/Active filters and Active-first/Title/Type sorting; PR-head CI #293 passed; manual responsive/TalkBack QA pending |
 | Selected-tab restoration | Implemented in Main source | Duplicate URL index fix; force-stop/relaunch verification pending |
 | Private tabs | Implemented in Main | Native Gecko private mode; app-side history/bookmark/restoration excluded; device test pending |
 | Tracking protection | Enabled in Main source | Per GeckoSession; no tracker count/full-blocking/anonymity claim |
