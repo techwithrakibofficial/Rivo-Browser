@@ -52,3 +52,5 @@
 - Fixed a legacy download metadata migration ordering issue: successful writes of the new metadata format now mark migration complete atomically.
 - Added API 35 instrumentation coverage for clearing ambiguous legacy download metadata without deleting user file bytes and preserving subsequent new-format records.
 - Added resolved Gradle dependency graph generation for PR artifacts and Main GitHub Dependency Graph submission to improve transitive dependency visibility.
+
+- Added a regression test proving process-restoration snapshots exclude private tabs and unsafe URLs, preserve duplicate normal tabs, and never restore a private selected-tab ID.
