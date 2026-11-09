@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import androidx.core.content.FileProvider
 import com.rivo.browser.data.BrowserStorage
 import com.rivo.browser.data.SavedPage
@@ -58,6 +60,7 @@ class BrowserController(context: Context) {
     private val appContext = context.applicationContext
     private val storage = BrowserStorage(appContext)
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    private val mainHandler = Handler(Looper.getMainLooper())
     private val runtime = GeckoBrowserRuntime.get(appContext)
     private var nextId = 1L
     private var readerRequestId = 0L
@@ -178,9 +181,10 @@ class BrowserController(context: Context) {
                     url: String,
                     mimeType: String?,
                     disposition: String?,
+                    contentLength: Long?,
                     body: InputStream?
                 ) {
-                    requestDownloadConfirmation(tab, url, mimeType, disposition, body)
+                    requestDownloadConfirmation(tab, url, mimeType, disposition, contentLength, body)
                 }
 
                 override fun onSitePermissionRequest(
@@ -340,9 +344,17 @@ class BrowserController(context: Context) {
         qrScanResult = null
     }
 
+    fun cancelDownload(download: BrowserDownload) {
+        if (download.status != "Downloading") return
+        download.cancelRequested = true
+        download.status = "Cancelling"
+        runCatching { download.inputStream?.close() }
+        notice = "Cancelling transfer…"
+    }
+
     fun removeDownload(download: BrowserDownload) {
-        if (download.status == "Downloading") {
-            notice = "An active transfer cannot be removed."
+        if (download.status == "Downloading" || download.status == "Cancelling") {
+            notice = "Cancel the active transfer before removing it."
             return
         }
         val file = download.file
@@ -470,6 +482,7 @@ class BrowserController(context: Context) {
         url: String,
         mimeType: String?,
         disposition: String?,
+        contentLength: Long?,
         body: InputStream?
     ) {
         if (body == null || Uri.parse(url).scheme !in listOf("http", "https")) {
@@ -482,7 +495,7 @@ class BrowserController(context: Context) {
             notice = "Finish or cancel the current download confirmation first."
             return
         }
-        pendingDownload = PendingDownload(tab.id, tab.privateMode, url, mimeType, disposition, body)
+        pendingDownload = PendingDownload(tab.id, tab.privateMode, url, mimeType, disposition, contentLength?.takeIf { it > 0 }, body)
     }
 
     fun confirmPendingDownload() {
@@ -493,7 +506,7 @@ class BrowserController(context: Context) {
             runCatching { pending.body.close() }
             return
         }
-        saveDownload(tab, pending.url, pending.mimeType, pending.disposition, pending.body)
+        saveDownload(tab, pending.url, pending.mimeType, pending.disposition, pending.contentLength, pending.body)
     }
 
     fun cancelPendingDownload() {
@@ -508,6 +521,7 @@ class BrowserController(context: Context) {
         url: String,
         mimeType: String?,
         disposition: String?,
+        contentLength: Long?,
         body: InputStream?
     ) {
         val uri = Uri.parse(url)
@@ -522,29 +536,50 @@ class BrowserController(context: Context) {
             uri.lastPathSegment,
             System.currentTimeMillis()
         )
-        val item = BrowserDownload(nextId++, safeName, mimeType)
+        val item = BrowserDownload(nextId++, safeName, mimeType).apply {
+            inputStream = body
+            totalBytes = contentLength
+        }
         downloads.add(0, item)
         scope.launch(Dispatchers.IO) {
             val result = runCatching {
                 val directory = appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
                     ?: File(appContext.filesDir, "downloads")
-                DownloadFileWriter.save(body, directory, safeName, MAX_DOWNLOAD_BYTES)
+                DownloadFileWriter.save(body, directory, safeName, MAX_DOWNLOAD_BYTES) { bytes ->
+                    mainHandler.post {
+                        if (!item.cancelRequested && item.status == "Downloading") {
+                            item.bytesReceived = bytes
+                        }
+                    }
+                }
             }
             withContext(Dispatchers.Main.immediate) {
+                item.inputStream = null
                 result.onSuccess { file ->
-                    // Persist the collision-resolved name, not the requested name.
-                    item.file = file
-                    item.filename = file.name
-                    item.status = "Saved in app Downloads"
-                    persistDownloads()
-                    notice = if (tab.privateMode) {
-                        "Download saved. Private browsing does not automatically erase downloaded files."
+                    if (item.cancelRequested) {
+                        file.delete()
+                        item.status = "Cancelled"
+                        notice = "Transfer cancelled"
                     } else {
-                        "Download saved: " + file.name
+                        // Persist the collision-resolved name, not the requested name.
+                        item.file = file
+                        item.filename = file.name
+                        item.bytesReceived = file.length()
+                        item.status = "Saved in app Downloads"
+                        persistDownloads()
+                        notice = if (tab.privateMode) {
+                            "Download saved. Private browsing does not automatically erase downloaded files."
+                        } else {
+                            "Download saved: " + file.name
+                        }
                     }
                 }.onFailure {
-                    item.status = "Failed"
-                    notice = "Download failed: " + (it.message ?: "unknown error")
+                    item.status = if (item.cancelRequested) "Cancelled" else "Failed"
+                    notice = if (item.cancelRequested) {
+                        "Transfer cancelled"
+                    } else {
+                        "Download failed: " + (it.message ?: "unknown error")
+                    }
                 }
             }
         }
@@ -632,6 +667,7 @@ class BrowserController(context: Context) {
         dismissQrScanResult()
         permissionPrompt?.respond?.invoke(false)
         permissionPrompt = null
+        downloads.filter { it.status == "Downloading" }.forEach(::cancelDownload)
         tabs.toList().forEach { it.engine.dispose() }
         tabs.clear()
         scope.cancel()
@@ -650,6 +686,7 @@ data class PendingDownload(
     val url: String,
     val mimeType: String?,
     val disposition: String?,
+    val contentLength: Long?,
     val body: InputStream
 )
 
@@ -674,6 +711,10 @@ data class SitePermissionPrompt(
 class BrowserDownload(val id: Long, filename: String, val mimeType: String?) {
     var filename by mutableStateOf(filename)
     var status by mutableStateOf("Downloading")
+    var bytesReceived by mutableStateOf(0L)
+    var totalBytes by mutableStateOf<Long?>(null)
+    var cancelRequested by mutableStateOf(false)
+    var inputStream: InputStream? = null
     var file: File? = null
 }
 
@@ -727,7 +768,7 @@ internal object DownloadFileWriter {
     }
 
     /** Always closes input and removes staging/reservation files on every failure path. */
-    fun save(input: InputStream, directory: File, requestedFilename: String, maxBytes: Long): File {
+    fun save(input: InputStream, directory: File, requestedFilename: String, maxBytes: Long, onProgress: (Long) -> Unit = {}): File {
         require(maxBytes > 0) { "Download size limit must be positive" }
         val safeFilename = sanitizeFilename(null, requestedFilename, System.currentTimeMillis())
         var stagingFile: File? = null
@@ -752,8 +793,10 @@ internal object DownloadFileWriter {
                         }
                         totalBytes += count
                         output.write(buffer, 0, count)
+                        if (totalBytes % (256L * 1024L) < count || totalBytes - count == 0L) onProgress(totalBytes)
                     }
                     output.fd.sync()
+                    onProgress(totalBytes)
                 }
                 val target = reserveUniqueTarget(directory, safeFilename)
                 reservedTarget = target
