@@ -1,0 +1,54 @@
+name: Gradle Dependency Graph
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pull-request-graph:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools platforms;android-37.2 build-tools;37.0.0'
+      - name: Generate resolved Gradle dependency graph (PR artifact only)
+        uses: gradle/actions/dependency-submission@v6
+        with:
+          gradle-version: '9.6.0'
+          dependency-graph: generate-and-upload
+          artifact-retention-days: 14
+
+  main-dependency-submission:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools platforms;android-37.2 build-tools;37.0.0'
+      - name: Submit resolved Gradle dependency graph to GitHub
+        uses: gradle/actions/dependency-submission@v6
+        with:
+          gradle-version: '9.6.0'
+          dependency-graph: generate-submit-and-upload
+          artifact-retention-days: 14
