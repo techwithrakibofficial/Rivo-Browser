@@ -17,7 +17,6 @@ import org.mozilla.geckoview.GeckoRuntime
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoRuntimeSettings
 import org.mozilla.geckoview.GeckoSession
-import org.mozilla.geckoview.ExperimentalGeckoViewApi
 import org.mozilla.geckoview.GeckoSessionSettings
 import org.mozilla.geckoview.GeckoView
 import org.mozilla.geckoview.WebResponse
@@ -165,7 +164,6 @@ class GeckoBrowserTab(
             }
         })
         session.setPermissionDelegate(object : GeckoSession.PermissionDelegate {
-            @OptIn(ExperimentalGeckoViewApi::class)
             override fun onContentPermissionRequest(
                 session: GeckoSession,
                 permission: GeckoSession.PermissionDelegate.ContentPermission
