@@ -89,4 +89,5 @@ Production release remains NO-GO until current Main CI is green, security/instru
 - LocalDataCipherInstrumentedTest covers AES-256-GCM round-trip/randomized ciphertext, tampering, truncated payload, missing-key no-regeneration, DataStore corruption, migration and FileProvider scope. Added a regression for ambiguous legacy download-index migration and preservation of actual downloaded files/new metadata writes.
 - CI now runs :engine-gecko:testDebugUnitTest in addition to app JVM tests.
 - PR #36 exact-head CI/OSV/SBOM results must be rechecked after the last source/doc commit. Earlier runs on previous SHAs are not evidence for the final head.
+- OSV Scanner completed successfully on candidate head e413dfe, but its logs state “No package sources found” and “No lockfiles found”. Do not interpret this as a clean dependency vulnerability scan; the resolved Gradle graph artifact is a separate visibility improvement and still needs automated advisory scanning.
 - Physical-device notification grant/deny/click, permission inventory/reset, private-tab process-death, and 16 KB runtime are still required.
