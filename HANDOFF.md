@@ -86,3 +86,16 @@ PR #23 and PR #24 are integrated. PR #27 (`test(tabs): expand Tab Universe searc
 - PR #35 overlaps BrowserController, BrowserScreen and GeckoBrowserTab; if Account A merges first, rebase #36 and resolve manually without overwriting Account A work.
 - PR #10/#21 remain open historical branches and should only be closed after the consolidated PR #36 is accepted.
 - Device permission/notification tests, private process-death QA, 16 KB runtime, dependency lock/verification metadata, independent MASVS assessment and production signing remain release blockers.
+
+
+## Account B final verification — 2026-11-09
+
+- PR #36 head 8d0cdfc84269e0dd01b7a744758cdd742dfe5b26; branch worker/account-b-security-qa-2026-11-09; Main base 0d77826e655267c671498334c11ffad8d1dd5b14; 45 ahead / 0 behind. PR is draft/open.
+- OSV #42571935564 success but no package sources/lockfiles; not a clean dependency scan.
+- Source SBOM #42571935161 success, artifact 2,939 bytes; source-level only.
+- Gradle dependency graph #42571935225 success, artifact 10,834 bytes. Repository Dependency Graph is disabled, so Dependency Review was removed after the GitHub action reported unsupported repository configuration.
+- Android CI #42571935131 was cancelled during retry. Earlier failures were due upstream HTTP 504 fetching kotlin-compiler-embeddable 2.4.10. No current-head build/test pass is claimed.
+- Added private-tab process-restoration snapshot regression and updated API 35 metadata migration tests. Run fresh CI on the current head after the next push; review each step and fix source failures rather than treating transient network failures as code failures.
+- PR #10/#21 now link to PR #36 as the consolidation candidate. Keep historical PRs open until #36 is accepted.
+- Account A PR #35 overlaps BrowserController, BrowserScreen and GeckoBrowserTab. Rebase #36 after #35 merges and manually preserve both branches' code.
+- Release remains NO-GO pending CI, device validation, 16 KB runtime, full dependency vulnerability coverage, MASVS evidence and production signing.
