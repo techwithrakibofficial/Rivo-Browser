@@ -35,8 +35,8 @@ jobs:
       - name: Checkout PR branch
         uses: actions/checkout@v7
         with:
-          ref: \${{ github.event.pull_request.head.ref }}
-          repository: \${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
           persist-credentials: true
       - name: Set up Java
         uses: actions/setup-java@v6
@@ -64,11 +64,11 @@ jobs:
         shell: bash
         run: |
           mapfile -t lockfiles < <(find . -type f -name gradle.lockfile -not -path './.gradle/*' | sort)
-          (( \${#lockfiles[@]} >= 3 ))
-          for lockfile in "\${lockfiles[@]}"; do
+          (( ${#lockfiles[@]} >= 3 ))
+          for lockfile in "${lockfiles[@]}"; do
             grep -Eq '^[^#[:space:]][^=]*=[^[:space:]]' "$lockfile"
           done
-          printf 'Resolved Gradle lockfiles:\\n%s\\n' "\${lockfiles[@]}"
+          printf 'Resolved Gradle lockfiles:\n%s\n' "${lockfiles[@]}"
       - name: Scan resolved Gradle dependencies with OSV
         uses: google/osv-scanner-action/osv-scanner-action@0a65f82af05cd58cf587827b0bb0489548c18346
         with:
@@ -88,14 +88,14 @@ jobs:
         if: always()
         shell: bash
         env:
-          PR_BRANCH: \${{ github.event.pull_request.head.ref }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
         run: |
           mapfile -t lockfiles < <(find . -type f -name gradle.lockfile -not -path './.gradle/*' | sort)
-          if (( \${#lockfiles[@]} == 0 )); then
+          if (( ${#lockfiles[@]} == 0 )); then
             echo 'No generated Gradle lockfiles to commit.'
             exit 0
           fi
-          git add "\${lockfiles[@]}"
+          git add "${lockfiles[@]}"
           if git diff --cached --quiet; then
             echo 'Gradle lockfiles are already current.'
             exit 0
@@ -103,4 +103,4 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git commit -m 'build(deps): lock resolved Gradle dependencies'
-          git push origin "HEAD:\${PR_BRANCH}"
+          git push origin "HEAD:${PR_BRANCH}"
