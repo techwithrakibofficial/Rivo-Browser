@@ -317,15 +317,13 @@ class BrowserController(context: Context) {
     }
 
     fun showQrScanResult(value: String?) {
-        val cleaned = value.orEmpty()
-            .filter { it == '\n' || it == '\t' || it >= ' ' }
-            .trim()
-        if (cleaned.isBlank()) {
-            notice = "The QR code did not contain readable text."
-            return
-        }
-        if (cleaned.length > MAX_QR_RESULT_CHARS) {
-            notice = "This QR result is too long to open safely."
+        val cleaned = QrCodePolicy.sanitize(value)
+        if (cleaned == null) {
+            notice = if ((value?.length ?: 0) > QrCodePolicy.MAX_RESULT_CHARS) {
+                "This QR result is too long to open safely."
+            } else {
+                "The QR code did not contain readable text."
+            }
             return
         }
         qrScanResult = cleaned
@@ -643,7 +641,6 @@ class BrowserController(context: Context) {
         const val HOME_URL = "https://duckduckgo.com/"
         const val MAX_TABS = 8
         const val MAX_DOWNLOAD_BYTES = 250L * 1024L * 1024L
-        const val MAX_QR_RESULT_CHARS = 2048
     }
 }
 
