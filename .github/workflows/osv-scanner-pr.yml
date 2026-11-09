@@ -95,6 +95,8 @@ jobs:
             echo 'No generated Gradle lockfiles to commit.'
             exit 0
           fi
+          git fetch origin "${PR_BRANCH}"
+          git reset --mixed "origin/${PR_BRANCH}"
           git add "${lockfiles[@]}"
           if git diff --cached --quiet; then
             echo 'Gradle lockfiles are already current.'
