@@ -1,47 +1,38 @@
 # Security Baseline
 
-OWASP MASVS is the baseline for storage, cryptography, network, platform, code, resilience and privacy. This is an implementation record, not a completed security certification.
+OWASP MASVS is the assessment baseline for storage, cryptography, network, platform, code, resilience and privacy. This document is not a certification or completed independent security assessment.
 
-## Implemented in Phase 1 source
-- GeckoView Stable candidate pinned; no dynamic dependency versions.
-- One process-scoped GeckoRuntime; one GeckoSession per tab.
-- Native Gecko private mode; private tabs excluded from app-side history/bookmarks and tab restoration.
-- Tracking protection enabled per session.
-- HTTPS requests for desktop notifications and persistent storage receive an explicit per-origin Allow/Deny prompt; unsupported content, runtime and media permissions remain denied.
-- Permission prompts are not shown for non-HTTPS origins; private-mode decisions remain scoped to Gecko private sessions.
-- No JavaScript-to-native bridge and no TLS certificate error override.
-- Connection security state comes from GeckoView ProgressDelegate.
-- Omnibox accepts HTTP/HTTPS; unsupported schemes become search queries.
-- Downloads require explicit confirmation, accept HTTP(S) streams, sanitize filenames, enforce a 250 MB per-file limit, write temporary files and atomically finalize in app-specific storage.
-- Download metadata restoration validates canonical file paths against app-specific download directories; abandoned temporary files are cleaned on startup.
-- A non-exported FileProvider exposes only scoped app-specific download paths for explicit open/share actions.
-- App declares INTERNET only; no broad storage, camera, microphone or location permission.
-- Android backup disabled and cleartext traffic disabled in Android app policy.
-- Bookmarks, history, restorable-tab metadata and download metadata are encrypted at rest with AES-256-GCM using an Android Keystore key; legacy plaintext values migrate on read.
-- Theme preference remains a non-sensitive DataStore value; no account, telemetry or mandatory backend.
-- Separate ARM64/ARMv7 APK split configuration.
+## Implemented in Main source
+- GeckoView runtime with one session per tab.
+- Native Gecko private mode; private tabs excluded from app-side history/bookmarks/restoration.
+- Per-session tracking protection.
+- No JavaScript-to-native bridge and no TLS certificate validation override.
+- HTTP/HTTPS URL handling; unsupported schemes resolve as search.
+- HTTP(S)-only confirmed downloads, filename sanitization, 250 MB per-file cap, temporary files, atomic finalization and app-specific storage.
+- Scoped, non-exported FileProvider for explicit open/share.
+- Android backup disabled, cleartext traffic disabled and no broad storage/camera/microphone/location permissions.
+- Browser metadata uses AES-256-GCM with an Android Keystore key; JVM/source-level safeguards exist. On-device Keystore behavior still needs instrumentation verification.
+- No account, telemetry or mandatory backend.
 
-## Known limitations and review findings
-- Per-site permission allow/deny management and revoke UI is pending. Unsupported/device/media requests remain denied.
-- Private mode does not hide network activity from sites, ISPs, DNS resolvers or network operators.
-- User-saved download files remain on device, including downloads started from private tabs. Download file contents are not encrypted by the metadata cipher.
-- Encrypted metadata decryption failures now propagate as `EncryptedDataException`; malformed JSON and malformed entries fail closed instead of being silently discarded.
-- BrowserStorage uses a process-wide fail-closed write guard for integrity failures observed in the current process. The in-memory flag resets after process restart; therefore every direct replacement of existing open-tab or download metadata, and clear-history, now decrypts and validates the current value inside the DataStore edit transaction before replacing it. A missing/lost Keystore key or malformed existing value causes the edit to abort and preserves the stored ciphertext. Theme preference remains independently writable. All sensitive DataStore edit mutations are serialized with integrity-failure publication through the same process guard; read-modify-write paths authenticate and decode their target value before writing.
-- AES-GCM payload parsing validates the 12-byte IV plus 16-byte authentication tag minimum. The cipher uses a fresh provider-generated IV for each encryption.
-- JVM tests cover fail-closed guard behavior and verify that replacement is rejected when existing-value authentication or metadata validation fails. These tests exercise the validation gate with controlled callbacks; they do not prove Android Keystore cryptography or DataStore transaction behavior. Android Keystore-backed AES-GCM round-trip, tampering, key-loss, and legacy migration tests still require Android instrumentation; do not treat those cases as verified.
-- Regular-tab restoration and download-metadata persistence are implemented in source; integrated Main CI run #246 passed, but force-stop/relaunch behavior still requires physical-device verification.
-- No claim of anonymity or complete tracker/ad blocking.
-- Final engine selection and device security/performance validation remain pending.
+## Open PR work (not yet Main-integrated)
+- PR #10: GeckoView site notification/autoplay mediation, default-deny unsupported/device/media requests, site permission inventory/revocation constraints and notification flow.
+- PR #21: Privacy Intelligence Center, fail-closed missing-key decrypt, private-download metadata exclusion, download URL/filename/path hardening and Keystore instrumentation tests. PR #21 is stacked on #10.
+- PR #20: storage hardening, API 35 instrumentation and benchmark/release validation workflow changes.
 
-## CI verification checkpoint
+## Known limitations
+- Private browsing does not hide network activity from websites, ISPs, DNS resolvers or network operators.
+- User-saved downloaded file contents are not encrypted by the metadata cipher and are not automatically erased by private mode.
+- Hardware-backed/StrongBox Keystore is not guaranteed.
+- Tracking protection does not justify claims of complete tracker blocking, tracker counts or anonymity.
+- Unsupported hardware/media permissions remain denied unless explicitly and safely supported.
+- WebExtensions support is not established.
+- No MASVS certification is claimed.
 
-Integrated Main commit `84303588c2560db55bfb7ae2081d8f714be532e7` passed GitHub Actions run [#246](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42481870810), including assembleDebug, lintDebug, JVM unit tests and minified release bundle packaging. These checks do not replace Android Keystore/DataStore instrumentation, physical-device tests, dependency review or MASVS assessment.
-
-## Release gates
-- Verify encrypted-metadata failure handling with Android instrumentation tests before release.
-- Review certificate validation, redirects, external schemes and downloads.
-- Test FileProvider URI grants and path traversal resistance.
-- Add explicit per-site permission mediation and revoke controls.
-- Run dependency vulnerability review and OWASP MASVS checklist.
-- Verify release signing, artifact provenance, ABI packaging, release bundle size and backup policy.
-- Perform physical-device privacy, lifecycle and performance testing.
+## Required security gates
+1. Keystore AES-GCM round-trip, tamper, missing-key/key-loss and migration instrumentation.
+2. DataStore corruption/relaunch preservation tests.
+3. Permission grant/deny/revoke and notification flow tests, including private isolation.
+4. Download path traversal, URL, filename, size, restore and private metadata tests.
+5. Dependency vulnerability/SBOM review.
+6. OWASP MASVS control-by-control source review and documented residual risks.
+7. Physical-device validation before release.
