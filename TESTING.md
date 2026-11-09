@@ -14,6 +14,7 @@ Build, lint, JVM tests, emulator instrumentation, physical-device tests and rele
 - PR #20: description reports run #280 passed app assemble, lint, JVM tests, benchmark APK/AAB and minified shipping AAB builds, but the workflow failed at the 16 KB checker because it incorrectly checked 32-bit ELF alignment. Run #283 found/fixed an injected DataStore reference. Fresh CI on the current PR head is mandatory, including API 35 instrumentation.
 - PR #21: description explicitly requires fresh Android CI. Added Keystore instrumentation tests are not claimed passing until executed.
 - PR #23 (merged): CI #293 passed assembleDebug, lintDebug, JVM unit tests and minified release bundle on its PR head. The test suite added `TabUniversePolicyTest` coverage for title/URL search, Normal/Private/Active filters and three sorting modes. No Compose UI or device-level tab interaction test is claimed.
+- PR #24 (open): semantic FilterChip selection, horizontal filter scrolling, persistent search label, active/inactive tab state and tab-specific close labels. Fresh CI is not yet returned; verify 320 dp width, large font and TalkBack before merge.
 
 ## Required automated checks
 1. `:app:assembleDebug`
@@ -39,6 +40,7 @@ Build, lint, JVM tests, emulator instrumentation, physical-device tests and rele
 - Permission grant/deny/revoke, notification runtime permission/delivery/click, private-mode isolation.
 - Dark/Light/Glass dialogs and panels, 320 dp width, short screens, large font scale.
 - TalkBack semantics, focus order and contrast.
+- Tab Universe filters: verify horizontal scrolling on narrow layouts, selected chip announcement, persistent search label, active/inactive state and uniquely labelled close actions.
 - 16 KB Android runtime launch and real-device performance.
 
 ## Device QA required
