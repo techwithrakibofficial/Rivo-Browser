@@ -777,6 +777,7 @@ class BrowserController(context: Context) {
             val result = runCatching {
                 val downloadsRoot = appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
                     ?: File(appContext.filesDir, "downloads")
+                // Private file bytes stay in a dedicated root so tab-close cleanup cannot touch normal downloads.
                 val directory = if (tab.privateMode) {
                     File(downloadsRoot, DownloadTempFileCleanup.PRIVATE_DOWNLOAD_DIRECTORY)
                 } else {
