@@ -52,4 +52,3 @@ jobs:
           gradle-version: '9.6.0'
           dependency-graph: generate-and-upload
           artifact-retention-days: 14
-          artifact-retention-days: 14
