@@ -38,3 +38,9 @@ OWASP MASVS is the assessment baseline. This document is not an independent secu
 - Test permission/notification/private-session and download lifecycle on physical devices.
 - Verify Android Keystore behavior on supported devices and 16 KB runtime behavior.
 - Configure signing in protected CI secrets; never commit keystore files/passwords.
+
+
+## Repository and release governance
+- Verified GitHub branch metadata currently reports `main` as unprotected, with protection disabled and no required status checks. This permits direct pushes/force-pushes unless separately restricted.
+- Before shipping, configure a GitHub repository ruleset/branch protection requiring PR review and successful Android CI; block force-push and branch deletion; limit release/tag publishing to trusted maintainers.
+- The available connected GitHub integration exposes branch-protection/ruleset reads but not mutation, so no governance change is claimed here.
