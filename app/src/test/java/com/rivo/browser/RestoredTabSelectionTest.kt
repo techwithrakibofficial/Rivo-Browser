@@ -18,4 +18,15 @@ class RestoredTabSelectionTest {
     fun selectsFirstTabWhenItWasPersistedAsSelected() {
         assertEquals(0, restoredSelectedTabIndex(listOf(true, false)))
     }
+
+    @Test
+    fun loadsPendingRestoredPageOnlyWhenItsTabIsSelected() {
+        assertTrue(shouldLoadPendingRestoredTab(isPending = true, isSelected = true))
+        assertFalse(shouldLoadPendingRestoredTab(isPending = true, isSelected = false))
+    }
+
+    @Test
+    fun doesNotLoadAlreadyLoadedTabAgainWhenSelected() {
+        assertFalse(shouldLoadPendingRestoredTab(isPending = false, isSelected = true))
+    }
 }
