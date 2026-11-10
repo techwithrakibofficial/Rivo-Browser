@@ -3,6 +3,9 @@ package com.rivo.browser.engine.gecko
 import android.content.Context
 import android.net.Uri
 import android.view.ViewGroup
+import com.rivo.browser.engine.api.BrowserTab
+import com.rivo.browser.engine.api.BrowserTabFactory
+import com.rivo.browser.engine.api.BrowserTabListener
 import org.mozilla.geckoview.GeckoRuntime
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoRuntimeSettings
@@ -10,7 +13,6 @@ import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.GeckoSessionSettings
 import org.mozilla.geckoview.GeckoView
 import org.mozilla.geckoview.WebResponse
-import java.io.InputStream
 
 /**
  * Process-scoped GeckoRuntime provider. GeckoView permits only one active Gecko
@@ -31,23 +33,20 @@ object GeckoBrowserRuntime {
     }
 }
 
-interface GeckoTabListener {
-    fun onLocationChanged(url: String)
-    fun onTitleChanged(title: String?)
-    fun onLoadingChanged(loading: Boolean, progress: Int)
-    fun onNavigationChanged(canGoBack: Boolean, canGoForward: Boolean)
-    fun onContentCrashed()
-    fun onSecurityChanged(secure: Boolean, exception: Boolean)
-    fun onExternalDownload(url: String, mimeType: String?, disposition: String?, body: InputStream?)
-    fun onSitePermissionRequest(origin: String, permission: String, privateMode: Boolean, respond: (Boolean) -> Unit)
+/** Creates GeckoView-backed tabs that share the process-scoped [GeckoBrowserRuntime]. */
+class GeckoBrowserTabFactory(context: Context) : BrowserTabFactory {
+    private val appContext = context.applicationContext
+
+    override fun create(isPrivate: Boolean, listener: BrowserTabListener): BrowserTab =
+        GeckoBrowserTab(GeckoBrowserRuntime.get(appContext), isPrivate, listener)
 }
 
 /** One GeckoSession per browser tab. */
 class GeckoBrowserTab(
     private val runtime: GeckoRuntime,
-    val isPrivate: Boolean,
-    private val listener: GeckoTabListener
-) {
+    override val isPrivate: Boolean,
+    private val listener: BrowserTabListener
+) : BrowserTab {
     val session: GeckoSession = GeckoSession(
         GeckoSessionSettings.Builder()
             .usePrivateMode(isPrivate)
@@ -175,7 +174,7 @@ class GeckoBrowserTab(
     }
 
     /** Create a UI-context GeckoView for the current Activity window. */
-    fun createView(context: Context): GeckoView {
+    override fun createView(context: Context): GeckoView {
         check(!disposed)
         releaseView()
         return GeckoView(context).also { newView ->
@@ -185,14 +184,14 @@ class GeckoBrowserTab(
     }
 
     /** Detach the current Activity-bound view while keeping this tab session alive. */
-    fun releaseView() {
+    override fun releaseView() {
         val oldView = attachedView ?: return
         (oldView.parent as? ViewGroup)?.removeView(oldView)
         oldView.releaseSession()
         attachedView = null
     }
 
-    fun load(url: String) {
+    override fun load(url: String) {
         check(!disposed)
         currentUrl = url
         if (crashed) {
@@ -202,9 +201,9 @@ class GeckoBrowserTab(
         session.loadUri(url)
     }
 
-    fun goBack() { if (!disposed && !crashed && canGoBack) session.goBack() }
-    fun goForward() { if (!disposed && !crashed && canGoForward) session.goForward() }
-    fun reload() {
+    override fun goBack() { if (!disposed && !crashed && canGoBack) session.goBack() }
+    override fun goForward() { if (!disposed && !crashed && canGoForward) session.goForward() }
+    override fun reload() {
         if (disposed) return
         if (crashed) {
             session.open(runtime)
@@ -214,16 +213,16 @@ class GeckoBrowserTab(
             session.reload()
         }
     }
-    fun stop() { if (!disposed) session.stop() }
+    override fun stop() { if (!disposed) session.stop() }
 
-    fun setActive(active: Boolean) {
+    override fun setActive(active: Boolean) {
         if (!disposed) {
             session.setActive(active)
             session.setFocused(active)
         }
     }
 
-    fun dispose() {
+    override fun dispose() {
         if (disposed) return
         disposed = true
         releaseView()
