@@ -30,13 +30,14 @@ Updated: 2026-11-10
 - Remaining: runtime/device acceptance and UX/accessibility verification.
 
 ## Phase 3 — Security, performance and release
-**In progress; not release-ready.**
+**In progress; not release-ready. Signed-release automation is merged, but cannot execute until protected signing secrets are configured.**
 - Resolve and scan Gradle dependencies; review OSV results and SBOM.
 - Complete OWASP MASVS control-by-control assessment.
 - Physical device and 3–4 GB RAM profiling.
 - 16 KB runtime validation on compatible hardware.
 - Validate notification/permission/private-session edge cases.
-- Secure production signing, signed AAB generation, release notes and staged rollout.
+- Signed-release automation is implemented in `.github/workflows/signed-release.yml`; it requires protected keystore secrets, builds and verifies signed APK/AAB, generates checksums and publishes a GitHub Release.
+- Configure signing secrets, execute a reviewed release tag, complete physical-device acceptance and staged rollout.
 
 ## Release gates
 A release candidate is acceptable only when:
@@ -46,4 +47,4 @@ A release candidate is acceptable only when:
 4. Accessibility and all appearance modes pass on narrow and large-font layouts.
 5. 3–4 GB performance is measured and meets agreed budgets.
 6. 16 KB runtime is validated on compatible hardware.
-7. Security review and signing provenance are documented.
+7. Security review and signing provenance are documented; protected signing secrets are configured and a signed APK/AAB release workflow run succeeds.
