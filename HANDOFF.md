@@ -35,3 +35,10 @@ Updated: 2026-11-10
 - Complete the protected signing setup and signed release execution.
 - Execute the manual/device test matrix and record device/build-specific evidence.
 - Complete security assessment, resolve/record dependency advisories, and only then approve a production release.
+
+
+## Governance finding
+- GitHub currently reports Main as unprotected (`protected=false`, protection disabled, no required status checks). This is a production governance gap.
+- The connected GitHub interface available in this session does not provide branch-protection/ruleset write operations; only read access is exposed for those endpoints. Do not claim the setting was changed.
+- Owner/admin follow-up before release: enable a main-branch ruleset requiring PR review and successful Android CI, block force-push/deletion, and restrict release/tag creation.
+- Documentation commit head `56b14acf0755d27c0f90035204ffef0a2502d493` has Android CI run #481 in progress at handoff; the preceding source CI run #480 was successful.
