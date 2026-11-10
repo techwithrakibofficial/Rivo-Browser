@@ -30,8 +30,9 @@ Updated: 2026-11-10
 - Remaining: runtime/device acceptance and UX/accessibility verification.
 
 ## Phase 3 — Security, performance and release
-**In progress; not release-ready. Signed-release automation is merged, but cannot execute until protected signing secrets are configured.**
-- Resolve and scan Gradle dependencies; review OSV results and SBOM.
+**Automated Main validation is green; production release remains blocked by non-CI gates.**
+- Main Android CI #42763857175 passed shipping build, lint, JVM tests, Gecko policy tests, benchmark builds, minified release bundle, static 16 KB checks and API 35 instrumentation.
+- Main OSV Scanner #42763857162 scanned all five Gradle lockfiles and reported no known issues; dependency graph and source SBOM jobs succeeded.
 - Complete OWASP MASVS control-by-control assessment.
 - Physical device and 3–4 GB RAM profiling.
 - 16 KB runtime validation on compatible hardware.
