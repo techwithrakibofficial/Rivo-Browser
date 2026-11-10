@@ -51,4 +51,7 @@ Updated: 2026-11-10
 - Physical contrast, TalkBack, narrow-screen, large-font and low-RAM verification remain open.
 
 ## Verification boundary
-PR #38 is merged. Android CI run #463 passed on the identical source tree; post-merge Main CI and physical-device acceptance must be tracked separately. CI AABs are unsigned QA artifacts.
+- Main Android CI run #42763857175 passed on source SHA `ca8eddb2b0ce7f8252c639805f4227c6aeb938d1`, including API 35 security instrumentation and static 16 KB alignment checks.
+- Same-head OSV Scanner reported **No issues found** after scanning five Gradle lockfiles (814 resolved package entries across modules); SBOM and dependency graph jobs succeeded.
+- These are automated CI results only. Physical-device acceptance, low-RAM profiling, 16 KB runtime verification and full OWASP MASVS assessment remain separate gates.
+- CI APK/AAB outputs are unsigned QA artifacts, not production release packages.
