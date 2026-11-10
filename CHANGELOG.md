@@ -27,3 +27,8 @@ See Git history for prior Tab Universe, storage hardening, browser navigation, t
 - Verified GitHub reports `main` as unprotected, with no required status checks enforced by branch protection.
 - Recorded required governance remediation in PROJECT_STATE.md, HANDOFF.md and SECURITY.md. The available GitHub integration does not expose branch-protection write operations, so the setting remains unchanged.
 - Latest documentation head `56b14acf0755d27c0f90035204ffef0a2502d493` triggered Android CI run #481; earlier source CI run #480 passed.
+
+## 2026-11-10 — Website notification lock-screen privacy
+- Website notification content now uses Android private visibility and a generic public version, preventing page-controlled title/body/origin from being deliberately copied into the insecure lock-screen representation.
+- Added a JVM regression test for the generic public notification content.
+- Physical-device lock-screen and screen-sharing verification remains required; no runtime device result is claimed.
