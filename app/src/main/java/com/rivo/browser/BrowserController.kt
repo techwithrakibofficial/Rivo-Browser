@@ -287,7 +287,7 @@ class BrowserController(context: Context) {
             tab.engine.setActive(
                 TabSessionActivationPolicy.shouldActivate(tab.id, activeTabId, hostStarted)
             )
-            if (shouldLoadPendingRestoredTab(tab.initialLoadPending, isSelected = true)) {
+            if (shouldLoadPendingRestoredTab(tab.initialLoadPending, isSelected = tab.id == activeTabId)) {
                 tab.initialLoadPending = false
                 tab.engine.load(tab.url)
             }
