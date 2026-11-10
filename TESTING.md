@@ -11,11 +11,12 @@ Updated: 2026-11-10
 - The signed-release workflow is not validated until a real signed build completes and GitHub Release assets are verified.
 
 ## Main-head automated CI evidence
-- Main SHA: `ca8eddb2b0ce7f8252c639805f4227c6aeb938d1`.
+- Main source SHA: `ca8eddb2b0ce7f8252c639805f4227c6aeb938d1`.
 - Android CI run [#42763857175](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42763857175) completed with conclusion `success`.
 - Passed steps: shipping assemble, Android lint, unit tests, Gecko engine policy tests, GeckoView and WebView benchmark builds, minified shipping release bundle, native library/APK static 16 KB alignment, artifact-size report, QA artifact uploads and API 35 Android security instrumentation.
-- Uploaded artifacts: ARM64 debug APK, ARMv7 debug APK, unsigned shipping QA AAB, Android test reports, GeckoView benchmark and WebView benchmark. Artifacts are temporary QA outputs and are not production signed.
-- Same-head OSV Scanner, Gradle Dependency Graph and Source SBOM workflows succeeded.
+- Uploaded artifacts (all from the above source SHA): ARM64 debug APK (110,066,243 bytes), ARMv7 debug APK (106,089,320 bytes), unsigned shipping QA AAB (249,326,269 bytes), Android test reports, GeckoView benchmark and WebView benchmark. These are temporary QA outputs, not production-signed deliverables. GitHub artifact retention is limited; do not treat the artifact URLs as permanent releases.
+- Main OSV Scanner run [#42763857162](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42763857162) scanned five Gradle lockfiles: app 310, engine-gecko 152, engine-benchmark 150, engine-api 101 and engine-webview 101 package entries (814 total). The reporter printed **No issues found** and uploaded SARIF to Code Scanning. This only means no known advisories were found in those scanned lockfiles at scan time.
+- Main Gradle Dependency Graph run #42763856885 and Source SBOM run #42763856868 completed successfully.
 - Earlier integrated source tree `9115b9d3c607353facc15ed9b6fb4e3e53ce696d` also passed PR Android CI run #463 and API 35 instrumentation.
 - Signed-release workflow `.github/workflows/signed-release.yml` is merged but has not had a signed runtime execution; production signing secrets are required.
 
