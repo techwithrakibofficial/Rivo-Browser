@@ -4,11 +4,11 @@ Updated: 2026-11-10
 
 ## Repository checkpoint
 - Canonical repository: https://github.com/techwithrakibofficial/Rivo-Browser
-- Latest validated Main CI head: `ca8eddb2b0ce7f8252c639805f4227c6aeb938d1`.
+- Latest validated Main CI head: `45611c3a42ae14f82089f8ba49c5840a9548a0b6` (Android CI #485 passed).
 - PR #38 integrated Phase 2; PR #40 merged signed-release automation.
 
 ## Completed and verified
-- Main-head Android CI run [#42763857175](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42763857175) passed all configured steps, including shipping build, lint, JVM tests, Gecko policy tests, GeckoView/WebView benchmark builds, minified release bundle, static 16 KB checks, QA artifact uploads and API 35 Android security instrumentation.
+- Main-head Android CI run [#485](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42765445314) passed on `45611c3a42ae14f82089f8ba49c5840a9548a0b6`, including shipping build, lint, JVM tests, Gecko policy tests, GeckoView/WebView benchmark builds, minified release bundle, static 16 KB checks, QA artifact uploads and API 35 Android security instrumentation.
 - Same-head OSV Scanner, Gradle Dependency Graph and Source SBOM workflows succeeded.
 - QA artifacts uploaded: ARM64/ARMv7 debug APKs, unsigned AAB, Android test reports and engine benchmark artifacts.
 - Phase 2 browser features remain integrated as described in PROJECT_STATE.md.
@@ -21,7 +21,7 @@ Updated: 2026-11-10
 4. Validate TalkBack, 320 dp width, large fonts, contrast and Dark/Light/Glass appearance.
 5. Record repeatable GeckoView/WebView memory, startup, page-load and battery measurements.
 6. Test 16 KB runtime on compatible hardware.
-7. Complete OWASP MASVS control mapping and dependency advisory triage.
+7. Complete the preliminary MASVS register with MASTG evidence, dependency advisory triage and privacy/data-flow review.
 
 ## Known limitations / blockers
 - No connected physical device is available through this session; hardware QA cannot be truthfully claimed.
@@ -41,4 +41,10 @@ Updated: 2026-11-10
 - GitHub currently reports Main as unprotected (`protected=false`, protection disabled, no required status checks). This is a production governance gap.
 - The connected GitHub interface available in this session does not provide branch-protection/ruleset write operations; only read access is exposed for those endpoints. Do not claim the setting was changed.
 - Owner/admin follow-up before release: enable a main-branch ruleset requiring PR review and successful Android CI, block force-push/deletion, and restrict release/tag creation.
-- Documentation commit head `56b14acf0755d27c0f90035204ffef0a2502d493` has Android CI run #481 in progress at handoff; the preceding source CI run #480 was successful.
+- Main Android CI #485 passed on `45611c3a42ae14f82089f8ba49c5840a9548a0b6`.
+- PR #43 remains open (not merged); its Android CI #497 passed on branch head `b4e08a5fd8c25ba30632ad5f7ba223e28115842f`.
+
+
+## Current work in review
+- PR #43: lazy initial navigation for restored background tabs; CI #497 passed. Not merged into Main.
+- A separate preliminary OWASP MASVS assessment/documentation change is in progress on a review branch. It must not be described as a completed security audit.
