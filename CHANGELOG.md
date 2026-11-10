@@ -26,4 +26,10 @@ See Git history for prior Tab Universe, storage hardening, browser navigation, t
 ## 2026-11-10 — Repository governance audit
 - Verified GitHub reports `main` as unprotected, with no required status checks enforced by branch protection.
 - Recorded required governance remediation in PROJECT_STATE.md, HANDOFF.md and SECURITY.md. The available GitHub integration does not expose branch-protection write operations, so the setting remains unchanged.
-- Latest documentation head `56b14acf0755d27c0f90035204ffef0a2502d493` triggered Android CI run #481; earlier source CI run #480 passed.
+- Latest Main-head Android CI run #485 completed successfully.
+
+
+## 2026-11-10 — Lazy background-tab restoration (PR #43)
+- Changed process restoration so saved background tabs are reconstructed without immediately navigating every saved URL; the selected tab loads at startup and other restored tabs load on first selection.
+- Preserved immediate loading for user-created tabs and added JVM tests for the pending restored-tab load policy.
+- PR Android CI #496 passed, including JVM tests, lint, shipping/benchmark builds, minified bundle, static 16 KB checks and API 35 instrumentation. Physical 3–4 GB RAM profiling remains outstanding.

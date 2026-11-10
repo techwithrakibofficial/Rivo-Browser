@@ -5,7 +5,7 @@ Updated: 2026-11-10
 ## Source of truth
 - Repository: https://github.com/techwithrakibofficial/Rivo-Browser
 - Canonical branch: `main`
-- Validated Main CI head: `ca8eddb2b0ce7f8252c639805f4227c6aeb938d1`
+- Latest Main CI head: `45611c3a42ae14f82089f8ba49c5840a9548a0b6` (Android CI #485 succeeded).
 - Phase 2 integration: PR #38 merged; PR #40 merged signed-release workflow.
 
 ## Implemented in Main source
@@ -26,7 +26,7 @@ Updated: 2026-11-10
 - Gradle dependency lockfiles, OSV scanning, source SBOM and resolved dependency graph workflows.
 
 ## Verified automated validation
-- Main Android CI run [#42763857175](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42763857175) completed successfully on `ca8eddb2b0ce7f8252c639805f4227c6aeb938d1`.
+- Main Android CI run [#42765445314](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42765445314) completed successfully on `45611c3a42ae14f82089f8ba49c5840a9548a0b6`.
 - Passed: shipping assemble, Android lint, unit tests, Gecko engine policy tests, GeckoView/WebView benchmark builds, minified shipping release bundle, static 16 KB native-library/APK alignment checks, artifact uploads and API 35 Android security instrumentation.
 - CI artifacts: ARM64 debug APK, ARMv7 debug APK, unsigned QA AAB, Android test reports, GeckoView benchmark and WebView benchmark. These are QA artifacts, not production-signed releases.
 - Same-head OSV Scanner, Gradle Dependency Graph and Source SBOM workflows completed successfully (verified in Actions run results).
@@ -57,4 +57,11 @@ Updated: 2026-11-10
 - GitHub branch metadata for `main` currently reports `protected: false` and `protection.enabled: false`; required status checks are not enforced by branch protection.
 - This session's GitHub integration supports repository/file/Actions reads and file/commit writes, but does not expose the branch-protection/ruleset mutation endpoint. Therefore protection could not be enabled from this session.
 - Before production release, configure a repository ruleset or branch protection requiring pull requests, at least one approval, dismissal of stale approvals, required Android CI checks, and restricted force-push/deletion. Keep release permissions limited to maintainers.
-- The latest documentation push triggers Main CI run #481; the earlier source-validation run #480 passed. Re-check #481 before treating the documentation head as fully CI-validated.
+- Main-head Android CI #485 completed successfully; branch-protection remains disabled and requires repository-admin configuration.
+
+
+## Current PR #43 — lazy restored background tabs
+- Verified startup issue: restoring saved tabs called `createTab()` for each record, and every call immediately navigated its URL, including inactive background tabs.
+- PR branch defers initial navigation for restored tabs: only the saved selected tab loads at startup; other restored tabs load when first selected. User-created tabs retain immediate navigation.
+- Added JVM tests for pending/selected load decisions. Android CI run [#42771971849](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42771971849) (run #496) completed successfully, including build, lint, JVM tests, Gecko policy tests, benchmark builds, minified release bundle, static 16 KB checks and API 35 instrumentation.
+- This change is on PR #43 and is not yet merged into Main. Physical 3–4 GB device profiling remains required to quantify memory benefit.

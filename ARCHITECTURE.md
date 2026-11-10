@@ -16,6 +16,7 @@ Updated: 2026-11-10
 - BrowserViewModel retains controller/session state across Activity configuration changes.
 - GeckoView views are detached/re-attached while sessions remain owned by tabs.
 - Only the selected tab on a started host is activated/focused.
+- Process restoration creates saved normal tabs without initial page navigation; the selected tab loads at startup and background restored tabs load on first selection. User-created tabs retain immediate loading.
 - Closing a tab disposes its session; private-download cleanup is tied to private tab lifecycle.
 - The current tab cap is eight pending physical-device memory measurements.
 
