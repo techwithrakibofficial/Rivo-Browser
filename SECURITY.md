@@ -18,6 +18,12 @@ OWASP MASVS is the assessment baseline. This document is not an independent secu
 - Sensitive browser metadata encrypted with Android Keystore AES-256-GCM; malformed/ciphertext-integrity failures block further sensitive writes.
 - Dependency lockfiles, OSV scanner, source SBOM and resolved Gradle dependency graph workflows.
 
+## Automated security evidence
+- Main-head OSV Scanner run [#42763857162](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42763857162) completed successfully and printed **No issues found**.
+- Scanner read five Gradle lockfiles: app (310), engine-gecko (152), engine-benchmark (150), engine-api (101), engine-webview (101) — 814 package entries in total.
+- The scanner uploaded SARIF to GitHub Code Scanning. A clean run means no known findings were detected in those scanned lockfiles at that run; it is not proof of vulnerability-free software.
+- Main-head dependency graph and source SBOM workflows also completed successfully.
+
 ## Explicit limitations
 - Downloaded file bytes are not encrypted by the metadata cipher.
 - Private browsing does not erase user-saved normal downloads or hide network activity.
@@ -28,8 +34,7 @@ OWASP MASVS is the assessment baseline. This document is not an independent secu
 - CI AAB/APK files are unsigned QA artifacts.
 
 ## Remaining security assessment
-- Complete OWASP MASVS control-by-control review and record evidence/residual risk.
-- Triage OSV findings and confirm lockfile coverage on Main.
+- Complete OWASP MASVS control-by-control review and record evidence/residual risk; this document is a baseline, not a completed audit.
 - Test permission/notification/private-session and download lifecycle on physical devices.
 - Verify Android Keystore behavior on supported devices and 16 KB runtime behavior.
 - Configure signing in protected CI secrets; never commit keystore files/passwords.
