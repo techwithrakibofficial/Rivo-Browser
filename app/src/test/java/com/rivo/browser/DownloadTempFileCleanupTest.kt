@@ -50,6 +50,7 @@ class DownloadTempFileCleanupTest {
         assertTrue(Files.isSymbolicLink(link.toPath()))
         assertTrue(outsidePrivateDirectory.exists())
         assertTrue(sentinel.exists())
+        Files.deleteIfExists(link.toPath())
     }
 
     @Test
