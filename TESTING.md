@@ -40,3 +40,8 @@ Updated: 2026-11-10
 
 ## Reporting template
 Record device model, Android/API level, build SHA, test case, steps, expected result, actual result, pass/fail and logs/screenshots. Do not mark a case passed without evidence.
+
+## Website notification privacy regression
+- Unit test: `WebNotificationPrivacyPolicyTest` verifies the public notification uses generic Rivo-owned text rather than website title/body/origin.
+- Device test required: trigger a website notification containing a unique sensitive phrase; confirm unlocked notification content remains functional and secure lock-screen/screen-sharing surfaces show only the generic public version.
+- Repeat with notification previews enabled/disabled, OEM lock-screen settings and Android versions supported by the release.
