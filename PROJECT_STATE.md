@@ -58,3 +58,8 @@ Updated: 2026-11-10
 - This session's GitHub integration supports repository/file/Actions reads and file/commit writes, but does not expose the branch-protection/ruleset mutation endpoint. Therefore protection could not be enabled from this session.
 - Before production release, configure a repository ruleset or branch protection requiring pull requests, at least one approval, dismissal of stale approvals, required Android CI checks, and restricted force-push/deletion. Keep release permissions limited to maintainers.
 - The latest documentation push triggers Main CI run #481; the earlier source-validation run #480 passed. Re-check #481 before treating the documentation head as fully CI-validated.
+
+## Website notification privacy hardening (review branch)
+- Implemented on `security/redact-web-notifications-lockscreen-2026-11-10`: native Gecko website notifications set `VISIBILITY_PRIVATE` and attach a generic public version containing only Rivo-owned text.
+- Added `WebNotificationPrivacyPolicyTest` for the redacted public content.
+- This is not yet part of Main; physical-device lock-screen and screen-sharing tests remain outstanding.
