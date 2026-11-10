@@ -54,7 +54,7 @@ class DownloadTempFileCleanupTest {
     }
 
     @Test
-    fun missingPrivateDirectoryIsA noOp() {
+    fun missingPrivateDirectoryIsANoOp() {
         val root = temporaryFolder.newFolder("downloads")
 
         DownloadTempFileCleanup.removePrivateDownloads(listOf(root))
