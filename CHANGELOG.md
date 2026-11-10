@@ -21,3 +21,9 @@
 
 ## Earlier changes
 See Git history for prior Tab Universe, storage hardening, browser navigation, theme and security increments.
+
+
+## 2026-11-10 — Repository governance audit
+- Verified GitHub reports `main` as unprotected, with no required status checks enforced by branch protection.
+- Recorded required governance remediation in PROJECT_STATE.md, HANDOFF.md and SECURITY.md. The available GitHub integration does not expose branch-protection write operations, so the setting remains unchanged.
+- Latest documentation head `56b14acf0755d27c0f90035204ffef0a2502d493` triggered Android CI run #481; earlier source CI run #480 passed.
