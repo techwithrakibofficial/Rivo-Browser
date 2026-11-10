@@ -44,3 +44,8 @@ OWASP MASVS is the assessment baseline. This document is not an independent secu
 - Verified GitHub branch metadata currently reports `main` as unprotected, with protection disabled and no required status checks. This permits direct pushes/force-pushes unless separately restricted.
 - Before shipping, configure a GitHub repository ruleset/branch protection requiring PR review and successful Android CI; block force-push and branch deletion; limit release/tag publishing to trusted maintainers.
 - The available connected GitHub integration exposes branch-protection/ruleset reads but not mutation, so no governance change is claimed here.
+
+## Website notification lock-screen privacy
+- Website-provided notification title, body and origin are treated as potentially sensitive.
+- Native website notifications use `Notification.VISIBILITY_PRIVATE` and a generic public-version notification so insecure lock-screen/screen-sharing contexts do not receive website-controlled text.
+- This is a platform privacy mitigation, not a guarantee against user-configured notification exposure on every OEM/device. Verify on physical devices and review the user's notification-channel/lock-screen settings.
