@@ -1,44 +1,50 @@
-# Security Baseline
+# Rivo Browser — Security Baseline
 
-OWASP MASVS is the assessment baseline for storage, cryptography, network, platform, code, resilience and privacy. This document is not a certification or completed independent security assessment.
+Updated: 2026-11-09
 
-## Implemented in Main source
-- GeckoView runtime with one session per tab.
-- Native Gecko private mode; private tabs excluded from app-side history/bookmarks/restoration.
-- Per-session tracking protection.
-- No JavaScript-to-native bridge and no TLS certificate validation override.
-- HTTP/HTTPS URL handling; unsupported schemes resolve as search.
-- HTTP(S)-only confirmed downloads, filename sanitization, 250 MB per-file cap, temporary files, atomic finalization and app-specific storage.
-- Scoped, non-exported FileProvider for explicit open/share.
-- Android backup disabled, cleartext traffic disabled and no broad storage/camera/microphone/location permissions.
-- Browser metadata uses AES-256-GCM with an Android Keystore key; JVM/source-level safeguards exist. On-device Keystore behavior still needs instrumentation verification.
+OWASP MASVS is the assessment baseline. This document is not an independent security audit or certification.
+
+## Implemented on Main
+- GeckoView runtime with one session per tab; no JavaScript-to-native bridge.
+- Native Gecko private sessions; private tabs excluded from app-side history, bookmarks and restoration.
+- Per-session tracking protection; do not claim complete tracker blocking or anonymity.
+- No TLS certificate validation override.
+- HTTP(S)-only browser navigation and safe download flow.
+- Confirmation-gated downloads, filename sanitization, app-specific storage, temporary-file streaming, atomic finalization, 250 MB cap and scoped FileProvider open/share.
+- Android backup disabled, cleartext traffic disabled and no broad storage permission.
+- Browser metadata encrypted with Android Keystore AES-256-GCM; physical-device key behavior still requires validation.
 - No account, telemetry or mandatory backend.
 
-## Open PR work (not yet Main-integrated)
-- PR #10: GeckoView site notification/autoplay mediation, default-deny unsupported/device/media requests, site permission inventory/revocation constraints and notification flow.
-- PR #21: Privacy Intelligence Center, fail-closed missing-key decrypt, private-download metadata exclusion, download URL/filename/path hardening and Keystore instrumentation tests. PR #21 is stacked on #10.
-- PR #20: storage hardening, API 35 instrumentation and benchmark/release validation workflow changes.
+## Integration candidate — PR #37
+- Gecko site permissions are mediated only for supported secure-origin capabilities; unsupported permissions default-deny.
+- Android location/camera/microphone requests are restricted to an explicit allowlist and user-mediated; denial state is stored encrypted.
+- Website notifications require HTTPS, Android notification permission and enabled notification channel; private-mode and insecure-origin notifications are rejected.
+- Notification receiver is non-exported and uses immutable PendingIntent.
+- Privacy Intelligence Center reports Gecko permission state and revocation constraints; it does not fabricate tracker counts.
+- Private downloads use a dedicated app-specific directory; private download metadata is not persisted and file bytes are deleted when the originating private tab closes.
+- Restored download metadata is validated against canonical app-specific roots and file size.
+- Clear Browsing Data clears Gecko site data/settings and local history/download metadata while preserving bookmarks and normal downloaded file bytes.
+- Reader Mode uses GeckoView page extraction, rejects pages marked gated and does not bypass authentication/paywalls.
+- QR payloads are bounded/sanitized and require user confirmation before opening/searching.
+- Developer Mode is read-only; remote debugging, console output and about:config remain disabled.
 
-## Known limitations
+## Important privacy boundaries
 - Private browsing does not hide network activity from websites, ISPs, DNS resolvers or network operators.
-- User-saved downloaded file contents are not encrypted by the metadata cipher and are not automatically erased by private mode.
+- Downloaded file bytes are user-saved files; only private-mode lifecycle cleanup is applied to files created in the private download path.
 - Hardware-backed/StrongBox Keystore is not guaranteed.
-- Tracking protection does not justify claims of complete tracker blocking, tracker counts or anonymity.
-- Unsupported hardware/media permissions remain denied unless explicitly and safely supported.
-- WebExtensions support is not established.
-- No MASVS certification is claimed.
+- Tracking protection does not imply complete tracker blocking, anonymity or a tracker count.
+- GeckoView WebExtensions capability does not mean Rivo has an add-on manager or marketplace.
+- QR scanning uses Google Play services' Google Code Scanner; availability depends on compatible services.
 
 ## Required security gates
 1. Keystore AES-GCM round-trip, tamper, missing-key/key-loss and migration instrumentation.
 2. DataStore corruption/relaunch preservation tests.
-3. Permission grant/deny/revoke and notification flow tests, including private isolation.
-4. Download path traversal, URL, filename, size, restore and private metadata tests.
-5. Dependency vulnerability/SBOM review.
-6. OWASP MASVS control-by-control source review and documented residual risks.
-7. Physical-device validation before release.
+3. Site permission grant/deny/revoke, Android permission denial, notification and private isolation tests.
+4. Download URL, filename, path traversal, size cap, private metadata and file cleanup tests.
+5. Review resolved Gradle lockfiles, dependency graph, SBOM and OSV findings; source SBOM alone is insufficient.
+6. OSV scanned five resolved Gradle lockfiles (814 packages) and reported no issues on the integration candidate. Re-run on every dependency change; this does not replace full dependency review.
+7. OWASP MASVS control-by-control review with residual risks documented.
+8. Physical-device validation before release.
 
-
-## Supply-chain automation (PR #34)
-- CI adds the official OSV-Scanner reusable pull-request scan and scheduled/full scan workflow, plus an SPDX JSON source SBOM artifact.
-- A green source scan/SBOM is not proof that all resolved/transitive Gradle dependencies were inventoried: this repository does not yet commit Gradle dependency lockfiles.
-- Review scanner findings and SBOM contents before making any vulnerability-free or complete-inventory claim. These workflows are security signals, not MASVS certification.
+## Release limitations
+No MASVS certification, 16 KB runtime verification, physical 3–4 GB device benchmark, production signing or store release is claimed.

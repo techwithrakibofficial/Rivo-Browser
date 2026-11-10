@@ -3,6 +3,7 @@ package com.rivo.browser.data
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -52,6 +53,17 @@ class BrowserStorage internal constructor(
     private val historyKey = stringPreferencesKey("history_json")
     private val openTabsKey = stringPreferencesKey("open_tabs_json")
     private val downloadsKey = stringPreferencesKey("downloads_json")
+    private val deniedAndroidPermissionsKey = stringPreferencesKey("denied_android_permissions_json")
+    private val privateDownloadMetadataV2Key = booleanPreferencesKey("private_download_metadata_v2")
+
+    private companion object {
+        val SUPPORTED_ANDROID_PERMISSION_DENIALS = setOf(
+            "android.permission.ACCESS_COARSE_LOCATION",
+            "android.permission.ACCESS_FINE_LOCATION",
+            "android.permission.CAMERA",
+            "android.permission.RECORD_AUDIO"
+        )
+    }
 
     suspend fun loadTheme(): String =
         dataStore.data.first()[themeKey] ?: "dark"
@@ -68,8 +80,24 @@ class BrowserStorage internal constructor(
     suspend fun loadOpenTabs(): List<SavedTab> =
         decodeOpenTabs(readProtected(openTabsKey))
 
-    suspend fun loadDownloads(): List<SavedDownload> =
-        decodeDownloads(readProtected(downloadsKey))
+    suspend fun loadDownloads(): List<SavedDownload> {
+        // Old releases did not mark whether a download originated in a private tab.
+        // Clear the ambiguous browser-history index once; never delete user-saved files.
+        dataStore.edit { prefs ->
+            if (prefs[privateDownloadMetadataV2Key] != true) {
+                sensitiveWriteGuard.withAllowed {
+                    sensitiveWriteGuard.validateExisting(
+                        prefs[downloadsKey].orEmpty(),
+                        cipher::decryptOrLegacy,
+                        ::parseDownloads
+                    )
+                    prefs.remove(downloadsKey)
+                    prefs[privateDownloadMetadataV2Key] = true
+                }
+            }
+        }
+        return decodeDownloads(readProtected(downloadsKey))
+    }
 
     suspend fun saveDownloads(downloads: List<SavedDownload>) {
         ensureSensitiveWritesAllowed()
@@ -88,6 +116,35 @@ class BrowserStorage internal constructor(
                             put("path", item.absolutePath)
                         })
                     }
+                }.toString())
+                // This transaction writes only the new format, so do not let the
+                // first subsequent read mistake it for ambiguous legacy metadata.
+                prefs[privateDownloadMetadataV2Key] = true
+            }
+        }
+    }
+
+    suspend fun loadDeniedAndroidPermissions(): Set<String> {
+        val raw = readProtected(deniedAndroidPermissionsKey)
+        return try {
+            parseDeniedAndroidPermissions(raw)
+        } catch (error: Exception) {
+            integrityFailure(error)
+        }
+    }
+
+    suspend fun saveDeniedAndroidPermissions(permissions: Set<String>) {
+        ensureSensitiveWritesAllowed()
+        val safePermissions = permissions.filter { it in SUPPORTED_ANDROID_PERMISSION_DENIALS }.toSortedSet()
+        dataStore.edit { prefs ->
+            sensitiveWriteGuard.withAllowed {
+                sensitiveWriteGuard.validateExisting(
+                    prefs[deniedAndroidPermissionsKey].orEmpty(),
+                    cipher::decryptOrLegacy,
+                    ::parseDeniedAndroidPermissions
+                )
+                prefs[deniedAndroidPermissionsKey] = cipher.encrypt(JSONArray().apply {
+                    safePermissions.forEach { put(it) }
                 }.toString())
             }
         }
@@ -219,6 +276,18 @@ class BrowserStorage internal constructor(
             require(path.isNotBlank()) { "Saved download path is missing" }
             SavedDownload(filename, item.optString("mimeType").takeIf { it.isNotBlank() }, path)
         }.take(100)
+    }
+
+    private fun parseDeniedAndroidPermissions(raw: String): Set<String> {
+        if (raw.isBlank()) return emptySet()
+        val array = JSONArray(raw)
+        return (0 until array.length()).map { index ->
+            val permission = array.getString(index)
+            require(permission in SUPPORTED_ANDROID_PERMISSION_DENIALS) {
+                "Saved Android permission denial is unsupported"
+            }
+            permission
+        }.toSet()
     }
 
     private fun encode(items: List<SavedPage>): String = JSONArray().apply {

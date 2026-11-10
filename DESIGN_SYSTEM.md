@@ -1,26 +1,27 @@
-# Rivo Browser Design System
+# Rivo Browser — Design System
 
-**Status:** Phase 1 browser-chrome baseline; implementation exists in Main source, with device/UI acceptance still pending.  
-**Scope:** Native Android/Compose browser UI. Website-rendered content is controlled by the visited site and is not recolored by Rivo's chrome theme.
+Updated: 2026-11-09
+
+**Scope:** Native Android/Compose browser chrome. Website-rendered content remains controlled by the visited site.
 
 ## Product principles
-- Premium, calm, distinctive browser chrome with predictable navigation.
-- Consistent Dark, Light and Premium Glass appearance modes across every native surface, including dialogs, prompts, menus and empty/error states.
-- Accessible by default: semantic controls, TalkBack names, scalable text, clear focus, and WCAG AA text contrast.
-- Low-RAM friendly: avoid continuous blur, animated backgrounds and unnecessary recomposition.
-- Never communicate state by color alone; pair color with text, iconography or semantics.
+- Premium, calm and predictable browser chrome.
+- Consistent Dark, Light and Premium Glass appearance across the browser, panels, dialogs, permission prompts, Reader Mode and Transfer Studio.
+- Accessible by default: semantic controls, TalkBack names, scalable text, visible focus and WCAG AA contrast.
+- Low-RAM friendly: no continuous blur, animated backgrounds or unnecessary recomposition.
+- Never communicate security/private state by color alone.
 
-## Implemented foundations
+## Centralized tokens
 - `RivoColorSchemes.forAppearance`: Material 3 semantic palettes for Dark, Light and Glass.
 - `RivoSpacing`: 4, 8, 12, 18 and 24 dp spacing scale.
 - `RivoShapes`: 18 dp controls, 20 dp cards and 24 dp panels.
-- Browser chrome consumes Material 3 semantic colors; web content remains site-controlled.
-- Quick Appearance Picker is reached from the secondary overflow menu.
-- Status/navigation system-bar icon brightness follows the selected appearance.
+- Browser chrome consumes semantic Material 3 colors; website content remains site-controlled.
+- Quick Appearance Picker is reached through a secondary overflow control.
+- System-bar icon brightness follows the selected appearance.
 - Premium Glass uses translucent surfaces, not real-time blur.
 
 ## Theme contract
-The selected `MaterialTheme` must wrap the complete native screen subtree: browser chrome, panels, permission prompts, download confirmations and notice dialogs. Verify every overlay inherits the selected theme in all three appearance modes.
+The selected MaterialTheme wraps the complete native screen subtree: browser chrome, panels, permission prompts, download confirmations, Reader Mode, Transfer Studio and notice dialogs. Every overlay must inherit the active appearance.
 
 ## Appearance specifications
 ### Dark
@@ -42,49 +43,39 @@ The selected `MaterialTheme` must wrap the complete native screen subtree: brows
 
 ## Typography and accessibility
 - Use Material 3 typography roles consistently; do not clamp user text scaling.
-- Body copy and important controls must remain readable at system font scale.
+- Body copy and important controls remain readable at system font scale.
 - Interactive targets should be at least 48 × 48 dp.
-- Icon-only actions need localized TalkBack labels and state descriptions.
-- Text fields need persistent labels or equivalent semantics, not placeholders alone.
-- Selected appearance and active-tab states must be exposed semantically.
-- Security and private-browsing states require explicit text labels.
+- Icon-only actions require localized TalkBack labels and state descriptions.
+- Text fields require persistent labels or equivalent semantics.
+- Active-tab, selected-filter, private-mode and security states must be exposed semantically.
+- Long article text, transfer status and permission details must remain readable at large font scale.
 
 ## Layout and performance
 - Preserve the 4 dp spacing rhythm and shared shape tokens.
 - Adapt secondary toolbar actions for narrow screens; do not squeeze labels.
-- Avoid fixed-height panels; use available-window constraints and internal scrolling.
-- Respect reduced-motion settings for any future transitions.
+- Use available-window constraints and internal scrolling rather than fixed-height panels.
+- Respect reduced-motion settings for future transitions.
 - Avoid real-time blur, animated gradients and continuously moving effects on low-RAM devices.
 
-## Current UI inventory
-- Initial tab navigates to DuckDuckGo; no dedicated native start-page dashboard is confirmed.
-- Omnibox and Go action are implemented; accessibility and large-font verification remain.
-- Advanced Tab Universe is implemented in Main through PR #23: searchable title/URL list, Normal/Private/Active filters, sorting, active state, and tab close/switch. Narrow-width filter scrolling and stronger TalkBack semantics merged via PR #24 (`350d4f3...`); CI #300 passed on the PR head. Physical-device and TalkBack verification are still pending.
-- Three appearance modes and secondary picker exist; overlay and selected-state verification remain.
-- Private-tab status label exists.
-- Bookmarks, history and downloads native panels exist; device theme/scroll verification remains.
-- Privacy Intelligence Center and Transfer Studio are not confirmed in Main; privacy center is in open PR #21 stacked on #10.
-- Reader mode, QR and advanced tab-management screens are not confirmed in Main.
+## Current native surface inventory
+- Browser chrome, omnibox and navigation controls — Main.
+- Advanced Tab Universe — Main; search, filters, sorting, active state and accessible close/switch actions.
+- Bookmarks, history and downloads panels — Main.
+- Dark, Light and Glass palettes and secondary appearance picker — Main.
+- Reader Mode overlay — PR #37 integration candidate.
+- QR result confirmation dialog — PR #37 integration candidate.
+- Transfer Studio — PR #37 integration candidate; search, filters, progress and explicit file actions.
+- Developer Mode diagnostics — PR #37 integration candidate; read-only.
+- Privacy Intelligence Center and site permission prompts — PR #37 integration candidate.
+- Clear Browsing Data confirmation — PR #37 integration candidate.
 
-## Verification checkpoint
-Main HEAD after PR #23 merge: `d192baf0f38db835904aa76a901d7e7cb2a24e31`. PR #23 head passed CI run [#293](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42559942026), including assemble, lint, JVM tests and minified release bundle. PR #24 adds semantic filter chips, horizontal scrolling and explicit active/close labels; its CI is pending. Neither CI result establishes rendered contrast, TalkBack, touch bounds or responsive behavior; manual UI/device acceptance remains open.
-
-## Release acceptance checklist
-- [ ] Selected appearance is applied to every native surface and overlay.
+## Manual acceptance checklist
+- [ ] All native surfaces inherit the selected appearance.
 - [ ] Text contrast meets WCAG AA in all three modes.
 - [ ] TalkBack announces useful names, roles, values and selected states.
 - [ ] Touch targets are at least 48 × 48 dp and usable at 320 dp width.
 - [ ] System font scaling and long labels do not clip or overlap.
 - [ ] Dialogs/panels scroll within the available window on small screens.
-- [ ] Reduced-motion settings are respected by any future animation.
-- [ ] Glass remains legible with transparency disabled and no GPU-heavy blur.
-- [ ] Manual TalkBack, Accessibility Scanner, contrast and device screenshot checks are recorded.
-
-
-## Account A feature surfaces (worker branch; pending CI/merge)
-
-- Reader Mode uses the selected semantic Material 3 color scheme, scrollable article text and an adjustable text-size control. It is an overlay over the live Gecko page, so closing it returns to the unchanged page.
-- Transfer Studio uses the same semantic surfaces and FilterChip pattern as Tab Universe; search and filters scroll horizontally on narrow screens. Completed file actions remain explicit text buttons.
-- QR results are shown in a confirmation dialog; a decoded value is never navigated automatically.
-- Developer diagnostics are read-only and avoid exposing sensitive page content. Remote debugging and console output remain disabled.
-- Dark, Light and Glass modes are inherited through the existing MaterialTheme subtree; physical contrast, TalkBack, 320 dp and large-font validation remain required.
+- [ ] Reduced-motion preferences are respected.
+- [ ] Glass remains legible with transparency disabled and without GPU-heavy blur.
+- [ ] Manual TalkBack, contrast and device screenshot checks are recorded.

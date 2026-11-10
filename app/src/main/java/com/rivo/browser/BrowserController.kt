@@ -2,6 +2,7 @@ package com.rivo.browser
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Environment
 import android.os.Handler
@@ -10,12 +11,14 @@ import androidx.core.content.FileProvider
 import com.rivo.browser.data.BrowserStorage
 import com.rivo.browser.data.SavedPage
 import com.rivo.browser.data.SavedDownload
+import com.rivo.browser.data.SavedTab
 import com.rivo.browser.data.RestorableTabCandidate
 import com.rivo.browser.data.RestorableTabPolicy
 import com.rivo.browser.data.HistoryVisitPolicy
 import com.rivo.browser.engine.gecko.GeckoBrowserRuntime
 import com.rivo.browser.engine.gecko.GeckoBrowserTab
 import com.rivo.browser.engine.gecko.GeckoTabListener
+import com.rivo.browser.engine.gecko.GeckoStoredSitePermission
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -32,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import org.mozilla.geckoview.StorageController
 
 enum class BrowserAppearance { DARK, LIGHT, GLASS }
 
@@ -49,6 +53,8 @@ class BrowserTabState(
     var secureConnection by mutableStateOf(false)
     var securityKnown by mutableStateOf(false)
     var certificateException by mutableStateOf(false)
+    var trackingProtectionEnabled by mutableStateOf(false)
+    var trackingProtectionException by mutableStateOf(false)
     lateinit var engine: GeckoBrowserTab
 }
 
@@ -70,6 +76,16 @@ class BrowserController(context: Context) {
     val bookmarks = mutableStateListOf<SavedPage>()
     val history = mutableStateListOf<SavedPage>()
     val downloads = mutableStateListOf<BrowserDownload>()
+    val sitePermissions = mutableStateListOf<GeckoStoredSitePermission>()
+    var sitePermissionsLoading by mutableStateOf(false)
+    var sitePermissionsLoadError by mutableStateOf(false)
+    var clearingBrowsingData by mutableStateOf(false)
+    private var awaitingNotificationPermissionResult = false
+    var pendingAndroidPermissionNames by mutableStateOf<List<String>?>(null)
+        private set
+    private var pendingAndroidPermissionResponse: ((Boolean) -> Unit)? = null
+    private var awaitingAndroidPermissionResult = false
+    private val deniedAndroidPermissions = mutableSetOf<String>()
 
     var activeTabId by mutableStateOf(0L)
         private set
@@ -93,6 +109,15 @@ class BrowserController(context: Context) {
     val activeTab: BrowserTabState?
         get() = tabs.firstOrNull { it.id == activeTabId }
 
+    val deniedAndroidPermissionLabels: List<String>
+        get() = buildList {
+            if (android.Manifest.permission.ACCESS_COARSE_LOCATION in deniedAndroidPermissions ||
+                android.Manifest.permission.ACCESS_FINE_LOCATION in deniedAndroidPermissions
+            ) add("Location")
+            if (android.Manifest.permission.CAMERA in deniedAndroidPermissions) add("Camera")
+            if (android.Manifest.permission.RECORD_AUDIO in deniedAndroidPermissions) add("Microphone")
+        }
+
     init {
         scope.launch {
             appearance = runCatching {
@@ -101,6 +126,7 @@ class BrowserController(context: Context) {
             try {
                 bookmarks.addAll(storage.loadBookmarks())
                 history.addAll(storage.loadHistory())
+                deniedAndroidPermissions.addAll(storage.loadDeniedAndroidPermissions())
                 cleanupInterruptedDownloads()
                 restoreDownloads()
                 val restoredTabs = storage.loadOpenTabs()
@@ -138,13 +164,14 @@ class BrowserController(context: Context) {
             runtime,
             privateMode,
             object : GeckoTabListener {
-                override fun onLocationChanged(url: String) {
+                override fun onLocationChanged(url: String, trackingProtectionException: Boolean) {
                     tab.url = url
                     if (readerArticle?.tabId == tab.id && readerArticle?.url != url) {
                         readerArticle = null
                         readerLoading = false
                         readerRequestId++
                     }
+                    tab.trackingProtectionException = trackingProtectionException
                     if (!tab.privateMode && url.startsWith("http")) {
                         saveHistory(tab)
                         persistOpenTabs()
@@ -191,17 +218,53 @@ class BrowserController(context: Context) {
                     origin: String,
                     permission: String,
                     privateMode: Boolean,
+                    onShown: () -> Unit,
                     respond: (Boolean) -> Unit
                 ) {
-                    if (permissionPrompt != null || tab.id !in tabs.map { it.id }) {
+                    val cameraNeeded = permission.contains("Camera", ignoreCase = true)
+                    val microphoneNeeded = permission.contains("Microphone", ignoreCase = true)
+                    val devicePermissionMissing =
+                        (cameraNeeded && appContext.checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) ||
+                        (microphoneNeeded && appContext.checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
+                    if (devicePermissionMissing || permissionPrompt != null || tab.id != activeTabId || tab.id !in tabs.map { it.id }) {
                         respond(false)
                         return
                     }
-                    val host = Uri.parse(origin).host ?: origin
-                    permissionPrompt = SitePermissionPrompt(tab.id, host, permission, privateMode, respond)
+                    // Preserve scheme and non-default port so users can distinguish full origins.
+                    permissionPrompt = SitePermissionPrompt(tab.id, origin, permission, privateMode, onShown, respond)
+                }
+
+                override fun onAndroidPermissionRequest(permissions: List<String>, respond: (Boolean) -> Unit) {
+                    val requested = permissions.distinct()
+                    val supported = setOf(
+                        android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                        android.Manifest.permission.ACCESS_FINE_LOCATION,
+                        android.Manifest.permission.CAMERA,
+                        android.Manifest.permission.RECORD_AUDIO
+                    )
+                    if (tab.id != activeTabId || requested.isEmpty() || requested.any { it !in supported } ||
+                        pendingAndroidPermissionResponse != null
+                    ) {
+                        respond(false)
+                        return
+                    }
+                    val newlyGranted = requested.filter(::hasAndroidPermission).toSet()
+                    if (deniedAndroidPermissions.removeAll(newlyGranted)) persistDeniedAndroidPermissions()
+                    if (requested.any { it in deniedAndroidPermissions && !hasAndroidPermission(it) }) {
+                        respond(false)
+                        return
+                    }
+                    val alreadyGranted = requested.all(::hasAndroidPermission)
+                    if (alreadyGranted) {
+                        respond(true)
+                    } else {
+                        pendingAndroidPermissionNames = requested
+                        pendingAndroidPermissionResponse = respond
+                    }
                 }
             }
         )
+        tab.trackingProtectionEnabled = tab.engine.isTrackingProtectionEnabled
         tabs.add(tab)
         selectTab(tab.id)
         tab.engine.load(url)
@@ -231,7 +294,14 @@ class BrowserController(context: Context) {
         }
         if (permissionPrompt?.tabId == id) respondToSitePermission(false)
         if (pendingDownload?.tabId == id) cancelPendingDownload()
+        if (closing.privateMode) downloads.filter { it.privateTabId == id }.forEach { download ->
+            if (download.status == "Downloading" || download.status == "Cancelling") {
+                cancelDownload(download)
+            }
+            download.file?.let(::deletePrivateDownloadFile)
+        }
         closing.engine.dispose()
+        downloads.removeAll { it.privateTabId == id }
         tabs.removeAt(index)
         if (tabs.isEmpty()) {
             createTab()
@@ -269,7 +339,12 @@ class BrowserController(context: Context) {
     /** Release Gecko's foreground/focus state while the Activity is backgrounded. */
     fun onHostPaused() {
         hostStarted = false
-        if (permissionPrompt != null) respondToSitePermission(false)
+        if (permissionPrompt != null && !awaitingNotificationPermissionResult && !awaitingAndroidPermissionResult) respondToSitePermission(false)
+        if (pendingAndroidPermissionResponse != null && !awaitingAndroidPermissionResult) {
+            pendingAndroidPermissionResponse?.invoke(false)
+            pendingAndroidPermissionResponse = null
+            pendingAndroidPermissionNames = null
+        }
         if (pendingDownload != null) cancelPendingDownload()
         tabs.forEach { tab ->
             tab.engine.setActive(
@@ -359,9 +434,13 @@ class BrowserController(context: Context) {
         }
         val file = download.file
         if (file != null && file.exists()) {
-            val allowedRoots = listOfNotNull(
-                appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
-                File(appContext.filesDir, "downloads")
+            val downloadsRoot = appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+                ?: File(appContext.filesDir, "downloads")
+            // The private root is allowlisted only for managed-file deletion while its private tab is active.
+            val allowedRoots = listOf(
+                downloadsRoot,
+                File(appContext.filesDir, "downloads"),
+                File(downloadsRoot, DownloadTempFileCleanup.PRIVATE_DOWNLOAD_DIRECTORY)
             ).mapNotNull { runCatching { it.canonicalFile }.getOrNull() }
             val canonical = runCatching { file.canonicalFile }.getOrNull()
             if (canonical == null || allowedRoots.none { canonical.parentFile == it }) {
@@ -408,6 +487,73 @@ class BrowserController(context: Context) {
                 .onSuccess { bookmarks.removeAll { it.url == url } }
                 .onFailure { notice = it.message ?: "Bookmark could not be removed." }
         }
+    }
+
+    fun clearBrowsingData() {
+        if (clearingBrowsingData) return
+        clearingBrowsingData = true
+        val savedTabs = tabs.filterNot { it.privateMode }.map { tab ->
+            SavedTab(tab.url, tab.title, tab.id == activeTabId)
+        }.take(MAX_TABS)
+
+        cancelPendingDownload()
+        downloads.filter { it.status == "Downloading" || it.status == "Cancelling" }.forEach(::cancelDownload)
+        permissionPrompt?.respond?.invoke(false)
+        permissionPrompt = null
+        pendingAndroidPermissionResponse?.invoke(false)
+        pendingAndroidPermissionResponse = null
+        pendingAndroidPermissionNames = null
+        awaitingAndroidPermissionResult = false
+        awaitingNotificationPermissionResult = false
+        downloads.filter { it.privateMode }.forEach { download ->
+            download.file?.let(::deletePrivateDownloadFile)
+        }
+        tabs.toList().forEach { it.engine.dispose() }
+        tabs.clear()
+        activeTabId = 0L
+        sitePermissions.clear()
+        sitePermissionsLoading = false
+        sitePermissionsLoadError = false
+
+        fun restoreNormalTabs() {
+            if (savedTabs.isEmpty()) {
+                createTab()
+                return
+            }
+            savedTabs.forEach { saved -> createTab(url = saved.url, restoredTitle = saved.title) }
+            val selectedIndex = savedTabs.indexOfFirst { it.selected }.takeIf { it >= 0 } ?: savedTabs.lastIndex
+            tabs.getOrNull(selectedIndex)?.let { selectTab(it.id) }
+        }
+
+        runtime.storageController.clearData(
+            StorageController.ClearFlags.SITE_DATA or StorageController.ClearFlags.SITE_SETTINGS
+        ).accept({
+            scope.launch {
+                val localClear = runCatching {
+                    storage.clearHistory()
+                    storage.saveDownloads(emptyList())
+                    storage.saveOpenTabs(emptyList())
+                }
+                history.clear()
+                downloads.clear()
+                restoreNormalTabs()
+                refreshSitePermissions()
+                clearingBrowsingData = false
+                notice = if (localClear.isSuccess) {
+                    "Browsing history, cookies, cache, site permissions and download history cleared. Bookmarks and normal downloads were kept; private downloads were removed."
+                } else {
+                    "Website data was cleared, but local history or download metadata could not be cleared: " +
+                        (localClear.exceptionOrNull()?.message ?: "storage error")
+                }
+            }
+        }, { error ->
+            scope.launch {
+                restoreNormalTabs()
+                refreshSitePermissions()
+                clearingBrowsingData = false
+                notice = "Website data could not be cleared: " + (error?.message ?: "GeckoView storage error")
+            }
+        })
     }
 
     fun clearHistory() {
@@ -461,6 +607,85 @@ class BrowserController(context: Context) {
         }
     }
 
+    fun refreshSitePermissions() {
+        val sourceTab = activeTab ?: tabs.firstOrNull() ?: return
+        sitePermissionsLoading = true
+        sitePermissionsLoadError = false
+        sourceTab.engine.loadStoredSitePermissions { permissions ->
+            sitePermissions.clear()
+            if (permissions == null) sitePermissionsLoadError = true else sitePermissions.addAll(permissions)
+            sitePermissionsLoading = false
+        }
+    }
+    fun revokeSitePermission(permission: GeckoStoredSitePermission) {
+        val sourceTab = activeTab ?: tabs.firstOrNull() ?: return
+        if (!permission.canRevoke) { notice = "This permission cannot be revoked in GeckoView."; return }
+        sourceTab.engine.revokeStoredSitePermission(permission) { ok ->
+            if (ok) { notice = "Site permission reset."; refreshSitePermissions() }
+            else notice = "Permission reset failed."
+        }
+    }
+    fun beginAndroidPermissionRequest() {
+        if (pendingAndroidPermissionResponse != null) awaitingAndroidPermissionResult = true
+    }
+
+    fun completeAndroidPermissionRequest(results: Map<String, Boolean>) {
+        val requested = pendingAndroidPermissionNames ?: return
+        val respond = pendingAndroidPermissionResponse ?: return
+        pendingAndroidPermissionNames = null
+        pendingAndroidPermissionResponse = null
+        awaitingAndroidPermissionResult = false
+        val locationRequested = requested.any {
+            it == android.Manifest.permission.ACCESS_COARSE_LOCATION ||
+                it == android.Manifest.permission.ACCESS_FINE_LOCATION
+        }
+        val locationGranted = !locationRequested ||
+            appContext.checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+            appContext.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val otherPermissionsGranted = requested.filterNot {
+            it == android.Manifest.permission.ACCESS_COARSE_LOCATION ||
+                it == android.Manifest.permission.ACCESS_FINE_LOCATION
+        }.all { permission ->
+            results[permission] == true ||
+                appContext.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
+        }
+        val granted = locationGranted && otherPermissionsGranted
+        if (granted) {
+            deniedAndroidPermissions.removeAll(requested.toSet())
+        } else {
+            requested.filterNot(::hasAndroidPermission).forEach(deniedAndroidPermissions::add)
+        }
+        respond(granted)
+        persistDeniedAndroidPermissions()
+        if (!granted) notice = "Android device permission was denied for this app; future site requests will be blocked until the permission is enabled in Android Settings."
+    }
+
+    private fun hasAndroidPermission(permission: String): Boolean =
+        if (permission == android.Manifest.permission.ACCESS_COARSE_LOCATION ||
+            permission == android.Manifest.permission.ACCESS_FINE_LOCATION
+        ) {
+            appContext.checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                appContext.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        } else {
+            appContext.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
+        }
+
+    private fun persistDeniedAndroidPermissions() {
+        val snapshot = deniedAndroidPermissions.toSet()
+        scope.launch {
+            runCatching { storage.saveDeniedAndroidPermissions(snapshot) }
+                .onFailure { notice = "Android permission denial could not be saved securely." }
+        }
+    }
+
+    fun beginNotificationPermissionRequest() {
+        if (permissionPrompt?.permission == "Notifications") awaitingNotificationPermissionResult = true
+    }
+    fun completeNotificationPermissionRequest(granted: Boolean) {
+        awaitingNotificationPermissionResult = false
+        respondToSitePermission(granted)
+    }
+
     fun updateAppearance(value: BrowserAppearance) {
         appearance = value
         scope.launch { storage.saveTheme(value.name.lowercase()) }
@@ -471,7 +696,8 @@ class BrowserController(context: Context) {
     fun dismissNotice() { notice = null }
 
     fun respondToSitePermission(granted: Boolean) {
-        val pending = permissionPrompt ?: return
+        val pending = permissionPrompt ?: run { awaitingNotificationPermissionResult = false; return }
+        awaitingNotificationPermissionResult = false
         permissionPrompt = null
         pending.respond(granted)
     }
@@ -485,7 +711,7 @@ class BrowserController(context: Context) {
         contentLength: Long?,
         body: InputStream?
     ) {
-        if (body == null || Uri.parse(url).scheme !in listOf("http", "https")) {
+        if (body == null || !DownloadSecurityPolicy.isAllowedUrl(url)) {
             runCatching { body?.close() }
             notice = "This download could not be safely handled."
             return
@@ -525,7 +751,7 @@ class BrowserController(context: Context) {
         body: InputStream?
     ) {
         val uri = Uri.parse(url)
-        if (uri.scheme !in listOf("http", "https") || body == null) {
+        if (!DownloadSecurityPolicy.isAllowedUrl(url) || body == null) {
             notice = "This download could not be safely handled."
             runCatching { body?.close() }
             return
@@ -536,15 +762,28 @@ class BrowserController(context: Context) {
             uri.lastPathSegment,
             System.currentTimeMillis()
         )
-        val item = BrowserDownload(nextId++, safeName, mimeType).apply {
+        val safeMimeType = DownloadSecurityPolicy.normalizeMimeType(mimeType) ?: "application/octet-stream"
+        val item = BrowserDownload(
+            nextId++,
+            safeName,
+            safeMimeType,
+            tab.privateMode,
+            if (tab.privateMode) tab.id else null
+        ).apply {
             inputStream = body
             totalBytes = contentLength
         }
         downloads.add(0, item)
         scope.launch(Dispatchers.IO) {
             val result = runCatching {
-                val directory = appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+                val downloadsRoot = appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
                     ?: File(appContext.filesDir, "downloads")
+                // Private file bytes stay in a dedicated root so tab-close cleanup cannot touch normal downloads.
+                val directory = if (tab.privateMode) {
+                    File(downloadsRoot, DownloadTempFileCleanup.PRIVATE_DOWNLOAD_DIRECTORY)
+                } else {
+                    downloadsRoot
+                }
                 DownloadFileWriter.save(body, directory, safeName, MAX_DOWNLOAD_BYTES) { bytes ->
                     mainHandler.post {
                         if (!item.cancelRequested && item.status == "Downloading") {
@@ -556,21 +795,31 @@ class BrowserController(context: Context) {
             withContext(Dispatchers.Main.immediate) {
                 item.inputStream = null
                 result.onSuccess { file ->
-                    if (item.cancelRequested) {
-                        file.delete()
-                        item.status = "Cancelled"
-                        notice = "Transfer cancelled"
-                    } else {
-                        // Persist the collision-resolved name, not the requested name.
-                        item.file = file
-                        item.filename = file.name
-                        item.bytesReceived = file.length()
-                        item.status = "Saved in app Downloads"
-                        persistDownloads()
-                        notice = if (tab.privateMode) {
-                            "Download saved. Private browsing does not automatically erase downloaded files."
-                        } else {
-                            "Download saved: " + file.name
+                    when {
+                        item.cancelRequested -> {
+                            if (tab.privateMode) deletePrivateDownloadFile(file) else file.delete()
+                            item.status = "Cancelled"
+                            notice = "Transfer cancelled"
+                        }
+                        tab.privateMode && tabs.none { it.id == tab.id } -> {
+                            deletePrivateDownloadFile(file)
+                            downloads.removeAll { it.id == item.id }
+                        }
+                        else -> {
+                            item.file = file
+                            item.filename = file.name
+                            item.bytesReceived = file.length()
+                            item.status = if (tab.privateMode) {
+                                "Private download (deleted when tab closes)"
+                            } else {
+                                "Saved in app Downloads"
+                            }
+                            persistDownloads()
+                            notice = if (tab.privateMode) {
+                                "Private download saved. It will be deleted when this tab closes."
+                            } else {
+                                "Download saved: " + file.name
+                            }
                         }
                     }
                 }.onFailure {
@@ -585,12 +834,27 @@ class BrowserController(context: Context) {
         }
     }
 
+    private fun deletePrivateDownloadFile(file: File) {
+        runCatching {
+            val root = appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+                ?: File(appContext.filesDir, "downloads")
+            val privateRoot = File(root, DownloadTempFileCleanup.PRIVATE_DOWNLOAD_DIRECTORY).canonicalFile
+            val canonical = file.canonicalFile
+            if (privateRoot.parentFile == root.canonicalFile &&
+                canonical.parentFile == privateRoot && canonical.isFile
+            ) {
+                canonical.delete()
+            }
+        }
+    }
+
     private suspend fun cleanupInterruptedDownloads() = withContext(Dispatchers.IO) {
         val directories = listOfNotNull(
             appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
             File(appContext.filesDir, "downloads")
         )
         DownloadTempFileCleanup.removeInterruptedFiles(directories)
+        DownloadTempFileCleanup.removePrivateDownloads(directories)
     }
 
     private suspend fun restoreDownloads() {
@@ -601,21 +865,13 @@ class BrowserController(context: Context) {
         }
         val restored = withContext(Dispatchers.IO) {
             storage.loadDownloads().mapNotNull { saved ->
-                runCatching {
-                    val file = File(saved.absolutePath).canonicalFile
-                    val allowed = allowedRoots.any { root ->
-                        file.parentFile == root && file.name == saved.filename
-                    }
-                    if (!allowed || !file.isFile || !file.exists() || file.length() > MAX_DOWNLOAD_BYTES) {
-                        null
-                    } else {
-                        saved to file
-                    }
-                }.getOrNull()
+                val file = File(saved.absolutePath)
+                if (DownloadSecurityPolicy.isAllowedRestoredFile(file, saved.filename, allowedRoots, MAX_DOWNLOAD_BYTES))
+                    saved to file.canonicalFile else null
             }
         }
         downloads.addAll(restored.map { (saved, file) ->
-            BrowserDownload(nextId++, saved.filename, saved.mimeType).apply {
+            BrowserDownload(nextId++, saved.filename, DownloadSecurityPolicy.normalizeMimeType(saved.mimeType) ?: "application/octet-stream").apply {
                 this.file = file
                 status = "Saved in app Downloads"
             }
@@ -623,10 +879,11 @@ class BrowserController(context: Context) {
     }
 
     private fun persistDownloads() {
-        val saved = downloads.mapNotNull { item ->
-            val file = item.file ?: return@mapNotNull null
-            SavedDownload(item.filename, item.mimeType, file.absolutePath)
-        }
+        val saved = downloads.filter { DownloadSecurityPolicy.shouldPersistMetadata(it.privateMode) }
+            .mapNotNull { item ->
+                val file = item.file ?: return@mapNotNull null
+                SavedDownload(item.filename, item.mimeType, file.absolutePath)
+            }
         scope.launch {
             runCatching { storage.saveDownloads(saved) }
                 .onFailure { notice = it.message ?: "Download metadata could not be saved." }
@@ -668,6 +925,13 @@ class BrowserController(context: Context) {
         permissionPrompt?.respond?.invoke(false)
         permissionPrompt = null
         downloads.filter { it.status == "Downloading" }.forEach(::cancelDownload)
+        pendingAndroidPermissionResponse?.invoke(false)
+        pendingAndroidPermissionResponse = null
+        pendingAndroidPermissionNames = null
+        awaitingAndroidPermissionResult = false
+        downloads.filter { it.privateMode }.forEach { download ->
+            download.file?.let(::deletePrivateDownloadFile)
+        }
         tabs.toList().forEach { it.engine.dispose() }
         tabs.clear()
         scope.cancel()
@@ -705,10 +969,11 @@ data class SitePermissionPrompt(
     val origin: String,
     val permission: String,
     val privateMode: Boolean,
+    val onShown: () -> Unit,
     val respond: (Boolean) -> Unit
 )
 
-class BrowserDownload(val id: Long, filename: String, val mimeType: String?) {
+class BrowserDownload(val id: Long, filename: String, val mimeType: String?, val privateMode: Boolean = false, val privateTabId: Long? = null) {
     var filename by mutableStateOf(filename)
     var status by mutableStateOf("Downloading")
     var bytesReceived by mutableStateOf(0L)
@@ -718,7 +983,7 @@ class BrowserDownload(val id: Long, filename: String, val mimeType: String?) {
     var file: File? = null
 }
 
-enum class BrowserPanel { TABS, BOOKMARKS, HISTORY, DOWNLOADS, APPEARANCE, DEVELOPER, MENU }
+enum class BrowserPanel { TABS, BOOKMARKS, HISTORY, DOWNLOADS, APPEARANCE, DEVELOPER, SITE_PERMISSIONS, MENU }
 
 
 /** Only the selected tab on a started host may activate/focus Gecko. */

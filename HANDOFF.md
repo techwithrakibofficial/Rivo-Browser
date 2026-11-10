@@ -1,79 +1,39 @@
-# Handoff
+# Rivo Browser — Handoff
 
-Updated: 2026-11-09 — current integration divergence audit
+Updated: 2026-11-09
 
 ## Repository checkpoint
-- Canonical repository: https://github.com/techwithrakibofficial/Rivo-Browser
-- Main HEAD after PR #31 docs merge: `159643bb358c5bf9e92d537acfe9ba5ee1c39f00` (latest application code merge: `ad607a7...`)
-- Latest Main commit: `test(tabs): expand Tab Universe search regression coverage`
-- The previous `84303588...` checkpoint and CI run #246 are historical, not validation of the latest Main HEAD.
-- Audit branch: `docs/recovery-audit-sync-2026-11-09`
+- Main baseline: `0d77826e655267c671498334c11ffad8d1dd5b14`
+- Active integration PR: https://github.com/techwithrakibofficial/Rivo-Browser/pull/37
+- Integration branch: `integration/phase2-core-security-2026-11-09`
+- PR #35 (Account A) and PR #36 (Account B) are not to be merged independently because they edit the same controller, screen and Gecko adapter files. Their changes are combined in PR #37.
 
-## Current integration audit
-- PR #10 is 10 commits behind Main and mergeability is false; overlap includes controller, screen and Gecko permission handling. Owner was asked to rebase and rerun CI.
-- PR #20 is 8 commits behind Main and mergeability is false; overlap includes controller, storage/cipher and build/CI configuration. Owner was asked to coordinate integration and rerun CI.
-- PR #21 remains stacked on #10 and must be rebased only after #10 integration.
+## Work completed in this session
+- Audited Main and both worker PRs, including changed-file overlap.
+- Corrected PR #35 GeckoView builder API usage and nullable page-extraction result handling.
+- Corrected the malformed ML Kit manifest metadata placement.
+- Built an integration tree combining 44 changed files from PR #35 and #36.
+- Preserved Reader Mode, QR scanning, Transfer Studio, Developer Mode, site permissions, Privacy Intelligence Center, secure notifications, private download handling and clear-data behavior in shared files.
+- Corrected merged download success/cancellation logic, private transfer cleanup and private managed-file removal.
+- Removed duplicate BrowserScreen imports and fixed nullable transfer progress calculation.
+- Updated project-state documentation for the integration candidate.
 
-## Open PRs and dependencies
-- #24 Tab Universe accessibility/narrow-layout follow-up: merged to Main as `350d4f3...`; PR-head CI #300 passed all configured jobs.
-- #10 RIVO-06 permissions: open; based on old Main `84303588...`; 11 commits behind current Main, connector reports mergeable=false. CI #268 passed all configured assemble/lint/JVM/release bundle/QA artifact steps on its old head; rebase and fresh CI required.
-- #20 RIVO-04/05/07/09 integration: open; based on old Main `72700fa6...`, 9 commits behind current Main, connector reports mergeable=false. CI #288 passed all configured steps on PR head, including benchmark builds, minified bundle, static 16 KB checks, artifact uploads and API 35 security instrumentation. Rebase and fresh validation are still required.
-- #21 RIVO-11 privacy center/download hardening: open; stacked on #10. Rebase after #10 is integrated, then fresh CI.
-- #17 Advanced Tab Universe was recovered as PR #23, CI #293 passed on its head, and PR #23 is now merged to Main. PR #16 engine benchmark remains closed/unmerged.
- 
-- PR #27 adds JVM regression coverage for trimmed search combined with Normal/Private filters and empty results. CI #306 passed all configured jobs before squash merge as `ad607a7...`; post-merge Main CI not yet returned.
+## Exact next steps
+1. Inspect the latest PR #37 commit and all exact-head workflow runs.
+2. Resolve every compile, lint, unit-test or instrumentation failure; do not merge based on stale PR #35/#36 checks.
+3. Review the combined UI and security flows, especially Android permission prompts, notification click delivery, private download cancellation and Clear Browsing Data.
+4. Review Gradle lockfiles, dependency graph, SBOM and OSV coverage.
+5. Merge PR #37 only after required checks and code review are green.
+6. Close PR #35 and #36 as superseded only after PR #37 has merged successfully.
+7. Run physical-device QA, 3–4 GB RAM benchmarks and 16 KB runtime validation.
+8. Complete MASVS review and production signing/release gates.
 
-## Main source baseline
-- GeckoView runtime/session architecture; navigation, omnibox and security status.
-- Eight-tab cap; native private sessions; local bookmarks/history/restorable tabs.
-- Advanced Tab Universe is integrated: case-insensitive title/URL search, All/Normal/Private/Active filters, active-first/title/type sorting, semantic FilterChips, horizontal filter scrolling, persistent search label, active/inactive TalkBack state and tab-specific close labels.
-- Android Keystore AES-256-GCM encrypted browser metadata.
-- Confirmation-gated HTTP(S) downloads with app-specific storage and 250 MB cap.
-- Dark/Light/Premium Glass themes and secondary Quick Appearance Picker.
-- Security/IDN/tab-restoration JVM regressions.
-- Latest responsive panel source change is on Main, but device/UI verification is not established.
-
-## Highest-priority next actions
-1. Verify push-triggered Main CI for application merge `ad607a7...` when available; PR #27 CI #306 passed on its PR head. Current Main HEAD `159643b...` is a documentation-only merge.
-2. Review and validate PR #20, then integrate only after successful required checks and code review.
-3. Rebase PR #10 to current Main, resolve conflicts and run fresh CI; manually test Gecko permission/notification flows.
-4. Rebase PR #21 on the integrated PR #10 work and run fresh CI plus API 35 instrumentation.
-5. Recover/review PR #16 benchmark work if still useful; PR #17 has already been superseded by merged PR #23.
-6. Run Android Keystore/DataStore, process-death/private-mode, accessibility, download and real-device performance tests.
-7. Complete dependency/SBOM and OWASP MASVS review.
-8. Finish Transfer Studio, Reader Mode and QR only after Phase 1 acceptance.
-9. Prepare production signing and distribution after all release gates pass.
-
-## Evidence limitations
-- PR #23 head passed CI #293. PR #24 head `4e1a404...` passed CI #300 (assembleDebug, lintDebug, JVM tests, minified release bundle, size reporting and QA artifact uploads), then merged as `350d4f3...`. No separate Main push-triggered CI run has been returned.
-- PR #10 CI #268 completed all configured assemble/lint/JVM/minified release bundle/size-report/QA artifact steps on its recorded head; it did not include Android instrumentation or physical-device permission validation.
-- PR #20 CI #288 passed all configured tasks on its recorded head, including API 35 Android security instrumentation and static 16 KB checks. Current Main integration still requires conflict resolution and fresh CI; no physical-device or 16 KB runtime result is claimed.
-- PR #21 says fresh CI is required; its instrumentation has not been reported as passing.
-- No physical-device tests, 3–4 GB benchmarks, 16 KB runtime test, production signing or release are claimed.
+## Evidence boundaries
+- PR-head CI, merged Main CI, Android emulator instrumentation and physical-device tests are separate evidence levels.
+- Static 16 KB alignment is not runtime verification.
+- Source SBOM is not a complete resolved Gradle dependency inventory by itself.
+- No hardware-backed Keystore guarantee, MASVS certification, anonymity, complete tracker blocking or end-user WebExtensions support is claimed.
+- Production signing and Play Store release are not complete.
 
 ## Session status
-PR #23 and PR #24 are integrated. PR #27 (`test(tabs): expand Tab Universe search regression coverage`) passed CI #306 on its PR head and merged as `ad607a7a97f9e9bce8cd57a206b2a438e6003f20`. The two new JVM policy regressions are now in Main. Post-merge Main CI and physical-device verification remain open.
-
-
-## Account A continuation — 2026-11-09
-
-- Re-inspected latest Main before starting: `0d77826e655267c671498334c11ffad8d1dd5b14` (PR #33 security integration and PR #34 supply-chain automation are merged).
-- Created isolated branch `worker/account-a-core-features-2026-11-09`; no direct Main writes.
-- Added GeckoView page extraction for native Reader Mode, QR-only Google Code Scanner integration without CAMERA permission, Transfer Studio search/filter and managed-file actions, and read-only Developer Mode diagnostics.
-- Added unit coverage for transfer filtering and QR payload sanitation.
-- Added `docs/research/GECKOVIEW_CAPABILITIES.md` with verified reader extraction, WebExtensions, QR scanner and developer-tool boundaries.
-- No CI or device test result is claimed yet. Create/review the worker PR only after inspecting fresh CI; physical-device QR, reader readability, transfer file deletion, TalkBack and narrow-screen checks remain.
-- Open PR #10 and #21 still need Account B integration/review; this branch preserves their existing permission/download code and may require conflict resolution when those changes are integrated.
-
-
-## Account A latest continuation — 2026-11-09
-
-- PR #35: https://github.com/techwithrakibofficial/Rivo-Browser/pull/35
-- Branch: `worker/account-a-core-features-2026-11-09`; based on Main `0d77826e655267c671498334c11ffad8d1dd5b14`.
-- Reader Mode now refuses gated content, checks GeckoView readerability, uses plain text extraction with boilerplate removal, and caps output at 120,000 characters.
-- QR scanning uses Google Code Scanner without CAMERA permission; payloads are sanitized and explicitly confirmed before safe resolver navigation.
-- Transfer Studio now adds Content-Length-aware progress, indeterminate progress when length is absent, best-effort cancellation by closing the input stream, recent-100 filtering, and managed-file actions. Cancellation can remain in Cancelling if the stream read does not return after close; pause/resume/retry remain unsupported.
-- Developer Mode is read-only diagnostics. Gecko remote debugging and console logging stay disabled.
-- Added tests for QR sanitization, transfer state filters and download progress monotonicity.
-- Latest PR head still needs a fresh green Android CI run. OSV workflow may pass while finding no Gradle lockfiles; source SBOM remains a small source-level inventory, not full dependency inventory.
-- PR #10 and #21 remain open and untouched.
+Integration PR #37 is open. The dependency lockfile workflow has committed the updated app lockfile; OSV scanned five lockfiles (814 packages) with no issues reported. A fresh exact-head Android CI run is required after the bot-authored lockfile commit. Release gates remain outstanding.
