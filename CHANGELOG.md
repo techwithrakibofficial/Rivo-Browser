@@ -27,3 +27,9 @@ See Git history for prior Tab Universe, storage hardening, browser navigation, t
 - Verified GitHub reports `main` as unprotected, with no required status checks enforced by branch protection.
 - Recorded required governance remediation in PROJECT_STATE.md, HANDOFF.md and SECURITY.md. The available GitHub integration does not expose branch-protection write operations, so the setting remains unchanged.
 - Latest documentation head `56b14acf0755d27c0f90035204ffef0a2502d493` triggered Android CI run #481; earlier source CI run #480 passed.
+
+
+## 2026-11-10 — Preliminary OWASP MASVS gap assessment
+- Added a control-by-control source-based register covering all eight MASVS groups, with explicit evidence boundaries, partial/gap/N/A statuses and P0/P1 verification actions.
+- Linked the register from SECURITY.md; updated project state and handoff to the current Main CI head and outstanding review/release gates.
+- This is documentation for security work planning, not a penetration test, certification or claim that MASVS controls pass.
