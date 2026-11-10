@@ -5,7 +5,7 @@ Updated: 2026-11-10
 ## Source of truth
 - Repository: https://github.com/techwithrakibofficial/Rivo-Browser
 - Canonical branch: `main`
-- Current Main HEAD: `a40a64460f51c6c4652e133d35e99da5a89d44d4`
+- Current Main HEAD at handoff: `206a5b4b0199509957e862f738f1822261ab0d18`
 - Phase 2 integration: PR #38 merged; PR #37 was also recorded as merged through its included integration commit.
 - Reconciliation commit: `2a33c1157c32c29f58e2ccb079e6d3dbcb07bf0c`
 - Combined source tree: `9115b9d3c607353facc15ed9b6fb4e3e53ce696d`
@@ -30,7 +30,9 @@ Updated: 2026-11-10
 ## Verification evidence
 - Combined source tree `9115b9d...` passed Android CI run #463 (PR #37 source head): shipping assemble, lint, app JVM tests, Gecko policy tests, benchmark debug/release builds, minified shipping AAB, static 16 KB alignment checks, QA artifact uploads and API 35 security instrumentation.
 - On PR #38 exact reconciliation head, Source SBOM run #151, Gradle Dependency Graph run #105 and OSV Scanner PR run #147 completed successfully. Android CI run #? was still running at merge time; verify Main push CI before treating the merge commit as independently validated.
-- Main push CI after merge: Android CI run https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42760626579; dependency graph run https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42760626529; source SBOM run https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42760626525; OSV run https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42760626964. Their final conclusions must be recorded after completion.
+- Main push CI after the PR #40 release-workflow merge: Android run [#42763687243](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42763687243) and dependency graph run [#42763687505](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42763687505) were still running at this documentation update; Source SBOM [#42763687253](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42763687253) and OSV Scanner [#42763687788](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42763687788) succeeded.
+- PR #40 added and merged a signed-release workflow. It builds ABI-split signed APKs and a signed AAB, verifies signatures, generates SHA-256 checksums and publishes GitHub Release assets for an existing `v*` tag or manual dispatch.
+- The release workflow intentionally fails closed until these repository Actions secrets are configured: `RIVO_UPLOAD_KEYSTORE_BASE64`, `RIVO_UPLOAD_STORE_PASSWORD`, `RIVO_UPLOAD_KEY_ALIAS`, `RIVO_UPLOAD_KEY_PASSWORD`.
 - Automated source/build evidence is not physical-device acceptance.
 
 ## Outstanding release gates
@@ -40,7 +42,7 @@ Updated: 2026-11-10
 4. Profile 3–4 GB RAM devices; compare GeckoView and WebView under the same repeatable workload.
 5. Verify 16 KB page-size runtime on compatible hardware; static APK/ELF checks are not runtime proof.
 6. Complete dependency advisory triage and a control-by-control OWASP MASVS assessment. No independent certification is claimed.
-7. Configure production signing securely and complete release review. CI AAB/APK artifacts are unsigned QA outputs.
+7. Configure the four protected production-signing Actions secrets, then run the signed-release workflow against a reviewed version tag. CI debug APK/AAB artifacts remain unsigned QA outputs.
 
 ## Product limitations
 - Reader Mode only works when GeckoView reports readable, non-gated content.
@@ -52,4 +54,4 @@ Updated: 2026-11-10
 - Private browsing does not erase user-saved normal downloads or hide network activity.
 
 ## Release status
-**Not release-ready.** Core and Phase 2 source features are integrated, but post-merge CI, device QA, low-RAM profiling, runtime 16 KB validation, full security review and production signing remain open.
+**Not release-ready.** Core and Phase 2 source features are integrated and the signed-release workflow is merged. Production signing secrets, signed-release execution, physical-device QA, low-RAM profiling, runtime 16 KB validation and full security review remain open.
