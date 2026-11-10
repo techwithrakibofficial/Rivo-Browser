@@ -4,8 +4,9 @@ Updated: 2026-11-10
 
 ## Repository checkpoint
 - Canonical repository: https://github.com/techwithrakibofficial/Rivo-Browser
-- Main HEAD: `a40a64460f51c6c4652e133d35e99da5a89d44d4`
+- Main HEAD at handoff: `206a5b4b0199509957e862f738f1822261ab0d18`
 - PR #38 merged successfully: https://github.com/techwithrakibofficial/Rivo-Browser/pull/38
+- PR #40 merged: signed Android release workflow https://github.com/techwithrakibofficial/Rivo-Browser/pull/40
 - Integration reconciliation commit: `2a33c1157c32c29f58e2ccb079e6d3dbcb07bf0c`
 - The combined source tree is `9115b9d3c607353facc15ed9b6fb4e3e53ce696d`.
 
@@ -15,6 +16,7 @@ Updated: 2026-11-10
 - Created PR #38 and merged it to Main using the merge commit strategy.
 - Integrated Reader Mode, QR scanning, Transfer Studio, read-only Developer Mode, site permissions, Privacy Intelligence Center, secure website notifications, private-download hardening and dependency lockfiles.
 - PR #38 exact-head SBOM, dependency graph and OSV workflows completed successfully.
+- PR #40 adds a tag/manual-dispatch release workflow that signs and verifies ABI APKs/AAB and publishes GitHub Release assets with SHA-256 checksums. It requires four protected repository secrets: `RIVO_UPLOAD_KEYSTORE_BASE64`, `RIVO_UPLOAD_STORE_PASSWORD`, `RIVO_UPLOAD_KEY_ALIAS`, `RIVO_UPLOAD_KEY_PASSWORD`.
 - The same exact source tree passed Android CI run #463 on PR #37, including API 35 instrumentation and static 16 KB checks.
 
 ## Tests and evidence
@@ -34,7 +36,7 @@ Updated: 2026-11-10
 
 ## Known limitations / blockers
 - No connected physical device or user hardware is available through this repository session; hardware QA cannot be truthfully claimed.
-- No production signing credentials are available in this session; do not generate or commit signing secrets.
+- Production signing credentials were not available in this session. The signed-release workflow now fails closed until repository secrets are configured; never commit signing material.
 - Transfer cancellation is best-effort; no pause/resume/retry.
 - WebExtensions are not exposed to end users.
 - CI artifacts are unsigned QA artifacts.
