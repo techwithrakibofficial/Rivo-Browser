@@ -1,42 +1,37 @@
 # Rivo Browser — Feature Matrix
 
-Updated: 2026-11-09
+Updated: 2026-11-10
 
-Status meanings: **Main** = merged to canonical Main; **Integration candidate** = included in PR #37 but not yet merged; **Pending** = not implemented or not verified.
+Status: **Integrated** means source is merged into Main; it does not imply physical-device acceptance.
 
 | Feature | Status | Notes / limits |
 |---|---|---|
-| GeckoView browser engine | Main | Process-scoped runtime, per-tab GeckoSession |
-| WebView comparison engine | Main | Benchmark variant; final engine decision still needs physical measurements |
-| Navigation and omnibox | Main | HTTP(S) navigation and search resolution |
-| Back / forward / reload / stop | Main | Engine session controls |
-| Connection security status | Main | Based on GeckoView security callbacks |
-| Multi-tab browsing | Main | Eight-tab cap for memory stability |
-| Private browsing | Main | Native private sessions; excludes app-side history/bookmarks/restoration |
-| Advanced Tab Universe | Main | Search, filters, sorting, accessible state and close labels |
-| Bookmarks and history | Main | Local storage; private tabs excluded |
-| Tab restoration | Main | Normal HTTP(S) tabs only |
-| Encrypted browser metadata | Main | Android Keystore AES-256-GCM; device-level verification remains |
-| Safe downloads | Main | Confirmation, app-specific storage, filename/path checks, 250 MB cap |
-| Dark / Light / Premium Glass | Main | Centralized appearance palettes |
-| Quick Appearance Picker | Main | Secondary menu control; no permanent theme icon on main display |
-| Reader Mode | Integration candidate | GeckoView extraction, readability/gated checks, bounded in-memory text |
-| QR scanning | Integration candidate | Google Code Scanner; QR-only, no camera permission for scanner flow, explicit confirmation |
-| Transfer Studio | Integration candidate | Search, filters, progress, best-effort cancel, open/share/remove; no pause/resume or resumable queue |
-| Developer Mode | Integration candidate | Read-only diagnostics; remote debugging/console/about:config disabled |
-| Privacy Intelligence Center | Integration candidate | Actual Gecko permission inventory/state; no fabricated tracker counts |
-| Site permissions | Integration candidate | Secure-origin mediation, supported permissions only, unsupported requests default-deny |
-| Website notifications | Integration candidate | HTTPS-only, Android notification permission, private-mode notifications denied |
-| Private download cleanup | Integration candidate | Private metadata excluded; private files removed on tab close |
-| Clear Browsing Data | Integration candidate | Gecko site data/settings and local history/download metadata; normal downloaded file bytes retained |
-| End-user WebExtensions | Pending | GeckoView engine support does not provide an add-on manager or marketplace |
-| Cloud sync / accounts | Pending | No account or mandatory backend |
-| Physical 3–4 GB device benchmark | Pending | No physical-device measurements claimed |
-| 16 KB runtime verification | Pending | Static CI alignment is not runtime evidence |
-| OWASP MASVS assessment | Pending | Source-level control review and residual-risk record required |
-| Production signing / store release | Pending | Unsigned CI AABs are QA artifacts only |
+| GeckoView browser engine | Integrated | Process-scoped runtime, per-tab GeckoSession |
+| WebView comparison engine | Available for benchmark | Not selected as shipping engine; physical benchmark comparison remains |
+| Navigation / omnibox | Integrated | HTTP(S) navigation; unsupported schemes become search input |
+| Back / forward / reload / stop | Integrated | Gecko session controls |
+| Connection security | Integrated | Gecko-reported security callbacks; no TLS override |
+| Multi-tab browsing | Integrated | Eight-tab cap pending device memory measurements |
+| Private browsing | Integrated | Native private sessions; excludes app-side history/bookmarks/restoration |
+| Advanced Tab Universe | Integrated | Search, filters, sorting and semantic accessibility labels |
+| Bookmarks / history | Integrated | Local DataStore; encrypted metadata |
+| Tab restoration | Integrated | Normal HTTP(S) tabs only; private tabs excluded |
+| Safe downloads | Integrated | Confirmation, HTTPS policy, app-specific storage, atomic writes, 250 MB cap |
+| Transfer Studio | Integrated | Search/filter, recent-100, progress, cancel (best-effort), Open/Share/Remove |
+| Reader Mode | Integrated | Gecko readerability and gated-content checks; bounded plain text; not universal |
+| QR scanner | Integrated | Google Code Scanner; compatible Play services required; user confirmation |
+| Site permissions | Integrated | HTTPS-supported capability prompts; unsupported capabilities default-deny |
+| Privacy Intelligence Center | Integrated | Actual engine state/permission records; no invented tracker counts |
+| Website notifications | Integrated | HTTPS and normal-mode only; Android notification permission required |
+| Clear Browsing Data | Integrated | Clears site data/settings and local history/download metadata; bookmarks and normal files retained |
+| Developer Mode | Integrated | Read-only diagnostics; no remote debugging or console |
+| WebExtensions | Not user-supported | Gecko engine APIs exist; no Rivo add-on manager/marketplace |
+| Dark / Light / Premium Glass | Integrated | Centralized semantic tokens; manual contrast/device validation remains |
+| Quick Appearance Picker | Integrated | Secondary control; no permanent main-screen theme icon |
+| Accessibility | Partial | Source semantics improved; TalkBack/device validation pending |
+| 3–4 GB optimization | Pending validation | No physical-device benchmark evidence |
+| 16 KB page-size support | Static checks integrated | Runtime hardware validation pending |
+| Production signing / release | Pending | CI artifacts unsigned; signing secrets not available in source session |
 
-## Integration source
-- PR #37 combines Account A PR #35 and Account B PR #36.
-- Do not merge #35 or #36 independently because shared files overlap.
-- Exact-head PR #37 validation is required before merge.
+## Verification boundary
+Build success, JVM tests, emulator instrumentation, physical-device testing and release signing are separate evidence levels. Do not mark device-only features as accepted without recorded hardware results.
