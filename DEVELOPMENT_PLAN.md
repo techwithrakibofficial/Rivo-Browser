@@ -1,95 +1,62 @@
-# Development Plan
+# Rivo Browser — Development Plan
 
-## Current audit checkpoint — 2026-11-09
-- Current Main HEAD is docs-only merge `159643bb358c5bf9e92d537acfe9ba5ee1c39f00`; latest application code merge is PR #27 `ad607a7...`.
-- Main HEAD after PR #27 merge: `ad607a7a97f9e9bce8cd57a206b2a438e6003f20`. PR #27 adds two Tab Universe search/filter JVM regressions; CI #306 passed all configured jobs on PR head before merge. Post-merge Main CI remains unconfirmed.
-- Main HEAD after PR #23 merge: `d192baf0f38db835904aa76a901d7e7cb2a24e31`; Advanced Tab Universe is now integrated.
-- PR #23 head passed CI #293; PR #24 head passed CI #300 (assembleDebug, lint, JVM tests, minified release bundle, size reports and QA artifact uploads) before merge as `350d4f3...`. A separate push-triggered Main CI result is not yet confirmed.
-- Open PR #10: permission controls; 11 commits behind Main, mergeability conflict reported, rebase required. CI #268 passed its configured build/lint/JVM/release-bundle/QA artifact steps, but no instrumentation/device validation.
-- Open PR #20: security/benchmark/API 35 integration; 9 commits behind Main, mergeability conflict reported. CI #288 passed all configured tasks on its old head, including benchmark builds, static 16 KB checks and API 35 emulator instrumentation; rebase and fresh CI required.
-- Open PR #21: privacy center/private download hardening; stacked on #10, rebase required after #10.
-- PR #17 was superseded by merged PR #23 (Advanced Tab Universe); PR #16 benchmark remains closed/unmerged.
-- PR #24 Tab Universe accessibility and narrow-width polish is merged; manual 320 dp, large-font and TalkBack verification remains.
-- Current priority is Phase 1 stabilization, integration and verification, not declaring Phase 2 complete.
+Updated: 2026-11-09
 
-## Phase 0 — foundation
-- Android foundation, modular engine API and WebView/GeckoView probe variants are committed.
-- Official documentation research and benchmark protocol are present.
-- Physical-device comparison and final engine decision remain pending; GeckoView is provisional, not a measured winner.
+## Phase 0 — Foundation
+**Source implementation:** substantially complete.
+
+- Android/Kotlin project foundation and modular engine boundary.
+- GeckoView-backed browser runtime/session implementation.
+- WebView benchmark variant retained for reproducible engine comparison.
+- Centralized appearance system: Dark, Light and Premium Glass.
+- Security/storage foundations and CI workflows.
+- Remaining: physical-device engine comparison and final measured performance decision.
 
 ## Phase 1 — Functional Browser MVP
-### Implemented in Main source
-1. GeckoView-backed browser session adapter with process-scoped runtime and Activity-safe view lifecycle.
-2. Navigation, URL/search omnibox, loading state and engine-reported security status.
-3. Multi-tab lifecycle, active/inactive session handling and native private sessions.
-4. Local bookmarks/history and encrypted metadata at rest.
-5. Safe download streaming, app-specific storage, confirmation, 250 MB cap and scoped open/share.
-6. Centralized Dark, Light and Premium Glass palettes with secondary Quick Appearance Picker.
-7. Regular HTTP(S) tab persistence/restoration; private tabs excluded.
-8. Security fail-closed metadata write handling and malformed-record rejection.
-9. Selected-tab index restoration, omnibox edit preservation, history duplicate-URL key correction and IDN normalization.
-10. Design-system contract and source-level UI/accessibility audit.
-11. Advanced Tab Universe: case-insensitive search, All/Normal/Private/Active filters, Active-first/Title/Type sorting and tab close/switch. PR #23 head CI #293 passed; manual responsive and accessibility QA remain.
+**Implementation:** core flows are present on Main; integration and acceptance verification remain.
 
-### Build baseline
-- GeckoView Stable: org.mozilla.geckoview:geckoview:159.0.20261022150525.
-- Android compile SDK API 37.2; targetSdk 36; minSdk 26.
-- AGP 9.5.0, Gradle 9.6.0, JDK 17.
-- No backend, account, telemetry or paid service.
+- Navigation, omnibox, browser controls and connection security.
+- Multi-tab lifecycle, private sessions and tab restoration.
+- Bookmarks, history and encrypted local metadata.
+- Confirmation-gated safe downloads and app-specific storage.
+- Advanced Tab Universe with search, filters, sorting and accessible labels.
+- Dark/Light/Glass palettes and secondary Quick Appearance Picker.
+- Required acceptance: exact-head CI, API 35 instrumentation, physical-device smoke tests, accessibility, process-death and storage-corruption evidence.
 
-### Remaining Phase 1 work (ordered)
-1. Obtain/verify push-triggered CI for Main merge SHA `350d4f3...`; PR #24 CI #300 is green on its tested PR head.
-2. Reconcile PR #20's five-commit divergence from Main; review changes and rerun CI/API 35 instrumentation before integration.
-3. Rebase PR #10 to current Main, resolve conflicts, run CI and verify Gecko permission/notification behavior.
-4. Rebase PR #21 after #10 integration; run fresh CI and API 35 instrumentation.
-5. Recover/review PR #16 benchmark work if still useful; Advanced Tab Universe is integrated through PR #23.
-6. Verify Keystore AES-GCM round-trip, tampering, missing/lost key, migration and DataStore corruption/relaunch on Android.
-7. Verify duplicate-URL tab restoration and private-tab exclusion after force-stop/relaunch.
-8. Test permissions, notifications, downloads, all themes, 320 dp width, short screens, large fonts and TalkBack.
-9. Run ARM64/ARMv7 physical-device smoke tests and 3–4 GB RAM performance benchmarks.
-10. Verify 16 KB runtime behavior, dependency/SBOM and OWASP MASVS controls.
-11. Complete current UI/theme/accessibility defects and regression testing.
-12. Verify PR #24's merged filter semantics on a 320 dp device, large font and TalkBack.
-13. Verify PR #27's trimmed-search/filter-combination and empty-result policies in the broader UI/device workflow; JVM regression tests now pass on its PR head.
-13. Only after Phase 1 acceptance, proceed to remaining Phase 2 features.
+## Phase 2 — Advanced browser capabilities
+**Integrated candidate:** PR #37.
 
-### Acceptance criteria
-- Current Main CI passes assemble, lint, JVM tests, instrumentation and minified release AAB packaging.
-- URL/search navigation, browser controls, tab lifecycle and duplicate-URL restoration work.
-- Private sessions do not enter app-side history/bookmarks/restoration.
-- Sensitive metadata is encrypted and corruption/key-loss never silently overwrites saved records.
-- Downloads are confirmation-gated and safely stored/opened/shared.
-- Dark/Light/Glass remain readable across all native surfaces and overlays.
-- Manual device smoke tests, performance and security evidence are recorded.
+- Reader Mode using GeckoView page extraction; reject gated/non-readerable pages and never bypass access controls.
+- QR-only scanning through Google Code Scanner; sanitize and confirm payloads before navigation.
+- Transfer Studio with bounded recent history, search, filters, progress, best-effort cancellation and managed-file operations.
+- Read-only Developer Mode diagnostics. Remote debugging, console logging and about:config remain disabled.
+- Privacy Intelligence Center with real Gecko permission state and clear limitations.
+- HTTPS-origin site permission mediation, default-deny unsupported capabilities and Android runtime permission mediation.
+- Secure website notification handling with private/non-HTTPS denial.
+- Private download metadata exclusion and tab-close cleanup.
+- Extension workflows remain unsupported at the user-facing level: GeckoView engine capability does not mean Rivo has an add-on manager or marketplace.
 
-## Phase 2 — Advanced browser
-- Advanced Tab Universe is implemented in Main through merged PR #23; test narrow screens, large fonts, TalkBack and private-tab switching.
-- Privacy Intelligence Center (PR #21 is open and depends on #10).
-- Transfer Studio.
-- Reader mode and QR scanning where feasible.
-- Extension workflows only where engine support is verified.
-- Developer Mode using verified engine capabilities.
+## Phase 3 — Optimization and distribution
+- Physical-device comparison on representative ARM64/ARMv7 and 3–4 GB devices.
+- Memory, startup, tab switching, thermal and battery measurements.
+- 16 KB runtime validation on a compatible device.
+- TalkBack, 320 dp width, large-font and reduced-motion checks.
+- Dependency/SBOM/advisory review and OWASP MASVS control-by-control assessment.
+- Production signing, release AAB validation, privacy disclosures and store release only after all gates pass.
 
-## Phase 3 — optimization and distribution
-- Final engine decision based on reproducible physical-device measurements.
-- Accessibility and performance polish.
-- Dependency/security review and release hardening.
-- Production signing and distribution only after all release gates pass.
+## Current integration dependencies
+- PR #37 combines PR #35 and PR #36. Do not merge the source PRs separately.
+- Exact-head PR #37 CI must pass after the latest commit.
+- Re-run CI after every integration fix and verify the exact commit SHA.
 
-
-## Account A Phase 2 implementation increment — 2026-11-09
-
-Branch `worker/account-a-core-features-2026-11-09`, based on Main `0d77826e655267c671498334c11ffad8d1dd5b14`:
-
-- Reader Mode: native Compose reader using GeckoView PageExtractionController; extraction is readability-gated and memory-bounded.
-- QR Scanner: Google Code Scanner QR-only integration; no camera permission; confirmation before navigation.
-- Transfer Studio: search/filter, completed size, Open/Share/Remove; no unsupported pause/resume/retry claims.
-- Developer Mode: read-only diagnostics; remote debugging and console output remain disabled.
-- Extensions: official GeckoView APIs support built-in extensions and Mozilla-signed XPI installs, but no end-user manager/store is implemented. See `docs/research/GECKOVIEW_CAPABILITIES.md`.
-
-All four UI increments require fresh branch CI, device testing, accessibility review and merge before they count as Main-integrated. Advanced Tab Universe is preserved unchanged.
-
-
-### Account A PR #35 follow-up
-
-Transfer Studio now includes received-byte progress and best-effort cancellation via stream close, in addition to search/filter and managed-file actions. It deliberately does not claim pause/resume/retry because the current Gecko response stream is not resumable. The PR's fresh CI and device tests must pass before these branch features count as Main-integrated.
+## Acceptance criteria
+- Navigation, tabs, private isolation, restoration, bookmarks/history and download lifecycle work on supported devices.
+- Reader Mode rejects gated pages and handles unsupported extraction without stale UI.
+- QR payloads are bounded, sanitized and require confirmation.
+- Transfer progress is monotonic; cancellation is best-effort and private files are removed when their tab closes.
+- Unsupported site permissions are denied; permission inventory/reset reflects actual Gecko state.
+- Website notifications are HTTPS-only and never escape private browsing.
+- Sensitive metadata remains encrypted; key loss/corruption fails closed without silently overwriting records.
+- All three appearance modes remain readable and accessible.
+- Automated, emulator and physical-device evidence is recorded separately.
+- No release readiness claim until signing, security, accessibility and performance gates pass.

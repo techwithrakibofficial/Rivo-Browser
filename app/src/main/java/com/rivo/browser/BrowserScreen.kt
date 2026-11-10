@@ -1,6 +1,8 @@
 package com.rivo.browser
 
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -51,9 +53,13 @@ import com.rivo.browser.designsystem.RivoShapes
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
-import android.app.Activity
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Build.VERSION_CODES
+import android.app.Activity
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
@@ -80,6 +86,11 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     var address by remember(active?.id) { mutableStateOf(active?.url.orEmpty()) }
     var isEditingAddress by remember(active?.id) { mutableStateOf(false) }
     var menuExpanded by remember { mutableStateOf(false) }
+    var showClearDataConfirmation by remember { mutableStateOf(false) }
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> browser.completeNotificationPermissionRequest(granted) }
+    val devicePermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { results ->
+        browser.completeAndroidPermissionRequest(results)
+    }
     val qrScanner = remember(context) {
         GmsBarcodeScanning.getClient(
             context,
@@ -106,6 +117,14 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     LaunchedEffect(active?.url, isEditingAddress) {
         if (active != null && !isEditingAddress) address = active.url
     }
+    LaunchedEffect(browser.pendingAndroidPermissionNames) {
+        val requested = browser.pendingAndroidPermissionNames ?: return@LaunchedEffect
+        browser.beginAndroidPermissionRequest()
+        devicePermissionLauncher.launch(requested.toTypedArray())
+    }
+
+    val currentPermissionPrompt = browser.permissionPrompt
+    LaunchedEffect(currentPermissionPrompt) { currentPermissionPrompt?.onShown?.invoke() }
 
     MaterialTheme(colorScheme = RivoColorSchemes.forAppearance(browser.appearance)) {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
@@ -190,12 +209,16 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                                     menuExpanded = false
                                     browser.openPanel(BrowserPanel.DEVELOPER)
                                 })
+                                DropdownMenuItem(text = { Text("Privacy Intelligence Center") }, onClick = {
+                                    menuExpanded = false
+                                    browser.openPanel(BrowserPanel.SITE_PERMISSIONS)
+                                })
                             }
                         }
                     }
                     if (active?.loading == true) {
                         LinearProgressIndicator(
-                            progress = active.progress / 100f,
+                            progress = { active.progress / 100f },
                             modifier = Modifier.fillMaxWidth().padding(top = 6.dp)
                         )
                     }
@@ -256,7 +279,8 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     if (browser.panel != null) {
         BrowserPanelDialog(
             browser = browser,
-            onDismiss = { browser.openPanel(null) }
+            onDismiss = { browser.openPanel(null) },
+            onClearBrowsingData = { showClearDataConfirmation = true }
         )
     }
 
@@ -294,6 +318,21 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
         )
     }
 
+    if (showClearDataConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showClearDataConfirmation = false },
+            title = { Text("Clear browsing data?") },
+            text = { Text("This closes all open tabs and clears browsing history, cookies, site storage, cache, site permissions and download history. Bookmarks and normal downloads are kept; private downloads are deleted. Android app-level permission denials are retained.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showClearDataConfirmation = false
+                    browser.openPanel(null)
+                    browser.clearBrowsingData()
+                }, enabled = !browser.clearingBrowsingData) { Text("Clear data") }
+            },
+            dismissButton = { TextButton(onClick = { showClearDataConfirmation = false }) { Text("Cancel") } }
+        )
+    }
     browser.pendingDownload?.let { request ->
         val downloadUri = android.net.Uri.parse(request.url)
         val fileName = downloadUri.lastPathSegment ?: "download"
@@ -316,7 +355,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
         )
     }
 
-    browser.permissionPrompt?.let { request ->
+    currentPermissionPrompt?.let { request ->
         AlertDialog(
             onDismissRequest = { browser.respondToSitePermission(false) },
             title = { Text("Website permission") },
@@ -327,7 +366,13 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                 )
             },
             confirmButton = {
-                TextButton(onClick = { browser.respondToSitePermission(true) }) { Text("Allow") }
+                TextButton(onClick = {
+                    if (request.permission == "Notifications" && Build.VERSION.SDK_INT >= VERSION_CODES.TIRAMISU &&
+                        ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                        browser.beginNotificationPermissionRequest()
+                        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    } else browser.respondToSitePermission(true)
+                }) { Text("Allow") }
             },
             dismissButton = {
                 TextButton(onClick = { browser.respondToSitePermission(false) }) { Text("Deny") }
@@ -417,7 +462,7 @@ private fun keyTab(id: Long, content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit) {
+private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit, onClearBrowsingData: () -> Unit) {
     val panel = browser.panel ?: return
     var tabQuery by remember(panel) { mutableStateOf("") }
     var tabFilter by remember(panel) { mutableStateOf(TabUniverseFilter.ALL) }
@@ -425,6 +470,9 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
     var sortMenuExpanded by remember(panel) { mutableStateOf(false) }
     var transferQuery by remember(panel) { mutableStateOf("") }
     var transferFilter by remember(panel) { mutableStateOf(TransferFilter.ALL) }
+    LaunchedEffect(panel) {
+        if (panel == BrowserPanel.SITE_PERMISSIONS) browser.refreshSitePermissions()
+    }
     val title = when (panel) {
         BrowserPanel.TABS -> "Your tabs"
         BrowserPanel.BOOKMARKS -> "Bookmarks"
@@ -432,6 +480,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
         BrowserPanel.DOWNLOADS -> "Transfer Studio"
         BrowserPanel.APPEARANCE -> "Quick appearance"
         BrowserPanel.DEVELOPER -> "Developer mode"
+        BrowserPanel.SITE_PERMISSIONS -> "Privacy Intelligence Center"
         BrowserPanel.MENU -> "Browser menu"
     }
     Dialog(onDismissRequest = onDismiss) {
@@ -656,13 +705,14 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                                             style = MaterialTheme.typography.labelSmall
                                         )
                                         if (item.status == "Downloading" || item.status == "Cancelling") {
-                                            if (item.totalBytes != null && item.totalBytes > 0) {
+                                            val totalBytes = item.totalBytes
+                                            if (totalBytes != null && totalBytes > 0) {
                                                 LinearProgressIndicator(
-                                                    progress = (item.bytesReceived.toFloat() / item.totalBytes.toFloat()).coerceIn(0f, 1f),
+                                                    progress = { (item.bytesReceived.toFloat() / totalBytes.toFloat()).coerceIn(0f, 1f) },
                                                     modifier = Modifier.fillMaxWidth()
                                                 )
                                                 Text(
-                                                    "${formatTransferSize(item.bytesReceived)} / ${formatTransferSize(item.totalBytes)}",
+                                                    "${formatTransferSize(item.bytesReceived)} / ${formatTransferSize(totalBytes)}",
                                                     style = MaterialTheme.typography.labelSmall
                                                 )
                                             } else {
@@ -716,6 +766,42 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                             "Developer mode is read-only diagnostics in this build. Remote debugging, console logging and about:config are not exposed, to avoid creating a production attack surface.",
                             style = MaterialTheme.typography.bodySmall
                         )
+                    }
+                    BrowserPanel.SITE_PERMISSIONS -> {
+                        Text("Secure storage", style = MaterialTheme.typography.titleSmall)
+                        Text("Browser metadata uses AES-256-GCM with Android Keystore. Downloaded file contents are not encrypted by this metadata cipher.", style = MaterialTheme.typography.bodySmall)
+                        Spacer(Modifier.height(RivoSpacing.small))
+                        Text("Private browsing", style = MaterialTheme.typography.titleSmall)
+                        Text("Private tabs are excluded from app history, bookmarks and tab restoration. Private download entries are not persisted; downloaded files remain on the device. Private browsing does not hide network activity or your IP address.", style = MaterialTheme.typography.bodySmall)
+                        Spacer(Modifier.height(RivoSpacing.small))
+                        Text("Tracking protection", style = MaterialTheme.typography.titleSmall)
+                        Text(when {
+                            browser.activeTab == null -> "Status unavailable."
+                            !browser.activeTab!!.trackingProtectionEnabled -> "Disabled for this GeckoView session."
+                            browser.activeTab!!.trackingProtectionException -> "GeckoView reports a site-specific exception."
+                            else -> "Enabled; no site exception reported."
+                        })
+                        if (browser.sitePermissionsLoading) Text("Loading permissions from GeckoView…")
+                        else if (browser.sitePermissionsLoadError) Text("Permission data unavailable; no state is assumed.")
+                        else if (browser.sitePermissions.isEmpty()) Text("No saved normal-mode site permissions.")
+                        LazyColumn(modifier = Modifier.heightIn(max = 260.dp)) {
+                            items(browser.sitePermissions, key = { it.origin + "|" + it.permissionName + "|" + it.contextKey.orEmpty() }) { permission ->
+                                Column(Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
+                                    Text(permission.origin, style = MaterialTheme.typography.titleSmall)
+                                    Text(permission.permissionName)
+                                    Text(if (permission.allowed) "Allowed" else "Denied")
+                                    if (permission.canRevoke) TextButton(onClick = { browser.revokeSitePermission(permission) }) { Text("Reset permission") }
+                                    else Text("This GeckoView permission cannot be revoked after grant.", style = MaterialTheme.typography.bodySmall)
+                                }
+                            }
+                        }
+                        Text("Location, camera and microphone requests require HTTPS, Android runtime permission and explicit site consent. Private site grants are not persisted. Unsupported capabilities and persistent-storage grants remain denied.", style = MaterialTheme.typography.bodySmall)
+                        if (browser.deniedAndroidPermissionLabels.isNotEmpty()) {
+                            Text(
+                                "Android app permissions denied: ${browser.deniedAndroidPermissionLabels.joinToString()}. Enable them in Android Settings before retrying a site request.",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
                     }
                     BrowserPanel.APPEARANCE -> {
                         BrowserAppearance.values().forEach { appearance ->

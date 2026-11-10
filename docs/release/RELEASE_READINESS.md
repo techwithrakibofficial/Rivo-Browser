@@ -1,50 +1,51 @@
-# Release Readiness & Android QA — RIVO-09
+# Rivo Browser — Release Readiness
 
-**Decision: NO-GO for production distribution.**
-Audit date: 2026-11-09
-Canonical repository: https://github.com/techwithrakibofficial/Rivo-Browser
-Main HEAD after the latest confirmed merges: `9633351069a1c59d8bd184d4ad6f2e2603e0addb`.
+**Decision: NO-GO for production distribution.**  
+Audit date: 2026-11-09  
+Canonical repository: https://github.com/techwithrakibofficial/Rivo-Browser  
+Main baseline used by Account A/B worker branches: `0d77826e655267c671498334c11ffad8d1dd5b14`.
 
-## Integrated and branch-level evidence
+## Current integration state
 
-- PR #5 documentation checkpoint synchronization: merged.
-- PR #6 centralized theme overlays, contrast and UI accessibility improvements: merged as `9633351069a1c59d8bd184d4ad6f2e2603e0addb`; its latest branch CI run #249 passed.
-- PR #7 adaptive browser panel list sizing: CI run #250 passed; branch is based on the earlier Main checkpoint and currently has a merge conflict.
-- PR #8 Android Keystore/DataStore instrumentation: CI run #252 has passed assemble, lint, JVM tests and unsigned AAB/artifact steps; API 35 emulator instrumentation was still running at this audit checkpoint. Do not claim instrumentation passed until the run concludes successfully.
-- PR #9 core navigation/history/tab/download hardening: CI run #254 passed all configured build, lint, JVM test, release bundle and QA artifact steps; branch is based on the earlier Main checkpoint and requires conflict resolution before integration.
-- PR #10 privacy and per-site permission controls: CI run #268 passed configured build, lint, JVM test, release bundle and QA artifact steps. Runtime permission prompts/notifications/site permission persistence still need device verification.
-- PR #11 matched GeckoView/WebView benchmark harness: initial CI run #272 failed at benchmark release AAB packaging because ABI splits produced multiple shrunk-resource files. A code/workflow correction is being prepared; no benchmark result or engine winner is claimed.
-- PR #12 Advanced Tab Universe first increment: CI run #273 passed configured checks. This covers open-tab search/filter/sort only, not the complete Phase 2 feature set.
-- PR #13 release readiness/signing: earlier CI run #275 passed, but follow-up signing/changelog corrections require a fresh run before merge.
+- PR #33 storage hardening / API 35 instrumentation / benchmark and static 16 KB checks is merged into Main. Its PR-head Android CI run #42563889346 completed successfully. This is not physical-device or 16 KB runtime evidence.
+- PR #34 OSV Scanner and SPDX source SBOM workflows is merged into Main. Its PR-head Android CI, OSV and source SBOM workflows completed successfully. The source SBOM is not a full resolved Gradle dependency inventory.
+- PR #35 Account A Reader Mode, QR Scanner and Transfer Studio work is open on `worker/account-a-core-features-2026-11-09`; not yet Main-integrated.
+- PR #36 Account B site permissions, Privacy Intelligence Center, private-download metadata and security QA work is open on `worker/account-b-security-qa-2026-11-09`; not yet Main-integrated.
+- Historical PR #10 and #21 remain open on stale/stacked branches. Their relevant work is being integrated through PR #36; do not merge #10/#21 directly.
+- Main branch remains unchanged by the Account A/B worker changes.
 
-CI is commit-specific. A passing run on an earlier branch SHA does not validate later commits or the integrated Main HEAD.
+## Security and QA evidence
 
-## What CI does and does not prove
-
-The Android workflow covers debug assembly, Android lint, JVM unit tests, minified release AAB packaging and unsigned QA artifacts. PR #8 adds API 35 emulator instrumentation. These checks do not replace physical-device install, upgrade, force-stop/relaunch, TalkBack, notification UX, hardware-backed Keystore validation or 3–4 GB RAM profiling.
-
-The CI AAB is unsigned QA output unless the explicit production signing property and protected signing environment are configured. No production signing credentials are available in this project environment.
+- Main source uses Android Keystore AES-256-GCM for browser metadata, randomized 12-byte IV and 128-bit GCM tag; decryption fails closed when the key is missing or ciphertext is invalid.
+- Main disables Android backup and cleartext traffic, uses a non-exported scoped FileProvider, and does not override GeckoView TLS certificate validation.
+- PR #36 adds HTTPS-only site permission mediation for supported notifications/autoplay, default-deny unsupported and Android/media permission requests, notification runtime consent, and private/insecure-origin notification suppression.
+- PR #36 adds private download metadata exclusion, canonical app-root restore validation, URL user-info rejection, legacy ambiguous download-index migration and tests. Downloaded file bytes remain user files and are not erased or encrypted by private mode.
+- PR #36 CI run #42570822775 is the current Android CI candidate and must complete on the exact latest PR head before merge. Earlier cancelled runs do not count.
+- PR #36 OSV scan run #42570823051 completed successfully but logs explicitly state “No package sources found” / “No lockfiles found”. This is not evidence that dependencies are vulnerability-free.
+- PR #36 source SBOM run #42570822827 succeeded and uploaded `rivo-source-sbom` (2,940 bytes). It is source-level, not a complete resolved dependency SBOM.
+- New Gradle dependency graph workflow generates resolved dependency graph artifacts for PRs and Main pushes using read-only permissions. GitHub Dependency Graph is disabled in repository settings, so automated GitHub advisory review/submission is unavailable until the owner enables it.
 
 ## Release blockers
 
-1. Phase 1 work remains partly unmerged: #7, #8, #9, #10, #11, #12 and #13 are open; #7 and #9 require conflict resolution.
-2. PR #8 emulator instrumentation must finish green; representative hardware-backed Keystore and secure-lock-screen key invalidation remain physical-device checks.
-3. PR #11 benchmark bundle workflow must pass, followed by actual GeckoView/WebView runs on representative 3–4 GB devices. Do not choose an engine based only on CI build success.
-4. No physical-device install/upgrade/migration/relaunch, browsing, private-mode, download, notification, permission, accessibility or performance QA evidence has been recorded.
-5. No production upload keystore/secrets have been supplied. The Gradle signing configuration is opt-in and fails closed when required secrets are incomplete.
-6. Dependency vulnerability review, SBOM generation, GeckoView license/transitive dependency review and documented OWASP MASVS assessment remain incomplete.
-7. Merged release manifest, APK/AAB signature, raw artifact sizes, 16 KB runtime compatibility and Play upload validation remain outstanding.
-8. No production GitHub Release has been published.
+1. PR #35 and #36 are not merged; review and exact-head CI must pass first.
+2. Current PR #36 Android CI, including app lint/JVM tests, Gecko policy unit tests, API 35 Keystore/DataStore instrumentation, minified bundle, benchmarks and static APK/native ELF 16 KB checks, is not yet confirmed green on its final head.
+3. OSV currently finds no package sources because Gradle lockfiles are absent. Resolved dependency graph generation improves visibility but does not replace OSV scanning against resolved SBOM/lockfiles or dependency verification.
+4. Physical-device site permission grant/deny/revoke, Android notification permission/channel/delivery/click, private tab process-death and download migration tests remain outstanding.
+5. No physical 3–4 GB RAM performance benchmark or real 16 KB page-size runtime test is claimed.
+6. TalkBack, 320 dp layout, large font scale, contrast and all three appearance modes require device acceptance.
+7. No production upload keystore/secrets are available. CI AABs are unsigned QA artifacts.
+8. No independent penetration test or formal OWASP MASVS verification/certification has been completed.
+9. Signed AAB verification, artifact provenance, Play Console upload validation and production release authorization remain outstanding.
 
-## Android configuration observed in the Phase 1 source
+## Android configuration observed in source
 
 - applicationId: `com.rivo.browser`
 - versionName: `0.2.0-phase1`; versionCode: `2`
 - minSdk: 26; targetSdk: 36; compileSdk: 37.2
 - intended ABIs: `arm64-v8a`, `armeabi-v7a`
-- app manifest declares INTERNET only; backup disabled and cleartext traffic disabled.
+- app INTERNET permission; PR #36 adds POST_NOTIFICATIONS only. Backup disabled, cleartext disabled.
 
-This is source-level inspection, not a complete merged-manifest or runtime permission test.
+This is source inspection, not a complete merged-manifest or runtime permission test.
 
 ## Secure production signing
 
@@ -55,37 +56,68 @@ The Gradle release build supports opt-in upload signing from environment-only va
 - `RIVO_UPLOAD_KEY_ALIAS`
 - `RIVO_UPLOAD_KEY_PASSWORD`
 
-Only when explicitly requested with `-Privo.releaseSigningRequired=true` does the release variant use the upload signing config. If any required value is missing, Gradle fails. Ordinary CI remains unsigned QA packaging. Never commit a keystore/password or expose secrets in logs or command-line arguments. Use protected GitHub Actions environment secrets and least-privilege access.
+Only when explicitly requested with `-Privo.releaseSigningRequired=true` does the release variant use the upload signing config. Missing required values fail the build. Never commit a keystore/password or expose secrets in logs or command-line arguments. Use protected GitHub Actions environment secrets and least-privilege access.
 
-## Required release-candidate verification matrix
+## Release-candidate acceptance matrix
 
-| Area | Required evidence | Status |
+| Area | Required evidence | Current status |
 |---|---|---|
-| CI | Current Main build, lint, JVM and instrumentation suites, minified AAB | Partly complete; PR validation ongoing |
-| Fresh install | Physical ARM64 and ARMv7 install/launch | Not run |
-| Upgrade/migration | Upgrade without uninstall; preserve and migrate user data | Not run |
-| Relaunch | Force-stop/reboot; normal tabs restore and private tabs do not | Not run |
-| Navigation | HTTPS/HTTP, search, redirects, back/forward/reload, certificate errors | Not run on device |
-| Private mode | App-side persistence isolation and clear network privacy disclosure | Source-level only |
-| Downloads | Confirm/cancel, path traversal, collisions, failure cleanup, open/share, cap | JVM/instrumentation coverage partial; device not run |
-| Site permissions | Allow/deny, Android notification permission, revocation and private-mode behavior | JVM policy/CI coverage; device not run |
-| Themes/accessibility | Dark, Light, Glass overlays; TalkBack, focus, 48dp targets, font scale | Source/previews and CI; device not run |
-| Performance | Cold/warm startup, PSS, CPU, thermal, ANR/crash on 3–4 GB devices | Harness under repair; no measurements |
-| Security | Keystore device behavior, dependency scan/SBOM, MASVS evidence, merged manifest | Incomplete |
-| ABI/16 KB | Physical install and runtime validation on supported ABIs/page sizes | Static workflow pending |
+| Main/PR CI | Exact-head assemble, lint, JVM, instrumentation, minified AAB | PR #33 baseline green; #35/#36 pending exact-head checks |
+| Security storage | Keystore round-trip/tamper/key-loss, DataStore corruption/migration, process-death | API 35 tests exist; current PR #36 run pending; physical test not run |
+| Permissions | HTTPS site prompt, deny/grant/revoke, Android notification runtime permission | Source and JVM policy tests; device not run |
+| Private mode | No history/bookmark/tab/permission/download-metadata leakage; process death | Source and instrumentation coverage partial; device not run |
+| Downloads | URL/path/filename/size/temp cleanup/open/share/private metadata | Source/JVM/instrumentation coverage partial; device not run |
+| Network | TLS failure not bypassed, cleartext disabled, redirect and download validation | Source review only; device/network test not run |
+| Themes/accessibility | Dark, Light, Glass; TalkBack, 48 dp, large font, narrow screen | Source review only; device not run |
+| Performance | Cold/warm startup, PSS, CPU, thermal, ANR/crash on 3–4 GB devices | No measurements |
+| 16 KB | APK ZIP and native ELF static alignment plus 16 KB runtime launch | Static checks configured; runtime not run |
+| Supply chain | OSV over resolved dependencies, full SBOM, dependency verification | Source OSV currently no lockfiles; Gradle graph workflow added; full SBOM/verification incomplete |
+| Signing/distribution | Signed AAB, signature/hash/provenance, Play Console validation | No production credentials or signed release artifact |
 
 ## Dependency and MASVS review
 
-A complete vulnerability assessment has not been performed. Before release, generate resolved Gradle dependency reports, run an advisory scanner such as OSV-Scanner, produce a CycloneDX/SPDX SBOM, review GeckoView native/transitive dependencies and licenses, and document evidence/residual risks against OWASP MASVS STORAGE, CRYPTO, NETWORK, PLATFORM, CODE, RESILIENCE and PRIVACY. Do not claim MASVS certification without an actual assessment.
+OWASP MASVS source-level mapping is recorded in `SECURITY.md`. It is a gap-tracking document, not certification. Before release, obtain a complete resolved Gradle dependency inventory/SBOM, scan it with OSV, review GeckoView native/transitive dependencies and licenses, establish dependency verification/locking, and record evidence and residual risks across MASVS-STORAGE, CRYPTO, NETWORK, PLATFORM, CODE, RESILIENCE and PRIVACY.
 
 ## Known limitations and rollback
 
-- GeckoView remains provisional until measured against WebView on target devices.
-- Site-permission UX intentionally defaults unsupported capabilities to deny.
+- GeckoView engine choice remains subject to measured performance on target devices.
+- Unsupported site/device permissions remain denied.
 - Downloaded file contents are not encrypted by the metadata cipher; private mode does not erase user-saved downloads.
 - Private browsing does not make network activity anonymous.
-- If a candidate fails, stop promotion, retain diagnostics and restore the previous known-good signed artifact. Do not uninstall or wipe user data as a rollback shortcut. Validate backward-compatible data migration before downgrade.
+- No end-user WebExtensions store is implemented.
+- If a candidate fails, stop promotion, retain diagnostics and restore the previous known-good signed artifact. Do not wipe user data as a rollback shortcut; validate backward-compatible migration first.
 
 ## Release decision
 
-**NO-GO.** Do not tag, publish, announce or distribute a production release until all blockers close, current Main CI passes, physical-device/security evidence is reviewed, signing is configured and the owner explicitly authorizes the release.
+**NO-GO.** Do not tag, publish, announce or distribute production until all blockers close, current Main CI and device/security evidence are reviewed, production signing is configured, and the owner explicitly authorizes release.
+
+
+## Latest Account B candidate checkpoint — 2026-11-09
+
+- PR #36 latest head at this checkpoint: `4d42f47ee8ba95f14ad34e366470396bd1106ad3`; 42 commits ahead / 0 behind Main; draft and unmerged.
+- OSV PR run #42571406620 completed successfully but logged no package sources and no lockfiles. This is not a clean resolved-dependency vulnerability result.
+- Source SBOM run #42571406272 completed successfully and uploaded a 2,941-byte SPDX source artifact; it is not a complete transitive Gradle SBOM.
+- Gradle dependency graph run #42571406249 completed successfully and uploaded a 10,829-byte resolved dependency graph artifact. GitHub Dependency Graph is disabled in repository settings, so automated Dependency Review is not available; owner action is required to enable it.
+- Android CI run #42571406314 initially failed due HTTP 504 while downloading kotlin-compiler-embeddable 2.4.10 from GitHub release assets. A retry was superseded by subsequent test/documentation changes. Exact-head Android CI remains pending and must pass before merge.
+- New Account B JVM regression verifies private tabs and unsafe URLs never enter process-restoration snapshots. API 35 instrumentation includes metadata migration/store-reopen tests.
+- Main baseline PR #33 CI #42563889346 passed configured tests, API 35 instrumentation, benchmark packaging, minified bundle and static APK/native ELF 16 KB alignment. No physical 16 KB runtime test is claimed.
+
+
+## Exact-head status refresh — 2026-11-09
+
+- PR #36 head at this checkpoint: `2b543be35c8621b0589c1ce68e1b31d273032464`; 45 commits ahead / 0 behind Main; draft/open.
+- Android CI #42571935131 was cancelled during retry after the build failed on upstream HTTP 504 fetching kotlin-compiler-embeddable 2.4.10 from a GitHub release asset. The retry was cancelled; no PR #36 build/test pass is claimed.
+- OSV #42571935564 completed successfully but logs explicitly report no package sources and no lockfiles. No resolved Gradle dependencies were scanned by OSV.
+- Source SBOM #42571935161 succeeded and uploaded a 2,939-byte source SPDX artifact. Gradle dependency graph #42571935225 succeeded and uploaded a 10,834-byte resolved dependency graph artifact.
+- GitHub Dependency Graph is disabled in repository settings. The Dependency Review action failed with an explicit unsupported-repository message and was removed; owner must enable Dependency Graph before that workflow can be restored.
+- Private-tab restoration policy regression added; API 35 instrumentation suite covers encrypted-store reopen/corruption/migration. Exact-head execution still pending.
+
+
+## Final Account B verification — 2026-11-09
+
+- PR #36 code head at this checkpoint: `9113b9a0a48b6d3aa6cae6fd8fb192d0fddb41f8` (51 ahead / 0 behind Main, draft/open).
+- Android CI #42572672741 was still running at Assemble shipping Rivo Browser. Earlier attempts were interrupted or failed on upstream HTTP 504 downloads; no PR #36 Android build/test pass is claimed yet.
+- OSV #42572673279 succeeded but reports no package sources/lockfiles; no resolved dependency vulnerability scan is established.
+- Source SBOM #42572672745 succeeded after retry with Syft v1.55.0; 2,937-byte source-level SPDX artifact. Gradle dependency graph #42572672769 succeeded; 10,819-byte resolved graph artifact.
+- GitHub Dependency Graph is disabled in repository settings, so automated Dependency Review is not available. Owner must enable it before advisory review/submission can be restored.
+- Private-tab restore regression and metadata migration instrumentation tests are added; current PR #36 exact-head execution remains pending.
