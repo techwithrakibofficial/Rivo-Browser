@@ -44,3 +44,7 @@ OWASP MASVS is the assessment baseline. This document is not an independent secu
 - Verified GitHub branch metadata currently reports `main` as unprotected, with protection disabled and no required status checks. This permits direct pushes/force-pushes unless separately restricted.
 - Before shipping, configure a GitHub repository ruleset/branch protection requiring PR review and successful Android CI; block force-push and branch deletion; limit release/tag publishing to trusted maintainers.
 - The available connected GitHub integration exposes branch-protection/ruleset reads but not mutation, so no governance change is claimed here.
+
+## Preliminary OWASP MASVS gap assessment
+
+A source-based, control-by-control preliminary register is maintained in [SECURITY_ASSESSMENT.md](SECURITY_ASSESSMENT.md). It distinguishes source evidence from partial coverage, gaps, scope exclusions and device-only verification. It is not a penetration test or certification. Do not mark a control passed without recorded MASTG test evidence or an approved, documented scope decision.
