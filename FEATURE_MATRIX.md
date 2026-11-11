@@ -1,6 +1,6 @@
 # Rivo Browser — Feature Matrix
 
-Updated: 2026-11-10
+Updated: 2026-11-11
 
 Status: **Integrated** means source is merged into Main; it does not imply physical-device acceptance.
 
@@ -39,3 +39,10 @@ Build success, JVM tests, emulator instrumentation, physical-device testing and 
 
 | Website notification lock-screen privacy | Integrated in release-hardening branch; pending fresh CI/merge | Private visibility and generic public notification version; OEM/device validation remains pending |
 | OWASP MASVS assessment | Preliminary register added in release-hardening branch | Source-based gap assessment only; not certification or independent penetration test |
+
+
+## 2026-11-11 integration status correction
+- Website notifications: **Integrated** — public notification preview is generic Rivo-owned content and notification visibility is private; JVM regression test is included. OEM/lock-screen behavior remains pending physical-device QA.
+- OWASP MASVS: **Preliminary assessment register added** in `SECURITY_ASSESSMENT.md`; this is not a completed independent audit or certification.
+- PR #46 merged to Main as `b50350a241908fb1f38d2920b7a358451cb436f7`; PR-head Android CI, OSV Scanner, dependency graph and SBOM all passed. Post-merge Main CI was still running at checkpoint.
+- Production signing, physical-device acceptance, 3–4 GB profiling, runtime 16 KB validation and branch protection remain pending.
