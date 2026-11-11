@@ -56,3 +56,7 @@ Updated: 2026-11-10
 - Same-head OSV Scanner reported **No issues found** after scanning five Gradle lockfiles (814 resolved package entries across modules); SBOM and dependency graph jobs succeeded.
 - These are automated CI results only. Physical-device acceptance, low-RAM profiling, 16 KB runtime verification and full OWASP MASVS assessment remain separate gates.
 - CI APK/AAB outputs are unsigned QA artifacts, not production release packages.
+
+
+## Website notification disclosure boundary
+- Native website notifications keep full content in the normal notification representation but use Android private visibility and a generic public-version representation for insecure display contexts. Device/OEM behavior remains subject to manual verification.
