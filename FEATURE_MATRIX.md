@@ -35,3 +35,7 @@ Status: **Integrated** means source is merged into Main; it does not imply physi
 
 ## Verification boundary
 Build success, JVM tests, emulator instrumentation, physical-device testing and release signing are separate evidence levels. Do not mark device-only features as accepted without recorded hardware results.
+
+
+| Website notification lock-screen privacy | Integrated in release-hardening branch; pending fresh CI/merge | Private visibility and generic public notification version; OEM/device validation remains pending |
+| OWASP MASVS assessment | Preliminary register added in release-hardening branch | Source-based gap assessment only; not certification or independent penetration test |

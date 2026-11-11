@@ -65,3 +65,11 @@ Updated: 2026-11-10
 - PR branch defers initial navigation for restored tabs: only the saved selected tab loads at startup; other restored tabs load when first selected. User-created tabs retain immediate navigation.
 - Added JVM tests for pending/selected load decisions. Android CI run [#42771971849](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42771971849) (run #496) completed successfully, including build, lint, JVM tests, Gecko policy tests, benchmark builds, minified release bundle, static 16 KB checks and API 35 instrumentation.
 - This change is on PR #43 and is not yet merged into Main. Physical 3–4 GB device profiling remains required to quantify memory benefit.
+
+
+## 2026-11-11 integration update
+- PR #43 merged into Main as commit `7c24dd337ed96f0d8bbc70831a9e88fa8bf6ad99`; restored background tabs now defer initial navigation until first selection.
+- Integrated website notification lock-screen privacy mitigation: private notification visibility plus a generic public version; JVM regression test included.
+- Added `SECURITY_ASSESSMENT.md`, a preliminary source-based MASVS gap register. It explicitly records partial, missing and not-assessed controls; no certification or independent audit is claimed.
+- Automated CI on the original PR #45 head and source-based MASVS documentation branch passed their recorded CI runs; the consolidated integration branch must pass fresh CI before merge.
+- Remaining blockers: production signing secrets, physical Android device access, accessibility/device QA, 3–4 GB RAM profiling, runtime 16 KB verification, complete MASTG/data-flow review and repository branch protection.

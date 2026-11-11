@@ -44,3 +44,12 @@ OWASP MASVS is the assessment baseline. This document is not an independent secu
 - Verified GitHub branch metadata currently reports `main` as unprotected, with protection disabled and no required status checks. This permits direct pushes/force-pushes unless separately restricted.
 - Before shipping, configure a GitHub repository ruleset/branch protection requiring PR review and successful Android CI; block force-push and branch deletion; limit release/tag publishing to trusted maintainers.
 - The available connected GitHub integration exposes branch-protection/ruleset reads but not mutation, so no governance change is claimed here.
+
+
+## OWASP MASVS assessment register
+- Preliminary source-based control register: [SECURITY_ASSESSMENT.md](SECURITY_ASSESSMENT.md). This is a gap assessment, not certification or an independent penetration test.
+
+## Website notification lock-screen privacy
+- Website-provided notification title, body and origin are treated as potentially sensitive.
+- Native website notifications use Android `Notification.VISIBILITY_PRIVATE` and a generic public-version notification containing only Rivo-owned text.
+- This mitigation does not guarantee identical behavior across all OEM lock screens or user notification settings; physical-device verification remains required.

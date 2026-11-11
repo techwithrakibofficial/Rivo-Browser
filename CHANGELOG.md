@@ -33,3 +33,10 @@ See Git history for prior Tab Universe, storage hardening, browser navigation, t
 - Changed process restoration so saved background tabs are reconstructed without immediately navigating every saved URL; the selected tab loads at startup and other restored tabs load on first selection.
 - Preserved immediate loading for user-created tabs and added JVM tests for the pending restored-tab load policy.
 - PR Android CI #496 passed, including JVM tests, lint, shipping/benchmark builds, minified bundle, static 16 KB checks and API 35 instrumentation. Physical 3–4 GB RAM profiling remains outstanding.
+
+
+## 2026-11-11 — Release-readiness integration
+- Merged PR #43: restored background tabs defer navigation until first selection, reducing avoidable startup work; physical low-RAM profiling remains outstanding.
+- Integrated website notification public-preview redaction using `VISIBILITY_PRIVATE` and generic Rivo-owned public content, with a JVM regression test.
+- Added a preliminary source-based OWASP MASVS control gap register in `SECURITY_ASSESSMENT.md`; it is not a certification or independent audit.
+- Physical-device QA, production signing, runtime 16 KB validation and branch protection remain release gates.

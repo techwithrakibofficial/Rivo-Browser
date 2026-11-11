@@ -50,3 +50,10 @@ Updated: 2026-11-10
 - Added JVM coverage in `RestoredTabSelectionTest.kt` for selected/background/pending load decisions.
 - Android CI run [#42771971849](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42771971849) completed successfully (build, lint, JVM tests, Gecko policy tests, benchmark builds, minified bundle, static 16 KB checks and API 35 instrumentation). OSV Scanner, Source SBOM and Dependency Graph runs also succeeded.
 - PR #43 remains open and unmerged. No physical-device performance measurement is claimed.
+
+
+## 2026-11-11 integration update
+- PR #43 was merged as `7c24dd337ed96f0d8bbc70831a9e88fa8bf6ad99`; lazy background-tab restoration is now in Main.
+- Consolidation branch `integration/security-release-gates-2026-11-11` carries website notification public-preview redaction, its JVM regression test, and the preliminary OWASP MASVS register. Fresh CI is required before this branch can merge.
+- PR #44 and #45 became non-mergeable after Main advanced; their changes are being consolidated on the integration branch rather than force-merging stale heads.
+- Hard blockers not executable from this session: production keystore secrets, physical-device test access, and repository branch-protection mutation. Never claim these completed without evidence.
