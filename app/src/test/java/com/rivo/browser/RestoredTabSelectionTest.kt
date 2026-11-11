@@ -1,6 +1,8 @@
 package com.rivo.browser
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class RestoredTabSelectionTest {
@@ -17,5 +19,16 @@ class RestoredTabSelectionTest {
     @Test
     fun selectsFirstTabWhenItWasPersistedAsSelected() {
         assertEquals(0, restoredSelectedTabIndex(listOf(true, false)))
+    }
+
+    @Test
+    fun loadsPendingRestoredPageOnlyWhenItsTabIsSelected() {
+        assertTrue(shouldLoadPendingRestoredTab(isPending = true, isSelected = true))
+        assertFalse(shouldLoadPendingRestoredTab(isPending = true, isSelected = false))
+    }
+
+    @Test
+    fun doesNotLoadAlreadyLoadedTabAgainWhenSelected() {
+        assertFalse(shouldLoadPendingRestoredTab(isPending = false, isSelected = true))
     }
 }

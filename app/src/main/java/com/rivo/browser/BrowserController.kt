@@ -56,6 +56,7 @@ class BrowserTabState(
     var trackingProtectionEnabled by mutableStateOf(false)
     var trackingProtectionException by mutableStateOf(false)
     lateinit var engine: GeckoBrowserTab
+    var initialLoadPending: Boolean = false
 }
 
 /**
@@ -134,7 +135,12 @@ class BrowserController(context: Context) {
                     createTab()
                 } else {
                     restoredTabs.forEach { saved ->
-                        createTab(url = saved.url, restoredTitle = saved.title)
+                        createTab(
+                            url = saved.url,
+                            restoredTitle = saved.title,
+                            selectImmediately = false,
+                            loadImmediately = false
+                        )
                     }
                     // Select by saved record position, not URL: duplicate URLs are valid tabs.
                     val selectedIndex = restoredSelectedTabIndex(restoredTabs.map { it.selected })
@@ -152,7 +158,9 @@ class BrowserController(context: Context) {
     fun createTab(
         privateMode: Boolean = false,
         url: String = HOME_URL,
-        restoredTitle: String? = null
+        restoredTitle: String? = null,
+        selectImmediately: Boolean = true,
+        loadImmediately: Boolean = true
     ) {
         if (tabs.size >= MAX_TABS) {
             notice = "For memory stability, Rivo currently supports up to $MAX_TABS open tabs."
@@ -265,9 +273,10 @@ class BrowserController(context: Context) {
             }
         )
         tab.trackingProtectionEnabled = tab.engine.isTrackingProtectionEnabled
+        tab.initialLoadPending = !loadImmediately
         tabs.add(tab)
-        selectTab(tab.id)
-        tab.engine.load(url)
+        if (selectImmediately) selectTab(tab.id)
+        if (loadImmediately) tab.engine.load(url)
         persistOpenTabs()
     }
 
@@ -278,6 +287,10 @@ class BrowserController(context: Context) {
             tab.engine.setActive(
                 TabSessionActivationPolicy.shouldActivate(tab.id, activeTabId, hostStarted)
             )
+            if (shouldLoadPendingRestoredTab(tab.initialLoadPending, isSelected = tab.id == activeTabId)) {
+                tab.initialLoadPending = false
+                tab.engine.load(tab.url)
+            }
         }
         persistOpenTabs()
     }

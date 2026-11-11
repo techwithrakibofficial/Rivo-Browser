@@ -15,7 +15,7 @@ Status: **Integrated** means source is merged into Main; it does not imply physi
 | Private browsing | Integrated | Native private sessions; excludes app-side history/bookmarks/restoration |
 | Advanced Tab Universe | Integrated | Search, filters, sorting and semantic accessibility labels |
 | Bookmarks / history | Integrated | Local DataStore; encrypted metadata |
-| Tab restoration | Integrated | Normal HTTP(S) tabs only; private tabs excluded |
+| Tab restoration | Integrated | Normal HTTP(S) tabs only; private tabs excluded; background restored pages load on first selection |
 | Safe downloads | Integrated | Confirmation, HTTPS policy, app-specific storage, atomic writes, 250 MB cap |
 | Transfer Studio | Integrated | Search/filter, recent-100, progress, cancel (best-effort), Open/Share/Remove |
 | Reader Mode | Integrated | Gecko readerability and gated-content checks; bounded plain text; not universal |
