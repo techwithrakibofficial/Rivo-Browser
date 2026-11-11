@@ -566,11 +566,18 @@ private class RivoWebNotificationDelegate(context: Context) : WebNotificationDel
                 clickIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
+            val publicVersion = Notification.Builder(appContext, CHANNEL_ID)
+                .setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setContentTitle(WebNotificationPrivacyPolicy.PUBLIC_TITLE)
+                .setContentText(WebNotificationPrivacyPolicy.PUBLIC_TEXT)
+                .build()
             val builder = Notification.Builder(appContext, CHANNEL_ID)
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
                 .setContentTitle(notification.title?.takeIf { it.isNotBlank() } ?: host)
                 .setContentText(notification.text.orEmpty())
                 .setSubText(host)
+                .setVisibility(Notification.VISIBILITY_PRIVATE)
+                .setPublicVersion(publicVersion)
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent)
             runCatching {
