@@ -1,6 +1,6 @@
 # Rivo Browser — Development Plan
 
-Updated: 2026-11-10
+Updated: 2026-11-11
 
 ## Phase 0 — Foundation
 **Source implementation: substantially complete; measured engine decision remains open.**
@@ -49,3 +49,9 @@ A release candidate is acceptable only when:
 5. 3–4 GB performance is measured and meets agreed budgets.
 6. 16 KB runtime is validated on compatible hardware.
 7. Security review and signing provenance are documented; protected signing secrets are configured and a signed APK/AAB release workflow run succeeds.
+
+
+## 2026-11-11 execution checkpoint
+- PR #43 lazy restored-tab loading and PR #46 notification privacy/MASVS documentation integration are merged into Main (`b50350a241908fb1f38d2920b7a358451cb436f7`).
+- PR #46 head passed Android CI, OSV Scanner, Gradle Dependency Graph and Source SBOM. Android CI included JVM tests, Gecko policy tests, static 16 KB alignment and API 35 emulator security instrumentation.
+- Next release phase is gated by protected production signing secrets, physical-device/accessibility QA, 3–4 GB performance measurements, runtime 16 KB verification, complete MASTG/data-flow review and main-branch ruleset. Do not mark these as complete without evidence.
