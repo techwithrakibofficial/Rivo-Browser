@@ -40,3 +40,12 @@ See Git history for prior Tab Universe, storage hardening, browser navigation, t
 - Integrated website notification public-preview redaction using `VISIBILITY_PRIVATE` and generic Rivo-owned public content, with a JVM regression test.
 - Added a preliminary source-based OWASP MASVS control gap register in `SECURITY_ASSESSMENT.md`; it is not a certification or independent audit.
 - Physical-device QA, production signing, runtime 16 KB validation and branch protection remain release gates.
+
+
+## 2026-11-11 — Security/release-readiness PR #46 merged
+- Squash-merged PR #46 to Main as `b50350a241908fb1f38d2920b7a358451cb436f7`.
+- Website-controlled notification previews now use private visibility and a generic Rivo-owned public version; added `WebNotificationPrivacyPolicyTest`.
+- Added preliminary source-based `SECURITY_ASSESSMENT.md` MASVS gap register; it is not a penetration test or certification.
+- All PR-head CI workflows passed: Android CI, OSV Scanner PR, Gradle Dependency Graph and Source SBOM. Android CI included lint, JVM tests, Gecko policy tests, static 16 KB checks and API 35 emulator security instrumentation.
+- Uploaded ARM64/ARMv7 debug APKs and unsigned QA AAB; these are not production-signed releases.
+- Post-merge Main workflows were still running at the time of this entry. Production signing, physical-device QA, low-RAM profiling, runtime 16 KB verification and branch protection remain open.
