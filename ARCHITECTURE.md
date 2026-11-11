@@ -1,6 +1,6 @@
 # Rivo Browser — Architecture
 
-Updated: 2026-11-10
+Updated: 2026-11-11
 
 ## Modules
 - `app`: Activity, Compose browser chrome, BrowserViewModel, BrowserController, local storage integration and design tokens.
@@ -60,3 +60,9 @@ Updated: 2026-11-10
 
 ## Website notification disclosure boundary
 - Native website notifications keep full content in the normal notification representation but use Android private visibility and a generic public-version representation for insecure display contexts. Device/OEM behavior remains subject to manual verification.
+
+
+## 2026-11-11 integration checkpoint
+- PR #46 merged notification privacy mitigation: website-controlled notification content is private-visibility content, while public notification rendering uses generic Rivo-owned text. `WebNotificationPrivacyPolicyTest` covers the public representation.
+- PR #43 lazy restoration and PR #46 notification privacy changes are both on Main at `b50350a241908fb1f38d2920b7a358451cb436f7`.
+- PR-head Android CI passed static 16 KB alignment and API 35 emulator security instrumentation. These do not prove runtime 16 KB compatibility or OEM notification behavior; physical-device verification remains open.
