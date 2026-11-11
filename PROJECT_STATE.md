@@ -1,6 +1,6 @@
 # Rivo Browser — Project State
 
-Updated: 2026-11-10
+Updated: 2026-11-11
 
 ## Source of truth
 - Repository: https://github.com/techwithrakibofficial/Rivo-Browser
@@ -73,3 +73,16 @@ Updated: 2026-11-10
 - Added `SECURITY_ASSESSMENT.md`, a preliminary source-based MASVS gap register. It explicitly records partial, missing and not-assessed controls; no certification or independent audit is claimed.
 - Automated CI on the original PR #45 head and source-based MASVS documentation branch passed their recorded CI runs; the consolidated integration branch must pass fresh CI before merge.
 - Remaining blockers: production signing secrets, physical Android device access, accessibility/device QA, 3–4 GB RAM profiling, runtime 16 KB verification, complete MASTG/data-flow review and repository branch protection.
+
+
+## Authoritative checkpoint — 2026-11-11 13:09 UTC
+
+- Latest `main` commit: `b50350a241908fb1f38d2920b7a358451cb436f7` (PR #46 squash-merged).
+- PR #46 consolidated website-notification public-preview redaction, `WebNotificationPrivacyPolicyTest`, the preliminary `SECURITY_ASSESSMENT.md` register and release-readiness documentation. PR: https://github.com/techwithrakibofficial/Rivo-Browser/pull/46.
+- All four PR-head workflows passed on `10add6d2753b3e4b1740b332e22b1c3723a42000`: Android CI #43024973140, OSV Scanner PR #43024973788, Gradle Dependency Graph #43024973190 and Source SBOM #43024973177.
+- Android CI passed shipping assemble, lint, app unit tests, Gecko policy unit tests, benchmark builds, static 16 KB alignment and API 35 Android security instrumentation. Uploaded QA artifacts include ARM64 debug APK (artifact `13857117441`), ARMv7 debug APK (`13857660007`), unsigned QA AAB (`13857067490`), test reports and benchmark artifacts. These are temporary unsigned QA artifacts, not a signed public release.
+- Post-merge Main workflows on `b50350a241908fb1f38d2920b7a358451cb436f7` were still in progress at this checkpoint; recheck Actions before treating Main CI as green.
+- PR #43 is merged in `7c24dd337ed96f0d8bbc70831a9e88fa8bf6ad99`; lazy background-tab restoration is in Main.
+- Release remains blocked by unavailable production signing secrets, physical-device/accessibility QA, low-RAM profiling, runtime 16 KB verification, full MASTG/data-flow review and disabled branch protection. `SECURITY_ASSESSMENT.md` is preliminary source analysis, not certification.
+
+> This checkpoint supersedes earlier dated statements in this file that PR #43 was unmerged or that the consolidated security branch was awaiting merge.
