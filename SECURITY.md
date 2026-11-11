@@ -1,6 +1,6 @@
 # Rivo Browser — Security Baseline
 
-Updated: 2026-11-10
+Updated: 2026-11-11
 
 OWASP MASVS is the assessment baseline. This document is not an independent security audit or certification.
 
@@ -53,3 +53,11 @@ OWASP MASVS is the assessment baseline. This document is not an independent secu
 - Website-provided notification title, body and origin are treated as potentially sensitive.
 - Native website notifications use Android `Notification.VISIBILITY_PRIVATE` and a generic public-version notification containing only Rivo-owned text.
 - This mitigation does not guarantee identical behavior across all OEM lock screens or user notification settings; physical-device verification remains required.
+
+
+## 2026-11-11 security integration verification
+- PR #46 merged to Main as `b50350a241908fb1f38d2920b7a358451cb436f7`.
+- Website-controlled notification title/body/origin are not exposed in the generic public notification representation; Android private visibility is applied. JVM regression test is included. OEM lock-screen and screen-sharing behavior still requires physical-device validation.
+- PR-head OSV Scanner, dependency graph, Source SBOM and Android CI all passed. Android CI includes API 35 emulator instrumentation and static 16 KB alignment checks; neither is a full penetration test or runtime 16 KB hardware proof.
+- `SECURITY_ASSESSMENT.md` is a preliminary source/configuration MASVS gap register only. No independent penetration test, certification or complete MASTG review is claimed.
+- Production signing credentials, physical-device QA, full data-flow review and branch protection remain unresolved.
