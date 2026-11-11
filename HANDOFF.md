@@ -1,6 +1,6 @@
 # Rivo Browser — Handoff
 
-Updated: 2026-11-10
+Updated: 2026-11-11
 
 ## Repository checkpoint
 - Canonical repository: https://github.com/techwithrakibofficial/Rivo-Browser
@@ -57,3 +57,17 @@ Updated: 2026-11-10
 - Consolidation branch `integration/security-release-gates-2026-11-11` carries website notification public-preview redaction, its JVM regression test, and the preliminary OWASP MASVS register. Fresh CI is required before this branch can merge.
 - PR #44 and #45 became non-mergeable after Main advanced; their changes are being consolidated on the integration branch rather than force-merging stale heads.
 - Hard blockers not executable from this session: production keystore secrets, physical-device test access, and repository branch-protection mutation. Never claim these completed without evidence.
+
+
+## Authoritative handoff — 2026-11-11 13:09 UTC
+
+- Canonical `main` is `b50350a241908fb1f38d2920b7a358451cb436f7`.
+- PR #46 is merged: https://github.com/techwithrakibofficial/Rivo-Browser/pull/46. It includes website notification public-preview redaction, its JVM regression test, preliminary MASVS register and synchronized release-readiness docs.
+- PR-head checks all passed: Android CI #43024973140, OSV Scanner PR #43024973788, Gradle Dependency Graph #43024973190, Source SBOM #43024973177.
+- Android CI passed build, lint, JVM tests, Gecko policy tests, benchmark builds, static 16 KB alignment and API 35 emulator security instrumentation. QA artifacts: ARM64 debug APK `13857117441`, ARMv7 debug APK `13857660007`, unsigned QA AAB `13857067490`, test reports and benchmarks.
+- Post-merge Main CI runs were still in progress at checkpoint; verify them before reporting green Main CI.
+- PR #43 is merged as `7c24dd337ed96f0d8bbc70831a9e88fa8bf6ad99`.
+- Remaining blockers: protected production signing secrets (four `RIVO_UPLOAD_*` secrets), physical-device and accessibility acceptance, 3–4 GB profiling, runtime 16 KB test, complete MASTG/data-flow review and branch-protection/ruleset configuration. No physical device or signing material is accessible in this session.
+- Do not distribute unsigned CI artifacts as a production release. Run `.github/workflows/signed-release.yml` only after authorized signing secrets are configured.
+
+> This handoff supersedes earlier text below claiming PR #43 or the security integration PR was still open/unmerged.
