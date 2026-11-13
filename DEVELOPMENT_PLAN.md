@@ -31,8 +31,8 @@ Updated: 2026-11-13
 
 ## Phase 3 — Security, performance and release
 **Automated Main validation is green; production release remains blocked by non-CI gates.**
-- Main Android CI #42763857175 passed shipping build, lint, JVM tests, Gecko policy tests, benchmark builds, minified release bundle, static 16 KB checks and API 35 instrumentation.
-- Main OSV Scanner #42763857162 scanned all five Gradle lockfiles and reported no known issues; dependency graph and source SBOM jobs succeeded.
+- Main Android CI #510 passed on Main SHA `5845e1b7804ad2cb102af16acd58af4b77aec3cb`; this included shipping build, lint, JVM tests, Gecko policy tests, benchmark builds, minified release bundle, static 16 KB checks and API 35 instrumentation.
+- On that same Main SHA, OSV Scanner Scheduled #31, Gradle Dependency Graph #149 and Source SBOM #195 succeeded. These are point-in-time automated checks, not a full security audit.
 - Complete OWASP MASVS control-by-control assessment.
 - Physical device and 3–4 GB RAM profiling.
 - 16 KB runtime validation on compatible hardware.
@@ -52,12 +52,14 @@ A release candidate is acceptable only when:
 
 
 ## 2026-11-11 execution checkpoint
-- PR #43 lazy restored-tab loading and PR #46 notification privacy/MASVS documentation integration are merged into Main. PR #47 refreshed release-readiness documentation and merged as `5b32fcf67ca69f264e4e90fb6d95e8a6042b72af`.
+- PR #43 lazy restored-tab loading and PR #46 notification privacy/MASVS documentation integration are merged into Main.
 - PR #46 head passed Android CI, OSV Scanner, Gradle Dependency Graph and Source SBOM. Android CI included JVM tests, Gecko policy tests, static 16 KB alignment and API 35 emulator security instrumentation.
 - Next release phase is gated by protected production signing secrets, physical-device/accessibility QA, 3–4 GB performance measurements, runtime 16 KB verification, complete MASTG/data-flow review and main-branch ruleset. Do not mark these as complete without evidence.
 
 
 ## 2026-11-13 CI security hardening task
+
+- PR #47 refreshed release-readiness documentation and merged as `5b32fcf67ca69f264e4e90fb6d95e8a6042b72af`.
 
 - Source review found an avoidable write-token exposure in the resolved-dependency PR workflow: PR-controlled Gradle build logic ran with `contents: write` and persisted checkout credentials.
 - A least-privilege remediation is proposed on `security/readonly-osv-pr-lockfiles-2026-11-13`: read-only job permissions, checkout with `persist-credentials: false`, and lockfile drift reported to the PR author instead of workflow-driven pushes.
