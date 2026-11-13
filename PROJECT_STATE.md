@@ -1,6 +1,6 @@
 # Rivo Browser — Project State
 
-Updated: 2026-11-11
+Updated: 2026-11-13
 
 ## Source of truth
 - Repository: https://github.com/techwithrakibofficial/Rivo-Browser
@@ -99,3 +99,14 @@ Updated: 2026-11-11
 - Signed-release workflow is present. It requires four protected Actions secrets: `RIVO_UPLOAD_KEYSTORE_BASE64`, `RIVO_UPLOAD_STORE_PASSWORD`, `RIVO_UPLOAD_KEY_ALIAS`, and `RIVO_UPLOAD_KEY_PASSWORD`. This session cannot read or configure repository secrets. Do not create a production release until an authorized maintainer configures them and verifies the signed artifacts.
 - Remaining non-CI gates: physical-device functional and accessibility QA, 3–4 GB profiling, runtime 16 KB verification, full MASTG/data-flow review, dependency advisory triage, branch protection and signed release verification.
 - No physical Android device or production signing material is available in this session; those gates remain open rather than being marked complete.
+
+
+## Authoritative CI/release security checkpoint — 2026-11-13 17:34 UTC
+
+- Verified Main SHA: `5b32fcf67ca69f264e4e90fb6d95e8a6042b72af`; Main Android CI run #513 (run ID 43470442172) completed with conclusion `success`.
+- PR #50: https://github.com/techwithrakibofficial/Rivo-Browser/pull/50. PR #51: https://github.com/techwithrakibofficial/Rivo-Browser/pull/51. Both were open against Main at the start of this assignment; neither was merged.
+- Earlier heads had successful Android build, OSV, dependency-graph and SBOM checks; the OSV reusable-workflow check also reported `neutral` and is not counted as success. The latest workflow/documentation commits require fresh CI before merge.
+- PR #50 uses a read-only Gradle resolution job, checkout without persisted credentials, no automated PR pushes, lockfile drift detection and artifact upload. Workflow default permissions are read-only; OSV SARIF write permission is scoped to its reusable scan job.
+- PR #51 separates signing/build from publication: signing runs with `contents: read` and the `production` environment; only the publishing job has `contents: write`. Owner-only gating, non-persisted checkout credentials, Main ancestry validation, signature verification and SHA-256 manifest generation are included.
+- Production environment required reviewers/branch restrictions, the four production signing secrets, actual signed release execution, and physical-device/security acceptance remain unverified or outstanding. No signing secret values were read or exposed.
+- GitHub branch metadata reports Main as unprotected. The integration does not provide the required branch-protection/environment mutation operations; owner/admin configuration remains necessary.
