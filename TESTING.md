@@ -66,3 +66,15 @@ Record device model, Android/API level, build SHA, test case, steps, expected re
 - These are historical results for the exact listed heads. Subsequent workflow/documentation commits invalidate them as evidence for the latest PR heads; fresh checks must complete before merge.
 - No signed-release workflow execution, APK/AAB signature proof from production credentials, published release, or production Environment reviewer configuration is evidenced by these checks. For reviewer gating to protect signing credentials, all four signing values must be configured as `production` Environment secrets, not repository-level secrets.
 - GitHub workflow-run checks validate CI only. YAML/security semantics must still be reviewed; physical-device and hardware tests remain separate release gates.
+
+
+## 2026-11-13 — PR #50 final merge evidence and PR #51 refresh
+
+- PR #50 head `f1b3212e8b68317d2a40aeb37958cb35e51312e6` Android CI run #521 / 43474361388: `success`. Passed shipping assemble, lint, app unit tests, Gecko policy unit tests, benchmark debug/release builds, minified shipping bundle, static APK/native library 16 KB alignment, artifact size report, QA artifact uploads, KVM setup and API 35 Android security instrumentation.
+- PR #50 OSV workflow run 43474361869: both introduced-dependency and resolved-Gradle-lockfile jobs `success`; scanned app (310), engine-gecko (152), engine-benchmark (150), engine-api (101), engine-webview (101) = 814 package entries; OSV output `No issues found`; lockfile drift check passed; artifact `rivo-gradle-lockfiles` uploaded (artifact ID 14062770541).
+- PR #50 Dependency Graph run 43474361291 and Source SBOM run 43474361406: `success`.
+- Check `osv-scanner` run 132054413821 concluded `neutral` with a configuration-not-found notice referencing the scheduled scanner workflow. It is recorded as neutral, not success; the actual PR OSV scan jobs succeeded.
+- PR #50 squash-merged to Main as `d93f598464a48351ca0440ad2cfeaa768e55d3f9`. Main post-merge CI and supply-chain runs were queued at the time of this checkpoint; verify their final conclusions.
+- PR #51 is being synchronized with the new Main commit. Earlier PR #51 checks are not evidence for the synchronized head; wait for fresh Android CI, OSV, dependency graph and SBOM results.
+- Signed-release workflow static checks: PyYAML parsed the workflow successfully; `bash -n` passed for all seven `run` scripts; assertions confirmed default `contents: read`, signing job `contents: read` + `production`, and publishing-only `contents: write`. Actionlint was not installed/run; no production workflow execution was attempted.
+- No production signing secrets, signed release, published APK/AAB, or production Environment reviewer configuration is evidenced. All four signing values must be `production` Environment secrets to be protected by Environment reviewers.
