@@ -4,7 +4,7 @@ Updated: 2026-11-13
 
 ## Repository checkpoint
 - Canonical repository: https://github.com/techwithrakibofficial/Rivo-Browser
-- Latest Main CI head: `45611c3a42ae14f82089f8ba49c5840a9548a0b6`; Android CI #485 completed successfully.
+- Latest verified Main SHA at this checkpoint: `5b32fcf67ca69f264e4e90fb6d95e8a6042b72af`; Android CI #513 completed successfully.
 - PR #38 integrated Phase 2; PR #40 merged signed-release automation.
 
 ## Completed and verified
