@@ -18,6 +18,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.rivo.browser.DownloadTempFileCleanup
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
@@ -52,7 +53,7 @@ class LocalDataCipherInstrumentedTest {
 
     @After
     fun tearDown() {
-        fixtures.forEach { it.stop() }
+        runBlocking { fixtures.forEach { it.stop() } }
         temporaryFiles.forEach { it.deleteRecursively() }
         val keyStore = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
         if (keyStore.containsAlias(keyAlias)) keyStore.deleteEntry(keyAlias)
@@ -359,6 +360,9 @@ class LocalDataCipherInstrumentedTest {
             scope = scope,
             produceFile = { file }
         )
-        fun stop() = scope.cancel()
+        suspend fun stop() {
+            scope.cancel()
+            scope.coroutineContext[Job]?.join()
+        }
     }
 }
