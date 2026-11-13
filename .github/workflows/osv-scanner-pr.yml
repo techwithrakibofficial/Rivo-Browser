@@ -20,7 +20,6 @@ jobs:
       contents: read
       security-events: write
 
-
   scan-resolved-gradle-dependencies:
     name: Resolve and scan Gradle lockfiles
     if: >-
@@ -28,15 +27,16 @@ jobs:
       github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # PR-controlled Gradle build logic is untrusted: never grant it repository write access.
     permissions:
-      contents: write
+      contents: read
     steps:
-      - name: Checkout PR branch
+      - name: Checkout PR branch without persisting credentials
         uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
-          persist-credentials: true
+          persist-credentials: false
       - name: Set up Java
         uses: actions/setup-java@v6
         with:
@@ -67,13 +67,23 @@ jobs:
           for lockfile in "${lockfiles[@]}"; do
             grep -Eq '^[^#[:space:]][^=]*=[^[:space:]]' "$lockfile"
           done
-          printf 'Resolved Gradle lockfiles:\n%s\n' "${lockfiles[@]}"
+          printf 'Resolved Gradle lockfiles:\\n%s\\n' "${lockfiles[@]}"
       - name: Scan resolved Gradle dependencies with OSV
         uses: google/osv-scanner-action/osv-scanner-action@0a65f82af05cd58cf587827b0bb0489548c18346
         with:
           scan-args: |
             --recursive
             ./
+      - name: Verify dependency lockfiles are committed
+        shell: bash
+        run: |
+          if ! git diff --quiet -- ':(glob)**/gradle.lockfile'; then
+            echo "::error::Gradle dependency lockfiles changed during resolution."
+            echo "Review the uploaded rivo-gradle-lockfiles artifact and commit the updated lockfiles in the pull request."
+            git diff --stat -- ':(glob)**/gradle.lockfile'
+            exit 1
+          fi
+          echo "All resolved Gradle lockfiles match the committed PR source."
       - name: Upload resolved Gradle lockfiles
         if: always()
         uses: actions/upload-artifact@v4
@@ -83,25 +93,3 @@ jobs:
             **/gradle.lockfile
           if-no-files-found: error
           retention-days: 14
-      - name: Commit generated dependency locks to the PR branch
-        if: always()
-        shell: bash
-        env:
-          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
-        run: |
-          mapfile -t lockfiles < <(find . -type f -name gradle.lockfile -not -path './.gradle/*' | sort)
-          if (( ${#lockfiles[@]} == 0 )); then
-            echo 'No generated Gradle lockfiles to commit.'
-            exit 0
-          fi
-          git fetch origin "${PR_BRANCH}"
-          git reset --mixed "origin/${PR_BRANCH}"
-          git add "${lockfiles[@]}"
-          if git diff --cached --quiet; then
-            echo 'Gradle lockfiles are already current.'
-            exit 0
-          fi
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'build(deps): lock resolved Gradle dependencies'
-          git push origin "HEAD:${PR_BRANCH}"
