@@ -1,6 +1,6 @@
 # Rivo Browser — Security Baseline
 
-Updated: 2026-11-11
+Updated: 2026-11-13
 
 OWASP MASVS is the assessment baseline. This document is not an independent security audit or certification.
 
@@ -66,6 +66,6 @@ OWASP MASVS is the assessment baseline. This document is not an independent secu
 ## Signed-release workflow hardening proposal — 2026-11-13
 
 - The signed-release workflow previously granted repository-wide `contents: write` and persisted checkout credentials while executing the Gradle build with production signing material in its environment.
-- Proposed hardening on `security/harden-signed-release-gate-2026-11-13`: scope `contents: write` to the publishing job, restrict execution to the repository owner, use a `production` GitHub Environment, disable checkout credential persistence, and refuse to sign a tag whose commit is not reachable from `main`.
-- A repository administrator must configure required reviewers on the `production` environment before using the workflow. Merely naming an environment does not itself create an approval gate.
-- This proposal remains pending PR review and CI; no production signing run or release is claimed.
+- PR #51 (`security/harden-signed-release-ci-2026-11-13`) implements owner-gated signing with a `production` environment and `contents: read`; the separate publishing job alone has `contents: write`. Checkout uses `persist-credentials: false`; the release commit must be an ancestor of `main`; APK/AAB signatures are verified before the signed assets and SHA-256 manifest are transferred to the publisher. The publisher uses `gh release create --verify-tag`, so it will not silently create a missing tag and an existing release causes publication to fail rather than overwrite.
+- A repository administrator must configure required reviewers (preferably prevent self-review) and restrict allowed deployment branches/tags on the `production` environment before using the workflow. Merely naming an environment does not itself create an approval gate.
+- The latest workflow refactor awaits fresh PR checks; no production signing run or release is claimed.
