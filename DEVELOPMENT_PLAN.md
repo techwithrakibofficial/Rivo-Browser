@@ -31,8 +31,8 @@ Updated: 2026-11-11
 
 ## Phase 3 — Security, performance and release
 **Automated Main validation is green; production release remains blocked by non-CI gates.**
-- Main Android CI #42763857175 passed shipping build, lint, JVM tests, Gecko policy tests, benchmark builds, minified release bundle, static 16 KB checks and API 35 instrumentation.
-- Main OSV Scanner #42763857162 scanned all five Gradle lockfiles and reported no known issues; dependency graph and source SBOM jobs succeeded.
+- Main Android CI #510 passed on Main SHA `5845e1b7804ad2cb102af16acd58af4b77aec3cb`; this included shipping build, lint, JVM tests, Gecko policy tests, benchmark builds, minified release bundle, static 16 KB checks and API 35 instrumentation.
+- On that same Main SHA, OSV Scanner Scheduled #31, Gradle Dependency Graph #149 and Source SBOM #195 succeeded. These are point-in-time automated checks, not a full security audit.
 - Complete OWASP MASVS control-by-control assessment.
 - Physical device and 3–4 GB RAM profiling.
 - 16 KB runtime validation on compatible hardware.
