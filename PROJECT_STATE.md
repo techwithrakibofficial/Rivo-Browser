@@ -5,7 +5,7 @@ Updated: 2026-11-13
 ## Source of truth
 - Repository: https://github.com/techwithrakibofficial/Rivo-Browser
 - Canonical branch: `main`
-- Latest Main CI head: `45611c3a42ae14f82089f8ba49c5840a9548a0b6` (Android CI #485 succeeded).
+- Latest verified Main SHA at this checkpoint: `5b32fcf67ca69f264e4e90fb6d95e8a6042b72af` (Android CI #513 succeeded; see authoritative Nov 13 checkpoint below).
 - Phase 2 integration: PR #38 merged; PR #40 merged signed-release workflow.
 
 ## Implemented in Main source
