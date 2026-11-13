@@ -60,5 +60,5 @@ A release candidate is acceptable only when:
 ## 2026-11-13 signed-release workflow hardening
 
 - PR #51 (`security/harden-signed-release-ci-2026-11-13`) separates the production-signing build from release publication: the owner-gated `build-and-sign` job uses `contents: read` and the `production` environment; the separate `publish` job alone receives `contents: write`. Checkout credentials are not persisted, the selected tag commit must be reachable from `main`, and verified APK/AAB plus SHA-256 assets are passed to the publisher as a short-retention artifact.
-- Before production signing is enabled, configure required reviewers and branch/tag restrictions on the GitHub Environment named `production`. The workflow's environment declaration alone is not an approval policy.
+- Before production signing is enabled, configure required reviewers and branch/tag restrictions on the GitHub Environment named `production`, and store all four signing values as `production` Environment secrets (not repository-level secrets). The workflow's environment declaration alone is not an approval policy.
 - PR checks on the earlier head passed Android build and supply-chain checks, but the latest workflow refactor requires fresh checks. A real signed build, APK/AAB signature verification and published checksum evidence remain required.
