@@ -123,7 +123,7 @@ Automated CI success is verified. It is not evidence of physical-device acceptan
 ### Checks and blockers
 - Earlier PR heads had Android build, OSV scan, dependency graph and SBOM successes. One OSV check was `neutral`, not success.
 - Final commits changed after those checks; wait for and inspect new-head checks before merging.
-- Owner/admin must configure production environment reviewers (prevent self-review), allowed branch/tag policy, and four protected signing secrets. Secret values must never be exposed.
+- Owner/admin must configure production environment reviewers (prevent self-review), allowed branch/tag policy, and the four signing values as `production` Environment secrets (not repository-level secrets): `RIVO_UPLOAD_KEYSTORE_BASE64`, `RIVO_UPLOAD_STORE_PASSWORD`, `RIVO_UPLOAD_KEY_ALIAS`, `RIVO_UPLOAD_KEY_PASSWORD`. Secret values must never be exposed.
 - Main remains unprotected; the connected integration does not expose branch-protection/environment mutation. No signed production run, APK/AAB release, or physical-device QA is claimed.
 
 ### Exact next steps
