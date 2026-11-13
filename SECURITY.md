@@ -66,6 +66,6 @@ OWASP MASVS is the assessment baseline. This document is not an independent secu
 ## 2026-11-13 CI workflow security review
 
 - Review of `.github/workflows/osv-scanner-pr.yml` found that the resolved-dependency job executed PR-controlled Gradle build logic while holding `contents: write` and a persisted checkout credential, then pushed generated lockfiles back to the PR branch.
-- This unnecessarily exposed repository write authority to code under test. A hardening change is proposed on branch `security/readonly-osv-pr-lockfiles-2026-11-13`: the dependency-resolution job receives `contents: read` only, checkout credentials are not persisted, and lockfile drift is reported for the PR author to commit rather than being pushed by the workflow.
+- This unnecessarily exposed repository write authority to code under test. PR #50 (`security/readonly-osv-pr-lockfiles-ci-2026-11-13`) implements `contents: read` for the Gradle resolution job, `persist-credentials: false`, no workflow-driven branch pushes, lockfile drift reporting and artifact upload. The workflow-level default is read-only; `security-events: write` is limited to the OSV reusable scan job.
 - The change is not considered complete until PR checks pass and it is merged. No secret or credential is added to the repository.
 - Latest verified Main baseline before this proposed change: `5b32fcf67ca69f264e4e90fb6d95e8a6042b72af`; Android CI #510 had passed on its parent baseline `5845e1b7804ad2cb102af16acd58af4b77aec3cb`. CI on the new docs-only Main commit was still running at review time.
