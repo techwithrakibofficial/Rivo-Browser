@@ -113,3 +113,15 @@ Updated: 2026-11-13
 - Production Environment required reviewers/branch restrictions and all four signing values as `production` Environment secrets (not repository-level secrets) remain unverified/outstanding. No production signing execution or public release is claimed.
 - Main branch remains unprotected and repository rulesets query is empty. The connected GitHub integration cannot mutate branch protection or production Environment configuration.
 - Gradle dependency verification remains unconfigured: no `gradle/verification-metadata.xml` or verification keyring exists. Lockfiles and OSV scanning do not provide artifact checksum/signature verification.
+
+
+## Serial 01 post-merge verification — 2026-11-13 18:21 UTC
+
+- Current Main SHA at verification: `528a914db56c75c19ca1c4e03d919ee42b355580`.
+- PR #50 is merged: `d93f598464a48351ca0440ad2cfeaa768e55d3f9`. PR #51 is merged: `89d0b2beb5ccdaf6bf265fd222418a65fcba100a`.
+- Main commit check-runs on `528a914`: Android `build`, OSV `Scan known dependency vulnerabilities / osv-scan`, `dependency-graph`, and `Generate source SBOM` all completed with conclusion `success`. These are the four reported check-runs; no pending, failed, neutral or skipped conclusion was present in this check-run set.
+- Main branch metadata reports `protected=false`; branch protection is disabled. The available GitHub integration cannot configure branch rules or Environment protection.
+- No GitHub Releases exist at verification time. The signed-release workflow is present, but no production signing run, signed APK/AAB, checksum release assets, or published release is evidenced.
+- Production Environment reviewer policy, deployment ref restrictions, and presence of all four secrets specifically in the `production` Environment could not be verified with the available integration. Owner/admin must configure and verify these controls before production signing.
+- Gradle artifact dependency verification remains unconfigured: `gradle/verification-metadata.xml` and a verification keyring are absent. Lockfiles and OSV scans are separate controls.
+- This checkpoint updates CI state only; it does not close physical-device QA, accessibility, 3–4 GB performance profiling, runtime 16 KB validation, or the full MASVS/MASTG review.
