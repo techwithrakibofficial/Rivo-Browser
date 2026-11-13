@@ -20,7 +20,7 @@ Updated: 2026-11-13
 - Remaining: physical device lifecycle, accessibility, data-loss and low-memory validation.
 
 ## Phase 2 — Advanced Browser Features
-**Source implementation: integrated in Main by PR #38.**
+**Source implementation: integrated in Main by the consolidated PR #46 security/privacy integration.**
 - Reader Mode via GeckoView page extraction.
 - QR-only Google Code Scanner with confirmation-gated navigation.
 - Transfer Studio with progress, filters and best-effort cancellation.
@@ -31,7 +31,7 @@ Updated: 2026-11-13
 
 ## Phase 3 — Security, performance and release
 **Automated Main validation is green; production release remains blocked by non-CI gates.**
-- Earlier Main Android CI #510 passed on SHA `5845e1b7804ad2cb102af16acd58af4b77aec3cb`; latest Main Android CI #513 passed on `5b32fcf67ca69f264e4e90fb6d95e8a6042b72af`. Run #513's verified conclusion is `success`; see `TESTING.md` for current PR-head evidence.
+- Main Android CI #510 passed on Main SHA `5845e1b7804ad2cb102af16acd58af4b77aec3cb`; this included shipping build, lint, JVM tests, Gecko policy tests, benchmark builds, minified release bundle, static 16 KB checks and API 35 instrumentation.
 - On that same Main SHA, OSV Scanner Scheduled #31, Gradle Dependency Graph #149 and Source SBOM #195 succeeded. These are point-in-time automated checks, not a full security audit.
 - Complete OWASP MASVS control-by-control assessment.
 - Physical device and 3–4 GB RAM profiling.
@@ -52,13 +52,32 @@ A release candidate is acceptable only when:
 
 
 ## 2026-11-11 execution checkpoint
-- PR #43 lazy restored-tab loading and PR #46 notification privacy/MASVS documentation integration are merged into Main (`b50350a241908fb1f38d2920b7a358451cb436f7`).
+- PR #43 lazy restored-tab loading and PR #46 notification privacy/MASVS documentation integration are merged into Main.
 - PR #46 head passed Android CI, OSV Scanner, Gradle Dependency Graph and Source SBOM. Android CI included JVM tests, Gecko policy tests, static 16 KB alignment and API 35 emulator security instrumentation.
 - Next release phase is gated by protected production signing secrets, physical-device/accessibility QA, 3–4 GB performance measurements, runtime 16 KB verification, complete MASTG/data-flow review and main-branch ruleset. Do not mark these as complete without evidence.
+
+
+## 2026-11-13 CI security hardening task
+
+- PR #47 refreshed release-readiness documentation and merged as `5b32fcf67ca69f264e4e90fb6d95e8a6042b72af`.
+
+- Source review found an avoidable write-token exposure in the resolved-dependency PR workflow: PR-controlled Gradle build logic ran with `contents: write` and persisted checkout credentials.
+- PR #50 (`security/readonly-osv-pr-lockfiles-ci-2026-11-13`) carries the read-only Gradle dependency job, checkout with `persist-credentials: false`, no workflow-driven PR pushes, lockfile drift detection and lockfile artifact upload. The scanner's `security-events: write` permission is scoped to the reusable OSV scan job; the workflow default is read-only.
+- PR #50 was squash-merged to Main as `d93f598464a48351ca0440ad2cfeaa768e55d3f9` after PR-head Android CI #521, OSV scan, lockfile resolution, Source SBOM and Dependency Graph jobs succeeded. The separate `osv-scanner` check was `neutral` and is not counted as success.
+- Current Main SHA: `d93f598464a48351ca0440ad2cfeaa768e55d3f9`; post-merge Main checks were queued at the checkpoint.
+
+## Remaining release gates (unchanged)
+
+- Production signing secrets and a successful signed-release workflow with verified APK/AAB signatures and SHA-256 assets.
+- Physical Android functional/privacy QA; TalkBack, 320 dp, large-font, contrast and all-theme validation.
+- Measured startup, memory, page-load and battery results on real 3–4 GB devices.
+- Runtime 16 KB page-size verification on compatible hardware.
+- Full manual MASTG/data-flow/privacy review and documented dependency advisory triage.
+- Main branch ruleset requiring PR review and successful checks. Repository metadata reports protection disabled; this session's GitHub integration cannot mutate that policy.
 
 
 ## 2026-11-13 signed-release workflow hardening
 
 - PR #51 (`security/harden-signed-release-ci-2026-11-13`) separates the production-signing build from release publication: the owner-gated `build-and-sign` job uses `contents: read` and the `production` environment; the separate `publish` job alone receives `contents: write`. Checkout credentials are not persisted, the selected tag commit must be reachable from `main`, and verified APK/AAB plus SHA-256 assets are passed to the publisher as a short-retention artifact.
 - Before production signing is enabled, configure required reviewers and branch/tag restrictions on the GitHub Environment named `production`, and store all four signing values as `production` Environment secrets (not repository-level secrets). The workflow's environment declaration alone is not an approval policy.
-- PR checks on the earlier head passed Android build and supply-chain checks, but the latest workflow refactor requires fresh checks. A real signed build, APK/AAB signature verification and published checksum evidence remain required.
+- PR #50 is merged as `d93f598464a48351ca0440ad2cfeaa768e55d3f9`; PR #51 has been synchronized with that Main update. Fresh checks on the synchronized PR #51 head must complete before merge. A real signed build, APK/AAB signature verification and published checksum evidence remain required.
