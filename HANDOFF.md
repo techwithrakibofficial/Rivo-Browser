@@ -71,3 +71,38 @@ Updated: 2026-11-11
 - Do not distribute unsigned CI artifacts as a production release. Run `.github/workflows/signed-release.yml` only after authorized signing secrets are configured.
 
 > This handoff supersedes earlier text below claiming PR #43 or the security integration PR was still open/unmerged.
+
+
+## Session handoff — 2026-11-13
+
+### Verified repository state
+- Main SHA: `5845e1b7804ad2cb102af16acd58af4b77aec3cb`.
+- No open PRs were returned by GitHub PR search.
+- Main Android CI #510 passed on that SHA.
+- Same-SHA OSV Scanner Scheduled #31, Gradle Dependency Graph #149 and Source SBOM #195 passed.
+- Main remains unprotected; repository rulesets query returned no rulesets.
+- README was found stale (still described PR #38 as latest and an older Main SHA); this branch updates it to the PR #46/current-Main truth.
+
+### Work completed in this session
+- Re-audited current Main metadata, open PRs, recent commits, Actions runs, signed-release workflow and branch/ruleset state.
+- Prepared documentation-only release-readiness synchronization on branch `docs/release-readiness-checkpoint-2026-11-13`.
+- No application source code or release credentials were changed.
+
+### Still unfinished / blockers
+1. Configure the four protected production signing secrets in GitHub Actions; secrets are not readable/writable through this session.
+2. Run the signed-release workflow for an approved version tag and verify APK/AAB signatures and SHA-256 assets.
+3. Complete physical-device functional and privacy QA.
+4. Complete TalkBack, 320 dp, large-font, contrast and all-theme accessibility validation.
+5. Profile startup/memory/page load/battery on real 3–4 GB devices.
+6. Verify 16 KB runtime on compatible hardware.
+7. Complete manual MASTG/data-flow/privacy review and dependency advisory triage.
+8. Enable main branch ruleset/branch protection with PR review and required CI checks; no rulesets are currently present and this integration cannot write the protection endpoint.
+
+### Exact next steps
+- Review and merge this documentation PR after CI.
+- An authorized repository maintainer configures signing secrets and branch protection.
+- Run signed release workflow, then verify published release assets and checksums.
+- Execute the device test matrix and attach reproducible device/build evidence before marking release gates complete.
+
+### Evidence boundary
+Automated CI success is verified. It is not evidence of physical-device acceptance, runtime 16 KB behavior, full MASVS compliance or signed production publication.
