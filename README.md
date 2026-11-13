@@ -28,7 +28,7 @@ Rivo Browser is a free, privacy-focused Android browser designed for low- and mi
 - QR scanning requires compatible Google Play services.
 - Transfer cancellation is best-effort; pause/resume/retry are not implemented.
 - No end-user WebExtensions manager/marketplace is provided.
-- Production signing secrets are not configured/available to this session; no signed production APK/AAB is verified.
+- Production signing secrets are not accessible to this session; no signed production APK/AAB is verified.
 - Physical-device functional, accessibility and 3–4 GB RAM performance QA remain outstanding.
 - 16 KB page-size checks are static only; runtime verification on compatible hardware remains outstanding.
 - OWASP MASVS assessment is preliminary source-based gap analysis, not an independent audit or certification.
