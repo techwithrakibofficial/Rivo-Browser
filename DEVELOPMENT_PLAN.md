@@ -62,9 +62,9 @@ A release candidate is acceptable only when:
 - PR #47 refreshed release-readiness documentation and merged as `5b32fcf67ca69f264e4e90fb6d95e8a6042b72af`.
 
 - Source review found an avoidable write-token exposure in the resolved-dependency PR workflow: PR-controlled Gradle build logic ran with `contents: write` and persisted checkout credentials.
-- A least-privilege remediation is proposed on `security/readonly-osv-pr-lockfiles-2026-11-13`: read-only job permissions, checkout with `persist-credentials: false`, and lockfile drift reported to the PR author instead of workflow-driven pushes.
-- The remediation must pass PR CI and merge before it is counted as delivered.
-- Current Main at checkpoint: `5b32fcf67ca69f264e4e90fb6d95e8a6042b72af`. New Main-head Android CI was running at the time this checkpoint was written.
+- PR #50 (`security/readonly-osv-pr-lockfiles-ci-2026-11-13`) carries the read-only Gradle dependency job, checkout with `persist-credentials: false`, no workflow-driven PR pushes, lockfile drift detection and lockfile artifact upload. The scanner's `security-events: write` permission is scoped to the reusable OSV scan job; the workflow default is read-only.
+- PR-head checks were re-triggered after the final workflow permission adjustment; merge only after the new head's required checks finish successfully.
+- Current Main at checkpoint: `5b32fcf67ca69f264e4e90fb6d95e8a6042b72af`.
 
 ## Remaining release gates (unchanged)
 
