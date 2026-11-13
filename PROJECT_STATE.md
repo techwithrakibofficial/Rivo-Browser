@@ -101,15 +101,15 @@ Updated: 2026-11-13
 - No physical Android device or production signing material is available in this session; those gates remain open rather than being marked complete.
 
 
-## Authoritative CI/release security checkpoint — 2026-11-13 17:46 UTC
+## Authoritative Serial 01 completion checkpoint — 2026-11-13 18:02 UTC
 
-- Main SHA verified after PR #50 squash merge: `d93f598464a48351ca0440ad2cfeaa768e55d3f9`.
-- PR #50 is merged: https://github.com/techwithrakibofficial/Rivo-Browser/pull/50. Merge commit: `d93f598464a48351ca0440ad2cfeaa768e55d3f9`.
-- PR #50 head `f1b3212e8b68317d2a40aeb37958cb35e51312e6`: Android CI run #521 / 43474361388 succeeded, including shipping/minified build, lint, JVM and Gecko policy tests, benchmark builds, static 16 KB alignment, API 35 security instrumentation and QA artifact uploads.
-- PR #50 OSV workflow run 43474361869 succeeded: both introduced-dependency and resolved-lockfile jobs succeeded; five lockfiles (814 package entries) scanned with `No issues found`; no lockfile drift; artifact `rivo-gradle-lockfiles` uploaded. Dependency Graph run 43474361291 and Source SBOM run 43474361406 succeeded. Separate `osv-scanner` check 132054413821 was `neutral` due a configuration-not-found notice; it is not counted as success.
-- PR #51 remains open and is being synchronized with the new Main history. Its earlier checks are historical and must not be treated as final-head evidence; new-head checks must finish before merge.
-- PR #51 signing workflow: owner-gated `build-and-sign` with `contents: read` and `production` environment; only `publish` has `contents: write`; checkout credentials disabled; Main ancestry, APK/AAB signatures and transferred SHA-256 manifest are verified.
-- Production Environment required reviewers/branch restrictions and all four values as `production` Environment secrets (not repository-level secrets) remain unverified/outstanding. No production signing execution or public release is claimed.
+- Main SHA at PR #51 merge: `89d0b2beb5ccdaf6bf265fd222418a65fcba100a`.
+- PR #50 merged: https://github.com/techwithrakibofficial/Rivo-Browser/pull/50 — `d93f598464a48351ca0440ad2cfeaa768e55d3f9`.
+- PR #51 merged: https://github.com/techwithrakibofficial/Rivo-Browser/pull/51 — `89d0b2beb5ccdaf6bf265fd222418a65fcba100a`.
+- PR #51 final head `3c43a36dab28c72b8344491131a74bf51de6ae38`: Android CI run 43476946517 `success`, including shipping/minified build, lint, JVM/Gecko tests, benchmark builds, static 16 KB alignment, QA artifact uploads and API 35 security instrumentation.
+- PR #51 OSV workflow run 43476947044: introduced-dependency and resolved-lockfile jobs `success`; five lockfiles / 814 package entries, `No issues found`, lockfile drift clean, artifact uploaded. Dependency Graph 43476946531 and Source SBOM 43476946667 `success`.
+- Separate `osv-scanner` check 132063311666 was `neutral` due the scheduled scanner configuration-not-found notice; it is not counted as success.
+- Main post-PR #51 checks on merge SHA: OSV Scanner run 43478503114 `success`, Source SBOM 43478502714 `success`; Android CI 43478502506 and Dependency Graph 43478502631 were still running at this checkpoint.
+- Production Environment required reviewers/branch restrictions and all four signing values as `production` Environment secrets (not repository-level secrets) remain unverified/outstanding. No production signing execution or public release is claimed.
 - Main branch remains unprotected and repository rulesets query is empty. The connected GitHub integration cannot mutate branch protection or production Environment configuration.
-
-- Additional verified supply-chain gap: Main has no `gradle/verification-metadata.xml` or verification keyring; Gradle dependency verification is not configured. Lockfiles/OSV scans do not provide artifact checksum/signature verification. Track controlled verification-metadata bootstrap as a separate follow-up.
+- Gradle dependency verification remains unconfigured: no `gradle/verification-metadata.xml` or verification keyring exists. Lockfiles and OSV scanning do not provide artifact checksum/signature verification.

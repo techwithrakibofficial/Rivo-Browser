@@ -108,38 +108,28 @@ Updated: 2026-11-13
 Automated CI success is verified. It is not evidence of physical-device acceptance, runtime 16 KB behavior, full MASVS compliance or signed production publication.
 
 
-## Serial 01 handoff — 2026-11-13 17:46 UTC
+## Serial 01 final handoff — 2026-11-13 18:02 UTC
 
-### Verified baseline
-- Main SHA: `d93f598464a48351ca0440ad2cfeaa768e55d3f9`.
-- PR #50 merged: https://github.com/techwithrakibofficial/Rivo-Browser/pull/50 — merge commit `d93f598464a48351ca0440ad2cfeaa768e55d3f9`.
-- PR #51 remains open: https://github.com/techwithrakibofficial/Rivo-Browser/pull/51; branch is being synced with the new Main base.
+### Verified GitHub state
+- PR #50 merged to Main as `d93f598464a48351ca0440ad2cfeaa768e55d3f9`.
+- PR #51 merged to Main as `89d0b2beb5ccdaf6bf265fd222418a65fcba100a`.
+- Both PRs were merged only after their final PR-head checks completed; PR #51 final head was `3c43a36dab28c72b8344491131a74bf51de6ae38`.
 
-### PR #50 completed and tested
-- Android CI #521 / run 43474361388: `success` (shipping/minified build, lint, JVM tests, Gecko policy tests, benchmark builds, static 16 KB alignment, API 35 security instrumentation and artifact uploads).
-- OSV Scanner PR run 43474361869: resolved lockfile and introduced-dependency scan jobs `success`; 814 package entries across five lockfiles, `No issues found`, no lockfile drift, lockfile artifact uploaded.
-- Dependency Graph 43474361291 and Source SBOM 43474361406: `success`.
-- Separate `osv-scanner` check 132054413821: `neutral` due configuration-not-found notice; explicitly not counted as success.
-
-### PR #51 release workflow controls
-- Build/sign job uses `contents: read`, owner-only execution and `production` environment.
-- Only publisher job has `contents: write`; checkout uses `persist-credentials: false`.
-- Release tag must match version format and point to a commit reachable from Main.
-- APK/AAB signatures are verified; SHA-256 manifest is generated, transferred and re-verified; publishing requires an existing tag.
-- YAML parse, seven `bash -n` run-script syntax checks and workflow policy assertions passed locally. Actionlint was not available in the isolated environment.
+### Final PR #51 verification
+- Android CI run 43476946517: `success` (shipping/minified build, lint, JVM tests, Gecko policy tests, benchmark builds, static 16 KB alignment, QA artifacts and API 35 security instrumentation).
+- OSV Scanner PR run 43476947044: both jobs `success`; 814 package entries across five lockfiles, `No issues found`, lockfile drift clean and lockfile artifact uploaded.
+- Dependency Graph run 43476946531 and Source SBOM run 43476946667: `success`.
+- Separate `osv-scanner` check 132063311666: `neutral` due scheduled-workflow configuration-not-found notice; not counted as success.
+- Signed-release YAML parsed successfully; seven shell `run` scripts passed `bash -n`; policy assertions confirmed default read-only permissions and publishing-only write permission. Actionlint was not available; no production workflow run was attempted.
 
 ### Owner/admin blockers
-- Configure `production` required reviewers (prevent self-review), allowed branch/tag restrictions and all four signing values as Environment secrets on `production` (not repository-level secrets): `RIVO_UPLOAD_KEYSTORE_BASE64`, `RIVO_UPLOAD_STORE_PASSWORD`, `RIVO_UPLOAD_KEY_ALIAS`, `RIVO_UPLOAD_KEY_PASSWORD`.
-- Main remains unprotected; no repository rulesets are configured. The connected GitHub integration cannot write these governance settings.
-- No production signing run, signed public APK/AAB release, physical-device QA, 3–4 GB profiling or runtime 16 KB validation is claimed.
+1. Configure GitHub Environment `production` required reviewers (prevent self-review) and restrict deployment refs/tags.
+2. Store all four signing values as `production` Environment secrets, not repository-level secrets: `RIVO_UPLOAD_KEYSTORE_BASE64`, `RIVO_UPLOAD_STORE_PASSWORD`, `RIVO_UPLOAD_KEY_ALIAS`, `RIVO_UPLOAD_KEY_PASSWORD`.
+3. Configure Main branch protection/ruleset requiring PR review and relevant checks; Main remains unprotected.
+4. Add Gradle dependency verification metadata in a separately reviewed change; `gradle/verification-metadata.xml` and keyring are absent.
+5. Run and verify an actual signed APK/AAB production release after owner configuration.
 
-### Exact next steps
-1. Verify the synchronized PR #51 head SHA and all fresh checks.
-2. Merge PR #51 only when its latest checks are complete and safe.
-3. Recheck Main CI and security workflows after merge.
-4. Owner/admin configures production environment protections and secrets, then run and independently verify the signed release.
-
-
-### Additional supply-chain follow-up
-- Gradle dependency verification is not configured: Main lacks `gradle/verification-metadata.xml` and `gradle/verification-keyring.keys`.
-- A separate controlled change must bootstrap/review SHA-256 verification metadata and rerun Gradle tasks with verification enabled. Lockfiles and OSV scanning do not replace artifact checksum/signature verification.
+### Remaining release acceptance
+- No signed production APK/AAB or GitHub Release was produced.
+- Physical-device privacy/function QA, TalkBack/accessibility, 3–4 GB profiling, runtime 16 KB verification and full MASTG/data-flow review remain open.
+- No claim of full assignment completion beyond the two PRs' implemented and verified CI changes.

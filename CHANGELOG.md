@@ -64,3 +64,11 @@ See Git history for prior Tab Universe, storage hardening, browser navigation, t
 - The separate `osv-scanner` status was `neutral` due a configuration-not-found notice and is not reported as success.
 - PR #51 remains open and is synchronized with the new Main base; its final checks must complete before merge.
 - Production Environment reviewers, Environment-scoped signing secrets, branch protection, physical-device acceptance and a real signed release remain outstanding.
+
+
+## 2026-11-13 — PR #51 merged (Serial 01)
+- Squash-merged PR #51 to Main as `89d0b2beb5ccdaf6bf265fd222418a65fcba100a`; PR #50 had already merged as `d93f598464a48351ca0440ad2cfeaa768e55d3f9`.
+- Final PR #51 Android CI, OSV introduced/resolved scans, Dependency Graph and Source SBOM succeeded. OSV scanned 814 package entries with no issues; lockfile drift was clean and the artifact was uploaded.
+- The separate `osv-scanner` check was `neutral` due scheduled-workflow configuration-not-found; it is not reported as success.
+- Main post-merge OSV Scanner and Source SBOM succeeded; Android CI and Dependency Graph were running at the checkpoint.
+- Production Environment reviewers/secrets, branch protection, Gradle dependency verification, physical-device QA and an actual signed release remain outstanding.

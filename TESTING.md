@@ -75,12 +75,21 @@ Record device model, Android/API level, build SHA, test case, steps, expected re
 - PR #50 Dependency Graph run 43474361291 and Source SBOM run 43474361406: `success`.
 - Check `osv-scanner` run 132054413821 concluded `neutral` with a configuration-not-found notice referencing the scheduled scanner workflow. It is recorded as neutral, not success; the actual PR OSV scan jobs succeeded.
 - PR #50 squash-merged to Main as `d93f598464a48351ca0440ad2cfeaa768e55d3f9`. Main post-merge CI and supply-chain runs were queued at the time of this checkpoint; verify their final conclusions.
-- PR #51 is being synchronized with the new Main commit. Earlier PR #51 checks are not evidence for the synchronized head; wait for fresh Android CI, OSV, dependency graph and SBOM results.
+- PR #51 final head `3c43a36dab28c72b8344491131a74bf51de6ae38` passed Android CI run 43476946517, OSV jobs 43476947044, Dependency Graph 43476946531 and Source SBOM 43476946667; PR #51 merged as `89d0b2beb5ccdaf6bf265fd222418a65fcba100a`.
 - Signed-release workflow static checks: PyYAML parsed the workflow successfully; `bash -n` passed for all seven `run` scripts; assertions confirmed default `contents: read`, signing job `contents: read` + `production`, and publishing-only `contents: write`. Actionlint was not installed/run; no production workflow execution was attempted.
-- No production signing secrets, signed release, published APK/AAB, or production Environment reviewer configuration is evidenced. All four signing values must be `production` Environment secrets to be protected by Environment reviewers.
+- Main post-PR #51 OSV Scanner run 43478503114 and Source SBOM run 43478502714 succeeded; Android CI 43478502506 and Dependency Graph 43478502631 were in progress at the checkpoint. No production signing secrets, signed release, published APK/AAB, or production Environment reviewer configuration is evidenced. All four signing values must be `production` Environment secrets to be protected by Environment reviewers.
 
 
 ## Gradle dependency verification — not configured
 - Inspected Main SHA `d93f598464a48351ca0440ad2cfeaa768e55d3f9`: `gradle/verification-metadata.xml` and `gradle/verification-keyring.keys` are absent.
 - Gradle dependency verification is not enabled, so no checksum/signature verification test can be reported as passed. Existing lockfile resolution and OSV scans are separate controls.
 - Follow-up: bootstrap SHA-256 verification metadata from reviewed dependency artifacts, review the generated trust entries, commit the metadata, then rerun all Gradle tasks with verification enabled.
+
+
+## 2026-11-13 — PR #51 final verification
+- PR #51 final head `3c43a36dab28c72b8344491131a74bf51de6ae38`: Android CI 43476946517 `success`; includes API 35 Android security instrumentation and all QA artifact uploads.
+- OSV Scanner PR 43476947044: introduced-dependency and resolved-lockfile jobs `success`; 814 package entries scanned, `No issues found`, lockfile drift check passed and artifact uploaded.
+- Dependency Graph 43476946531 and Source SBOM 43476946667: `success`.
+- Separate check `osv-scanner` 132063311666: `neutral` because the scheduled workflow configuration was not found in the PR Code Scanning comparison. It is not counted as success.
+- PR #51 merged as `89d0b2beb5ccdaf6bf265fd222418a65fcba100a`.
+- Static signed-release checks: PyYAML parse, seven `bash -n` scripts and permission-policy assertions passed. Actionlint and a real production signing execution were not run.
