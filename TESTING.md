@@ -10,7 +10,7 @@ Updated: 2026-11-13
 - Unsigned QA artifacts are not production release artifacts.
 - The signed-release workflow is not validated until a real signed build completes and GitHub Release assets are verified.
 
-## Main-head automated CI evidence
+## Historical Main-head automated CI evidence — 2026-11-10
 - Main source SHA: `ca8eddb2b0ce7f8252c639805f4227c6aeb938d1`.
 - Android CI run [#42763857175](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42763857175) completed with conclusion `success`.
 - Passed steps: shipping assemble, Android lint, unit tests, Gecko engine policy tests, GeckoView and WebView benchmark builds, minified shipping release bundle, native library/APK static 16 KB alignment, artifact-size report, QA artifact uploads and API 35 Android security instrumentation.
