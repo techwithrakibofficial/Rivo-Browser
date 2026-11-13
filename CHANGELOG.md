@@ -56,3 +56,11 @@ See Git history for prior Tab Universe, storage hardening, browser navigation, t
 - PR #51 separates production signing/build from publication; only the publishing job receives `contents: write`. The signing job is owner-gated, uses the `production` environment, verifies Main ancestry and APK/AAB signatures, and prepares SHA-256 checksums.
 - Main Android CI #513 succeeded on `5b32fcf67ca69f264e4e90fb6d95e8a6042b72af`. Earlier PR heads passed relevant Android/supply-chain checks; one OSV status was `neutral`, and latest amended heads require fresh CI.
 - No production signing secrets, signed release, or APK/AAB publication is claimed. Environment reviewer policy, production Environment-scoped secret configuration (not repository-level secrets), branch protection and physical-device QA remain release gates.
+
+
+## 2026-11-13 — PR #50 merged; PR #51 synchronized
+- Squash-merged PR #50 to Main as `d93f598464a48351ca0440ad2cfeaa768e55d3f9`.
+- Verified PR #50 Android CI #521, OSV introduced/resolved dependency scans, Dependency Graph and Source SBOM succeeded. Five lockfiles (814 package entries) reported no OSV issues; lockfile drift check and artifact upload succeeded.
+- The separate `osv-scanner` status was `neutral` due a configuration-not-found notice and is not reported as success.
+- PR #51 remains open and is synchronized with the new Main base; its final checks must complete before merge.
+- Production Environment reviewers, Environment-scoped signing secrets, branch protection, physical-device acceptance and a real signed release remain outstanding.
