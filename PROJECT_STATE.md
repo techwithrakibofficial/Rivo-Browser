@@ -86,3 +86,16 @@ Updated: 2026-11-11
 - Release remains blocked by unavailable production signing secrets, physical-device/accessibility QA, low-RAM profiling, runtime 16 KB verification, full MASTG/data-flow review and disabled branch protection. `SECURITY_ASSESSMENT.md` is preliminary source analysis, not certification.
 
 > This checkpoint supersedes earlier dated statements in this file that PR #43 was unmerged or that the consolidated security branch was awaiting merge.
+
+
+## Authoritative checkpoint — 2026-11-13
+
+- Latest Main SHA verified from GitHub branch metadata: `5845e1b7804ad2cb102af16acd58af4b77aec3cb`.
+- The intervening Main commits after PR #46 are documentation synchronization commits; the latest Main tree still contains the PR #46 integration and previously integrated browser features.
+- Main Android CI run #510 completed successfully on this exact SHA: https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/43026650020.
+- Same-SHA supply-chain workflows succeeded: OSV Scanner Scheduled #31 (https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/43026650746), Gradle Dependency Graph #149 (https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/43026649998), and Source SBOM #195 (https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/43026650015).
+- Repository PR search returned no open PRs at this checkpoint. Earlier stale PR status text is historical only.
+- Main branch metadata reports `protected=false`; repository rulesets query returned an empty list. Branch-protection details endpoint returned 403 to this integration, so no protection mutation or complete detailed policy inspection is claimed.
+- Signed-release workflow is present. It requires four protected Actions secrets: `RIVO_UPLOAD_KEYSTORE_BASE64`, `RIVO_UPLOAD_STORE_PASSWORD`, `RIVO_UPLOAD_KEY_ALIAS`, and `RIVO_UPLOAD_KEY_PASSWORD`. This session cannot read or configure repository secrets. Do not create a production release until an authorized maintainer configures them and verifies the signed artifacts.
+- Remaining non-CI gates: physical-device functional and accessibility QA, 3–4 GB profiling, runtime 16 KB verification, full MASTG/data-flow review, dependency advisory triage, branch protection and signed release verification.
+- No physical Android device or production signing material is available in this session; those gates remain open rather than being marked complete.
