@@ -72,3 +72,15 @@ See Git history for prior Tab Universe, storage hardening, browser navigation, t
 - The separate `osv-scanner` check was `neutral` due scheduled-workflow configuration-not-found; it is not reported as success.
 - Main post-merge OSV Scanner and Source SBOM succeeded; Android CI and Dependency Graph were running at the checkpoint.
 - Production Environment reviewers/secrets, branch protection, Gradle dependency verification, physical-device QA and an actual signed release remain outstanding.
+
+
+## Serial 01 post-merge verification — 2026-11-13 18:21 UTC
+
+- Current Main SHA at verification: `528a914db56c75c19ca1c4e03d919ee42b355580`.
+- PR #50 is merged: `d93f598464a48351ca0440ad2cfeaa768e55d3f9`. PR #51 is merged: `89d0b2beb5ccdaf6bf265fd222418a65fcba100a`.
+- Main commit check-runs on `528a914`: Android `build`, OSV `Scan known dependency vulnerabilities / osv-scan`, `dependency-graph`, and `Generate source SBOM` all completed with conclusion `success`. These are the four reported check-runs; no pending, failed, neutral or skipped conclusion was present in this check-run set.
+- Main branch metadata reports `protected=false`; branch protection is disabled. The available GitHub integration cannot configure branch rules or Environment protection.
+- No GitHub Releases exist at verification time. The signed-release workflow is present, but no production signing run, signed APK/AAB, checksum release assets, or published release is evidenced.
+- Production Environment reviewer policy, deployment ref restrictions, and presence of all four secrets specifically in the `production` Environment could not be verified with the available integration. Owner/admin must configure and verify these controls before production signing.
+- Gradle artifact dependency verification remains unconfigured: `gradle/verification-metadata.xml` and a verification keyring are absent. Lockfiles and OSV scans are separate controls.
+- This checkpoint updates CI state only; it does not close physical-device QA, accessibility, 3–4 GB performance profiling, runtime 16 KB validation, or the full MASVS/MASTG review.
