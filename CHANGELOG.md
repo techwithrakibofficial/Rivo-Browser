@@ -49,3 +49,18 @@ See Git history for prior Tab Universe, storage hardening, browser navigation, t
 - All PR-head CI workflows passed: Android CI, OSV Scanner PR, Gradle Dependency Graph and Source SBOM. Android CI included lint, JVM tests, Gecko policy tests, static 16 KB checks and API 35 emulator security instrumentation.
 - Uploaded ARM64/ARMv7 debug APKs and unsigned QA AAB; these are not production-signed releases.
 - Post-merge Main workflows were still running at the time of this entry. Production signing, physical-device QA, low-RAM profiling, runtime 16 KB verification and branch protection remain open.
+
+
+## 2026-11-13 — Security CI and signed-release workflow hardening (Serial 01)
+- PR #50 hardens OSV PR scanning: Gradle dependency resolution is read-only, checkout credentials are not persisted, workflow pushes are removed, lockfile drift is surfaced, and resolved lockfiles are uploaded. OSV SARIF write access is scoped to the reusable scanner job.
+- PR #51 separates production signing/build from publication; only the publishing job receives `contents: write`. The signing job is owner-gated, uses the `production` environment, verifies Main ancestry and APK/AAB signatures, and prepares SHA-256 checksums.
+- Main Android CI #513 succeeded on `5b32fcf67ca69f264e4e90fb6d95e8a6042b72af`. Earlier PR heads passed relevant Android/supply-chain checks; one OSV status was `neutral`, and latest amended heads require fresh CI.
+- No production signing secrets, signed release, or APK/AAB publication is claimed. Environment reviewer policy, production Environment-scoped secret configuration (not repository-level secrets), branch protection and physical-device QA remain release gates.
+
+
+## 2026-11-13 — PR #50 merged; PR #51 synchronized
+- Squash-merged PR #50 to Main as `d93f598464a48351ca0440ad2cfeaa768e55d3f9`.
+- Verified PR #50 Android CI #521, OSV introduced/resolved dependency scans, Dependency Graph and Source SBOM succeeded. Five lockfiles (814 package entries) reported no OSV issues; lockfile drift check and artifact upload succeeded.
+- The separate `osv-scanner` status was `neutral` due a configuration-not-found notice and is not reported as success.
+- PR #51 remains open and is synchronized with the new Main base; its final checks must complete before merge.
+- Production Environment reviewers, Environment-scoped signing secrets, branch protection, physical-device acceptance and a real signed release remain outstanding.

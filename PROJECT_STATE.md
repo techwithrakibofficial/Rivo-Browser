@@ -1,11 +1,11 @@
 # Rivo Browser — Project State
 
-Updated: 2026-11-11
+Updated: 2026-11-13
 
 ## Source of truth
 - Repository: https://github.com/techwithrakibofficial/Rivo-Browser
 - Canonical branch: `main`
-- Latest Main CI head: `45611c3a42ae14f82089f8ba49c5840a9548a0b6` (Android CI #485 succeeded).
+- Latest verified Main SHA at this checkpoint: `5b32fcf67ca69f264e4e90fb6d95e8a6042b72af` (Android CI #513 succeeded; see authoritative Nov 13 checkpoint below).
 - Phase 2 integration: PR #38 merged; PR #40 merged signed-release workflow.
 
 ## Implemented in Main source
@@ -99,3 +99,17 @@ Updated: 2026-11-11
 - Signed-release workflow is present. It requires four protected Actions secrets: `RIVO_UPLOAD_KEYSTORE_BASE64`, `RIVO_UPLOAD_STORE_PASSWORD`, `RIVO_UPLOAD_KEY_ALIAS`, and `RIVO_UPLOAD_KEY_PASSWORD`. This session cannot read or configure repository secrets. Do not create a production release until an authorized maintainer configures them and verifies the signed artifacts.
 - Remaining non-CI gates: physical-device functional and accessibility QA, 3–4 GB profiling, runtime 16 KB verification, full MASTG/data-flow review, dependency advisory triage, branch protection and signed release verification.
 - No physical Android device or production signing material is available in this session; those gates remain open rather than being marked complete.
+
+
+## Authoritative CI/release security checkpoint — 2026-11-13 17:46 UTC
+
+- Main SHA verified after PR #50 squash merge: `d93f598464a48351ca0440ad2cfeaa768e55d3f9`.
+- PR #50 is merged: https://github.com/techwithrakibofficial/Rivo-Browser/pull/50. Merge commit: `d93f598464a48351ca0440ad2cfeaa768e55d3f9`.
+- PR #50 head `f1b3212e8b68317d2a40aeb37958cb35e51312e6`: Android CI run #521 / 43474361388 succeeded, including shipping/minified build, lint, JVM and Gecko policy tests, benchmark builds, static 16 KB alignment, API 35 security instrumentation and QA artifact uploads.
+- PR #50 OSV workflow run 43474361869 succeeded: both introduced-dependency and resolved-lockfile jobs succeeded; five lockfiles (814 package entries) scanned with `No issues found`; no lockfile drift; artifact `rivo-gradle-lockfiles` uploaded. Dependency Graph run 43474361291 and Source SBOM run 43474361406 succeeded. Separate `osv-scanner` check 132054413821 was `neutral` due a configuration-not-found notice; it is not counted as success.
+- PR #51 remains open and is being synchronized with the new Main history. Its earlier checks are historical and must not be treated as final-head evidence; new-head checks must finish before merge.
+- PR #51 signing workflow: owner-gated `build-and-sign` with `contents: read` and `production` environment; only `publish` has `contents: write`; checkout credentials disabled; Main ancestry, APK/AAB signatures and transferred SHA-256 manifest are verified.
+- Production Environment required reviewers/branch restrictions and all four values as `production` Environment secrets (not repository-level secrets) remain unverified/outstanding. No production signing execution or public release is claimed.
+- Main branch remains unprotected and repository rulesets query is empty. The connected GitHub integration cannot mutate branch protection or production Environment configuration.
+
+- Additional verified supply-chain gap: Main has no `gradle/verification-metadata.xml` or verification keyring; Gradle dependency verification is not configured. Lockfiles/OSV scans do not provide artifact checksum/signature verification. Track controlled verification-metadata bootstrap as a separate follow-up.

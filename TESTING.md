@@ -1,6 +1,6 @@
 # Rivo Browser — Testing and Evidence
 
-Updated: 2026-11-11
+Updated: 2026-11-13
 
 ## Evidence levels
 - Source review is not a test.
@@ -10,7 +10,7 @@ Updated: 2026-11-11
 - Unsigned QA artifacts are not production release artifacts.
 - The signed-release workflow is not validated until a real signed build completes and GitHub Release assets are verified.
 
-## Main-head automated CI evidence
+## Historical Main-head automated CI evidence — 2026-11-10
 - Main source SHA: `ca8eddb2b0ce7f8252c639805f4227c6aeb938d1`.
 - Android CI run [#42763857175](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/42763857175) completed with conclusion `success`.
 - Passed steps: shipping assemble, Android lint, unit tests, Gecko engine policy tests, GeckoView and WebView benchmark builds, minified shipping release bundle, native library/APK static 16 KB alignment, artifact-size report, QA artifact uploads and API 35 Android security instrumentation.
@@ -56,3 +56,31 @@ Record device model, Android/API level, build SHA, test case, steps, expected re
 - QA artifact IDs from Android CI: ARM64 debug APK `13857117441`; ARMv7 debug APK `13857660007`; unsigned shipping QA AAB `13857067490`; Android test reports `13855974581`; Gecko benchmark `13857132203`; WebView benchmark `13856148877`. Artifacts are temporary QA outputs, not signed production deliverables.
 - Post-merge workflows for Main SHA `b50350a241908fb1f38d2920b7a358451cb436f7` were still running when this entry was recorded. Recheck Actions for final Main-head conclusions.
 - Static 16 KB alignment and API 35 emulator instrumentation are verified; runtime 16 KB behavior and physical-device acceptance are not.
+
+
+## 2026-11-13 Serial 01 PR validation evidence
+
+- Main SHA `5b32fcf67ca69f264e4e90fb6d95e8a6042b72af`; Android CI run #513 (run ID 43470442172) completed with conclusion `success`.
+- PR #50 earlier head `c0f90cd9c9538e26a016db488339c11583700b7d`: Android build, resolved Gradle lockfile/OSV, reusable OSV scan, dependency graph and source SBOM jobs completed successfully. The separate `osv-scanner` check concluded `neutral`; it is recorded as neutral, not success.
+- PR #51 earlier head `e6ba664c0b115e9213fe57cd33cbda2a875780ec`: Android build, OSV, dependency graph and source SBOM jobs completed successfully. A separate OSV check on the later associated run concluded `neutral`.
+- These are historical results for the exact listed heads. Subsequent workflow/documentation commits invalidate them as evidence for the latest PR heads; fresh checks must complete before merge.
+- No signed-release workflow execution, APK/AAB signature proof from production credentials, published release, or production Environment reviewer configuration is evidenced by these checks. For reviewer gating to protect signing credentials, all four signing values must be configured as `production` Environment secrets, not repository-level secrets.
+- GitHub workflow-run checks validate CI only. YAML/security semantics must still be reviewed; physical-device and hardware tests remain separate release gates.
+
+
+## 2026-11-13 — PR #50 final merge evidence and PR #51 refresh
+
+- PR #50 head `f1b3212e8b68317d2a40aeb37958cb35e51312e6` Android CI run #521 / 43474361388: `success`. Passed shipping assemble, lint, app unit tests, Gecko policy unit tests, benchmark debug/release builds, minified shipping bundle, static APK/native library 16 KB alignment, artifact size report, QA artifact uploads, KVM setup and API 35 Android security instrumentation.
+- PR #50 OSV workflow run 43474361869: both introduced-dependency and resolved-Gradle-lockfile jobs `success`; scanned app (310), engine-gecko (152), engine-benchmark (150), engine-api (101), engine-webview (101) = 814 package entries; OSV output `No issues found`; lockfile drift check passed; artifact `rivo-gradle-lockfiles` uploaded (artifact ID 14062770541).
+- PR #50 Dependency Graph run 43474361291 and Source SBOM run 43474361406: `success`.
+- Check `osv-scanner` run 132054413821 concluded `neutral` with a configuration-not-found notice referencing the scheduled scanner workflow. It is recorded as neutral, not success; the actual PR OSV scan jobs succeeded.
+- PR #50 squash-merged to Main as `d93f598464a48351ca0440ad2cfeaa768e55d3f9`. Main post-merge CI and supply-chain runs were queued at the time of this checkpoint; verify their final conclusions.
+- PR #51 is being synchronized with the new Main commit. Earlier PR #51 checks are not evidence for the synchronized head; wait for fresh Android CI, OSV, dependency graph and SBOM results.
+- Signed-release workflow static checks: PyYAML parsed the workflow successfully; `bash -n` passed for all seven `run` scripts; assertions confirmed default `contents: read`, signing job `contents: read` + `production`, and publishing-only `contents: write`. Actionlint was not installed/run; no production workflow execution was attempted.
+- No production signing secrets, signed release, published APK/AAB, or production Environment reviewer configuration is evidenced. All four signing values must be `production` Environment secrets to be protected by Environment reviewers.
+
+
+## Gradle dependency verification — not configured
+- Inspected Main SHA `d93f598464a48351ca0440ad2cfeaa768e55d3f9`: `gradle/verification-metadata.xml` and `gradle/verification-keyring.keys` are absent.
+- Gradle dependency verification is not enabled, so no checksum/signature verification test can be reported as passed. Existing lockfile resolution and OSV scans are separate controls.
+- Follow-up: bootstrap SHA-256 verification metadata from reviewed dependency artifacts, review the generated trust entries, commit the metadata, then rerun all Gradle tasks with verification enabled.
