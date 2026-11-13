@@ -81,3 +81,8 @@ A release candidate is acceptable only when:
 - PR #51 (`security/harden-signed-release-ci-2026-11-13`) separates the production-signing build from release publication: the owner-gated `build-and-sign` job uses `contents: read` and the `production` environment; the separate `publish` job alone receives `contents: write`. Checkout credentials are not persisted, the selected tag commit must be reachable from `main`, and verified APK/AAB plus SHA-256 assets are passed to the publisher as a short-retention artifact.
 - Before production signing is enabled, configure required reviewers and branch/tag restrictions on the GitHub Environment named `production`, and store all four signing values as `production` Environment secrets (not repository-level secrets). The workflow's environment declaration alone is not an approval policy.
 - PR #50 is merged as `d93f598464a48351ca0440ad2cfeaa768e55d3f9`; PR #51 has been synchronized with that Main update. Fresh checks on the synchronized PR #51 head must complete before merge. A real signed build, APK/AAB signature verification and published checksum evidence remain required.
+
+
+## Remaining supply-chain hardening — Gradle dependency verification
+- `gradle/verification-metadata.xml` and a verification keyring are absent on Main SHA `d93f598464a48351ca0440ad2cfeaa768e55d3f9`; Gradle artifact checksum/signature verification is not configured.
+- Treat this as an explicit follow-up: bootstrap and review SHA-256 verification metadata in a dedicated change, then validate all Android modules with dependency verification enabled. Do not equate dependency lockfiles or OSV scans with artifact verification.
