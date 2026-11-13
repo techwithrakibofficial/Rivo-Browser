@@ -138,3 +138,8 @@ Automated CI success is verified. It is not evidence of physical-device acceptan
 2. Merge PR #51 only when its latest checks are complete and safe.
 3. Recheck Main CI and security workflows after merge.
 4. Owner/admin configures production environment protections and secrets, then run and independently verify the signed release.
+
+
+### Additional supply-chain follow-up
+- Gradle dependency verification is not configured: Main lacks `gradle/verification-metadata.xml` and `gradle/verification-keyring.keys`.
+- A separate controlled change must bootstrap/review SHA-256 verification metadata and rerun Gradle tasks with verification enabled. Lockfiles and OSV scanning do not replace artifact checksum/signature verification.
