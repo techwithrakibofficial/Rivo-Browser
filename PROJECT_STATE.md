@@ -111,3 +111,5 @@ Updated: 2026-11-13
 - PR #51 signing workflow: owner-gated `build-and-sign` with `contents: read` and `production` environment; only `publish` has `contents: write`; checkout credentials disabled; Main ancestry, APK/AAB signatures and transferred SHA-256 manifest are verified.
 - Production Environment required reviewers/branch restrictions and all four values as `production` Environment secrets (not repository-level secrets) remain unverified/outstanding. No production signing execution or public release is claimed.
 - Main branch remains unprotected and repository rulesets query is empty. The connected GitHub integration cannot mutate branch protection or production Environment configuration.
+
+- Additional verified supply-chain gap: Main has no `gradle/verification-metadata.xml` or verification keyring; Gradle dependency verification is not configured. Lockfiles/OSV scans do not provide artifact checksum/signature verification. Track controlled verification-metadata bootstrap as a separate follow-up.
