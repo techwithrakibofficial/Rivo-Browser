@@ -55,3 +55,10 @@ A release candidate is acceptable only when:
 - PR #43 lazy restored-tab loading and PR #46 notification privacy/MASVS documentation integration are merged into Main (`b50350a241908fb1f38d2920b7a358451cb436f7`).
 - PR #46 head passed Android CI, OSV Scanner, Gradle Dependency Graph and Source SBOM. Android CI included JVM tests, Gecko policy tests, static 16 KB alignment and API 35 emulator security instrumentation.
 - Next release phase is gated by protected production signing secrets, physical-device/accessibility QA, 3–4 GB performance measurements, runtime 16 KB verification, complete MASTG/data-flow review and main-branch ruleset. Do not mark these as complete without evidence.
+
+
+## 2026-11-13 signed-release workflow hardening
+
+- A separate proposed change on `security/harden-signed-release-gate-2026-11-13` scopes write permission to the publishing job, restricts signing to the repository owner, disables persisted checkout credentials, and checks that the selected release commit is reachable from Main.
+- Before production signing is enabled, configure required reviewers on the GitHub Environment named `production`. The workflow's environment declaration alone is not an approval policy.
+- This is a pending hardening change, not a completed release gate. A signed build, APK/AAB signature verification and published checksum evidence remain required.
