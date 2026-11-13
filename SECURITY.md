@@ -61,3 +61,11 @@ OWASP MASVS is the assessment baseline. This document is not an independent secu
 - PR-head OSV Scanner, dependency graph, Source SBOM and Android CI all passed. Android CI includes API 35 emulator instrumentation and static 16 KB alignment checks; neither is a full penetration test or runtime 16 KB hardware proof.
 - `SECURITY_ASSESSMENT.md` is a preliminary source/configuration MASVS gap register only. No independent penetration test, certification or complete MASTG review is claimed.
 - Production signing credentials, physical-device QA, full data-flow review and branch protection remain unresolved.
+
+
+## Signed-release workflow hardening proposal — 2026-11-13
+
+- The signed-release workflow previously granted repository-wide `contents: write` and persisted checkout credentials while executing the Gradle build with production signing material in its environment.
+- Proposed hardening on `security/harden-signed-release-gate-2026-11-13`: scope `contents: write` to the publishing job, restrict execution to the repository owner, use a `production` GitHub Environment, disable checkout credential persistence, and refuse to sign a tag whose commit is not reachable from `main`.
+- A repository administrator must configure required reviewers on the `production` environment before using the workflow. Merely naming an environment does not itself create an approval gate.
+- This proposal remains pending PR review and CI; no production signing run or release is claimed.
