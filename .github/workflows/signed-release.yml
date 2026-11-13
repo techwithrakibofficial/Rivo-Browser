@@ -167,6 +167,7 @@ jobs:
           set -euo pipefail
           test -n "$RELEASE_TAG"
           test -s dist/SHA256SUMS
+          (cd dist && sha256sum -c SHA256SUMS)
           gh release create "$RELEASE_TAG" dist/* \
             --verify-tag \
             --title "Rivo Browser $RELEASE_TAG" \
