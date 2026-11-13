@@ -1,6 +1,6 @@
 # Rivo Browser — Handoff
 
-Updated: 2026-11-11
+Updated: 2026-11-13
 
 ## Repository checkpoint
 - Canonical repository: https://github.com/techwithrakibofficial/Rivo-Browser
@@ -106,3 +106,29 @@ Updated: 2026-11-11
 
 ### Evidence boundary
 Automated CI success is verified. It is not evidence of physical-device acceptance, runtime 16 KB behavior, full MASVS compliance or signed production publication.
+
+
+## Serial 01 handoff — 2026-11-13 17:34 UTC
+
+### Verified baseline
+- Main SHA: `5b32fcf67ca69f264e4e90fb6d95e8a6042b72af`; Main Android CI run #513 / 43470442172 succeeded.
+- PR #50: https://github.com/techwithrakibofficial/Rivo-Browser/pull/50
+- PR #51: https://github.com/techwithrakibofficial/Rivo-Browser/pull/51
+- Both PRs were open and mergeable at inspection; no merge was performed.
+
+### Changes prepared on the PR branches
+- PR #50: scoped `security-events: write` to the OSV reusable scan job; the workflow default and Gradle resolution job remain read-only. Checkout credentials are not persisted; the workflow does not push; lockfile drift and artifacts are handled explicitly.
+- PR #51: split signed build and publication so only the publisher has `contents: write`; signing uses `contents: read`, owner-only execution and the `production` environment. Added tag format validation, Main ancestry verification, signature checks, SHA-256 manifest and verified-artifact handoff.
+
+### Checks and blockers
+- Earlier PR heads had Android build, OSV scan, dependency graph and SBOM successes. One OSV check was `neutral`, not success.
+- Final commits changed after those checks; wait for and inspect new-head checks before merging.
+- Owner/admin must configure production environment reviewers (prevent self-review), allowed branch/tag policy, and four protected signing secrets. Secret values must never be exposed.
+- Main remains unprotected; the connected integration does not expose branch-protection/environment mutation. No signed production run, APK/AAB release, or physical-device QA is claimed.
+
+### Exact next steps
+1. Verify final PR #50/#51 head SHAs and every latest check/job result.
+2. Fix any failing or pending checks; merge #50 only when safe.
+3. Rebase/update #51 against the new Main, rerun checks, then merge only when safe.
+4. Recheck Main CI and all security workflows after each merge.
+5. Owner/admin configures production environment protections and signing secrets; run and independently verify a signed release.
