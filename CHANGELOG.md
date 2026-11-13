@@ -49,3 +49,10 @@ See Git history for prior Tab Universe, storage hardening, browser navigation, t
 - All PR-head CI workflows passed: Android CI, OSV Scanner PR, Gradle Dependency Graph and Source SBOM. Android CI included lint, JVM tests, Gecko policy tests, static 16 KB checks and API 35 emulator security instrumentation.
 - Uploaded ARM64/ARMv7 debug APKs and unsigned QA AAB; these are not production-signed releases.
 - Post-merge Main workflows were still running at the time of this entry. Production signing, physical-device QA, low-RAM profiling, runtime 16 KB verification and branch protection remain open.
+
+
+## 2026-11-13 — Security CI and signed-release workflow hardening (Serial 01)
+- PR #50 hardens OSV PR scanning: Gradle dependency resolution is read-only, checkout credentials are not persisted, workflow pushes are removed, lockfile drift is surfaced, and resolved lockfiles are uploaded. OSV SARIF write access is scoped to the reusable scanner job.
+- PR #51 separates production signing/build from publication; only the publishing job receives `contents: write`. The signing job is owner-gated, uses the `production` environment, verifies Main ancestry and APK/AAB signatures, and prepares SHA-256 checksums.
+- Main Android CI #513 succeeded on `5b32fcf67ca69f264e4e90fb6d95e8a6042b72af`. Earlier PR heads passed relevant Android/supply-chain checks; one OSV status was `neutral`, and latest amended heads require fresh CI.
+- No production signing secrets, signed release, or APK/AAB publication is claimed. Environment reviewer policy, secret configuration, branch protection and physical-device QA remain release gates.
