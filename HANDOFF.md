@@ -1,6 +1,6 @@
 # Rivo Browser — Handoff
 
-Updated: 2026-11-13
+Updated: 2026-11-16
 
 ## Repository checkpoint
 - Canonical repository: https://github.com/techwithrakibofficial/Rivo-Browser
@@ -164,3 +164,26 @@ Automated CI success is verified. It is not evidence of physical-device acceptan
 - GitHub PR search returned no open pull requests at this verification.
 - No GitHub Releases are published (releases API returned an empty list). No signed APK/AAB or public APK download URL is available from this verification.
 - These results close the PR #54 documentation/CI synchronization task only. Production signing/secrets and Environment approval, physical-device and accessibility QA, 3–4 GB RAM profiling, runtime 16 KB verification, Gradle artifact dependency verification, full MASVS/MASTG review, and branch protection remain outstanding as described above. Do not represent CI success as production release readiness.
+
+
+
+## Session handoff — 2026-11-16 (Main CI verification)
+
+### Verified state
+- Main SHA: `654e98b7c7ec975467b7c2af1781132eed46bb9b`.
+- PR #56 merged: https://github.com/techwithrakibofficial/Rivo-Browser/pull/56. Its PR-head Android CI, OSV Scanner PR, Dependency Graph and Source SBOM all passed.
+- Latest Main-head workflows all passed: Android CI #43845322821, Dependency Graph #43845322967, Source SBOM #43845322921 and OSV Scanner Scheduled #43845323444.
+- Android lint, app/Gecko unit tests, shipping and benchmark builds, minified release AAB, static 16 KB checks, QA uploads and API 35 security instrumentation all succeeded. OSV reported `No issues found`.
+- PR #56 migrated artifact upload/download actions to v7; legacy artifact action Node 20 deprecation warnings are gone.
+
+### Remaining warnings / gates
+- Non-blocking warnings are upstream/environmental: setup-android v4's sdkmanager deprecation, missing hosted-runner KVM (instrumentation still passed), and OSV Scanner's internal deprecated `--output` option. Emulator diagnostics were non-fatal.
+- No GitHub Release or signed production APK/AAB is published. Production Environment signing secrets and reviewer configuration require an authorized maintainer; this session cannot read or configure secret values.
+- Physical-device and accessibility QA, 3–4 GB profiling, runtime 16 KB verification, Gradle dependency verification metadata and full MASVS/MASTG review remain open.
+
+### Evidence links
+- Main Android CI: https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/43845322821
+- Main Dependency Graph: https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/43845322967
+- Main Source SBOM: https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/43845322921
+- Main OSV scan: https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/43845323444
+- PR #56: https://github.com/techwithrakibofficial/Rivo-Browser/pull/56

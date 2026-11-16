@@ -1,6 +1,6 @@
 # Rivo Browser — Project State
 
-Updated: 2026-11-13
+Updated: 2026-11-16
 
 ## Source of truth
 - Repository: https://github.com/techwithrakibofficial/Rivo-Browser
@@ -144,3 +144,17 @@ Updated: 2026-11-13
 - GitHub PR search returned no open pull requests at this verification.
 - No GitHub Releases are published (releases API returned an empty list). No signed APK/AAB or public APK download URL is available from this verification.
 - These results close the PR #54 documentation/CI synchronization task only. Production signing/secrets and Environment approval, physical-device and accessibility QA, 3–4 GB RAM profiling, runtime 16 KB verification, Gradle artifact dependency verification, full MASVS/MASTG review, and branch protection remain outstanding as described above. Do not represent CI success as production release readiness.
+
+
+
+## Authoritative Main CI verification — 2026-11-16
+
+- Verified current Main SHA: `654e98b7c7ec975467b7c2af1781132eed46bb9b`.
+- PR #56 (artifact action migration) is merged: https://github.com/techwithrakibofficial/Rivo-Browser/pull/56. Its head SHA `fb38196f644c56560aebee91ddaf965900e0ff49` passed all four PR workflows: Android CI #43839170714, Gradle Dependency Graph #43839170834, OSV Scanner PR #43839171295 and Source SBOM #43839170716.
+- PR #56 upgraded upload/download-artifact actions to v7. The migration is present on Main; old upload-artifact v4 / Node 20 deprecation warnings are no longer present in the latest Main Android CI log.
+- Latest Main-head workflows on `654e98b7c7ec975467b7c2af1781132eed46bb9b` all completed successfully: Android CI #43845322821, Gradle Dependency Graph #43845322967, Source SBOM #43845322921 and OSV Scanner Scheduled #43845323444. No failed or pending checks were present in this four-workflow set.
+- Android CI passed shipping debug assembly, Android lint, app unit tests, Gecko engine policy tests, GeckoView/WebView benchmark debug and release builds, minified shipping release AAB build, static 16 KB APK/native-library alignment, QA artifact uploads and API 35 security instrumentation. Android test reports and QA artifacts were uploaded successfully.
+- OSV Scanner Scheduled printed `No issues found`; dependency graph and source SBOM generation succeeded. This is an automated dependency scan result, not a complete security audit.
+- Remaining non-blocking upstream/environment warnings: `android-actions/setup-android@v4` invokes `sdkmanager`, which currently emits an Android CLI deprecation warning; hosted runner had no `/dev/kvm`, so emulator software acceleration was possible (instrumentation nevertheless passed); OSV Scanner v2.7.1 emits a deprecated `--output` option warning internally. Emulator/X11/QEMU diagnostic warnings did not fail tests. These are not app compile, lint or test failures; do not hide them or replace the supported Android setup action without a verified migration.
+- Release status remains separate from CI: GitHub Releases API returned no published releases. The signed-release workflow requires production Environment secrets `RIVO_UPLOAD_KEYSTORE_BASE64`, `RIVO_UPLOAD_STORE_PASSWORD`, `RIVO_UPLOAD_KEY_ALIAS` and `RIVO_UPLOAD_KEY_PASSWORD`; secret presence/value and Environment reviewer configuration were not verifiable through this session. No signed APK/AAB is claimed.
+- Physical-device functional/privacy QA, accessibility acceptance, 3–4 GB RAM profiling, runtime 16 KB validation, Gradle artifact dependency verification and full MASVS/MASTG review remain release gates. CI success is not production-release readiness.
