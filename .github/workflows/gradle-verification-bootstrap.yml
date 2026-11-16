@@ -139,8 +139,8 @@ jobs:
           )
           marker = "      - name: Assemble shipping Rivo Browser"
           gate = (
-              "      - name: Require checked-in Gradle dependency verification metadata\\n"
-              "        run: test -s gradle/verification-metadata.xml\\n"
+              "      - name: Require checked-in Gradle dependency verification metadata\n"
+              "        run: test -s gradle/verification-metadata.xml\n"
           )
           if gate not in content:
               if marker not in content:
