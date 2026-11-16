@@ -77,3 +77,123 @@ jobs:
           path: gradle/verification-metadata.xml
           if-no-files-found: error
           retention-days: 7
+
+  propose:
+    name: Open reviewed verification metadata PR
+    needs: bootstrap
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout the exact bootstrapped Main revision
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Download metadata from this workflow run
+        uses: actions/download-artifact@v7
+        with:
+          name: rivo-gradle-verification-bootstrap
+          path: .verification-bootstrap
+
+      - name: Validate checksums and prepare strict Android CI
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import re
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          source = Path(".verification-bootstrap/verification-metadata.xml")
+          if not source.is_file():
+              raise SystemExit("Bootstrap metadata artifact is missing")
+          root = ET.parse(source).getroot()
+          ns = {"g": "https://schema.gradle.org/dependency-verification"}
+          config = root.find("g:configuration", ns)
+          components = root.find("g:components", ns)
+          if config is None or components is None:
+              raise SystemExit("Invalid Gradle verification metadata structure")
+          if config.findtext("g:verify-signatures", namespaces=ns) != "false":
+              raise SystemExit("Expected checksum-only verification metadata")
+          artifacts = [a for c in components for a in c.findall("g:artifact", ns)]
+          if not components or not artifacts:
+              raise SystemExit("No dependency artifacts were captured")
+          for artifact in artifacts:
+              hashes = list(artifact)
+              if len(hashes) != 1 or hashes[0].tag != "{https://schema.gradle.org/dependency-verification}sha256":
+                  raise SystemExit(f"Unexpected verification entry: {artifact.attrib}")
+              if not re.fullmatch(r"[0-9a-f]{64}", hashes[0].attrib.get("value", "")):
+                  raise SystemExit(f"Invalid SHA-256 value: {artifact.attrib}")
+          Path("gradle").mkdir(exist_ok=True)
+          Path("gradle/verification-metadata.xml").write_bytes(source.read_bytes())
+
+          ci = Path(".github/workflows/android-ci.yml")
+          content = ci.read_text()
+          content = content.replace(
+              "gradle --no-daemon",
+              "gradle --no-daemon --dependency-verification strict",
+          )
+          marker = "      - name: Assemble shipping Rivo Browser"
+          gate = (
+              "      - name: Require checked-in Gradle dependency verification metadata\\n"
+              "        run: test -s gradle/verification-metadata.xml\\n"
+          )
+          if gate not in content:
+              if marker not in content:
+                  raise SystemExit("Android CI insertion point not found")
+              content = content.replace(marker, gate + marker, 1)
+          ci.write_text(content)
+
+          Path("DEPENDENCY_VERIFICATION.md").write_text("""# Gradle Dependency Verification
+
+          ## Policy
+          - Android CI runs Gradle in strict dependency-verification mode.
+          - The committed metadata records SHA-256 checksums for resolved artifacts and metadata.
+          - PGP signature verification is intentionally disabled in this baseline; no unverified keys are trusted.
+          - No missing-key exceptions, ignored artifacts or verification exceptions are allowed.
+
+          ## Bootstrap and provenance
+          Metadata is generated using the repository's configured Google Maven, Maven Central and Mozilla repositories. The bootstrap resolves the shipping debug build, lint, JVM tests, Gecko policy tests, GeckoView/WebView benchmark builds and minified shipping release bundle, then repeats the task set in strict mode.
+
+          The initial checksum set is a trust-on-first-use record of artifacts served by those configured repositories at bootstrap time. It is not independent upstream signature attestation. Review every new or changed checksum when dependencies or repositories change. Keep Gradle lockfiles, OSV scanning and the source SBOM enabled as separate controls.
+
+          ## Updating metadata
+          1. Update dependency declarations and lockfiles intentionally.
+          2. Run the Gradle Dependency Verification Bootstrap workflow on Main.
+          3. Review the generated metadata and component/artifact changes.
+          4. Merge the metadata PR only after dependency changes and repository provenance are understood.
+          5. Confirm Android CI passes with strict verification enabled.
+
+          Do not add PGP keys, ignored keys or verification exceptions without independently verifying fingerprints and documenting the reason.
+          """)
+          print(f"Validated {len(list(components))} components and {len(artifacts)} SHA-256 entries")
+          PY
+
+      - name: Create a reviewable metadata pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          branch="security/gradle-verification-metadata-${HEAD_SHA:0:12}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add gradle/verification-metadata.xml .github/workflows/android-ci.yml DEPENDENCY_VERIFICATION.md
+          if git diff --cached --quiet; then
+            echo "No dependency verification changes to propose."
+            exit 0
+          fi
+          git commit -m "security: enforce Gradle dependency verification"
+          git push origin "$branch"
+          existing="$(gh pr list --head "$branch" --state open --json number --jq 'length')"
+          if [ "$existing" = "0" ]; then
+            gh pr create --base main --head "$branch" \
+              --title "security: enforce strict Gradle dependency verification" \
+              --body "Adds the reviewed SHA-256 metadata generated by the successful Main bootstrap. Android CI runs strict verification. The checksum-only trust-on-first-use policy is documented. No PGP keys or ignored-key exceptions are introduced. Review the complete metadata diff before merge; this workflow never auto-merges."
+          fi
