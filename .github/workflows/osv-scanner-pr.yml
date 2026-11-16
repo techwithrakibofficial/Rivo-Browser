@@ -85,7 +85,7 @@ jobs:
           echo "All resolved Gradle lockfiles match the committed PR source."
       - name: Upload resolved Gradle lockfiles
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: rivo-gradle-lockfiles
           path: |
