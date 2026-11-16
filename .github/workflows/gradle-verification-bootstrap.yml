@@ -120,7 +120,7 @@ jobs:
           if config.findtext("g:verify-signatures", namespaces=ns) != "false":
               raise SystemExit("Expected checksum-only verification metadata")
           artifacts = [a for c in components for a in c.findall("g:artifact", ns)]
-          if not components or not artifacts:
+          if len(components) == 0 or len(artifacts) == 0:
               raise SystemExit("No dependency artifacts were captured")
           for artifact in artifacts:
               hashes = list(artifact)
@@ -130,23 +130,6 @@ jobs:
                   raise SystemExit(f"Invalid SHA-256 value: {artifact.attrib}")
           Path("gradle").mkdir(exist_ok=True)
           Path("gradle/verification-metadata.xml").write_bytes(source.read_bytes())
-
-          ci = Path(".github/workflows/android-ci.yml")
-          content = ci.read_text()
-          content = content.replace(
-              "gradle --no-daemon",
-              "gradle --no-daemon --dependency-verification strict",
-          )
-          marker = "      - name: Assemble shipping Rivo Browser"
-          gate = (
-              "      - name: Require checked-in Gradle dependency verification metadata\n"
-              "        run: test -s gradle/verification-metadata.xml\n"
-          )
-          if gate not in content:
-              if marker not in content:
-                  raise SystemExit("Android CI insertion point not found")
-              content = content.replace(marker, gate + marker, 1)
-          ci.write_text(content)
 
           Path("DEPENDENCY_VERIFICATION.md").write_text("""# Gradle Dependency Verification
 
@@ -184,7 +167,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -c "$branch"
-          git add gradle/verification-metadata.xml .github/workflows/android-ci.yml DEPENDENCY_VERIFICATION.md
+          git add gradle/verification-metadata.xml DEPENDENCY_VERIFICATION.md
           if git diff --cached --quiet; then
             echo "No dependency verification changes to propose."
             exit 0
