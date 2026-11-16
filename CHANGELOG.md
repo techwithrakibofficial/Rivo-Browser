@@ -103,3 +103,12 @@ See Git history for prior Tab Universe, storage hardening, browser navigation, t
 - GitHub PR search returned no open pull requests at this verification.
 - No GitHub Releases are published (releases API returned an empty list). No signed APK/AAB or public APK download URL is available from this verification.
 - These results close the PR #54 documentation/CI synchronization task only. Production signing/secrets and Environment approval, physical-device and accessibility QA, 3–4 GB RAM profiling, runtime 16 KB verification, Gradle artifact dependency verification, full MASVS/MASTG review, and branch protection remain outstanding as described above. Do not represent CI success as production release readiness.
+
+
+
+## 2026-11-16 — CI artifact actions and Main verification
+- PR #56 merged the GitHub Actions artifact migration to upload-artifact/download-artifact v7.
+- Verified PR #56 checks and all four latest Main-head workflows passed on Main SHA `654e98b7c7ec975467b7c2af1781132eed46bb9b`.
+- Main Android CI passed lint, app/Gecko unit tests, shipping and benchmark builds, minified release AAB, static 16 KB alignment, artifact uploads and API 35 security instrumentation.
+- Main OSV scan reported `No issues found`; dependency graph and source SBOM succeeded.
+- Remaining sdkmanager, KVM/emulator and OSV CLI option warnings are upstream/environmental and non-blocking. No signed production release is claimed; signing and manual/device release gates remain open.
