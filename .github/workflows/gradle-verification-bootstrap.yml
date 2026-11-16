@@ -16,7 +16,7 @@ jobs:
   bootstrap:
     name: Generate and validate verification metadata
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - name: Checkout source
         uses: actions/checkout@v7
@@ -40,18 +40,38 @@ jobs:
           gradle-version: '9.6.0'
           cache-provider: basic
 
-      - name: Bootstrap PGP keys and SHA-256 checksums
-        run: gradle --no-daemon --write-verification-metadata pgp,sha256 --export-keys help
+      - name: Bootstrap SHA-256 checksums across shipping and test configurations
+        run: |
+          gradle --no-daemon --write-verification-metadata sha256 \
+            :app:assembleDebug \
+            :app:lintDebug \
+            :app:testDebugUnitTest \
+            :engine-gecko:testDebugUnitTest \
+            :engine-benchmark:assembleGeckoDebug \
+            :engine-benchmark:assembleWebviewDebug \
+            -Privo.abiSplits=false \
+            :engine-benchmark:bundleGeckoRelease \
+            :engine-benchmark:bundleWebviewRelease \
+            :app:bundleRelease
 
-      - name: Validate generated metadata in strict mode
-        run: gradle --no-daemon --dependency-verification strict help
+      - name: Validate all generated metadata in strict mode
+        run: |
+          gradle --no-daemon --dependency-verification strict \
+            :app:assembleDebug \
+            :app:lintDebug \
+            :app:testDebugUnitTest \
+            :engine-gecko:testDebugUnitTest \
+            :engine-benchmark:assembleGeckoDebug \
+            :engine-benchmark:assembleWebviewDebug \
+            -Privo.abiSplits=false \
+            :engine-benchmark:bundleGeckoRelease \
+            :engine-benchmark:bundleWebviewRelease \
+            :app:bundleRelease
 
-      - name: Upload generated verification files for review
+      - name: Upload generated checksum metadata for review
         uses: actions/upload-artifact@v7
         with:
           name: rivo-gradle-verification-bootstrap
-          path: |
-            gradle/verification-metadata.xml
-            gradle/verification-keyring.keys
+          path: gradle/verification-metadata.xml
           if-no-files-found: error
           retention-days: 7
