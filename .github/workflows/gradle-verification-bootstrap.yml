@@ -128,7 +128,7 @@ jobs:
           mapfile -t generated_lockfiles < <(find .lockfiles-bootstrap -type f -name gradle.lockfile | sort)
           (( ${#generated_lockfiles[@]} > 0 ))
           for file in "${generated_lockfiles[@]}"; do
-            destination="${file#./.lockfiles-bootstrap/}"
+            destination="${file#.lockfiles-bootstrap/}"
             install -D "$file" "$destination"
           done
 
