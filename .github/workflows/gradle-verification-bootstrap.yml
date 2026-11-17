@@ -46,7 +46,7 @@ jobs:
         run: rm -f gradle/verification-metadata.xml
       - name: Bootstrap SHA-256 checksums across shipping and test configurations
         run: |
-          gradle --no-daemon --write-verification-metadata sha256 \
+          gradle --no-daemon --update-locks org.jetbrains.kotlin:kotlin-stdlib --write-locks --write-verification-metadata sha256 \
             :app:assembleDebug \
             :app:lintDebug \
             :app:testDebugUnitTest \
@@ -77,6 +77,15 @@ jobs:
         with:
           name: rivo-gradle-verification-bootstrap
           path: gradle/verification-metadata.xml
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload updated Gradle dependency lockfiles for review
+        uses: actions/upload-artifact@v7
+        with:
+          name: rivo-gradle-lockfiles-bootstrap
+          path: |
+            **/gradle.lockfile
           if-no-files-found: error
           retention-days: 7
 
