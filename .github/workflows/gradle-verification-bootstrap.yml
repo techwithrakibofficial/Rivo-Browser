@@ -42,6 +42,8 @@ jobs:
           gradle-version: '9.6.0'
           cache-provider: basic
 
+      - name: Start from a clean dependency verification baseline
+        run: rm -f gradle/verification-metadata.xml
       - name: Bootstrap SHA-256 checksums across shipping and test configurations
         run: |
           gradle --no-daemon --write-verification-metadata sha256 \
