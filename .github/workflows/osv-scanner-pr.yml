@@ -59,12 +59,11 @@ jobs:
             grep -Eq '^[^#[:space:]][^=]*=[^[:space:]]' "$lockfile"
           done
           printf 'Resolved Gradle lockfiles:\n%s\n' "${lockfiles[@]}"
+      # Scan actual Gradle dependency lockfiles, not the checksum catalog.
       - name: Scan resolved Gradle dependencies with OSV
         uses: google/osv-scanner-action/osv-scanner-action@0e457b42d0120153c352875e9b758b1e5c58c7e5
         with:
           scan-args: |
-          # Scan actual Gradle dependency lockfiles. verification-metadata.xml is a checksum catalog,
-          # not a version lockfile, and includes multiple build-tool configurations that OSV cannot map reliably.
             --lockfile=./app/gradle.lockfile
             --lockfile=./engine-api/gradle.lockfile
             --lockfile=./engine-webview/gradle.lockfile
