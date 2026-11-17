@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Explicit defense in depth for Android platform networking. GeckoView uses
+         its own networking stack; its TLS and mixed-content behavior is assessed separately. -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

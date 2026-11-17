@@ -28,6 +28,8 @@ jobs:
           cache-provider: basic
       - name: Require checked-in Gradle dependency verification metadata
         run: test -s gradle/verification-metadata.xml
+      - name: Run Android security configuration static audit
+        run: python3 tools/verify_security_static.py
       - name: Assemble shipping Rivo Browser
         run: gradle --no-daemon --dependency-verification strict :app:assembleDebug
       - name: Run Android lint

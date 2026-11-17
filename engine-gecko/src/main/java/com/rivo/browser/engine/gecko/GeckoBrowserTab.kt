@@ -42,6 +42,8 @@ object GeckoBrowserRuntime {
                 GeckoRuntimeSettings.Builder()
                     .remoteDebuggingEnabled(false)
                     .consoleOutput(false)
+                    .debugLogging(false)
+                    .aboutConfigEnabled(false)
                     .build()
             ).also { runtime ->
                 runtime.setWebNotificationDelegate(RivoWebNotificationDelegate(context.applicationContext))
