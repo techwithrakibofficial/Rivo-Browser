@@ -68,6 +68,7 @@ jobs:
             --lockfile=./engine-webview/gradle.lockfile
             --lockfile=./engine-gecko/gradle.lockfile
             --lockfile=./engine-benchmark/gradle.lockfile
+            --lockfile=./gradle/verification-metadata.xml
       - name: Verify dependency lockfiles are committed
         shell: bash
         run: |
