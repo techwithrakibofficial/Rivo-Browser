@@ -27,3 +27,6 @@ jobs:
           upload-artifact: true
           upload-artifact-retention: 14
           syft-version: v1.55.0
+        env:
+          SYFT_SOURCE_NAME: Rivo Browser
+          SYFT_SOURCE_VERSION: ${{ github.sha }}
