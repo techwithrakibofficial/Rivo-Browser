@@ -26,26 +26,28 @@ jobs:
         with:
           gradle-version: '9.6.0'
           cache-provider: basic
+      - name: Require checked-in Gradle dependency verification metadata
+        run: test -s gradle/verification-metadata.xml
       - name: Assemble shipping Rivo Browser
-        run: gradle --no-daemon :app:assembleDebug
+        run: gradle --no-daemon --dependency-verification strict :app:assembleDebug
       - name: Run Android lint
-        run: gradle --no-daemon :app:lintDebug
+        run: gradle --no-daemon --dependency-verification strict :app:lintDebug
       - name: Run unit tests
-        run: gradle --no-daemon :app:testDebugUnitTest
+        run: gradle --no-daemon --dependency-verification strict :app:testDebugUnitTest
       - name: Run Gecko engine policy unit tests
-        run: gradle --no-daemon :engine-gecko:testDebugUnitTest
+        run: gradle --no-daemon --dependency-verification strict :engine-gecko:testDebugUnitTest
       - name: Assemble engine benchmark debug APKs
         run: |
-          gradle --no-daemon \
+          gradle --no-daemon --dependency-verification strict \
             :engine-benchmark:assembleGeckoDebug \
             :engine-benchmark:assembleWebviewDebug
       - name: Build engine benchmark release bundles without ABI splits
         run: |
-          gradle --no-daemon -Privo.abiSplits=false \
+          gradle --no-daemon --dependency-verification strict -Privo.abiSplits=false \
             :engine-benchmark:bundleGeckoRelease \
             :engine-benchmark:bundleWebviewRelease
       - name: Build minified shipping release bundle
-        run: gradle --no-daemon -Privo.abiSplits=false :app:bundleRelease
+        run: gradle --no-daemon --dependency-verification strict -Privo.abiSplits=false :app:bundleRelease
       - name: Verify native library and APK 16 KB alignment
         shell: bash
         run: |
@@ -127,7 +129,7 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           emulator-boot-timeout: 600
-          script: gradle --no-daemon -Privo.abiSplits=false :app:connectedDebugAndroidTest --stacktrace --info
+          script: gradle --no-daemon --dependency-verification strict -Privo.abiSplits=false :app:connectedDebugAndroidTest --stacktrace --info
       - name: Upload Android test reports
         if: always()
         uses: actions/upload-artifact@v7

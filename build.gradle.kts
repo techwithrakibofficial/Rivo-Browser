@@ -1,7 +1,7 @@
 plugins {
-    id("com.android.application") version "9.5.0" apply false
-    id("com.android.library") version "9.5.0" apply false
-    id("org.jetbrains.kotlin.plugin.compose") version "2.4.10" apply false
+    id("com.android.application") version "9.5.1" apply false
+    id("com.android.library") version "9.5.1" apply false
+    id("org.jetbrains.kotlin.plugin.compose") version "2.4.21" apply false
 }
 
 allprojects {
@@ -15,7 +15,9 @@ allprojects {
             "org.apache.httpcomponents:httpclient:4.5.13",
             "org.bouncycastle:bcpkix-jdk18on:1.85",
             "org.bouncycastle:bcprov-jdk18on:1.85",
-            "org.bouncycastle:bcutil-jdk18on:1.85"
+            "org.bouncycastle:bcutil-jdk18on:1.85",
+            "org.bitbucket.b_c:jose4j:0.9.6",
+            "org.jdom:jdom2:2.0.6.1"
         )
     }
 }
