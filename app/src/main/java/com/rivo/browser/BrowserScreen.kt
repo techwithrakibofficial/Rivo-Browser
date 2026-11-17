@@ -40,12 +40,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.stateDescription
 import com.rivo.browser.designsystem.RivoColorSchemes
 import com.rivo.browser.designsystem.RivoSpacing
@@ -404,7 +407,7 @@ private fun ReaderModeDialog(article: ReaderArticle, onDismiss: () -> Unit) {
         ) {
             Column(modifier = Modifier.padding(RivoSpacing.large)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Reader Mode", style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+                    Text("Reader Mode", style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f).semantics { heading() })
                     TextButton(onClick = onDismiss) { Text("Close") }
                 }
                 Text(article.title, style = MaterialTheme.typography.titleMedium)
@@ -418,7 +421,7 @@ private fun ReaderModeDialog(article: ReaderArticle, onDismiss: () -> Unit) {
                         value = textScale,
                         onValueChange = { textScale = it },
                         valueRange = 0.85f..1.5f,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f).semantics { contentDescription = "Article text size" }
                     )
                 }
                 Column(
@@ -490,7 +493,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(modifier = Modifier.padding(RivoSpacing.large)) {
-                Text(title, style = MaterialTheme.typography.titleLarge)
+                Text(title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
                 Spacer(Modifier.height(RivoSpacing.medium))
                 when (panel) {
                     BrowserPanel.TABS -> {
@@ -605,7 +608,12 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                                             Text(page.url, style = MaterialTheme.typography.labelSmall, maxLines = 1)
                                         }
                                     }
-                                    TextButton(onClick = { browser.removeBookmark(page.url) }) { Text("×") }
+                                    TextButton(
+                                        onClick = { browser.removeBookmark(page.url) },
+                                        modifier = Modifier.semantics {
+                                            contentDescription = "Remove bookmark: ${page.title}"
+                                        }
+                                    ) { Text("×") }
                                 }
                             }
                         }
@@ -805,20 +813,27 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                     }
                     BrowserPanel.APPEARANCE -> {
                         BrowserAppearance.values().forEach { appearance ->
-                            TextButton(
-                                onClick = {
-                                    browser.updateAppearance(appearance)
-                                    onDismiss()
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    androidx.compose.material3.RadioButton(
-                                        selected = browser.appearance == appearance,
-                                        onClick = null
+                            val selected = browser.appearance == appearance
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(min = 48.dp)
+                                    .selectable(
+                                        selected = selected,
+                                        role = Role.RadioButton,
+                                        onClick = {
+                                            browser.updateAppearance(appearance)
+                                            onDismiss()
+                                        }
                                     )
-                                    Text(appearance.name.lowercase().replaceFirstChar { it.uppercase() })
-                                }
+                                    .padding(vertical = RivoSpacing.compact),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                androidx.compose.material3.RadioButton(
+                                    selected = selected,
+                                    onClick = null
+                                )
+                                Text(appearance.name.lowercase().replaceFirstChar { it.uppercase() })
                             }
                         }
                         Text(

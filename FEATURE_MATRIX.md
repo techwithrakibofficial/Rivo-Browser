@@ -28,7 +28,7 @@ Status: **Integrated** means source is merged into Main; it does not imply physi
 | WebExtensions | Not user-supported | Gecko engine APIs exist; no Rivo add-on manager/marketplace |
 | Dark / Light / Premium Glass | Integrated | Centralized semantic tokens; manual contrast/device validation remains |
 | Quick Appearance Picker | Integrated | Secondary control; no permanent main-screen theme icon |
-| Accessibility | Partial | Source semantics improved; TalkBack/device validation pending |
+| Accessibility | Source-audited | Compose labels, radio selection semantics, headings and standard Material touch targets reviewed; TalkBack/device validation pending |
 | 3–4 GB optimization | Pending validation | No physical-device benchmark evidence |
 | 16 KB page-size support | Static checks integrated | Runtime hardware validation pending |
 | Production signing / release | Pending | CI artifacts unsigned; signing secrets not available in source session |
@@ -46,3 +46,11 @@ Build success, JVM tests, emulator instrumentation, physical-device testing and 
 - OWASP MASVS: **Preliminary assessment register added** in `SECURITY_ASSESSMENT.md`; this is not a completed independent audit or certification.
 - PR #46 merged to Main as `b50350a241908fb1f38d2920b7a358451cb436f7`; PR-head Android CI, OSV Scanner, dependency graph and SBOM all passed. Post-merge Main CI was still running at checkpoint.
 - Production signing, physical-device acceptance, 3–4 GB profiling, runtime 16 KB validation and branch protection remain pending.
+
+
+## 2026-11-17 accessibility and 16 KB source audit
+- Browser UI is Jetpack Compose; no XML layout resources are present. The only app XML resources are the manifest and FileProvider path policy. The benchmark UI is built with native Android Views.
+- Icon-only remove-bookmark action now exposes a contextual TalkBack label; appearance options expose one selectable radio-group item with selected state; Reader Mode text-size slider has an explicit accessible name; panel and reader titles are marked as headings.
+- Material 3 controls supply minimum interactive touch-target sizing; the custom appearance selector explicitly enforces a 48 dp minimum row height. Traversal follows the Compose/View hierarchy order; no custom focus-order override is required by the current linear layout.
+- AGP 9.5.1 exceeds the Android 16 KB packaging minimum (8.5.1). App and benchmark application modules now explicitly retain uncompressed JNI libraries for 16 KB ZIP alignment. There is no project-owned NDK/CMake/ndk-build source; GeckoView supplies prebuilt native libraries, which CI inspects in packaged APK/AAB artifacts.
+- Static ELF/ZIP alignment checks remain CI evidence, not a runtime 16 KB device test. TalkBack, font scaling, narrow-screen and physical-device checks remain pending.

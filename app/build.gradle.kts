@@ -39,6 +39,12 @@ android {
             isUniversalApk = false
         }
     }
+    packaging {
+        jniLibs {
+            // Keep shared libraries uncompressed and 16 KB ZIP-aligned (AGP >= 8.5.1).
+            useLegacyPackaging = false
+        }
+    }
     signingConfigs {
         if (releaseSigningRequired) {
             create("upload") {
