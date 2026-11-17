@@ -63,12 +63,13 @@ jobs:
         uses: google/osv-scanner-action/osv-scanner-action@0e457b42d0120153c352875e9b758b1e5c58c7e5
         with:
           scan-args: |
+          # Scan actual Gradle dependency lockfiles. verification-metadata.xml is a checksum catalog,
+          # not a version lockfile, and includes multiple build-tool configurations that OSV cannot map reliably.
             --lockfile=./app/gradle.lockfile
             --lockfile=./engine-api/gradle.lockfile
             --lockfile=./engine-webview/gradle.lockfile
             --lockfile=./engine-gecko/gradle.lockfile
             --lockfile=./engine-benchmark/gradle.lockfile
-            --lockfile=./gradle/verification-metadata.xml
       - name: Verify dependency lockfiles are committed
         shell: bash
         run: |
