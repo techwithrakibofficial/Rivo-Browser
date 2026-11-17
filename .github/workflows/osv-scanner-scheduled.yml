@@ -16,6 +16,15 @@ jobs:
   scan-scheduled:
     name: Scan known dependency vulnerabilities
     uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.7.1
+    with:
+      # Scan the resolved module lockfiles; verification-metadata.xml is a checksum catalog,
+      # not a dependency lockfile and includes build-tool configurations OSV cannot map reliably.
+      scan-args: |
+        --lockfile=./app/gradle.lockfile
+        --lockfile=./engine-api/gradle.lockfile
+        --lockfile=./engine-webview/gradle.lockfile
+        --lockfile=./engine-gecko/gradle.lockfile
+        --lockfile=./engine-benchmark/gradle.lockfile
     permissions:
       actions: read
       contents: read
