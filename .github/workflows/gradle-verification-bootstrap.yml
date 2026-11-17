@@ -132,9 +132,17 @@ jobs:
             install -D "$file" "$destination"
           done
 
+          # Never commit temporary artifact extraction directories.
+          rm -rf .verification-bootstrap .lockfiles-bootstrap
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add gradle/verification-metadata.xml '**/gradle.lockfile'
+          git add gradle/verification-metadata.xml \
+            app/gradle.lockfile \
+            engine-api/gradle.lockfile \
+            engine-webview/gradle.lockfile \
+            engine-gecko/gradle.lockfile \
+            engine-benchmark/gradle.lockfile
           if git diff --cached --quiet; then
             echo "Bootstrap artifacts already match the PR branch."
             exit 0
