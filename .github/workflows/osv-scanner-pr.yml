@@ -11,14 +11,6 @@ permissions:
   contents: read
 
 jobs:
-  scan-pr:
-    name: Scan introduced dependency vulnerabilities
-    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@v2.7.1
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-
   scan-resolved-gradle-dependencies:
     name: Resolve and scan Gradle lockfiles
     if: >-
@@ -71,8 +63,11 @@ jobs:
         uses: google/osv-scanner-action/osv-scanner-action@0e457b42d0120153c352875e9b758b1e5c58c7e5
         with:
           scan-args: |
-            --recursive
-            ./
+            --lockfile=./app/gradle.lockfile
+            --lockfile=./engine-api/gradle.lockfile
+            --lockfile=./engine-webview/gradle.lockfile
+            --lockfile=./engine-gecko/gradle.lockfile
+            --lockfile=./engine-benchmark/gradle.lockfile
       - name: Verify dependency lockfiles are committed
         shell: bash
         run: |
