@@ -89,6 +89,53 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+
+  commit_pull_request:
+    name: Commit validated bootstrap artifacts to same-repository PR
+    needs: bootstrap
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - name: Checkout the PR head branch
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.head_ref }}
+          persist-credentials: true
+
+      - name: Download generated verification metadata
+        uses: actions/download-artifact@v7
+        with:
+          name: rivo-gradle-verification-bootstrap
+          path: .verification-bootstrap
+
+      - name: Download generated dependency lockfiles
+        uses: actions/download-artifact@v7
+        with:
+          name: rivo-gradle-lockfiles-bootstrap
+          path: .lockfiles-bootstrap
+
+      - name: Commit generated metadata and lockfiles
+        shell: bash
+        run: |
+          set -euo pipefail
+          install -D .verification-bootstrap/verification-metadata.xml gradle/verification-metadata.xml
+          while IFS= read -r -d '' file; do
+            destination="${file#./.lockfiles-bootstrap/}"
+            install -D "$file" "$destination"
+          done < <(find .lockfiles-bootstrap -type f -name gradle.lockfile -print0)
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add gradle/verification-metadata.xml '**/gradle.lockfile'
+          if git diff --cached --quiet; then
+            echo "Bootstrap artifacts already match the PR branch."
+            exit 0
+          fi
+          git commit -m "security: refresh verified Gradle dependency baseline"
+          git push origin "HEAD:refs/heads/${{ github.head_ref }}"
+
   propose:
     name: Open reviewed verification metadata PR
     needs: bootstrap
