@@ -83,3 +83,7 @@ The connected GitHub integration supports repository and workflow reads and repo
 - [ ] Migrate workflow actions to verified immutable SHAs or validated dependency lockfile.
 - [ ] Run hardening PR CI and inspect all checks.
 - [ ] Execute a production-signed release and verify signatures/checksums.
+
+## Dependency artifact verification reconciliation
+
+The audited Main revision now contains `gradle/verification-metadata.xml` and `DEPENDENCY_VERIFICATION.md`, introduced by the merged release-CI hardening change. The committed metadata records SHA-256 checksums and explicitly disables PGP signature verification; strict Gradle dependency verification is part of Android CI. This is a checksum-based trust-on-first-use baseline, not independent upstream signature attestation. Review every metadata change and keep lockfiles, OSV scanning and SBOM as separate controls.
