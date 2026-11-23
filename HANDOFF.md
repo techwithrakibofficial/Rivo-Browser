@@ -1,5 +1,7 @@
 # Rivo Browser — Handoff
 
+Updated: 2026-11-23
+
 ## 2026-11-23 — Release CI reconciliation (PR #64 candidate)
 - Live audit confirmed PR #64 and PR #65 target the same Main SHA (cfa94c3f26e8e478bb51adf1b3b60fc6ea871006) and overlap in the signed-release workflow and dependency verification metadata. PR #64 is the preferred candidate because it additionally verifies APK/AAB signer fingerprint consistency and exact AAB output cardinality.
 - PR #64 dependency bootstrap run #45171080773 passed: generated SHA-256 metadata across shipping/test configurations, strict verification, and validated lockfile/metadata artifacts. The generated files already matched the PR branch; no redundant commit was created.
@@ -15,11 +17,9 @@
 5. Verify signed APK/AAB, signer fingerprints, mapping artifact retention and remote SHA-256 checksums; record actual signed-run evidence.
 
 
-Updated: 2026-11-23
-
 ## Repository checkpoint
 - Canonical repository: https://github.com/techwithrakibofficial/Rivo-Browser
-- Latest verified Main SHA at this checkpoint: `cfa94c3f26e8e478bb51adf1b3b60fc6ea871006` (Main Android CI run #44038863782 succeeded); Android CI #513 completed successfully.
+- Latest verified Main SHA at this checkpoint: `cfa94c3f26e8e478bb51adf1b3b60fc6ea871006` (Main Android CI run #44038863782 succeeded).
 - PR #38 integrated Phase 2; PR #40 merged signed-release automation.
 
 ## Completed and verified
