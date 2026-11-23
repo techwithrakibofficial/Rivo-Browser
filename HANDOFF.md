@@ -246,3 +246,30 @@ Automated CI success is verified. It is not evidence of physical-device acceptan
 - No collaborator username has been supplied/verified for CODEOWNERS, so no ownership file was fabricated.
 - No production signing run, signed APK/AAB, or GitHub Release is verified.
 - Classic branch protection and Environment settings are not exposed to the connected integration; active ruleset read is verified, but these admin-only details remain unverified.
+
+
+## 2026-11-23 — comprehensive Android security audit handoff
+
+### Completed in this audit branch
+- Re-read latest Main and existing security reports/tests before making changes.
+- Reviewed application security boundaries: GeckoView production engine, WebView benchmark-only adapters, manifest/exported components, FileProvider, notification PendingIntent/receiver, URL resolution, download URL/MIME/filename/path handling, permissions, private browsing persistence, encrypted metadata and CI/dependency security controls.
+- Added `app/src/test/java/com/rivo/browser/SecurityInputPropertyTest.kt` with deterministic property-style hostile-input regression tests for omnibox URL resolution and download filename sanitization.
+- Updated `SECURITY_AUDIT.md`, `SECURITY_ASSESSMENT.md`, `SECURITY.md`, `TESTING.md`, `PROJECT_STATE.md` with current scope, evidence boundary and residual manual gates.
+
+### Audit conclusion and limits
+- No confirmed fixable high- or medium-severity vulnerability was identified in the reviewed source/configuration paths.
+- This is not a device penetration test, binary audit, runtime TLS/mixed-content verification, MASVS certification or complete privacy/data-flow assessment.
+- Normal downloaded file bytes are not encrypted by the metadata cipher. Android Network Security Config does not control GeckoView's independent network stack.
+- Physical-device MASTG, signed artifact inspection, merged-manifest/IPC, Keystore invalidation, private-mode process-death cleanup, screenshots/recents and full third-party SDK/data-flow review remain open.
+
+### Verification checkpoint
+- Audited Main base: `0df6760287b0de5c07d2468b247145dae9c0ea4b`.
+- New PR head CI has not yet been verified in this handoff. The baseline Main Android CI run `45240923073` was in progress when this audit began; its final result must be checked and recorded.
+- Do not merge or report completion until the new regression tests pass on the final PR head and all applicable checks complete.
+
+### Next steps
+1. Wait for Main run `45240923073` to finish and inspect the complete job/check result.
+2. Verify the new property-style tests and static security guard on this branch through Android CI.
+3. Fix any genuine regressions without weakening security controls; update evidence and rerun CI.
+4. Obtain an independent trusted review and merge only after required checks/review pass.
+5. Schedule device/runtime MASTG test matrix and signed-release artifact inspection before production release.
