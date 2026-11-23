@@ -143,3 +143,8 @@ Main revision reviewed: `0df6760287b0de5c07d2468b247145dae9c0ea4b`.
 The source/configuration review found no confirmed fixable high- or medium-severity vulnerability in the reviewed application paths. Existing protections include GeckoView private sessions/tracking protection, no identified website-callable native JavaScript bridge, HTTPS-only download acceptance, bounded/sanitized download names, canonical-root validation for restored downloads, encrypted browser metadata using Android Keystore AES-GCM, disabled Android backup/cleartext platform traffic, and non-exported FileProvider/notification receiver components.
 
 This is not a penetration-test result or certification. GeckoView TLS/mixed-content behavior, merged manifest, permission/IPC runtime behavior, private-mode cleanup, Keystore lifecycle, screenshots/recents, and data-flow/privacy disclosure still require device/runtime evidence. Normal downloaded file bytes are not encrypted by the metadata cipher. See [SECURITY_AUDIT.md](SECURITY_AUDIT.md) and [SECURITY_ASSESSMENT.md](SECURITY_ASSESSMENT.md) for scope, evidence and residual risks.
+
+
+### Mixed-content security indicator
+
+Rivo now surfaces GeckoView's active/passive mixed-content status in its connection message. Loaded active or passive mixed content is explicitly disclosed, and unknown mixed-content status is not represented as a fully secure page. See `SECURITY_AUDIT.md` for evidence and the remaining runtime test requirement.
