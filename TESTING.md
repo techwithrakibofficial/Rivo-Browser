@@ -158,3 +158,31 @@ Record device model, Android/API level, build SHA, test case, steps, expected re
 - App and engine-benchmark packaging now explicitly sets `jniLibs.useLegacyPackaging = false`. Existing Android CI builds APK/AAB artifacts and runs `tools/verify_16kb_alignment.py`, which checks every packaged 64-bit native ELF PT_LOAD alignment (>=16 KB) and APK ZIP alignment using `zipalign -P 16`.
 - Compose audit found no XML layout files. The unlabeled bookmark-remove glyph was given a contextual content description; appearance choices now expose RadioButton role/selected state and a 48 dp minimum row; Reader Mode slider has a name; dialog titles are semantic headings. Material 3 components retain their minimum interactive touch targets and normal hierarchy traversal order.
 - Not claimed as passed: fresh CI for this commit, 16 KB hardware/runtime behavior, TalkBack traversal on-device, 320 dp layout, large-font scaling, and physical-device accessibility checks. Run these against the exact release candidate before acceptance.
+
+
+## Security audit regression additions — 2026-11-23
+
+### Deterministic hostile-input property tests
+
+- `SecurityInputPropertyTest` exercises seeded malicious URI schemes, credentials, malformed ports, control characters, Unicode, separators and 512 deterministic generated omnibox inputs. Expected invariant: resolution always produces a parseable HTTP(S) URL with a host and without user-info; unsupported schemes are search queries rather than active protocol navigation.
+- The same test exercises seeded path traversal, Windows path syntax, reserved staging names, control characters and 512 deterministic generated download names. Expected invariant: sanitized names contain no slash/backslash, are nonblank and bounded, are not dot path components, and cannot collide with the interrupted-download cleanup namespace.
+- These are deterministic property-style JVM regression tests, not coverage-guided fuzzing. They do not fuzz GeckoView's native parser or Android platform intent dispatch.
+
+### Existing CI security execution path
+
+The Android CI workflow runs:
+1. `tools/verify_security_static.py` manifest/network/bridge/TLS/Gecko/WebView guardrails.
+2. Gradle dependency verification with `--dependency-verification strict`.
+3. Android lint, app JVM tests and Gecko policy JVM tests.
+4. Shipping app and benchmark builds, minified release bundle and static 16 KB alignment checks.
+5. API 35 emulator instrumentation tests, including encrypted-storage and temporary-download cleanup coverage.
+
+A workflow being configured is not evidence that the latest commit passed. Record the exact run URL and conclusion only after the run completes. No physical-device MASTG or independent penetration test is claimed by this test suite.
+
+### Manual security test matrix still required
+
+- GeckoView: invalid/expired/self-signed/hostname-mismatched certificates; HTTP redirects; active/passive mixed content; WebSocket; proxy/VPN; hostile popup and custom scheme handling.
+- IPC: merged release manifest, malformed external intents, FileProvider URI grants/read-only access/revocation, notification PendingIntent behavior.
+- Storage/privacy: backup/restore, Keystore key invalidation, tampered ciphertext, private tab process death/download cleanup, logs, clipboard, recents and screenshot snapshots.
+- Permissions: deny/revoke location, camera, microphone and notifications; verify origin and active-tab binding.
+- Release: inspect exact signed APK/AAB, manifest, signer certificate, checksums and SBOM.
