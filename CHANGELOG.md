@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-23 — Release CI hardening candidate
+- PR #64 is the preferred reconciliation candidate over overlapping PR #65; it validates production keystore/alias configuration, signed APK/AAB verification, R8 mapping output, signer fingerprint consistency, and retry-safe release publishing.
+- Dependency verification bootstrap and strict validation passed on PR #64 (Actions run #45171080773); generated metadata and lockfiles already matched the branch.
+- Follow-up hardening retains the R8 mapping artifact for 90 days, requires an explicit verified AAB result, and re-downloads published assets to verify SHA-256 checksums.
+- PR remains unmerged pending remaining workflow approvals and correction of the Main ruleset's invalid required check context b. Production signing secrets and a signed release run remain outstanding.
+
+
 ## 2026-11-10 — Main CI and dependency validation
 - Main Android CI run #42763857175 passed on `ca8eddb2b0ce7f8252c639805f4227c6aeb938d1`: shipping build, lint, unit tests, Gecko policy tests, GeckoView/WebView benchmark builds, minified release bundle, static 16 KB alignment checks and API 35 Android security instrumentation.
 - QA artifacts uploaded: ARM64 and ARMv7 debug APKs, unsigned QA AAB, Android test reports and engine benchmark artifacts.

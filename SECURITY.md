@@ -1,6 +1,14 @@
 # Rivo Browser — Security Baseline
 
-Updated: 2026-11-13
+Updated: 2026-11-23
+
+## Release pipeline hardening candidate — 2026-11-23
+- PR #64 validates all four production signing secrets and the configured keystore alias before Gradle signing; the temporary keystore is removed with an always-run cleanup step.
+- APKs are verified with Android SDK apksigner; AAB signature verification requires a positive jarsigner verification result. SHA-256 signer certificate fingerprints must match across APK/AAB outputs.
+- R8 mapping output is mandatory and retained as a GitHub Actions artifact for 90 days. Because this repository is public, anyone with repository read access can download it; it is not included in public Release assets.
+- Published release assets are downloaded again and checked against SHA256SUMS after upload.
+- These are workflow-source controls only until a production-signed run using protected Environment secrets completes. PR #64 remains unmerged; no signed artifact has been verified in this session.
+
 
 OWASP MASVS is the assessment baseline. This document is not an independent security audit or certification.
 

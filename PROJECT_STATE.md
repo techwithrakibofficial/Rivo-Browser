@@ -1,11 +1,19 @@
 # Rivo Browser — Project State
 
-Updated: 2026-11-16
+Updated: 2026-11-23
+
+## 2026-11-23 — Release CI reconciliation (PR #64 candidate)
+- Live audit confirmed PR #64 and PR #65 target the same Main SHA (cfa94c3f26e8e478bb51adf1b3b60fc6ea871006) and overlap in the signed-release workflow and dependency verification metadata. PR #64 is the preferred candidate because it additionally verifies APK/AAB signer fingerprint consistency and exact AAB output cardinality.
+- PR #64 dependency bootstrap run #45171080773 passed: generated SHA-256 metadata across shipping/test configurations, strict verification, and validated lockfile/metadata artifacts. The generated files already matched the PR branch; no redundant commit was created.
+- Release workflow candidate now retains the R8 mapping artifact for 90 days, explicitly requires jarsigner to report a verified AAB, and downloads published release assets to re-check their SHA-256 checksums.
+- PR checks remain pending owner approval for some workflows; this candidate is not merged and no production-signed build has run. Production Environment secrets remain owner-managed.
+- Active Main ruleset Protect main branch currently requires a status check named b, which is absent from Main's observed check-run names; correct the required context to actual CI check names before merge. Do not bypass the ruleset.
+
 
 ## Source of truth
 - Repository: https://github.com/techwithrakibofficial/Rivo-Browser
 - Canonical branch: `main`
-- Latest verified Main SHA at this checkpoint: `5b32fcf67ca69f264e4e90fb6d95e8a6042b72af` (Android CI #513 succeeded; see authoritative Nov 13 checkpoint below).
+- Latest verified Main SHA at this checkpoint: `cfa94c3f26e8e478bb51adf1b3b60fc6ea871006` (Main Android CI run #44038863782 succeeded).
 - Phase 2 integration: PR #38 merged; PR #40 merged signed-release workflow.
 
 ## Implemented in Main source
