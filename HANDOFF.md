@@ -202,3 +202,14 @@ Automated CI success is verified. It is not evidence of physical-device acceptan
 - Main Source SBOM: https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/43845322921
 - Main OSV scan: https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/43845323444
 - PR #56: https://github.com/techwithrakibofficial/Rivo-Browser/pull/56
+
+## 2026-11-23 — governance audit handoff
+
+- Audited Main SHA: `cda27e5bf019fbf50be47678c53bf1dcc2e54d0e`.
+- Active Main ruleset ID `27894079` is present. It requires PR + `build`, up-to-date branch, resolved conversations, blocks force-push/deletion, and has no bypass actors. It currently requires zero approvals; stale dismissal and code-owner review are off.
+- Created branch `security/governance-hardening-2026-11-23`.
+- Changes: removed the PR-triggered dependency-verification artifact write-back job that had `contents: write`; release publisher now refuses to overwrite an existing Release rather than using `--clobber`.
+- CI and merge status: pending PR creation/checks at handoff; do not claim tested or merged until verified.
+- Owner/admin-only tasks: require at least one trusted review, dismiss stale approvals, enforce CODEOWNERS; configure/verify `production` Environment reviewers and deployment refs; verify signing secrets exist only as Environment secrets; migrate action references to verified immutable SHAs or a validated action dependency lockfile.
+- No release published, no production signing run, and no credentials handled.
+- Exact checklist/evidence: [GOVERNANCE_AUDIT.md](GOVERNANCE_AUDIT.md).
