@@ -108,7 +108,7 @@ jobs:
 
       - name: Build signed APKs and AAB
         run: |
-          gradle --no-daemon -Privo.releaseSigningRequired=true \
+          gradle --no-daemon --stacktrace -Privo.releaseSigningRequired=true \
             :app:assembleRelease :app:bundleRelease
 
       - name: Verify signatures and prepare release assets
@@ -172,7 +172,11 @@ jobs:
           test -n "$RELEASE_TAG"
           test -s dist/SHA256SUMS
           (cd dist && sha256sum -c SHA256SUMS)
-          gh release create "$RELEASE_TAG" dist/* \
-            --verify-tag \
-            --title "Rivo Browser $RELEASE_TAG" \
-            --generate-notes
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" dist/* --clobber
+          else
+            gh release create "$RELEASE_TAG" dist/* \
+              --verify-tag \
+              --title "Rivo Browser $RELEASE_TAG" \
+              --generate-notes
+          fi
