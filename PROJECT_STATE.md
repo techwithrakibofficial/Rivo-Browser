@@ -204,3 +204,11 @@ Updated: 2026-11-23
 - Added deterministic property-style JVM regression coverage for malformed omnibox inputs and download filenames in `SecurityInputPropertyTest.kt`.
 - CI status at audit update: Main Android CI run `45240923073` was in progress. OSV Scanner Scheduled, Source SBOM and Gradle Dependency Graph on the same Main SHA had completed successfully. Recheck before closing this task.
 - Open release gates: GeckoView runtime TLS/mixed-content tests; merged manifest/IPC; private mode and storage forensic checks; Keystore lifecycle; screenshot/recents; full SDK/data-flow/privacy review; signed release binary inspection; physical-device and independent penetration testing.
+
+
+### Mixed-content UI security remediation — 2026-11-23
+
+- Follow-up review identified a medium security-presentation issue: browser status UI consumed GeckoView TLS/certificate booleans but ignored GeckoView active/passive mixed-content status.
+- Fixed in audit branch: Gecko progress callback now forwards active/passive loaded and unknown states; per-tab state and browser UI disclose mixed content and avoid claiming full security when status is unknown.
+- Added `BrowserSecurityStatusPolicyTest.kt` covering all label branches and precedence.
+- Awaiting latest PR-head Android CI and independent code-owner review. Runtime GeckoView mixed-content fixture testing remains open.
