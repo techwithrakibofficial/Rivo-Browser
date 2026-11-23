@@ -67,7 +67,7 @@ class SecurityInputPropertyTest {
         inputs.forEachIndexed { index, input ->
             val safe = DownloadFileWriter.sanitizeFilename(null, input, index.toLong())
             assertTrue("Unsafe path separator survived: $input -> $safe",
-                safe.none { it == '/' || it == '\\\\' })
+                safe.none { it == '/' || it == '\\' })
             assertTrue("Filename is blank or too long: $input -> $safe",
                 safe.isNotBlank() && safe.length <= 120)
             assertFalse("Dot path component survived: $input -> $safe", safe == "." || safe == "..")
