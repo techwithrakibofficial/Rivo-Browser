@@ -93,6 +93,7 @@ jobs:
           KEYSTORE_PATH="$RUNNER_TEMP/rivo-upload.jks"
           printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE_PATH"
           test -s "$KEYSTORE_PATH"
+          keytool -list -keystore "$KEYSTORE_PATH" -storepass "$STORE_PASSWORD" -alias "$KEY_ALIAS" >/dev/null
           echo "RIVO_UPLOAD_STORE_FILE=$KEYSTORE_PATH" >> "$GITHUB_ENV"
           echo "RIVO_UPLOAD_STORE_PASSWORD=$STORE_PASSWORD" >> "$GITHUB_ENV"
           echo "RIVO_UPLOAD_KEY_ALIAS=$KEY_ALIAS" >> "$GITHUB_ENV"
@@ -114,13 +115,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          APKSIGNER="$ANDROID_HOME/build-tools/37.0.0/apksigner"
+          test -x "$APKSIGNER" || { echo "::error::Android build-tools apksigner was not found"; exit 1; }
+          test -s app/build/outputs/mapping/release/mapping.txt || { echo "::error::R8 mapping output is missing; release minification was not verified"; exit 1; }
           mkdir -p dist
           mapfile -t apks < <(find app/build/outputs/apk/release -type f -name '*.apk' | sort)
           mapfile -t aabs < <(find app/build/outputs/bundle/release -type f -name '*.aab' | sort)
           (( ${#apks[@]} >= 1 ))
           (( ${#aabs[@]} >= 1 ))
           for apk in "${apks[@]}"; do
-            apksigner verify --verbose --print-certs "$apk"
+            "$APKSIGNER" verify --verbose --print-certs "$apk"
             cp "$apk" dist/
           done
           for aab in "${aabs[@]}"; do
