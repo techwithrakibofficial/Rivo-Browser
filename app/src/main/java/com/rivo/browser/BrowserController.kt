@@ -53,6 +53,9 @@ class BrowserTabState(
     var secureConnection by mutableStateOf(false)
     var securityKnown by mutableStateOf(false)
     var certificateException by mutableStateOf(false)
+    var activeMixedContentLoaded by mutableStateOf(false)
+    var passiveMixedContentLoaded by mutableStateOf(false)
+    var mixedContentStatusUnknown by mutableStateOf(true)
     var trackingProtectionEnabled by mutableStateOf(false)
     var trackingProtectionException by mutableStateOf(false)
     lateinit var engine: GeckoBrowserTab
@@ -206,9 +209,18 @@ class BrowserController(context: Context) {
                     notice = "A page process stopped. Reload the tab to continue."
                 }
 
-                override fun onSecurityChanged(secure: Boolean, exception: Boolean) {
+                override fun onSecurityChanged(
+                    secure: Boolean,
+                    exception: Boolean,
+                    activeMixedContentLoaded: Boolean,
+                    passiveMixedContentLoaded: Boolean,
+                    mixedContentStatusUnknown: Boolean
+                ) {
                     tab.secureConnection = secure
                     tab.certificateException = exception
+                    tab.activeMixedContentLoaded = activeMixedContentLoaded
+                    tab.passiveMixedContentLoaded = passiveMixedContentLoaded
+                    tab.mixedContentStatusUnknown = mixedContentStatusUnknown
                     tab.securityKnown = true
                 }
 
