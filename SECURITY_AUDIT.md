@@ -207,3 +207,19 @@ Added `SecurityInputPropertyTest.kt`: deterministic property-style hostile-input
 ### Current conclusion
 
 This is a **static source/configuration audit with regression automation**, not a completed end-to-end penetration test. No confirmed fixable high or medium issue was identified in the reviewed source paths. Production security acceptance remains conditional on successful CI plus the listed device/runtime/manual checks.
+
+
+### Additional finding discovered and remediated — mixed-content security indicator
+
+**Severity: Medium (security-state presentation / user-decision risk). Status: fixed in this PR; CI verification pending.**
+
+The initial source review found that the address-area security message used GeckoView's `isSecure` and certificate-exception booleans only. GeckoView separately exposes `mixedModeActive` and `mixedModePassive`; the UI did not surface those fields. A page with loaded mixed content could therefore be presented with the generic "Secure connection" label even though page subresources weakened its security.
+
+**Remediation:** The Gecko progress delegate now forwards active/passive mixed-content loaded states and an explicit unknown-state flag into per-tab state. The browser security label now:
+- prioritizes certificate exceptions;
+- warns when active mixed content was loaded;
+- discloses loaded insecure passive content;
+- says "Secure transport · mixed-content status unknown" rather than overclaiming when either mixed-content field is unknown;
+- retains "Secure connection" only when the transport is secure, there is no certificate exception, neither mixed-content field reports loaded content, and status is not unknown.
+
+Added `BrowserSecurityStatusPolicyTest.kt` for each state and precedence. This is a UI/state-policy regression test; it does not establish Gecko's runtime classification of particular mixed-content fixtures. Dynamic mixed-content tests remain required.
