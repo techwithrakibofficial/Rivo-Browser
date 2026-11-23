@@ -186,3 +186,9 @@ A workflow being configured is not evidence that the latest commit passed. Recor
 - Storage/privacy: backup/restore, Keystore key invalidation, tampered ciphertext, private tab process death/download cleanup, logs, clipboard, recents and screenshot snapshots.
 - Permissions: deny/revoke location, camera, microphone and notifications; verify origin and active-tab binding.
 - Release: inspect exact signed APK/AAB, manifest, signer certificate, checksums and SBOM.
+
+
+### Mixed-content security-state regression
+
+- `BrowserSecurityStatusPolicyTest` verifies certificate-exception precedence, active mixed content warning, passive mixed content disclosure, unknown mixed-content qualification, normal secure label and insecure label.
+- GeckoView's runtime mixed-content behavior still requires HTTPS test fixtures containing HTTP script/style/frame/image/media/fetch resources and redirects. The UI policy unit test does not prove what Gecko blocks or loads.
