@@ -46,7 +46,6 @@ jobs:
           [[ "$release_tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][A-Za-z0-9.-]+)?$ ]] || {
             echo "::error::Invalid release tag format"; exit 1;
           }
-          echo "RELEASE_TAG=$release_tag" >> "$GITHUB_ENV"
           echo "release_tag=$release_tag" >> "$GITHUB_OUTPUT"
 
       - name: Checkout release source
@@ -76,7 +75,7 @@ jobs:
         with:
           packages: "platform-tools platforms;android-37.2 build-tools;37.0.0"
 
-      - name: Configure production signing
+      - name: Configure and validate production signing
         shell: bash
         env:
           KEYSTORE_BASE64: ${{ secrets.RIVO_UPLOAD_KEYSTORE_BASE64 }}
@@ -90,14 +89,18 @@ jobs:
               echo "::error::Required production signing secret $name is not configured"; exit 1
             fi
           done
+
           KEYSTORE_PATH="$RUNNER_TEMP/rivo-upload.jks"
           printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE_PATH"
           test -s "$KEYSTORE_PATH"
-          echo "RIVO_UPLOAD_STORE_FILE=$KEYSTORE_PATH" >> "$GITHUB_ENV"
-          echo "RIVO_UPLOAD_STORE_PASSWORD=$STORE_PASSWORD" >> "$GITHUB_ENV"
-          echo "RIVO_UPLOAD_KEY_ALIAS=$KEY_ALIAS" >> "$GITHUB_ENV"
-          echo "RIVO_UPLOAD_KEY_PASSWORD=$KEY_PASSWORD" >> "$GITHUB_ENV"
-          echo "RIVO_UPLOAD_KEYSTORE_PATH=$KEYSTORE_PATH" >> "$GITHUB_ENV"
+          keytool -list -keystore "$KEYSTORE_PATH" -storepass "$STORE_PASSWORD" -alias "$KEY_ALIAS" >/dev/null
+
+          {
+            echo "RIVO_UPLOAD_STORE_FILE=$KEYSTORE_PATH"
+            echo "RIVO_UPLOAD_STORE_PASSWORD=$STORE_PASSWORD"
+            echo "RIVO_UPLOAD_KEY_ALIAS=$KEY_ALIAS"
+            echo "RIVO_UPLOAD_KEY_PASSWORD=$KEY_PASSWORD"
+          } >> "$GITHUB_ENV"
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
@@ -105,28 +108,57 @@ jobs:
           gradle-version: "9.6.0"
           cache-provider: basic
 
-      - name: Build signed APKs and AAB
+      - name: Build signed, minified APKs and AAB
         run: |
-          gradle --no-daemon -Privo.releaseSigningRequired=true \
+          set -euo pipefail
+          gradle --no-daemon --stacktrace -Privo.releaseSigningRequired=true \
             :app:assembleRelease :app:bundleRelease
 
-      - name: Verify signatures and prepare release assets
+      - name: Verify R8 output, signatures, and signer identity
         shell: bash
         run: |
           set -euo pipefail
+          APK_DIR="app/build/outputs/apk/release"
+          AAB_DIR="app/build/outputs/bundle/release"
+          MAPPING_FILE="app/build/outputs/mapping/release/mapping.txt"
+          APKSIGNER="$ANDROID_HOME/build-tools/37.0.0/apksigner"
+
+          test -s "$MAPPING_FILE" || {
+            echo "::error::R8 mapping output is missing; release minification was not verified."; exit 1;
+          }
+          test -x "$APKSIGNER" || {
+            echo "::error::Android apksigner executable is missing."; exit 1;
+          }
+
           mkdir -p dist
-          mapfile -t apks < <(find app/build/outputs/apk/release -type f -name '*.apk' | sort)
-          mapfile -t aabs < <(find app/build/outputs/bundle/release -type f -name '*.aab' | sort)
-          (( ${#apks[@]} >= 1 ))
-          (( ${#aabs[@]} >= 1 ))
+          mapfile -t apks < <(find "$APK_DIR" -type f -name '*.apk' | sort)
+          mapfile -t aabs < <(find "$AAB_DIR" -type f -name '*.aab' | sort)
+          (( ${#apks[@]} >= 1 )) || { echo "::error::No release APKs were produced."; exit 1; }
+          (( ${#aabs[@]} == 1 )) || { echo "::error::Expected exactly one release AAB."; exit 1; }
+
+          expected_cert=""
           for apk in "${apks[@]}"; do
-            apksigner verify --verbose --print-certs "$apk"
+            signature_output="$("$APKSIGNER" verify --verbose --print-certs "$apk" 2>&1)"
+            printf '%s\n' "$signature_output"
+            apk_cert="$(printf '%s\n' "$signature_output" | sed -nE 's/.*Signer #1 certificate SHA-256 digest: ([0-9A-Fa-f:]+).*/\1/p' | head -n1 | tr -d ':' | tr '[:lower:]' '[:upper:]')"
+            test -n "$apk_cert" || { echo "::error::Could not read APK signer certificate fingerprint."; exit 1; }
+            if [[ -z "$expected_cert" ]]; then
+              expected_cert="$apk_cert"
+            elif [[ "$apk_cert" != "$expected_cert" ]]; then
+              echo "::error::Release APKs were signed by different certificates."; exit 1
+            fi
             cp "$apk" dist/
           done
-          for aab in "${aabs[@]}"; do
-            jarsigner -verify -strict -certs "$aab"
-            cp "$aab" dist/
-          done
+
+          aab="${aabs[0]}"
+          jarsigner -verify -verbose "$aab"
+          aab_cert="$(keytool -printcert -jarfile "$aab" | sed -nE 's/^[[:space:]]*SHA256:[[:space:]]*([0-9A-Fa-f:]+).*/\1/p' | head -n1 | tr -d ':' | tr '[:lower:]' '[:upper:]')"
+          test -n "$aab_cert" || { echo "::error::Could not read AAB signer certificate fingerprint."; exit 1; }
+          [[ "$aab_cert" == "$expected_cert" ]] || {
+            echo "::error::APK and AAB signing certificates do not match."; exit 1;
+          }
+          cp "$aab" dist/
+
           cd dist
           sha256sum * > SHA256SUMS
           ls -lh
@@ -158,7 +190,7 @@ jobs:
           name: rivo-signed-release-${{ github.run_id }}
           path: dist
 
-      - name: Publish GitHub Release
+      - name: Publish signed GitHub Release assets
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ needs.build-and-sign.outputs.release_tag }}
@@ -168,7 +200,12 @@ jobs:
           test -n "$RELEASE_TAG"
           test -s dist/SHA256SUMS
           (cd dist && sha256sum -c SHA256SUMS)
-          gh release create "$RELEASE_TAG" dist/* \
-            --verify-tag \
-            --title "Rivo Browser $RELEASE_TAG" \
-            --generate-notes
+
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" dist/* --clobber
+          else
+            gh release create "$RELEASE_TAG" dist/* \
+              --verify-tag \
+              --title "Rivo Browser $RELEASE_TAG" \
+              --generate-notes
+          fi
