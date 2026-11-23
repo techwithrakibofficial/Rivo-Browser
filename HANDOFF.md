@@ -1,10 +1,25 @@
 # Rivo Browser — Handoff
 
-Updated: 2026-11-16
+## 2026-11-23 — Release CI reconciliation (PR #64 candidate)
+- Live audit confirmed PR #64 and PR #65 target the same Main SHA (cfa94c3f26e8e478bb51adf1b3b60fc6ea871006) and overlap in the signed-release workflow and dependency verification metadata. PR #64 is the preferred candidate because it additionally verifies APK/AAB signer fingerprint consistency and exact AAB output cardinality.
+- PR #64 dependency bootstrap run #45171080773 passed: generated SHA-256 metadata across shipping/test configurations, strict verification, and validated lockfile/metadata artifacts. The generated files already matched the PR branch; no redundant commit was created.
+- Release workflow candidate now retains the R8 mapping artifact for 90 days, explicitly requires jarsigner to report a verified AAB, and downloads published release assets to re-check their SHA-256 checksums.
+- PR checks remain pending owner approval for some workflows; this candidate is not merged and no production-signed build has run. Production Environment secrets remain owner-managed.
+- Active Main ruleset Protect main branch currently requires a status check named b, which is absent from Main's observed check-run names; correct the required context to actual CI check names before merge. Do not bypass the ruleset.
+
+## Exact next steps
+1. Complete approval and execution of the remaining PR #64 workflows; review every check conclusion.
+2. Fix the Main ruleset required-status context b using actual check-run names, then merge PR #64 only with protections satisfied.
+3. Close PR #65 as duplicate after confirming PR #64 is integrated.
+4. Configure the four production signing secrets in the protected production Environment and run the signed-release workflow against a reviewed, Main-ancestral tag.
+5. Verify signed APK/AAB, signer fingerprints, mapping artifact retention and remote SHA-256 checksums; record actual signed-run evidence.
+
+
+Updated: 2026-11-23
 
 ## Repository checkpoint
 - Canonical repository: https://github.com/techwithrakibofficial/Rivo-Browser
-- Latest verified Main SHA at this checkpoint: `5b32fcf67ca69f264e4e90fb6d95e8a6042b72af`; Android CI #513 completed successfully.
+- Latest verified Main SHA at this checkpoint: `cfa94c3f26e8e478bb51adf1b3b60fc6ea871006` (Main Android CI run #44038863782 succeeded); Android CI #513 completed successfully.
 - PR #38 integrated Phase 2; PR #40 merged signed-release automation.
 
 ## Completed and verified

@@ -151,7 +151,11 @@ jobs:
           done
 
           aab="${aabs[0]}"
-          jarsigner -verify -verbose "$aab"
+          aab_verify_output="$(jarsigner -verify -verbose "$aab" 2>&1)"
+          printf '%s\n' "$aab_verify_output"
+          grep -Fq 'jar verified.' <<< "$aab_verify_output" || {
+            echo "::error::AAB signature verification did not confirm a signed, verified bundle."; exit 1;
+          }
           aab_cert="$(keytool -printcert -jarfile "$aab" | sed -nE 's/^[[:space:]]*SHA256:[[:space:]]*([0-9A-Fa-f:]+).*/\1/p' | head -n1 | tr -d ':' | tr '[:lower:]' '[:upper:]')"
           test -n "$aab_cert" || { echo "::error::Could not read AAB signer certificate fingerprint."; exit 1; }
           [[ "$aab_cert" == "$expected_cert" ]] || {
@@ -162,6 +166,14 @@ jobs:
           cd dist
           sha256sum * > SHA256SUMS
           ls -lh
+
+      - name: Retain R8 mapping file for release diagnostics
+        uses: actions/upload-artifact@v7
+        with:
+          name: rivo-r8-mapping-${{ github.run_id }}
+          path: app/build/outputs/mapping/release/mapping.txt
+          if-no-files-found: error
+          retention-days: 90
 
       - name: Remove temporary signing keystore
         if: always()
@@ -209,3 +221,9 @@ jobs:
               --title "Rivo Browser $RELEASE_TAG" \
               --generate-notes
           fi
+
+          verify_dir="$(mktemp -d)"
+          trap 'rm -rf "$verify_dir"' EXIT
+          gh release download "$RELEASE_TAG" --dir "$verify_dir"
+          test -s "$verify_dir/SHA256SUMS"
+          (cd "$verify_dir" && sha256sum -c SHA256SUMS)
