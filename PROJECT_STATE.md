@@ -186,3 +186,11 @@ Updated: 2026-11-23
 - No `CODEOWNERS` file was found at root, `.github/CODEOWNERS`, or `docs/CODEOWNERS` on Main. Do not add a catch-all owner entry until a distinct trusted reviewer/code-owner identity is designated; assigning the PR author as sole code owner would make the review requirement unworkable for this PR.
 - PR #66 is open and unmerged. Its five PR-head CI workflows previously completed successfully, but it has no submitted reviews and GitHub reports the merge state as blocked. Do not bypass review or merge protections. A trusted collaborator must approve; if CODEOWNERS is to be enforced for workflow/security files, designate a second trusted GitHub username and add that identity in a follow-up.
 - No production-signed APK/AAB or published release is claimed. A real signed-release workflow run and verification of signatures/fingerprints/checksums remain outstanding.
+
+
+## 2026-11-24 — governance follow-up (verified)
+- Active Main ruleset `27894079` now requires one approving review, dismisses stale reviews, and enables code-owner review; required `build` check, up-to-date policy, conversation resolution, deletion/force-push protections and no-bypass state remain active.
+- Owner reports all four signing secrets have been added to the `production` Environment. Environment reviewer/deployment restrictions and secret scope are not independently readable through this integration.
+- PR #66 (`security/governance-hardening-2026-11-23`) has 5/5 PR CI workflows successful at head `24e36c109192cf16190bf40fe765886c00b9e837`; PR remains open and blocked for independent approval. No production release is claimed.
+- No CODEOWNERS file exists. A second trusted maintainer must be mapped as code owner; do not make the PR author the sole owner or bypass review.
+- Remaining: establish effective CODEOWNERS, independent PR approval and merge; verify production Environment protection; pin third-party Actions to verified full SHAs; perform protected signed-release execution and verify signed APK/AAB/checksums; physical-device/accessibility/low-RAM/runtime-16KB and full MASVS/MASTG assessment.
