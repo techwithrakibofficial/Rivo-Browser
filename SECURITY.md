@@ -102,3 +102,14 @@ OWASP MASVS is the assessment baseline. This document is not an independent secu
 - Production Environment reviewer policy, deployment ref restrictions, and presence of all four secrets specifically in the `production` Environment could not be verified with the available integration. Owner/admin must configure and verify these controls before production signing.
 - Gradle artifact dependency verification remains unconfigured: `gradle/verification-metadata.xml` and a verification keyring are absent. Lockfiles and OSV scans are separate controls.
 - This checkpoint updates CI state only; it does not close physical-device QA, accessibility, 3–4 GB performance profiling, runtime 16 KB validation, or the full MASVS/MASTG review.
+
+## 2026-11-23 — live GitHub governance reconciliation
+
+See [GOVERNANCE_AUDIT.md](GOVERNANCE_AUDIT.md) for the live ruleset and release-security audit. This checkpoint supersedes older statements in this file that Main had no active protection: ruleset `27894079` is active and requires PRs, the `build` status check, up-to-date branches, conversation resolution, and blocks deletion/force-push. However, it requires **zero** approvals, does not dismiss stale reviews, and does not require code-owner review. The classic branch-protection endpoint remains disabled; the active ruleset is the operative protection.
+
+On branch `security/governance-hardening-2026-11-23`:
+- Removed the privileged PR write-back job from Gradle verification bootstrap. PR-controlled Gradle build logic now only generates review artifacts under the read-only bootstrap job; it is not followed by a job that receives `contents: write` to push artifact contents.
+- Changed signed-release publication to fail when a GitHub Release already exists, instead of uploading with `--clobber`.
+- These workflow changes are pending PR CI; they are not yet integrated into Main.
+- Production Environment reviewers, deployment ref restrictions and Environment-scoped secret presence remain unverified because the connected integration cannot read Environment administration settings.
+- No production-signed release exists at this checkpoint. No signed build or production release is claimed.
