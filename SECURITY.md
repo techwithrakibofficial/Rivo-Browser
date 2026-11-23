@@ -113,3 +113,7 @@ On branch `security/governance-hardening-2026-11-23`:
 - These workflow changes are pending PR CI; they are not yet integrated into Main.
 - Production Environment reviewers, deployment ref restrictions and Environment-scoped secret presence remain unverified because the connected integration cannot read Environment administration settings.
 - No production-signed release exists at this checkpoint. No signed build or production release is claimed.
+
+### Dependency verification status correction — 2026-11-23
+- Main now contains `gradle/verification-metadata.xml` and `DEPENDENCY_VERIFICATION.md`; the earlier 2026-11-13 note that metadata was absent is historical and superseded.
+- The current metadata records SHA-256 checksums with PGP signature verification disabled. Android CI uses strict Gradle dependency verification. This is a trust-on-first-use checksum baseline, not upstream signature attestation.
