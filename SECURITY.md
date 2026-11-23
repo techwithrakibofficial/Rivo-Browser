@@ -127,3 +127,10 @@ On branch `security/governance-hardening-2026-11-23`:
 - No `CODEOWNERS` file was found at root, `.github/CODEOWNERS`, or `docs/CODEOWNERS` on Main. Do not add a catch-all owner entry until a distinct trusted reviewer/code-owner identity is designated; assigning the PR author as sole code owner would make the review requirement unworkable for this PR.
 - PR #66 is open and unmerged. Its five PR-head CI workflows previously completed successfully, but it has no submitted reviews and GitHub reports the merge state as blocked. Do not bypass review or merge protections. A trusted collaborator must approve; if CODEOWNERS is to be enforced for workflow/security files, designate a second trusted GitHub username and add that identity in a follow-up.
 - No production-signed APK/AAB or published release is claimed. A real signed-release workflow run and verification of signatures/fingerprints/checksums remain outstanding.
+
+
+## 2026-11-24 governance and signing follow-up
+- Main ruleset `27894079` now requires one approving review, dismisses stale approvals, and enables code-owner review; it retains the required `build` check, up-to-date branches, conversation resolution, deletion/force-push protection and no bypass actors.
+- The owner reports adding all four signing values to the `production` Environment. The integration cannot inspect Environment secrets or reviewer/deployment restrictions; this is not independent verification. Never put secret values in source, logs or chat.
+- PR #66 has five successful CI workflows on its current head but is not merged; it requires an independent reviewer. No CODEOWNERS file currently exists, so the enabled code-owner-review switch has no mappings to enforce. Add a trusted second maintainer as code owner before relying on this control.
+- No production-signed APK/AAB or published release is verified. Action references remain tag-based; immutable SHA pinning is still outstanding.
