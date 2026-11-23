@@ -195,6 +195,15 @@ class BrowserController(context: Context) {
                 }
 
                 override fun onLoadingChanged(loading: Boolean, progress: Int) {
+                    if (loading && progress == 0) {
+                        // Do not carry a previous document's trust/mixed-content state into a new load.
+                        tab.securityKnown = false
+                        tab.secureConnection = false
+                        tab.certificateException = false
+                        tab.activeMixedContentLoaded = false
+                        tab.passiveMixedContentLoaded = false
+                        tab.mixedContentStatusUnknown = true
+                    }
                     tab.loading = loading
                     tab.progress = progress.coerceIn(0, 100)
                 }
