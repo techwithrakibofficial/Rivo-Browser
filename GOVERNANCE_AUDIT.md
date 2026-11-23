@@ -108,3 +108,12 @@ The audited Main revision now contains `gradle/verification-metadata.xml` and `D
 - No `.github/CODEOWNERS`, root `CODEOWNERS`, or `docs/CODEOWNERS` file exists on the hardening branch. Although the ruleset's code-owner-review switch is enabled, there are no repository code-owner mappings to enforce. Do not assign the owner as the only code owner for this owner-authored PR; GitHub disallows self-approval. A second trusted maintainer/collaborator must be designated as code owner and approve, or owner must choose a maintainable multi-maintainer ownership model before enabling effective code-owner enforcement.
 - No production-signed workflow run, signed APK/AAB verification, or published release is evidenced. Do not trigger a public release until the Environment protection gate and approved reviewed tag are verified.
 - Workflow action references are still version-tag based rather than pinned to verified full commit SHAs; immutable pinning remains open.
+
+
+## Trusted code-owner setup — 2026-11-24
+
+- Added `.github/CODEOWNERS` on the governance-hardening branch, assigning repository-wide ownership to `@techsomadhanmedia`.
+- Successfully requested `techsomadhanmedia` as reviewer for PR #66.
+- CODEOWNERS content was fetched back from GitHub and verified.
+- PR #66 remains open and unmerged. No independent review has been submitted yet; the designated collaborator must inspect the diff and submit **Approve**.
+- The latest PR head after CODEOWNERS creation is `5f668f76d0865044645c610571fbea9b21752af6`. CI checks for this exact head are not yet evidenced by the available workflow-run lookup.
