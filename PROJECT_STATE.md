@@ -194,3 +194,13 @@ Updated: 2026-11-23
 - PR #66 (`security/governance-hardening-2026-11-23`) has 5/5 PR CI workflows successful at head `24e36c109192cf16190bf40fe765886c00b9e837`; PR remains open and blocked for independent approval. No production release is claimed.
 - No CODEOWNERS file exists. A second trusted maintainer must be mapped as code owner; do not make the PR author the sole owner or bypass review.
 - Remaining: establish effective CODEOWNERS, independent PR approval and merge; verify production Environment protection; pin third-party Actions to verified full SHAs; perform protected signed-release execution and verify signed APK/AAB/checksums; physical-device/accessibility/low-RAM/runtime-16KB and full MASVS/MASTG assessment.
+
+
+## 2026-11-23 — comprehensive Android security source audit
+
+- Audited Main baseline: `0df6760287b0de5c07d2468b247145dae9c0ea4b`.
+- Reviewed Android source/configuration for GeckoView, manifest/IPC, network configuration, navigation, downloads, permissions, notifications, encrypted metadata, private browsing and supply-chain CI controls.
+- No confirmed fixable high- or medium-severity vulnerability was identified in the reviewed source/configuration paths. This is not a penetration-test result.
+- Added deterministic property-style JVM regression coverage for malformed omnibox inputs and download filenames in `SecurityInputPropertyTest.kt`.
+- CI status at audit update: Main Android CI run `45240923073` was in progress. OSV Scanner Scheduled, Source SBOM and Gradle Dependency Graph on the same Main SHA had completed successfully. Recheck before closing this task.
+- Open release gates: GeckoView runtime TLS/mixed-content tests; merged manifest/IPC; private mode and storage forensic checks; Keystore lifecycle; screenshot/recents; full SDK/data-flow/privacy review; signed release binary inspection; physical-device and independent penetration testing.
