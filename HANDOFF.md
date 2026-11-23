@@ -223,3 +223,26 @@ Automated CI success is verified. It is not evidence of physical-device acceptan
 - No `CODEOWNERS` file was found at root, `.github/CODEOWNERS`, or `docs/CODEOWNERS` on Main. Do not add a catch-all owner entry until a distinct trusted reviewer/code-owner identity is designated; assigning the PR author as sole code owner would make the review requirement unworkable for this PR.
 - PR #66 is open and unmerged. Its five PR-head CI workflows previously completed successfully, but it has no submitted reviews and GitHub reports the merge state as blocked. Do not bypass review or merge protections. A trusted collaborator must approve; if CODEOWNERS is to be enforced for workflow/security files, designate a second trusted GitHub username and add that identity in a follow-up.
 - No production-signed APK/AAB or published release is claimed. A real signed-release workflow run and verification of signatures/fingerprints/checksums remain outstanding.
+
+
+## Authoritative handoff — 2026-11-24 governance follow-up
+
+### Verified
+- Active Main ruleset `27894079`: 1 approving review required; stale approvals dismissed on new pushes; code-owner review enabled; PR required; `build` required with up-to-date branches; review conversations resolved; deletion and non-fast-forward blocked; no bypass actors.
+- PR #66: https://github.com/techwithrakibofficial/Rivo-Browser/pull/66. Current head `24e36c109192cf16190bf40fe765886c00b9e837`. Five PR workflows passed: Android CI, Gradle Dependency Verification Bootstrap, OSV Scanner, Gradle Dependency Graph, Source SBOM. PR is open, owner-authored, no reviews submitted, and blocked pending independent approval.
+- No CODEOWNERS file exists at root, `.github/`, or `docs/`. Ruleset code-owner review is enabled but currently has no owner mapping to enforce. Designate a second trusted maintainer as code owner; don't bypass protections.
+- Owner reports all four signing values added to the `production` Environment. Environment secrets/reviewer/deployment rules cannot be independently inspected by this integration.
+
+### Exact next steps
+1. Add a trusted second maintainer/collaborator as code owner in `.github/CODEOWNERS` after confirming their exact GitHub username and write access.
+2. Have that maintainer review and approve PR #66; do not self-approve or bypass rules.
+3. Verify the `production` Environment has a trusted required reviewer, prevents self-review where available, and restricts deployment refs to reviewed Main-ancestral release tags. Secret values must remain secret.
+4. Merge PR #66 only after approval and fresh required checks pass.
+5. Pin third-party Actions to verified full commit SHAs in a separately tested change.
+6. Run a protected signed-release workflow only after the environment gate is verified; verify APK/AAB signatures, matching signer fingerprints and SHA-256 assets. No signed release is currently evidenced.
+7. Complete physical-device, accessibility, 3–4 GB RAM, runtime 16 KB and full MASVS/MASTG acceptance.
+
+### Blockers / evidence boundary
+- No collaborator username has been supplied/verified for CODEOWNERS, so no ownership file was fabricated.
+- No production signing run, signed APK/AAB, or GitHub Release is verified.
+- Classic branch protection and Environment settings are not exposed to the connected integration; active ruleset read is verified, but these admin-only details remain unverified.
