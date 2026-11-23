@@ -166,3 +166,13 @@ Updated: 2026-11-23
 - Remaining non-blocking upstream/environment warnings: `android-actions/setup-android@v4` invokes `sdkmanager`, which currently emits an Android CLI deprecation warning; hosted runner had no `/dev/kvm`, so emulator software acceleration was possible (instrumentation nevertheless passed); OSV Scanner v2.7.1 emits a deprecated `--output` option warning internally. Emulator/X11/QEMU diagnostic warnings did not fail tests. These are not app compile, lint or test failures; do not hide them or replace the supported Android setup action without a verified migration.
 - Release status remains separate from CI: GitHub Releases API returned no published releases. The signed-release workflow requires production Environment secrets `RIVO_UPLOAD_KEYSTORE_BASE64`, `RIVO_UPLOAD_STORE_PASSWORD`, `RIVO_UPLOAD_KEY_ALIAS` and `RIVO_UPLOAD_KEY_PASSWORD`; secret presence/value and Environment reviewer configuration were not verifiable through this session. No signed APK/AAB is claimed.
 - Physical-device functional/privacy QA, accessibility acceptance, 3–4 GB RAM profiling, runtime 16 KB validation, Gradle artifact dependency verification and full MASVS/MASTG review remain release gates. CI success is not production-release readiness.
+
+## 2026-11-23 — GitHub governance/security audit
+
+- Main is `cda27e5bf019fbf50be47678c53bf1dcc2e54d0e`; active ruleset `27894079` targets `refs/heads/main`.
+- Verified rules: PR required, `build` required and strict/up-to-date, force-push and deletion blocked, review conversations resolved, no bypass actors.
+- Gap: required approval count is zero; stale review dismissal and CODEOWNERS review are disabled.
+- Hardening branch `security/governance-hardening-2026-11-23` removes the privileged PR artifact write-back job from dependency verification and prevents the release workflow from overwriting an existing GitHub Release.
+- Environment protection, Environment secret names/presence, repository Actions policy and ruleset mutation could not be verified/changed by the connected GitHub integration.
+- No production signed release exists. PR CI must pass before merge; then owner-only governance and signing gates remain.
+- Full evidence and checklist: [GOVERNANCE_AUDIT.md](GOVERNANCE_AUDIT.md).
