@@ -109,3 +109,10 @@ New deterministic property-style regression coverage is being added for malforme
 - Screenshots/recents behavior is not established by static source inspection; preserve browser usability and test actual background snapshots before choosing a blocking policy.
 
 The exact signed release candidate, supported Android versions, and physical test devices are not available in this audit session. The dynamic MASTG test matrix remains a production release gate.
+
+
+### Medium finding remediation — mixed-content status was omitted from security UI
+
+A follow-up review of the GeckoView `SecurityInformation` callback found that the app forwarded only `isSecure` and `isException`, while GeckoView separately reports `mixedModeActive` and `mixedModePassive`. The UI could consequently use a generic secure-connection label without disclosing loaded mixed content.
+
+**Fix in current PR:** mixed-content loaded/unknown states are now propagated to tab state and rendered as explicit warnings/qualified transport status. `BrowserSecurityStatusPolicyTest` covers certificate-exception precedence, active/passive loaded content, unknown state, ordinary secure state and insecure state. Treat this finding as remediated in source, pending PR CI and runtime GeckoView fixture verification.
