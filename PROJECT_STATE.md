@@ -166,3 +166,31 @@ Updated: 2026-11-23
 - Remaining non-blocking upstream/environment warnings: `android-actions/setup-android@v4` invokes `sdkmanager`, which currently emits an Android CLI deprecation warning; hosted runner had no `/dev/kvm`, so emulator software acceleration was possible (instrumentation nevertheless passed); OSV Scanner v2.7.1 emits a deprecated `--output` option warning internally. Emulator/X11/QEMU diagnostic warnings did not fail tests. These are not app compile, lint or test failures; do not hide them or replace the supported Android setup action without a verified migration.
 - Release status remains separate from CI: GitHub Releases API returned no published releases. The signed-release workflow requires production Environment secrets `RIVO_UPLOAD_KEYSTORE_BASE64`, `RIVO_UPLOAD_STORE_PASSWORD`, `RIVO_UPLOAD_KEY_ALIAS` and `RIVO_UPLOAD_KEY_PASSWORD`; secret presence/value and Environment reviewer configuration were not verifiable through this session. No signed APK/AAB is claimed.
 - Physical-device functional/privacy QA, accessibility acceptance, 3–4 GB RAM profiling, runtime 16 KB validation, Gradle artifact dependency verification and full MASVS/MASTG review remain release gates. CI success is not production-release readiness.
+
+## 2026-11-23 — GitHub governance/security audit
+
+- Main is `cda27e5bf019fbf50be47678c53bf1dcc2e54d0e`; active ruleset `27894079` targets `refs/heads/main`.
+- Verified rules: PR required, `build` required and strict/up-to-date, force-push and deletion blocked, review conversations resolved, no bypass actors.
+- Gap: required approval count is zero; stale review dismissal and CODEOWNERS review are disabled.
+- Hardening branch `security/governance-hardening-2026-11-23` removes the privileged PR artifact write-back job from dependency verification and prevents the release workflow from overwriting an existing GitHub Release.
+- Environment protection, Environment secret names/presence, repository Actions policy and ruleset mutation could not be verified/changed by the connected GitHub integration.
+- No production signed release exists. PR CI must pass before merge; then owner-only governance and signing gates remain.
+- Full evidence and checklist: [GOVERNANCE_AUDIT.md](GOVERNANCE_AUDIT.md).
+
+
+## 2026-11-24 authoritative follow-up (supersedes earlier 2026-11-23 snapshot)
+
+- The repository owner reports that all four signing secrets have now been added to the GitHub Actions `production` Environment: `RIVO_UPLOAD_KEYSTORE_BASE64`, `RIVO_UPLOAD_STORE_PASSWORD`, `RIVO_UPLOAD_KEY_ALIAS`, and `RIVO_UPLOAD_KEY_PASSWORD`. Secret values were not requested, accessed, or logged. The connected integration cannot inspect Environment secret metadata, so this is owner-reported and not independently API-verified.
+- A fresh read of active ruleset `27894079` shows: one approving review required; stale approvals dismissed on new pushes; code-owner review required; `build` required with up-to-date branch; conversation resolution required; deletion and non-fast-forward updates blocked; no bypass actors. This supersedes earlier text in this audit branch saying zero approvals / stale dismissal off / code-owner review off.
+- Classic branch-protection API remains inaccessible to this integration; the active ruleset is the effective protection observed. Production Environment reviewer/self-review and deployment-ref settings remain unverified.
+- No `CODEOWNERS` file was found at root, `.github/CODEOWNERS`, or `docs/CODEOWNERS` on Main. Do not add a catch-all owner entry until a distinct trusted reviewer/code-owner identity is designated; assigning the PR author as sole code owner would make the review requirement unworkable for this PR.
+- PR #66 is open and unmerged. Its five PR-head CI workflows previously completed successfully, but it has no submitted reviews and GitHub reports the merge state as blocked. Do not bypass review or merge protections. A trusted collaborator must approve; if CODEOWNERS is to be enforced for workflow/security files, designate a second trusted GitHub username and add that identity in a follow-up.
+- No production-signed APK/AAB or published release is claimed. A real signed-release workflow run and verification of signatures/fingerprints/checksums remain outstanding.
+
+
+## 2026-11-24 — governance follow-up (verified)
+- Active Main ruleset `27894079` now requires one approving review, dismisses stale reviews, and enables code-owner review; required `build` check, up-to-date policy, conversation resolution, deletion/force-push protections and no-bypass state remain active.
+- Owner reports all four signing secrets have been added to the `production` Environment. Environment reviewer/deployment restrictions and secret scope are not independently readable through this integration.
+- PR #66 (`security/governance-hardening-2026-11-23`) has 5/5 PR CI workflows successful at head `24e36c109192cf16190bf40fe765886c00b9e837`; PR remains open and blocked for independent approval. No production release is claimed.
+- No CODEOWNERS file exists. A second trusted maintainer must be mapped as code owner; do not make the PR author the sole owner or bypass review.
+- Remaining: establish effective CODEOWNERS, independent PR approval and merge; verify production Environment protection; pin third-party Actions to verified full SHAs; perform protected signed-release execution and verify signed APK/AAB/checksums; physical-device/accessibility/low-RAM/runtime-16KB and full MASVS/MASTG assessment.

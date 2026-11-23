@@ -202,3 +202,47 @@ Automated CI success is verified. It is not evidence of physical-device acceptan
 - Main Source SBOM: https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/43845322921
 - Main OSV scan: https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/43845323444
 - PR #56: https://github.com/techwithrakibofficial/Rivo-Browser/pull/56
+
+## 2026-11-23 — governance audit handoff
+
+- Audited Main SHA: `cda27e5bf019fbf50be47678c53bf1dcc2e54d0e`.
+- Active Main ruleset ID `27894079` is present. It requires PR + `build`, up-to-date branch, resolved conversations, blocks force-push/deletion, and has no bypass actors. It currently requires zero approvals; stale dismissal and code-owner review are off.
+- Created branch `security/governance-hardening-2026-11-23`.
+- Changes: removed the PR-triggered dependency-verification artifact write-back job that had `contents: write`; release publisher now refuses to overwrite an existing Release rather than using `--clobber`.
+- CI and merge status: pending PR creation/checks at handoff; do not claim tested or merged until verified.
+- Owner/admin-only tasks: require at least one trusted review, dismiss stale approvals, enforce CODEOWNERS; configure/verify `production` Environment reviewers and deployment refs; verify signing secrets exist only as Environment secrets; migrate action references to verified immutable SHAs or a validated action dependency lockfile.
+- No release published, no production signing run, and no credentials handled.
+- Exact checklist/evidence: [GOVERNANCE_AUDIT.md](GOVERNANCE_AUDIT.md).
+
+
+## 2026-11-24 authoritative follow-up (supersedes earlier 2026-11-23 snapshot)
+
+- The repository owner reports that all four signing secrets have now been added to the GitHub Actions `production` Environment: `RIVO_UPLOAD_KEYSTORE_BASE64`, `RIVO_UPLOAD_STORE_PASSWORD`, `RIVO_UPLOAD_KEY_ALIAS`, and `RIVO_UPLOAD_KEY_PASSWORD`. Secret values were not requested, accessed, or logged. The connected integration cannot inspect Environment secret metadata, so this is owner-reported and not independently API-verified.
+- A fresh read of active ruleset `27894079` shows: one approving review required; stale approvals dismissed on new pushes; code-owner review required; `build` required with up-to-date branch; conversation resolution required; deletion and non-fast-forward updates blocked; no bypass actors. This supersedes earlier text in this audit branch saying zero approvals / stale dismissal off / code-owner review off.
+- Classic branch-protection API remains inaccessible to this integration; the active ruleset is the effective protection observed. Production Environment reviewer/self-review and deployment-ref settings remain unverified.
+- No `CODEOWNERS` file was found at root, `.github/CODEOWNERS`, or `docs/CODEOWNERS` on Main. Do not add a catch-all owner entry until a distinct trusted reviewer/code-owner identity is designated; assigning the PR author as sole code owner would make the review requirement unworkable for this PR.
+- PR #66 is open and unmerged. Its five PR-head CI workflows previously completed successfully, but it has no submitted reviews and GitHub reports the merge state as blocked. Do not bypass review or merge protections. A trusted collaborator must approve; if CODEOWNERS is to be enforced for workflow/security files, designate a second trusted GitHub username and add that identity in a follow-up.
+- No production-signed APK/AAB or published release is claimed. A real signed-release workflow run and verification of signatures/fingerprints/checksums remain outstanding.
+
+
+## Authoritative handoff — 2026-11-24 governance follow-up
+
+### Verified
+- Active Main ruleset `27894079`: 1 approving review required; stale approvals dismissed on new pushes; code-owner review enabled; PR required; `build` required with up-to-date branches; review conversations resolved; deletion and non-fast-forward blocked; no bypass actors.
+- PR #66: https://github.com/techwithrakibofficial/Rivo-Browser/pull/66. Current head `24e36c109192cf16190bf40fe765886c00b9e837`. Five PR workflows passed: Android CI, Gradle Dependency Verification Bootstrap, OSV Scanner, Gradle Dependency Graph, Source SBOM. PR is open, owner-authored, no reviews submitted, and blocked pending independent approval.
+- No CODEOWNERS file exists at root, `.github/`, or `docs/`. Ruleset code-owner review is enabled but currently has no owner mapping to enforce. Designate a second trusted maintainer as code owner; don't bypass protections.
+- Owner reports all four signing values added to the `production` Environment. Environment secrets/reviewer/deployment rules cannot be independently inspected by this integration.
+
+### Exact next steps
+1. Add a trusted second maintainer/collaborator as code owner in `.github/CODEOWNERS` after confirming their exact GitHub username and write access.
+2. Have that maintainer review and approve PR #66; do not self-approve or bypass rules.
+3. Verify the `production` Environment has a trusted required reviewer, prevents self-review where available, and restricts deployment refs to reviewed Main-ancestral release tags. Secret values must remain secret.
+4. Merge PR #66 only after approval and fresh required checks pass.
+5. Pin third-party Actions to verified full commit SHAs in a separately tested change.
+6. Run a protected signed-release workflow only after the environment gate is verified; verify APK/AAB signatures, matching signer fingerprints and SHA-256 assets. No signed release is currently evidenced.
+7. Complete physical-device, accessibility, 3–4 GB RAM, runtime 16 KB and full MASVS/MASTG acceptance.
+
+### Blockers / evidence boundary
+- No collaborator username has been supplied/verified for CODEOWNERS, so no ownership file was fabricated.
+- No production signing run, signed APK/AAB, or GitHub Release is verified.
+- Classic branch protection and Environment settings are not exposed to the connected integration; active ruleset read is verified, but these admin-only details remain unverified.

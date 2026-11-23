@@ -102,3 +102,35 @@ OWASP MASVS is the assessment baseline. This document is not an independent secu
 - Production Environment reviewer policy, deployment ref restrictions, and presence of all four secrets specifically in the `production` Environment could not be verified with the available integration. Owner/admin must configure and verify these controls before production signing.
 - Gradle artifact dependency verification remains unconfigured: `gradle/verification-metadata.xml` and a verification keyring are absent. Lockfiles and OSV scans are separate controls.
 - This checkpoint updates CI state only; it does not close physical-device QA, accessibility, 3–4 GB performance profiling, runtime 16 KB validation, or the full MASVS/MASTG review.
+
+## 2026-11-23 — live GitHub governance reconciliation
+
+See [GOVERNANCE_AUDIT.md](GOVERNANCE_AUDIT.md) for the live ruleset and release-security audit. This checkpoint supersedes older statements in this file that Main had no active protection: ruleset `27894079` is active and requires PRs, the `build` status check, up-to-date branches, conversation resolution, and blocks deletion/force-push. However, it requires **zero** approvals, does not dismiss stale reviews, and does not require code-owner review. The classic branch-protection endpoint remains disabled; the active ruleset is the operative protection.
+
+On branch `security/governance-hardening-2026-11-23`:
+- Removed the privileged PR write-back job from Gradle verification bootstrap. PR-controlled Gradle build logic now only generates review artifacts under the read-only bootstrap job; it is not followed by a job that receives `contents: write` to push artifact contents.
+- Changed signed-release publication to fail when a GitHub Release already exists, instead of uploading with `--clobber`.
+- These workflow changes are pending PR CI; they are not yet integrated into Main.
+- Production Environment reviewers, deployment ref restrictions and Environment-scoped secret presence remain unverified because the connected integration cannot read Environment administration settings.
+- No production-signed release exists at this checkpoint. No signed build or production release is claimed.
+
+### Dependency verification status correction — 2026-11-23
+- Main now contains `gradle/verification-metadata.xml` and `DEPENDENCY_VERIFICATION.md`; the earlier 2026-11-13 note that metadata was absent is historical and superseded.
+- The current metadata records SHA-256 checksums with PGP signature verification disabled. Android CI uses strict Gradle dependency verification. This is a trust-on-first-use checksum baseline, not upstream signature attestation.
+
+
+## 2026-11-24 authoritative follow-up (supersedes earlier 2026-11-23 snapshot)
+
+- The repository owner reports that all four signing secrets have now been added to the GitHub Actions `production` Environment: `RIVO_UPLOAD_KEYSTORE_BASE64`, `RIVO_UPLOAD_STORE_PASSWORD`, `RIVO_UPLOAD_KEY_ALIAS`, and `RIVO_UPLOAD_KEY_PASSWORD`. Secret values were not requested, accessed, or logged. The connected integration cannot inspect Environment secret metadata, so this is owner-reported and not independently API-verified.
+- A fresh read of active ruleset `27894079` shows: one approving review required; stale approvals dismissed on new pushes; code-owner review required; `build` required with up-to-date branch; conversation resolution required; deletion and non-fast-forward updates blocked; no bypass actors. This supersedes earlier text in this audit branch saying zero approvals / stale dismissal off / code-owner review off.
+- Classic branch-protection API remains inaccessible to this integration; the active ruleset is the effective protection observed. Production Environment reviewer/self-review and deployment-ref settings remain unverified.
+- No `CODEOWNERS` file was found at root, `.github/CODEOWNERS`, or `docs/CODEOWNERS` on Main. Do not add a catch-all owner entry until a distinct trusted reviewer/code-owner identity is designated; assigning the PR author as sole code owner would make the review requirement unworkable for this PR.
+- PR #66 is open and unmerged. Its five PR-head CI workflows previously completed successfully, but it has no submitted reviews and GitHub reports the merge state as blocked. Do not bypass review or merge protections. A trusted collaborator must approve; if CODEOWNERS is to be enforced for workflow/security files, designate a second trusted GitHub username and add that identity in a follow-up.
+- No production-signed APK/AAB or published release is claimed. A real signed-release workflow run and verification of signatures/fingerprints/checksums remain outstanding.
+
+
+## 2026-11-24 governance and signing follow-up
+- Main ruleset `27894079` now requires one approving review, dismisses stale approvals, and enables code-owner review; it retains the required `build` check, up-to-date branches, conversation resolution, deletion/force-push protection and no bypass actors.
+- The owner reports adding all four signing values to the `production` Environment. The integration cannot inspect Environment secrets or reviewer/deployment restrictions; this is not independent verification. Never put secret values in source, logs or chat.
+- PR #66 has five successful CI workflows on its current head but is not merged; it requires an independent reviewer. No CODEOWNERS file currently exists, so the enabled code-owner-review switch has no mappings to enforce. Add a trusted second maintainer as code owner before relying on this control.
+- No production-signed APK/AAB or published release is verified. Action references remain tag-based; immutable SHA pinning is still outstanding.
