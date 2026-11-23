@@ -273,3 +273,9 @@ Automated CI success is verified. It is not evidence of physical-device acceptan
 3. Fix any genuine regressions without weakening security controls; update evidence and rerun CI.
 4. Obtain an independent trusted review and merge only after required checks/review pass.
 5. Schedule device/runtime MASTG test matrix and signed-release artifact inspection before production release.
+
+
+### Follow-up source finding and remediation
+- Identified medium security-presentation issue: the browser connection label did not consume GeckoView's active/passive mixed-content fields.
+- Remediated in this branch by propagating mixed-content state to each tab and qualifying/warning in the UI; added `BrowserSecurityStatusPolicyTest.kt`.
+- Verify latest PR-head Android CI after the final code/docs commit. Gecko runtime mixed-content fixtures remain a manual/device gate.
