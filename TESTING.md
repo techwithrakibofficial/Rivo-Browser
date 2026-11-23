@@ -158,3 +158,49 @@ Record device model, Android/API level, build SHA, test case, steps, expected re
 - App and engine-benchmark packaging now explicitly sets `jniLibs.useLegacyPackaging = false`. Existing Android CI builds APK/AAB artifacts and runs `tools/verify_16kb_alignment.py`, which checks every packaged 64-bit native ELF PT_LOAD alignment (>=16 KB) and APK ZIP alignment using `zipalign -P 16`.
 - Compose audit found no XML layout files. The unlabeled bookmark-remove glyph was given a contextual content description; appearance choices now expose RadioButton role/selected state and a 48 dp minimum row; Reader Mode slider has a name; dialog titles are semantic headings. Material 3 components retain their minimum interactive touch targets and normal hierarchy traversal order.
 - Not claimed as passed: fresh CI for this commit, 16 KB hardware/runtime behavior, TalkBack traversal on-device, 320 dp layout, large-font scaling, and physical-device accessibility checks. Run these against the exact release candidate before acceptance.
+
+
+## Security audit regression additions — 2026-11-23
+
+### Deterministic hostile-input property tests
+
+- `SecurityInputPropertyTest` exercises seeded malicious URI schemes, credentials, malformed ports, control characters, Unicode, separators and 512 deterministic generated omnibox inputs. Expected invariant: resolution always produces a parseable HTTP(S) URL with a host and without user-info; unsupported schemes are search queries rather than active protocol navigation.
+- The same test exercises seeded path traversal, Windows path syntax, reserved staging names, control characters and 512 deterministic generated download names. Expected invariant: sanitized names contain no slash/backslash, are nonblank and bounded, are not dot path components, and cannot collide with the interrupted-download cleanup namespace.
+- These are deterministic property-style JVM regression tests, not coverage-guided fuzzing. They do not fuzz GeckoView's native parser or Android platform intent dispatch.
+
+### Existing CI security execution path
+
+The Android CI workflow runs:
+1. `tools/verify_security_static.py` manifest/network/bridge/TLS/Gecko/WebView guardrails.
+2. Gradle dependency verification with `--dependency-verification strict`.
+3. Android lint, app JVM tests and Gecko policy JVM tests.
+4. Shipping app and benchmark builds, minified release bundle and static 16 KB alignment checks.
+5. API 35 emulator instrumentation tests, including encrypted-storage and temporary-download cleanup coverage.
+
+A workflow being configured is not evidence that the latest commit passed. Record the exact run URL and conclusion only after the run completes. No physical-device MASTG or independent penetration test is claimed by this test suite.
+
+### Manual security test matrix still required
+
+- GeckoView: invalid/expired/self-signed/hostname-mismatched certificates; HTTP redirects; active/passive mixed content; WebSocket; proxy/VPN; hostile popup and custom scheme handling.
+- IPC: merged release manifest, malformed external intents, FileProvider URI grants/read-only access/revocation, notification PendingIntent behavior.
+- Storage/privacy: backup/restore, Keystore key invalidation, tampered ciphertext, private tab process death/download cleanup, logs, clipboard, recents and screenshot snapshots.
+- Permissions: deny/revoke location, camera, microphone and notifications; verify origin and active-tab binding.
+- Release: inspect exact signed APK/AAB, manifest, signer certificate, checksums and SBOM.
+
+
+### Mixed-content security-state regression
+
+- `BrowserSecurityStatusPolicyTest` verifies certificate-exception precedence, active mixed content warning, passive mixed content disclosure, unknown mixed-content qualification, normal secure label and insecure label.
+- GeckoView's runtime mixed-content behavior still requires HTTPS test fixtures containing HTTP script/style/frame/image/media/fetch resources and redirects. The UI policy unit test does not prove what Gecko blocks or loads.
+
+
+## 2026-11-24 — PR #67 verification closeout (authoritative latest checkpoint)
+
+- Audited source branch: `security/comprehensive-android-audit-2026-11-23`; verified PR head: `1cde602ae030b44c260770734205b0186deb4e28`; base Main: `0df6760287b0de5c07d2468b247145dae9c0ea4b`.
+- GitHub Actions Android CI run [45242372450](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45242372450) completed successfully. Its build job completed all steps successfully, including strict Gradle dependency verification, static security configuration audit, shipping and benchmark builds, Android lint, JVM tests, Gecko policy tests, minified shipping release bundle, static 16 KB alignment checks, and API 35 emulator Android security instrumentation tests.
+- PR-head supply-chain workflows also completed successfully: [Gradle Dependency Verification Bootstrap](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45242372194), [Source SBOM](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45242372086), [OSV Scanner](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45242372048), and [Gradle Dependency Graph](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45242371982).
+- The Medium mixed-content security-indicator finding is remediated in source and covered by JVM policy tests. CI success verifies the automated test path; GeckoView mixed-content fixture behavior on physical devices remains unverified.
+- Correction to earlier preliminary audit wording: a follow-up review DID identify the Medium mixed-content status presentation issue; it is fixed in this PR. Do not interpret earlier “no confirmed Medium issue” wording as the final finding.
+- PR #67 remains open and unmerged. The trusted reviewer `techsomadhanmedia` has write permission and is already requested as reviewer, but the PR currently has no submitted review/approval. Do not self-approve, bypass required review, or merge before independent approval and required checks.
+- Scope boundary: successful emulator instrumentation is verified; physical-device MASTG/runtime tests, merged release manifest/IPC inspection, exact signed APK/AAB inspection, production signing/release, and independent penetration testing are NOT completed. This is not MASVS certification.
+- Manual next gate: `techsomadhanmedia` must open PR #67, inspect the changes, and submit **Approve**. After approval, recheck all required checks and mergeability before merging. Physical-device checks must then be executed using the documented matrix before production security acceptance.

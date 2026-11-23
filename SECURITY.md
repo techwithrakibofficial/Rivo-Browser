@@ -134,3 +134,29 @@ On branch `security/governance-hardening-2026-11-23`:
 - The owner reports adding all four signing values to the `production` Environment. The integration cannot inspect Environment secrets or reviewer/deployment restrictions; this is not independent verification. Never put secret values in source, logs or chat.
 - PR #66 has five successful CI workflows on its current head but is not merged; it requires an independent reviewer. No CODEOWNERS file currently exists, so the enabled code-owner-review switch has no mappings to enforce. Add a trusted second maintainer as code owner before relying on this control.
 - No production-signed APK/AAB or published release is verified. Action references remain tag-based; immutable SHA pinning is still outstanding.
+
+
+## Android application audit status — 2026-11-23
+
+Main revision reviewed: `0df6760287b0de5c07d2468b247145dae9c0ea4b`.
+
+The source/configuration review found no confirmed fixable high- or medium-severity vulnerability in the reviewed application paths. Existing protections include GeckoView private sessions/tracking protection, no identified website-callable native JavaScript bridge, HTTPS-only download acceptance, bounded/sanitized download names, canonical-root validation for restored downloads, encrypted browser metadata using Android Keystore AES-GCM, disabled Android backup/cleartext platform traffic, and non-exported FileProvider/notification receiver components.
+
+This is not a penetration-test result or certification. GeckoView TLS/mixed-content behavior, merged manifest, permission/IPC runtime behavior, private-mode cleanup, Keystore lifecycle, screenshots/recents, and data-flow/privacy disclosure still require device/runtime evidence. Normal downloaded file bytes are not encrypted by the metadata cipher. See [SECURITY_AUDIT.md](SECURITY_AUDIT.md) and [SECURITY_ASSESSMENT.md](SECURITY_ASSESSMENT.md) for scope, evidence and residual risks.
+
+
+### Mixed-content security indicator
+
+Rivo now surfaces GeckoView's active/passive mixed-content status in its connection message. Loaded active or passive mixed content is explicitly disclosed, and unknown mixed-content status is not represented as a fully secure page. See `SECURITY_AUDIT.md` for evidence and the remaining runtime test requirement.
+
+
+## 2026-11-24 — PR #67 verification closeout (authoritative latest checkpoint)
+
+- Audited source branch: `security/comprehensive-android-audit-2026-11-23`; verified PR head: `1cde602ae030b44c260770734205b0186deb4e28`; base Main: `0df6760287b0de5c07d2468b247145dae9c0ea4b`.
+- GitHub Actions Android CI run [45242372450](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45242372450) completed successfully. Its build job completed all steps successfully, including strict Gradle dependency verification, static security configuration audit, shipping and benchmark builds, Android lint, JVM tests, Gecko policy tests, minified shipping release bundle, static 16 KB alignment checks, and API 35 emulator Android security instrumentation tests.
+- PR-head supply-chain workflows also completed successfully: [Gradle Dependency Verification Bootstrap](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45242372194), [Source SBOM](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45242372086), [OSV Scanner](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45242372048), and [Gradle Dependency Graph](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45242371982).
+- The Medium mixed-content security-indicator finding is remediated in source and covered by JVM policy tests. CI success verifies the automated test path; GeckoView mixed-content fixture behavior on physical devices remains unverified.
+- Correction to earlier preliminary audit wording: a follow-up review DID identify the Medium mixed-content status presentation issue; it is fixed in this PR. Do not interpret earlier “no confirmed Medium issue” wording as the final finding.
+- PR #67 remains open and unmerged. The trusted reviewer `techsomadhanmedia` has write permission and is already requested as reviewer, but the PR currently has no submitted review/approval. Do not self-approve, bypass required review, or merge before independent approval and required checks.
+- Scope boundary: successful emulator instrumentation is verified; physical-device MASTG/runtime tests, merged release manifest/IPC inspection, exact signed APK/AAB inspection, production signing/release, and independent penetration testing are NOT completed. This is not MASVS certification.
+- Manual next gate: `techsomadhanmedia` must open PR #67, inspect the changes, and submit **Approve**. After approval, recheck all required checks and mergeability before merging. Physical-device checks must then be executed using the documented matrix before production security acceptance.

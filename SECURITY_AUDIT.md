@@ -158,3 +158,80 @@ Run against the exact signed release candidate and record build SHA, device mode
 - Android unsafe WebView file inclusion: https://developer.android.com/privacy-and-security/risks/webview-unsafe-file-inclusion
 - GeckoSessionSettings API: https://mozilla.github.io/geckoview/javadoc/mozilla-central/org/mozilla/geckoview/GeckoSessionSettings.html
 - GeckoRuntimeSettings.Builder API: https://mozilla.github.io/geckoview/javadoc/mozilla-central/org/mozilla/geckoview/GeckoRuntimeSettings.Builder.html
+
+
+## Comprehensive source audit update — 2026-11-23
+
+**Audited revision:** `0df6760287b0de5c07d2468b247145dae9c0ea4b` (Main at audit start)  
+**Audit type:** repository source/configuration review plus automated CI checks. This is not a device penetration test.
+
+### Additional review performed
+
+The complete tracked Android source/test/configuration path inventory was enumerated. Targeted review covered the app manifest and FileProvider roots, GeckoView runtime/session delegates, permission mediation, notification IPC, navigation input normalization, download URL/MIME/path handling, encrypted DataStore records, private-session persistence, browsing-data clearing, Gradle configuration, dependency lock/verification files, CI security guardrails, and existing JVM/instrumentation tests.
+
+Observed source controls:
+- GeckoView is the shipping engine; Android WebView is limited to benchmark/probe modules. No production JavaScript bridge API or custom TLS trust override was found in shipping Kotlin source.
+- Omnibox navigation accepts only HTTP(S) URLs with a host and no user-info; unsupported schemes and malformed inputs become an encoded DuckDuckGo search.
+- Download acceptance requires HTTPS, a host and no URL user-info. MIME types are normalized, filenames are reduced to a bounded safe basename, downloads are size-limited and staged before finalization, and restored files are checked against canonical app-managed roots and a size cap.
+- Website permission requests are mediated by Gecko delegates and the app UI; unsupported permission classes are denied. Camera/microphone/location require secure-origin checks and Android runtime permission where applicable.
+- Private sessions use Gecko private mode; app-side history/restorable-tab and download-metadata persistence excludes private sessions. Private download files are isolated and cleanup is attempted on tab close/controller disposal/startup.
+- DataStore browser metadata is encrypted with an Android Keystore AES-GCM key. Authentication/decryption errors fail closed rather than being silently converted to empty records.
+- The app manifest disables backup and cleartext Android platform networking; Network Security Config restricts Android platform trust anchors to system certificates. This does not configure GeckoView's independent network stack.
+- FileProvider and the notification receiver are non-exported; the notification PendingIntent is explicit and immutable. Notification public preview uses generic text.
+
+### Findings and disposition
+
+| Severity | Finding | Disposition |
+|---|---|---|
+| High | No confirmed exploitable high-severity source finding in reviewed paths | None confirmed; runtime testing remains necessary |
+| Medium | No confirmed exploitable medium-severity source finding in reviewed paths | None confirmed; runtime testing remains necessary |
+| Low / residual | Normal download bytes are not encrypted by the metadata cipher | Disclosed design limitation; stored in app-specific storage; decide product encryption requirement separately |
+| Low / residual | GeckoView mixed-content/TLS behavior, Android merged manifest, permission UI, recents/screenshots, backup/restore and private-download cleanup need runtime/device evidence | Open manual release gates; no static claim substitutes for runtime proof |
+| Low / residual | Keystore hardware backing and key invalidation/recovery behavior are device-dependent | Open device verification; no StrongBox guarantee claimed |
+| Low / residual | No full third-party SDK/data-flow/privacy disclosure review or release-binary inspection was executed | Open release gate |
+
+No control was weakened to satisfy tests. No unsupported GeckoView mixed-content override, arbitrary-site certificate pinning, or JavaScript bridge was introduced.
+
+### Regression test addition
+
+Added `SecurityInputPropertyTest.kt`: deterministic property-style hostile-input loops exercise 512 generated plus seeded malformed/hostile omnibox inputs and 512 generated plus seeded download filenames. Assertions require HTTP(S)-only resolved navigation with a host and no credentials; sanitized download names must not contain path separators, exceed the filename bound, become dot path components, or collide with the interrupted-download cleanup namespace. CI execution is pending until this revision's Android CI run completes.
+
+### Evidence and limitations
+
+- The repository's Android CI workflow runs the security static guard, Gradle dependency verification in strict mode, Android lint, app and Gecko JVM tests, shipping/benchmark builds, static 16 KB checks, and API 35 emulator instrumentation tests.
+- Current Main Android CI was still in progress when this update was authored; do not describe it as passed until its run concludes successfully.
+- OSV Scanner Scheduled, Source SBOM and Gradle Dependency Graph runs on the audited Main SHA completed successfully. Their successful workflow conclusions do not prove absence of every vulnerability or complete advisory triage.
+- No physical device, production-signed release artifact, merged-release-manifest inspection, live network interception, rooted-device/forensic environment, or independent penetration test was available in this audit session.
+- MASTG dynamic tests for Gecko TLS/certificate failures, active/passive mixed content, redirect/proxy behavior, IPC/URI grants, private-mode lifecycle, screenshots/recents, Keystore invalidation and data leakage remain open.
+
+### Current conclusion
+
+This is a **static source/configuration audit with regression automation**, not a completed end-to-end penetration test. No confirmed fixable high or medium issue was identified in the reviewed source paths. Production security acceptance remains conditional on successful CI plus the listed device/runtime/manual checks.
+
+
+### Additional finding discovered and remediated — mixed-content security indicator
+
+**Severity: Medium (security-state presentation / user-decision risk). Status: fixed in this PR; CI verification pending.**
+
+The initial source review found that the address-area security message used GeckoView's `isSecure` and certificate-exception booleans only. GeckoView separately exposes `mixedModeActive` and `mixedModePassive`; the UI did not surface those fields. A page with loaded mixed content could therefore be presented with the generic "Secure connection" label even though page subresources weakened its security.
+
+**Remediation:** The Gecko progress delegate now forwards active/passive mixed-content loaded states and an explicit unknown-state flag into per-tab state. The browser security label now:
+- prioritizes certificate exceptions;
+- warns when active mixed content was loaded;
+- discloses loaded insecure passive content;
+- says "Secure transport · mixed-content status unknown" rather than overclaiming when either mixed-content field is unknown;
+- retains "Secure connection" only when the transport is secure, there is no certificate exception, neither mixed-content field reports loaded content, and status is not unknown.
+
+Added `BrowserSecurityStatusPolicyTest.kt` for each state and precedence. This is a UI/state-policy regression test; it does not establish Gecko's runtime classification of particular mixed-content fixtures. Dynamic mixed-content tests remain required.
+
+
+## 2026-11-24 — PR #67 verification closeout (authoritative latest checkpoint)
+
+- Audited source branch: `security/comprehensive-android-audit-2026-11-23`; verified PR head: `1cde602ae030b44c260770734205b0186deb4e28`; base Main: `0df6760287b0de5c07d2468b247145dae9c0ea4b`.
+- GitHub Actions Android CI run [45242372450](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45242372450) completed successfully. Its build job completed all steps successfully, including strict Gradle dependency verification, static security configuration audit, shipping and benchmark builds, Android lint, JVM tests, Gecko policy tests, minified shipping release bundle, static 16 KB alignment checks, and API 35 emulator Android security instrumentation tests.
+- PR-head supply-chain workflows also completed successfully: [Gradle Dependency Verification Bootstrap](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45242372194), [Source SBOM](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45242372086), [OSV Scanner](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45242372048), and [Gradle Dependency Graph](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45242371982).
+- The Medium mixed-content security-indicator finding is remediated in source and covered by JVM policy tests. CI success verifies the automated test path; GeckoView mixed-content fixture behavior on physical devices remains unverified.
+- Correction to earlier preliminary audit wording: a follow-up review DID identify the Medium mixed-content status presentation issue; it is fixed in this PR. Do not interpret earlier “no confirmed Medium issue” wording as the final finding.
+- PR #67 remains open and unmerged. The trusted reviewer `techsomadhanmedia` has write permission and is already requested as reviewer, but the PR currently has no submitted review/approval. Do not self-approve, bypass required review, or merge before independent approval and required checks.
+- Scope boundary: successful emulator instrumentation is verified; physical-device MASTG/runtime tests, merged release manifest/IPC inspection, exact signed APK/AAB inspection, production signing/release, and independent penetration testing are NOT completed. This is not MASVS certification.
+- Manual next gate: `techsomadhanmedia` must open PR #67, inspect the changes, and submit **Approve**. After approval, recheck all required checks and mergeability before merging. Physical-device checks must then be executed using the documented matrix before production security acceptance.

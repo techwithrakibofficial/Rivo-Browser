@@ -59,7 +59,7 @@ interface GeckoTabListener {
     fun onLoadingChanged(loading: Boolean, progress: Int)
     fun onNavigationChanged(canGoBack: Boolean, canGoForward: Boolean)
     fun onContentCrashed()
-    fun onSecurityChanged(secure: Boolean, exception: Boolean)
+    fun onSecurityChanged(secure: Boolean, exception: Boolean, activeMixedContentLoaded: Boolean, passiveMixedContentLoaded: Boolean, mixedContentStatusUnknown: Boolean)
     fun onExternalDownload(url: String, mimeType: String?, disposition: String?, contentLength: Long?, body: InputStream?)
     fun onSitePermissionRequest(origin: String, permission: String, privateMode: Boolean, onShown: () -> Unit, respond: (Boolean) -> Unit)
     fun onAndroidPermissionRequest(permissions: List<String>, respond: (Boolean) -> Unit)
@@ -271,7 +271,14 @@ class GeckoBrowserTab(
                 session: GeckoSession,
                 securityInfo: GeckoSession.ProgressDelegate.SecurityInformation
             ) {
-                listener.onSecurityChanged(securityInfo.isSecure, securityInfo.isException)
+                listener.onSecurityChanged(
+                    securityInfo.isSecure,
+                    securityInfo.isException,
+                    securityInfo.mixedModeActive == GeckoSession.ProgressDelegate.SecurityInformation.CONTENT_LOADED,
+                    securityInfo.mixedModePassive == GeckoSession.ProgressDelegate.SecurityInformation.CONTENT_LOADED,
+                    securityInfo.mixedModeActive == GeckoSession.ProgressDelegate.SecurityInformation.CONTENT_UNKNOWN ||
+                        securityInfo.mixedModePassive == GeckoSession.ProgressDelegate.SecurityInformation.CONTENT_UNKNOWN
+                )
             }
 
             override fun onPageStart(session: GeckoSession, url: String) {

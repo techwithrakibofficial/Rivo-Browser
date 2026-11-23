@@ -79,3 +79,52 @@ Do not interpret this document as a MASVS pass. A source review cannot establish
 ## Evidence boundary and reassessment
 
 This register is a preliminary source-based gap analysis against the current OWASP MASVS structure. It is not an independent penetration test, legal privacy assessment, MASVS certification, or proof that controls pass. Each row must be updated only when a reproducible test, artifact, device result or approved risk acceptance is recorded. Recheck the upstream OWASP control set before each major release because MASVS is a living standard.
+
+
+## Reassessment — 2026-11-23 Main revision
+
+Reviewed Main revision `0df6760287b0de5c07d2468b247145dae9c0ea4b`. The updated source review covered GeckoView as the shipping engine, manifest/IPC, FileProvider, notification PendingIntent, navigation and download input boundaries, permission mediation, encrypted metadata, private browsing persistence, Gradle dependency controls and CI security guardrails.
+
+No confirmed fixable high- or medium-severity vulnerability was identified in the reviewed source/configuration paths. This is a source-review result only, not evidence of runtime resistance or MASVS compliance.
+
+New deterministic property-style regression coverage is being added for malformed omnibox values and download filenames. CI execution must be verified against the resulting PR head before marking these tests passed.
+
+### Reassessment status by control group
+
+| Group | Source evidence at this revision | Outstanding verification |
+|---|---|---|
+| MASVS-PLATFORM | Launcher-only exported activity; private FileProvider/receiver; explicit immutable notification PendingIntent; no website-callable JS bridge found | Merged release manifest, external intent/URI grant tests, notification lifecycle |
+| MASVS-NETWORK | Android platform cleartext denied and system CA trust only; no custom trust-all hook found; GeckoView is independently configured | Gecko TLS errors, mixed content, redirects, proxy/VPN and HTTP download behavior |
+| MASVS-STORAGE / CRYPTO | Keystore AES-GCM metadata, fail-closed corruption handling, backup disabled, private metadata excluded | Physical device key invalidation, backup/restore, filesystem/log/clipboard/recents and deletion verification |
+| MASVS-CODE | Lockfiles, strict Gradle verification workflow, OSV, SBOM and dependency graph are present | Review each advisory and dependency change; verify release binary and provenance |
+| MASVS-PRIVACY | Private-mode persistence policy, permission mediation, generic notification public preview | Full SDK/data-flow/privacy notice review, screenshot/recents and OEM behavior |
+| MASVS-RESILIENCE | No claim of anti-tamper/root detection or enforced update | Decide only if required by threat model; avoid adding disruptive controls without a product requirement |
+
+### Risk treatment
+
+- Download file contents are not encrypted by the metadata cipher; app-specific storage and private-download lifecycle are the current mitigations. Treat this as a documented limitation, not a cryptographic pass.
+- StrongBox/hardware-backed Keystore use is not guaranteed; hardware capability and invalidation must be tested per device.
+- Android Network Security Config does not govern GeckoView NSS networking.
+- No certificate pinning is recommended for arbitrary websites. Reassess only for future Rivo-owned service endpoints.
+- Screenshots/recents behavior is not established by static source inspection; preserve browser usability and test actual background snapshots before choosing a blocking policy.
+
+The exact signed release candidate, supported Android versions, and physical test devices are not available in this audit session. The dynamic MASTG test matrix remains a production release gate.
+
+
+### Medium finding remediation — mixed-content status was omitted from security UI
+
+A follow-up review of the GeckoView `SecurityInformation` callback found that the app forwarded only `isSecure` and `isException`, while GeckoView separately reports `mixedModeActive` and `mixedModePassive`. The UI could consequently use a generic secure-connection label without disclosing loaded mixed content.
+
+**Fix in current PR:** mixed-content loaded/unknown states are now propagated to tab state and rendered as explicit warnings/qualified transport status. `BrowserSecurityStatusPolicyTest` covers certificate-exception precedence, active/passive loaded content, unknown state, ordinary secure state and insecure state. Treat this finding as remediated in source, pending PR CI and runtime GeckoView fixture verification.
+
+
+## 2026-11-24 — PR #67 verification closeout (authoritative latest checkpoint)
+
+- Audited source branch: `security/comprehensive-android-audit-2026-11-23`; verified PR head: `1cde602ae030b44c260770734205b0186deb4e28`; base Main: `0df6760287b0de5c07d2468b247145dae9c0ea4b`.
+- GitHub Actions Android CI run [45242372450](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45242372450) completed successfully. Its build job completed all steps successfully, including strict Gradle dependency verification, static security configuration audit, shipping and benchmark builds, Android lint, JVM tests, Gecko policy tests, minified shipping release bundle, static 16 KB alignment checks, and API 35 emulator Android security instrumentation tests.
+- PR-head supply-chain workflows also completed successfully: [Gradle Dependency Verification Bootstrap](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45242372194), [Source SBOM](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45242372086), [OSV Scanner](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45242372048), and [Gradle Dependency Graph](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45242371982).
+- The Medium mixed-content security-indicator finding is remediated in source and covered by JVM policy tests. CI success verifies the automated test path; GeckoView mixed-content fixture behavior on physical devices remains unverified.
+- Correction to earlier preliminary audit wording: a follow-up review DID identify the Medium mixed-content status presentation issue; it is fixed in this PR. Do not interpret earlier “no confirmed Medium issue” wording as the final finding.
+- PR #67 remains open and unmerged. The trusted reviewer `techsomadhanmedia` has write permission and is already requested as reviewer, but the PR currently has no submitted review/approval. Do not self-approve, bypass required review, or merge before independent approval and required checks.
+- Scope boundary: successful emulator instrumentation is verified; physical-device MASTG/runtime tests, merged release manifest/IPC inspection, exact signed APK/AAB inspection, production signing/release, and independent penetration testing are NOT completed. This is not MASVS certification.
+- Manual next gate: `techsomadhanmedia` must open PR #67, inspect the changes, and submit **Approve**. After approval, recheck all required checks and mergeability before merging. Physical-device checks must then be executed using the documented matrix before production security acceptance.
