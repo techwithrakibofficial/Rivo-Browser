@@ -213,3 +213,13 @@ Automated CI success is verified. It is not evidence of physical-device acceptan
 - Owner/admin-only tasks: require at least one trusted review, dismiss stale approvals, enforce CODEOWNERS; configure/verify `production` Environment reviewers and deployment refs; verify signing secrets exist only as Environment secrets; migrate action references to verified immutable SHAs or a validated action dependency lockfile.
 - No release published, no production signing run, and no credentials handled.
 - Exact checklist/evidence: [GOVERNANCE_AUDIT.md](GOVERNANCE_AUDIT.md).
+
+
+## 2026-11-24 authoritative follow-up (supersedes earlier 2026-11-23 snapshot)
+
+- The repository owner reports that all four signing secrets have now been added to the GitHub Actions `production` Environment: `RIVO_UPLOAD_KEYSTORE_BASE64`, `RIVO_UPLOAD_STORE_PASSWORD`, `RIVO_UPLOAD_KEY_ALIAS`, and `RIVO_UPLOAD_KEY_PASSWORD`. Secret values were not requested, accessed, or logged. The connected integration cannot inspect Environment secret metadata, so this is owner-reported and not independently API-verified.
+- A fresh read of active ruleset `27894079` shows: one approving review required; stale approvals dismissed on new pushes; code-owner review required; `build` required with up-to-date branch; conversation resolution required; deletion and non-fast-forward updates blocked; no bypass actors. This supersedes earlier text in this audit branch saying zero approvals / stale dismissal off / code-owner review off.
+- Classic branch-protection API remains inaccessible to this integration; the active ruleset is the effective protection observed. Production Environment reviewer/self-review and deployment-ref settings remain unverified.
+- No `CODEOWNERS` file was found at root, `.github/CODEOWNERS`, or `docs/CODEOWNERS` on Main. Do not add a catch-all owner entry until a distinct trusted reviewer/code-owner identity is designated; assigning the PR author as sole code owner would make the review requirement unworkable for this PR.
+- PR #66 is open and unmerged. Its five PR-head CI workflows previously completed successfully, but it has no submitted reviews and GitHub reports the merge state as blocked. Do not bypass review or merge protections. A trusted collaborator must approve; if CODEOWNERS is to be enforced for workflow/security files, designate a second trusted GitHub username and add that identity in a follow-up.
+- No production-signed APK/AAB or published release is claimed. A real signed-release workflow run and verification of signatures/fingerprints/checksums remain outstanding.
