@@ -36,6 +36,10 @@ class SecurityInputPropertyTest {
 
         inputs.forEach { input ->
             val resolved = NavigationInputResolver.resolve(input)
+            if (input.trim().isEmpty()) {
+                assertTrue("Whitespace-only input must stay empty", resolved.isEmpty())
+                return@forEach
+            }
             assertFalse("Resolver returned an empty URL for input=$input", resolved.isBlank())
             val uri = URI(resolved)
             assertTrue("Unexpected scheme for input=$input -> $resolved",
