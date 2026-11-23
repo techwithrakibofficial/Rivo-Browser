@@ -235,14 +235,21 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                     }
                     if (active != null && !active.privateMode && active.securityKnown) {
                         Text(
-                            when {
-                                active.certificateException -> "Certificate security exception"
-                                active.secureConnection -> "Secure connection"
-                                else -> "Connection is not secure"
-                            },
+                            BrowserSecurityStatusPolicy.label(
+                                secure = active.secureConnection,
+                                certificateException = active.certificateException,
+                                activeMixedContentLoaded = active.activeMixedContentLoaded,
+                                passiveMixedContentLoaded = active.passiveMixedContentLoaded,
+                                mixedContentStatusUnknown = active.mixedContentStatusUnknown
+                            ),
                             style = MaterialTheme.typography.labelSmall,
-                            color = if (active.secureConnection && !active.certificateException)
-                                MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                            color = when {
+                                active.certificateException || !active.secureConnection ||
+                                    active.activeMixedContentLoaded || active.passiveMixedContentLoaded ->
+                                    MaterialTheme.colorScheme.error
+                                active.mixedContentStatusUnknown -> MaterialTheme.colorScheme.onSurfaceVariant
+                                else -> MaterialTheme.colorScheme.primary
+                            },
                             modifier = Modifier.padding(start = RivoSpacing.small, top = RivoSpacing.compact)
                         )
                     }
