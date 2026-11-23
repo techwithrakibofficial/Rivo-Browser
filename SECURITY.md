@@ -134,3 +134,12 @@ On branch `security/governance-hardening-2026-11-23`:
 - The owner reports adding all four signing values to the `production` Environment. The integration cannot inspect Environment secrets or reviewer/deployment restrictions; this is not independent verification. Never put secret values in source, logs or chat.
 - PR #66 has five successful CI workflows on its current head but is not merged; it requires an independent reviewer. No CODEOWNERS file currently exists, so the enabled code-owner-review switch has no mappings to enforce. Add a trusted second maintainer as code owner before relying on this control.
 - No production-signed APK/AAB or published release is verified. Action references remain tag-based; immutable SHA pinning is still outstanding.
+
+
+## Android application audit status — 2026-11-23
+
+Main revision reviewed: `0df6760287b0de5c07d2468b247145dae9c0ea4b`.
+
+The source/configuration review found no confirmed fixable high- or medium-severity vulnerability in the reviewed application paths. Existing protections include GeckoView private sessions/tracking protection, no identified website-callable native JavaScript bridge, HTTPS-only download acceptance, bounded/sanitized download names, canonical-root validation for restored downloads, encrypted browser metadata using Android Keystore AES-GCM, disabled Android backup/cleartext platform traffic, and non-exported FileProvider/notification receiver components.
+
+This is not a penetration-test result or certification. GeckoView TLS/mixed-content behavior, merged manifest, permission/IPC runtime behavior, private-mode cleanup, Keystore lifecycle, screenshots/recents, and data-flow/privacy disclosure still require device/runtime evidence. Normal downloaded file bytes are not encrypted by the metadata cipher. See [SECURITY_AUDIT.md](SECURITY_AUDIT.md) and [SECURITY_ASSESSMENT.md](SECURITY_ASSESSMENT.md) for scope, evidence and residual risks.
