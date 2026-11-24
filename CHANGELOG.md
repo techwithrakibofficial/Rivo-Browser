@@ -1,3 +1,9 @@
+## 2026-11-24 — Release CI reconciliation verified
+- PR #64 merged (cda27e5); overlapping PR #65 closed without merge as superseded.
+- Main checkpoint cda82ea2a8bed4206e0ab441b6044d5c733c8cdc passed Android build, OSV, dependency graph, Source SBOM, Gradle dependency verification strict validation and metadata review job.
+- Integrated release workflow now includes validated PKCS12 signing input, immutable action pins, signer fingerprint parity checks, mandatory R8 mapping retention, SHA-256 asset verification, least-privilege publishing and temporary-keystore cleanup.
+- Production-signed release remains unverified; PR #77 must pass review/checks before the next versioned signed release.
+
 # Changelog
 
 ## 2026-11-23 — Release CI hardening candidate
