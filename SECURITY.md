@@ -3,7 +3,6 @@
 Updated: 2026-11-23
 
 ## Release pipeline hardening candidate — 2026-11-23
-- PR #64 validates all four production signing secrets and the configured keystore alias before Gradle signing; the temporary keystore is removed with an always-run cleanup step.
 - APKs are verified with Android SDK apksigner; AAB signature verification requires a positive jarsigner verification result. SHA-256 signer certificate fingerprints must match across APK/AAB outputs.
 - R8 mapping output is mandatory and retained as a GitHub Actions artifact for 90 days. Because this repository is public, anyone with repository read access can download it; it is not included in public Release assets.
 - Published release assets are downloaded again and checked against SHA256SUMS after upload.
@@ -205,3 +204,13 @@ Rivo now surfaces GeckoView's active/passive mixed-content status in its connect
 - Strict dependency verification, Android lint, JVM tests and API 35 x86_64 emulator instrumentation also completed successfully. The instrumentation tests are narrow regression checks, not a penetration test.
 - Static 16 KB package/native-library alignment passed for CI APK/AAB artifacts. This is not runtime proof on 16 KB page-size hardware.
 - The unsigned AAB and debug APK artifacts are QA-only. Production signing, signer fingerprint verification, release checksum validation, physical-device security behavior and independent MASVS/MASTG assessment remain separate gates.
+
+
+## 2026-11-24 authoritative governance and CI update
+
+- Historical notes above are retained as dated audit snapshots; current state: PR #66 and PR #72 are merged. PR #66 added .github/CODEOWNERS assigning * @techsomadhanmedia; active ruleset #27894079 requires one approving review, stale-review dismissal, code-owner review, required build status, up-to-date branches and resolved conversations.
+- Main SHA 39c35e64ab4260adb7787fed919c29cd098ac40a: Android CI #45334566292, Gradle verification bootstrap #45334566241, Dependency Graph #45334566254, OSV Scanner #45334566666 and Source SBOM #45334566273 all passed.
+- Dependency verification metadata is present and strict Gradle verification passed. Current checksum baseline uses SHA-256 with PGP signature verification disabled; this is checksum-based trust-on-first-use, not upstream publisher-signature attestation.
+- Signed-release workflow is owner-gated, requires the production Environment, verifies keystore access, R8 mapping, APK/AAB signatures and signer fingerprint consistency, creates a SHA-256 manifest, and refuses to overwrite an existing GitHub Release. It triggers on v* tags or manual dispatch with an existing tag. No tag/run/signed artifact/release currently exists.
+- Repository owner reports the four signing secrets are configured in the production Environment; this integration cannot inspect secret presence/values or Environment reviewers, self-review prevention or deployment-ref restrictions. Treat those controls as unverified until an administrator checks them.
+- Static CI success is not physical-device security evidence. Physical-device privacy/data lifecycle, 3–4 GB profiling, accessibility, runtime 16 KB, GeckoView TLS/mixed-content fixtures, full MASVS/MASTG control review and independent penetration testing remain open. No certification is claimed.
