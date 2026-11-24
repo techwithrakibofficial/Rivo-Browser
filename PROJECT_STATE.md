@@ -269,6 +269,16 @@ Updated: 2026-11-23
 - Verified CI gates: strict Gradle dependency-verification metadata check, Android security static audit, shipping debug assembly, Android lint, app JVM unit tests, Gecko policy JVM tests, GeckoView/WebView benchmark builds, minified shipping release AAB build, native library/APK 16 KB static alignment, artifact uploads, and API 35 x86_64 Android Emulator instrumentation task.
 - Emulator instrumentation task executed `:app:connectedDebugAndroidTest`; Gradle reported BUILD SUCCESSFUL. Test report artifact is retained by the run. Instrumentation is limited to the checked-in Android test sources; this is not a full UI journey/device compatibility suite.
 - Uploaded QA artifacts: ARM64 debug APK, ARMv7 debug APK, unsigned QA-only release AAB, Android test reports, and GeckoView/WebView benchmark artifacts. These are temporary Actions artifacts (14-day retention except test reports at 7 days), not signed production downloads.
-- The APKs are architecture-specific. A separate PR adds a universal debug APK build, 16 KB static check and upload; it must pass its own CI and merge before being treated as a Main artifact.
 - No physical-device test was executed by this CI run. 3–4 GB RAM profiling, TalkBack/OEM behavior, real-device navigation/download/private-session workflows, runtime 16 KB hardware validation and independent penetration testing remain open.
 - Production signing/release remains a separate gate. The unsigned AAB is not a Play-ready signed release. No release tag, signed APK/AAB, signer fingerprint verification or GitHub Release is evidenced here.
+
+
+## 2026-11-24 — authoritative Main verification after PR #72
+
+- Main HEAD: 39c35e64ab4260adb7787fed919c29cd098ac40a (PR #72 merged).
+- Android CI run #45334566292: success. Shipping build, lint, JVM/instrumentation tests, universal no-ABI-split debug APK generation, static 16 KB alignment validation and artifact uploads completed.
+- Gradle dependency-verification bootstrap #45334566241: success, including the reviewed verification-metadata proposal job. Dependency Graph #45334566254, OSV Scanner #45334566666 and Source SBOM #45334566273: success.
+- CI artifacts include ARM64 and ARMv7 debug APKs, universal debug APK, unsigned QA AAB, Android test reports and engine benchmark outputs. These are QA/debug artifacts; the AAB is not production-signed.
+- PR #66 governance hardening is merged; .github/CODEOWNERS assigns @techsomadhanmedia, and active ruleset 27894079 requires one approval, code-owner review, current build check, up-to-date branches and resolved conversations.
+- Production release is not complete: no version tag/dispatch has been executed, no production-signed APK/AAB or GitHub Release exists. Signed-release workflow accepts v* tags or manual dispatch for an existing tag and verifies the keystore, APK/AAB signer consistency and SHA-256 manifest. Owner-reported signing secrets are not independently inspectable here; Environment reviewer/self-review and deployment-ref restrictions remain unverified.
+- Physical-device acceptance, 3–4 GB RAM profiling, accessibility/OEM checks, runtime 16 KB validation, GeckoView runtime security fixtures, full MASVS/MASTG assessment and independent penetration testing remain separate, uncompleted gates. The user has deferred phone testing until the production APK is ready.
