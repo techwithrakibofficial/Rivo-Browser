@@ -201,7 +201,7 @@ jobs:
       - name: Remove temporary signing keystore
         if: always()
         shell: bash
-        run: rm -f "$RUNNER_TEMP/rivo-upload.jks"
+        run: rm -f "$RUNNER_TEMP/rivo-upload.p12"
 
       - name: Upload verified release assets for publishing
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
