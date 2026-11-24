@@ -1,3 +1,9 @@
+## 2026-11-24 — Release CI / main verification
+- PR #64 merged at cda27e5bf019fbf50be47678c53bf1dcc2e54d0e; PR #65 closed unmerged as superseded.
+- Current Main SHA cda82ea2a8bed4206e0ab441b6044d5c733c8cdc is 23 commits ahead of PR #64 merge and includes it in ancestry.
+- Main-head checks observed completed successfully: `build` (Android CI), OSV Scanner Scheduled, Gradle Dependency Graph, Source SBOM, Generate and validate verification metadata, and Open reviewed verification metadata PR.
+- This evidence is GitHub Actions CI evidence. It does not prove a production-signed APK/AAB was built or published. PR #77 (PKCS12 signing config/version 0.2.1) remains open for review and fresh validation.
+
 # Rivo Browser — Testing and Evidence
 
 Updated: 2026-11-23
