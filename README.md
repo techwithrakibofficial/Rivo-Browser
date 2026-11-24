@@ -1,9 +1,9 @@
-## Verified project status — 2026-11-24 (PR #85)
-- Latest verified Main commit: `4821c7af1255486e25b98305fd2b74cde33f488d` (PR #85 release-workflow correction).
-- PR #85 is merged; its five PR workflows and CODEOWNER review passed.
-- PR #86 contains the current nine-document state/handoff reconciliation and awaits CODEOWNER review and required checks.
-- No production release is published or verified. The signed-release workflow requires an existing version tag reachable from Main, protected production signing secrets and a repository-owner-triggered run.
-- CI/emulator evidence is not physical-device acceptance. 3–4 GB profiling, accessibility, runtime 16 KB and full MASVS/MASTG assessment remain release gates.
+## Verified project status — 2026-11-24 (PR #86 merged)
+- Latest verified Main commit: `e15ee3ce1c623f70679b9c117018d98de0b1b757` (PR #86 documentation reconciliation).
+- PR #86 merged after CODEOWNER approval; all five PR workflows passed and no review threads remained unresolved.
+- PR #85 release-workflow fix remains integrated at `4821c7af1255486e25b98305fd2b74cde33f488d`.
+- No production-signed APK/AAB or GitHub Release is verified. Signed release still requires a new immutable Main-ancestral tag or owner-triggered workflow dispatch and successful artifact verification.
+- Physical-device QA, 3–4 GB profiling, accessibility, runtime 16 KB and complete MASVS/MASTG assessment remain open.
 
 # Rivo Browser
 
@@ -12,9 +12,9 @@ Rivo Browser is a free, privacy-focused Android browser designed for low- and mi
 ## Current project status — 2026-11-24
 
 - Canonical source: `main`.
-- Latest verified Main commit: `4821c7af1255486e25b98305fd2b74cde33f488d` (PR #85 release-workflow correction).
+- Latest verified Main commit: `e15ee3ce1c623f70679b9c117018d98de0b1b757` (PR #86 documentation reconciliation).
 - PR #85 is merged after CODEOWNER approval, zero unresolved review threads and five successful PR workflows.
-- PR #86 contains the current documentation reconciliation and is awaiting CODEOWNER review and required checks.
+- PR #86 documentation reconciliation is merged; CODEOWNER approval and all five PR workflows passed.
 - No production release is published or verified. The protected signed-release workflow requires an existing new version tag reachable from Main, valid production Environment secrets and a repository-owner-triggered workflow run.
 - The owner reports successful phone installation/testing; this is owner-reported acceptance, not independent device-lab evidence.
 - CI/emulator evidence is not physical-device acceptance. 3–4 GB profiling, accessibility, runtime 16 KB and full MASVS/MASTG assessment remain release gates.
