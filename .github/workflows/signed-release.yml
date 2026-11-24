@@ -158,7 +158,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          APK_DIR="app/build/outputs/apk/release"
+          # APK outputs were copied to dist/ before the clean required for
+          # the separate AAB build. Verify those preserved files, not the
+          # app/build APK directory that the clean task intentionally deletes.
           AAB_DIR="app/build/outputs/bundle/release"
           MAPPING_FILE="app/build/outputs/mapping/release/mapping.txt"
           APKSIGNER="$ANDROID_HOME/build-tools/37.0.0/apksigner"
@@ -171,7 +173,7 @@ jobs:
           }
 
           mkdir -p dist
-          mapfile -t apks < <(find "$APK_DIR" -type f -name '*.apk' | sort)
+          mapfile -t apks < <(find dist -maxdepth 1 -type f -name '*.apk' | sort)
           mapfile -t aabs < <(find "$AAB_DIR" -type f -name '*.aab' | sort)
           (( ${#apks[@]} >= 1 )) || { echo "::error::No release APKs were produced."; exit 1; }
           (( ${#aabs[@]} == 1 )) || { echo "::error::Expected exactly one release AAB."; exit 1; }
@@ -187,7 +189,6 @@ jobs:
             elif [[ "$apk_cert" != "$expected_cert" ]]; then
               echo "::error::Release APKs were signed by different certificates."; exit 1
             fi
-            cp "$apk" dist/
           done
 
           aab="${aabs[0]}"
