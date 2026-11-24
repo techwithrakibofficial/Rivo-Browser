@@ -1,5 +1,12 @@
 # Rivo Browser — Project State
 
+## 2026-11-24 — Follow-up audit after PR #83
+- PR #83 documentation reconciliation was approved by `techsomadhanmedia` and merged at 13:01:36Z. Main at the start of this follow-up is `2126dd3c692da6d85553015d2064a414df90e207`.
+- PR #84 exposed a release-workflow defect: the AAB build runs `gradle clean`, so the APK build directory no longer exists when the later verification step searches it. The identical fix passed all five PR CI workflows and received CODEOWNER approval on PR #84; PR #84 was closed as superseded because it was behind Main.
+- Replacement PR #85 is based on current Main and changes APK verification to inspect the preserved `dist/*.apk` files. Its five CI workflows and fresh CODEOWNER review are required before merge.
+- No signed APK/AAB or GitHub Release is verified. The next release gate is a fresh `workflow_dispatch` from current Main with tag input `v0.2.1-phase1`, followed by signature, signer-fingerprint, R8 mapping and SHA-256 verification.
+
+
 ## 2026-11-24 — Current verified state after PR #82
 - Canonical `main` SHA: `5ac3a6853cd20df47813acc580fcae2dbb34cbe9`.
 - PR #82 merged at 12:34:24Z. It fixes the signed-release AGP task collision by building ABI-split APKs with `rivo.abiSplits=true`, preserving them, cleaning intermediates, then building the AAB separately with `rivo.abiSplits=false`.
