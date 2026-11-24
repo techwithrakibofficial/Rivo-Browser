@@ -24,6 +24,8 @@ The merged signed-release workflow now normalizes Base64 whitespace and URL-safe
 
 This verifies the workflow source and its CI checks only. It does **not** prove that the live production secret contains a complete, valid keystore or that the configured password and alias match it.
 
+A follow-up source review found that the cleanup step targeted an obsolete `.jks` filename while the workflow actually creates a `.p12` PKCS#12 file. PR #75 corrects the cleanup path to remove `$RUNNER_TEMP/rivo-upload.p12` even when a prior signing step fails. The updated workflow must pass the fresh PR CI before integration.
+
 ## Release status
 No GitHub Release is published. No successful production-signed APK/AAB run is evidenced. Do not distribute unsigned CI artifacts as production builds.
 
