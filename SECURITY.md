@@ -1,5 +1,12 @@
 # Rivo Browser — Security Baseline
 
+## 2026-11-24 — Release pipeline update after PR #82
+- PR #82 merged to Main (`5ac3a6853cd20df47813acc580fcae2dbb34cbe9`) and separates APK ABI splits from AAB bundling to address the observed AGP `buildReleasePreBundle` collision.
+- PR-head CI and security/dependency workflows passed. Post-merge OSV Scanner Scheduled, Source SBOM and Gradle Dependency Graph passed; Android CI and dependency verification were still running at this checkpoint.
+- The earlier signed-release run #45385076282 failed before publishing. Workflow source correction is integrated, but production signing is not verified until a fresh run completes and APK/AAB signer identity and checksums are independently checked.
+- Do not expose or commit signing secrets/keystore material. Physical-device security testing and complete MASVS/MASTG assessment remain open.
+
+
 Updated: 2026-11-24
 
 ## Release pipeline hardening candidate — 2026-11-23
