@@ -336,5 +336,15 @@ Automated CI success is verified. It is not evidence of physical-device acceptan
 - Passing gates include security static audit, strict dependency verification, assembleDebug, lintDebug, app and Gecko policy JVM tests, GeckoView/WebView benchmark builds, minified release AAB, static 16 KB native/ZIP alignment, and API 35 x86_64 emulator instrumentation.
 - Instrumentation command: `:app:connectedDebugAndroidTest`; Gradle completed successfully and test reports were uploaded. This only validates the checked-in instrumentation tests, not every browser feature or physical handset.
 - Available run artifacts: ARM64 debug APK, ARMv7 debug APK, unsigned QA AAB, Android test reports and engine benchmark outputs. Artifacts expire after their configured retention window; obtain them from the linked Actions run.
-- Current QA branch `qa/universal-debug-apk-and-ci-evidence-2026-11-24` adds a no-ABI-split universal debug APK build, 16 KB static validation and artifact upload. Await PR CI before relying on that deliverable.
 - Next: verify universal APK CI; expand functional instrumentation coverage around launch/navigation/tabs/private mode/download/permissions/reader/bookmarks/history/appearance; perform 3–4 GB physical-device, accessibility and runtime 16 KB validation; execute protected signed release and verify signatures/checksums. Do not claim physical-device acceptance or MASVS certification.
+
+
+## 2026-11-24 — current handoff after PR #72
+
+- Main is 39c35e64ab4260adb7787fed919c29cd098ac40a; PR #72 is merged.
+- Main Android CI #45334566292 and Gradle verification bootstrap #45334566241 both completed success. Dependency Graph #45334566254, OSV #45334566666 and Source SBOM #45334566273 also passed.
+- CI published ARM64/ARMv7 debug APKs, a universal debug APK, unsigned QA AAB, Android test reports and engine benchmark artifacts. None is a production-signed release.
+- PR #66 is merged; .github/CODEOWNERS maps * to @techsomadhanmedia. Active ruleset #27894079 requires one approval, code-owner review, build, up-to-date branch and conversation resolution.
+- Next release action: create and push an owner-authorized version tag matching v* (candidate v0.2.0-phase1) at the reviewed Main commit. This triggers .github/workflows/signed-release.yml; the workflow is owner-gated and verifies production keystore, minified APK/AAB signatures, matching signer fingerprints and SHA-256 release assets. No tag, signed binary or GitHub Release currently exists. The available GitHub integration cannot create/push Git tags or dispatch this workflow.
+- Owner previously reported four production Environment signing secrets configured; values and Environment reviewer/deployment restrictions cannot be inspected by this integration. Verify Environment protection before approving signing.
+- Physical-device testing is deliberately deferred until a production APK is available. Afterwards complete 3–4 GB profiling, accessibility/OEM checks, runtime 16 KB, private-mode/data lifecycle and GeckoView TLS/mixed-content fixtures. Full MASVS/MASTG assessment and independent penetration testing remain open; no certification is claimed.
