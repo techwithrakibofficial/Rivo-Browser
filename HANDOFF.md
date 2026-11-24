@@ -391,3 +391,11 @@ Automated CI success is verified. It is not evidence of physical-device acceptan
 2. Verify release APK/AAB signatures, identical signer certificate fingerprints, R8 mapping artifact and downloaded SHA-256 manifest.
 3. Complete physical-device matrix: private-data lifecycle, permissions, downloads, notifications, QR/reader, TalkBack, large fonts, 3–4 GB RAM, battery and runtime 16 KB.
 4. Complete control-by-control MASVS/MASTG evidence review and disposition residual risks; no certification or independent penetration test is claimed.
+
+
+## 2026-11-24 — Handoff after PR #86 merge
+- Canonical Main SHA: `e15ee3ce1c623f70679b9c117018d98de0b1b757` (PR #86 squash merge).
+- PR #86 documentation reconciliation merged after CODEOWNER approval; all five PR workflows succeeded and no review threads remained unresolved.
+- README, PROJECT_STATE.md, HANDOFF.md, DEVELOPMENT_PLAN.md, ARCHITECTURE.md, DESIGN_SYSTEM.md, FEATURE_MATRIX.md, CHANGELOG.md, TESTING.md and SECURITY.md were reconciled in PR #86.
+- No production-signed APK/AAB or GitHub Release is verified. The next release gate is an owner-authorized new immutable Main-ancestral tag or manual dispatch of `.github/workflows/signed-release.yml`; this GitHub integration cannot trigger either.
+- After the signed run: verify APK/AAB signatures, identical signer fingerprints, R8 mapping artifact and SHA-256 checksums. Separately complete physical-device, 3–4 GB, accessibility, runtime 16 KB and MASVS/MASTG checks.
