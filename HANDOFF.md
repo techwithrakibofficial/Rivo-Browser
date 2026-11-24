@@ -1,3 +1,10 @@
+## 2026-11-24 — Verified release CI reconciliation
+- PR #64 merged as cda27e5bf019fbf50be47678c53bf1dcc2e54d0e; PR #65 closed unmerged as superseded. No duplicate release-hardening PR remains open for #64/#65.
+- Current main SHA: cda82ea2a8bed4206e0ab441b6044d5c733c8cdc; verified 23 commits ahead of PR #64 merge (zero behind).
+- Current Main checks all succeeded: Android `build`, OSV Scanner Scheduled, Gradle Dependency Graph, Source SBOM, Gradle dependency verification metadata generation/strict verification, and reviewed metadata PR job.
+- Release workflow source controls are integrated. Do not describe this as a production-signed release: no signed release run or published signed APK/AAB was verified in this session.
+- Remaining release gate: PR #77 (explicit PKCS12 signing config and version 0.2.1) is open and awaits CODEOWNER review/checks. After merge, run the signed workflow against a new Main-ancestral immutable tag and verify APK/AAB signatures, certificate fingerprint parity, R8 mapping artifact and remote checksums.
+
 # Rivo Browser — Handoff
 
 Updated: 2026-11-23
