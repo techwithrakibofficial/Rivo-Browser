@@ -380,3 +380,14 @@ Automated CI success is verified. It is not evidence of physical-device acceptan
 - This GitHub integration has no tag-creation or workflow-dispatch action. Owner must create/push the new tag or dispatch the workflow manually for that tag. Then review the protected `production` Environment approval, run Signed Android Release, and verify APK/AAB signatures, matching certificate fingerprints and SHA-256 manifest.
 - Secret values are not inspectable here; the owner-reported four secrets are not proven valid until the actual signing workflow passes.
 - No signed release exists yet. Physical-device QA, low-RAM profiling, accessibility, runtime 16 KB, complete MASVS/MASTG and independent penetration testing remain open.
+
+
+## 2026-11-24 — Handoff after PR #85 merge
+- Main SHA: `4821c7af1255486e25b98305fd2b74cde33f488d`.
+- PR #85 merged. Release workflow verifies APKs from preserved `dist/*.apk` after AAB build runs `gradle clean`.
+- Evidence: CODEOWNER approval, no unresolved review threads, and all five PR workflows succeeded (Android CI, Source SBOM, OSV Scanner PR, Gradle Dependency Graph, Gradle Dependency Verification Bootstrap).
+### Exact next gates
+1. Owner/repository administrator: trigger `.github/workflows/signed-release.yml` from current Main using a new immutable version tag. This connection has no workflow-dispatch or tag-create capability.
+2. Verify release APK/AAB signatures, identical signer certificate fingerprints, R8 mapping artifact and downloaded SHA-256 manifest.
+3. Complete physical-device matrix: private-data lifecycle, permissions, downloads, notifications, QR/reader, TalkBack, large fonts, 3–4 GB RAM, battery and runtime 16 KB.
+4. Complete control-by-control MASVS/MASTG evidence review and disposition residual risks; no certification or independent penetration test is claimed.
