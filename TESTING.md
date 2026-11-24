@@ -1,5 +1,13 @@
 # Rivo Browser — Testing and Evidence
 
+## 2026-11-24 — Release workflow follow-up evidence
+- PR #83 documentation update merged after CODEOWNER approval.
+- PR #84 head `cfbb9ef6d226ce0725e555fbc7e1bb2c028261b9`: Android CI, Gradle dependency verification bootstrap, OSV Scanner PR, Gradle Dependency Graph and Source SBOM all completed successfully; CODEOWNER approval was recorded. It was closed as superseded because it was behind Main.
+- PR #85 head `256468fd266e2710de1d8f5c4e3d4c82d4f44b30` is based on Main `2126dd3c692da6d85553015d2064a414df90e207`; its five workflows are running at documentation time. Fresh PR #85 CODEOWNER review is requested.
+- The workflow source correction changes APK verification to use preserved `dist/*.apk` after the AAB build's `gradle clean`. This is source inspection only until PR #85 CI and a signed release run pass.
+- No signed production artifact, physical-device acceptance, runtime 16 KB test or full MASVS/MASTG assessment is evidenced.
+
+
 ## 2026-11-24 — PR #82 and post-merge validation
 - PR #82 head SHA `62c1185d405ed32d7ce074da23d4d899eab434e4`: Android CI, OSV Scanner PR, Gradle Dependency Graph, Source SBOM and Gradle dependency-verification bootstrap all completed successfully.
 - Merge commit: `5ac3a6853cd20df47813acc580fcae2dbb34cbe9`.
