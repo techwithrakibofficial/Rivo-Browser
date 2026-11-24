@@ -131,3 +131,12 @@ A release candidate is acceptable only when:
 - The signed-release workflow is present and validates the production keystore, APK/AAB signer consistency and SHA-256 assets. The owner reports that the four production signing secrets were configured; this integration cannot inspect secret presence/values or Environment protection. No release tag/dispatch has been executed, no signed production APK/AAB has been generated, and no GitHub Release is published.
 - The current GitHub integration exposes no tag-creation, workflow-dispatch, or release-creation action. The release workflow therefore cannot be triggered from this session; do not represent the unsigned CI AAB as a release.
 - Remaining production-acceptance gates: execute the protected signed-release workflow from an owner-created reviewed version tag or GitHub Actions manual dispatch; verify downloaded signed APK/AAB, matching signer fingerprints and published checksums; complete the documented device matrix for 3–4 GB performance, accessibility, runtime 16 KB and GeckoView TLS/mixed-content/private-data behavior; complete independent penetration testing and control-by-control MASVS/MASTG assessment. No certification is claimed.
+
+
+## QA execution update — 2026-11-24
+
+- Main Android CI run [#45326960699](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45326960699) is now complete and successful on `3422fd94aa20f77de6a81bc61c6c4d09ba07a656`.
+- Verified: static Android security configuration audit, strict dependency verification, debug build, lint, app/Gecko JVM tests, GeckoView/WebView benchmark builds, minified release AAB, static native/ZIP 16 KB alignment and API 35 x86_64 emulator instrumentation task.
+- QA artifacts uploaded: ARM64 and ARMv7 debug APKs, unsigned QA AAB, instrumentation reports and benchmark outputs.
+- Next engineering work: produce a universal debug APK (no ABI split) and statically validate it; add deterministic UI/instrumentation scenarios for core browser workflows; then arrange independent physical-device and low-RAM/accessibility/runtime-16KB checks.
+- Release remains blocked on protected production signing/tag execution and independent artifact signer/checksum verification. Emulator CI is not physical-device acceptance.
