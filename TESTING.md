@@ -240,3 +240,16 @@ A workflow being configured is not evidence that the latest commit passed. Recor
 - The signed-release workflow is present and validates the production keystore, APK/AAB signer consistency and SHA-256 assets. The owner reports that the four production signing secrets were configured; this integration cannot inspect secret presence/values or Environment protection. No release tag/dispatch has been executed, no signed production APK/AAB has been generated, and no GitHub Release is published.
 - The current GitHub integration exposes no tag-creation, workflow-dispatch, or release-creation action. The release workflow therefore cannot be triggered from this session; do not represent the unsigned CI AAB as a release.
 - Remaining production-acceptance gates: execute the protected signed-release workflow from an owner-created reviewed version tag or GitHub Actions manual dispatch; verify downloaded signed APK/AAB, matching signer fingerprints and published checksums; complete the documented device matrix for 3–4 GB performance, accessibility, runtime 16 KB and GeckoView TLS/mixed-content/private-data behavior; complete independent penetration testing and control-by-control MASVS/MASTG assessment. No certification is claimed.
+
+
+## Android QA evidence — 2026-11-24
+
+- Run: [Android CI #628 / 45326960699](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45326960699)
+- Revision: `3422fd94aa20f77de6a81bc61c6c4d09ba07a656`
+- Result: **completed / success**; all workflow steps passed.
+- Successful tasks: `:app:assembleDebug`, `:app:lintDebug`, `:app:testDebugUnitTest`, `:engine-gecko:testDebugUnitTest`, GeckoView/WebView benchmark APK and bundle tasks, `:app:bundleRelease`, static native ELF and APK ZIP 16 KB alignment verifier, and `:app:connectedDebugAndroidTest` on API 35 x86_64 emulator.
+- Android instrumentation generated an XML test result and the report upload step completed. Checked-in test sources at this revision include `DownloadTempFileCleanupInstrumentedTest` and `LocalDataCipherInstrumentedTest`. Do not infer coverage of unrelated browser journeys from these tests.
+- Artifacts: `rivo-browser-arm64-debug`, `rivo-browser-armv7-debug`, `rivo-browser-release-aab-unsigned`, `rivo-android-test-reports`, and GeckoView/WebView benchmark artifacts.
+- 16 KB result is static package/native-library alignment evidence only; runtime on 16 KB hardware remains untested.
+- No physical device was connected or tested by this run. No claim is made for 3–4 GB performance, TalkBack, OEM notifications, real-world site compatibility, full browser journey coverage, penetration testing or MASVS certification.
+- A follow-up QA branch adds a universal no-ABI-split debug APK plus an explicit 16 KB static check; its own CI result is pending.
