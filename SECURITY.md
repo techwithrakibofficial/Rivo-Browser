@@ -237,3 +237,10 @@ Rivo now surfaces GeckoView's active/passive mixed-content status in its connect
 - These checks validate workflow source and application CI, not the owner's production signing secret values. Only a successful production-environment signing run followed by independent APK/AAB signer-fingerprint and checksum verification establishes signing success.
 - Existing `v0.2.0-phase1` predates the workflow fixes. Use a new reviewed Main-ancestral tag; do not rewrite the old tag. No signed release is claimed.
 - Physical-device privacy/security behavior, runtime 16 KB, full MASVS/MASTG review and independent penetration testing remain open.
+
+
+## 2026-11-24 — PR #85 release verification correction
+- PR #85 merged as `4821c7af1255486e25b98305fd2b74cde33f488d` after CODEOWNER approval and all five PR workflows passed.
+- APK signature verification now reads preserved `dist/*.apk` after AAB assembly performs `gradle clean`; the deleted APK intermediate directory is no longer searched.
+- This corrects workflow sequencing only. Production signing is not proven until a protected run validates PKCS#12 keystore use, APK/AAB signatures, matching signer fingerprints, R8 mapping and SHA-256 checksums.
+- No secrets or keystore material were exposed or changed. Physical-device security testing, full MASVS/MASTG review and independent penetration testing remain open; no certification is claimed.
