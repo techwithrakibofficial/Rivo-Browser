@@ -46,3 +46,14 @@ The available GitHub integration in this session supports read-only workflow-run
 
 ## Next execution point
 After the release tag is created through the repository's authorized release process, run the Signed Android Release workflow against that tag. Review the job result and verify APK/AAB signatures, signer identity, checksums, and published assets before marking production release complete.
+
+
+## Authoritative follow-up — PR #75 merged (2026-11-24 08:57 UTC)
+
+- PR #75 was independently approved by `techsomadhanmedia` and merged to Main as `8f8bafd8ebfdec97c2fe1e24007feeabd8ff19c4`.
+- It fixes the cleanup mismatch: the signing step creates `$RUNNER_TEMP/rivo-upload.p12`, and the always-run cleanup now removes that exact file.
+- PR #74's Base64 whitespace/URL-safe alphabet normalization and strict decoding fix are integrated as well.
+- PR-head Android CI, dependency verification, OSV, Dependency Graph and Source SBOM passed. On the merge SHA, OSV [45360601078](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45360601078), Dependency Graph [45360600467](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45360600467) and Source SBOM [45360600609](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45360600609) passed. Android CI [45360600469](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45360600469) and dependency verification [45360600491](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45360600491) were still running at this checkpoint.
+- Existing `v0.2.0-phase1` remains unchanged and points to `e528d16a951fc6d2a153fcb7519fb0b0e2cd8255`; it predates the Base64 and cleanup fixes. A new tag (candidate `v0.2.1-phase1`) must be created on reviewed Main before release.
+- No production-signed APK/AAB or GitHub Release is published. The integration cannot create/push tags or dispatch the signed-release workflow. Production secrets cannot be inspected; a successful protected signing run is the only proof they are valid.
+- Physical-device QA, low-RAM profiling, accessibility, runtime 16 KB, complete MASVS/MASTG and independent penetration testing remain outstanding.

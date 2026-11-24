@@ -169,3 +169,12 @@ See Git history for prior Tab Universe, storage hardening, browser navigation, t
 - CI artifacts include ARM64/ARMv7 debug APKs, universal debug APK, unsigned QA AAB, Android test reports and engine benchmark outputs. No production-signed APK/AAB or GitHub Release is available yet.
 - PR #66 governance hardening is merged; .github/CODEOWNERS and active one-approval/code-owner ruleset are in Main.
 - Remaining: owner-authorized version tag and signed-release workflow; verify signatures/fingerprints/checksums. Physical-device QA is deferred until the production APK is ready; low-RAM, accessibility, runtime 16 KB and complete MASVS/MASTG assessment remain open.
+
+
+## 2026-11-24 — Signed-release workflow reconciliation
+
+- PR #75 merged to Main as `8f8bafd8ebfdec97c2fe1e24007feeabd8ff19c4` after CODEOWNER approval.
+- Fixed temporary signing keystore cleanup: the workflow now removes the actual `rivo-upload.p12` PKCS#12 file rather than a stale `.jks` path.
+- PR #74's Base64 normalization (whitespace and URL-safe alphabet) and strict decode validation are present on Main.
+- Post-merge OSV Scanner, Dependency Graph and Source SBOM passed. Android CI and Gradle dependency-verification bootstrap were still in progress at the checkpoint; their final outcomes must be rechecked.
+- No production-signed APK/AAB or GitHub Release has been created. A new reviewed version tag is required; the old `v0.2.0-phase1` tag predates these workflow fixes and must not be moved.

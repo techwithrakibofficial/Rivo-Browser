@@ -1,6 +1,6 @@
 # Rivo Browser — Handoff
 
-Updated: 2026-11-23
+Updated: 2026-11-24
 
 ## 2026-11-23 — Release CI reconciliation (PR #64 candidate)
 - Live audit confirmed PR #64 and PR #65 target the same Main SHA (cfa94c3f26e8e478bb51adf1b3b60fc6ea871006) and overlap in the signed-release workflow and dependency verification metadata. PR #64 is the preferred candidate because it additionally verifies APK/AAB signer fingerprint consistency and exact AAB output cardinality.
@@ -348,3 +348,14 @@ Automated CI success is verified. It is not evidence of physical-device acceptan
 - Next release action: create and push an owner-authorized version tag matching v* (candidate v0.2.0-phase1) at the reviewed Main commit. This triggers .github/workflows/signed-release.yml; the workflow is owner-gated and verifies production keystore, minified APK/AAB signatures, matching signer fingerprints and SHA-256 release assets. No tag, signed binary or GitHub Release currently exists. The available GitHub integration cannot create/push Git tags or dispatch this workflow.
 - Owner previously reported four production Environment signing secrets configured; values and Environment reviewer/deployment restrictions cannot be inspected by this integration. Verify Environment protection before approving signing.
 - Physical-device testing is deliberately deferred until a production APK is available. Afterwards complete 3–4 GB profiling, accessibility/OEM checks, runtime 16 KB, private-mode/data lifecycle and GeckoView TLS/mixed-content fixtures. Full MASVS/MASTG assessment and independent penetration testing remain open; no certification is claimed.
+
+
+## Handoff — PR #75 merged / release gate — 2026-11-24 08:57 UTC
+
+- PR #75 was approved by `techsomadhanmedia` and merged as Main commit `8f8bafd8ebfdec97c2fe1e24007feeabd8ff19c4`.
+- Release workflow cleanup now removes the actual temporary PKCS#12 keystore `$RUNNER_TEMP/rivo-upload.p12`. PR #74's Base64 normalization and strict decode validation are also present on Main.
+- Same-Main OSV #45360601078, Dependency Graph #45360600467 and Source SBOM #45360600609 passed. Android CI #45360600469 and Gradle verification bootstrap #45360600491 were still in progress at this checkpoint; recheck their final outcomes.
+- Do not use existing tag `v0.2.0-phase1`: it points to old commit `e528d16a951fc6d2a153fcb7519fb0b0e2cd8255` and does not include the release workflow fixes. Create a new owner-authorized tag such as `v0.2.1-phase1` on the reviewed latest Main commit.
+- This GitHub integration has no tag-creation or workflow-dispatch action. Owner must create/push the new tag or dispatch the workflow manually for that tag. Then review the protected `production` Environment approval, run Signed Android Release, and verify APK/AAB signatures, matching certificate fingerprints and SHA-256 manifest.
+- Secret values are not inspectable here; the owner-reported four secrets are not proven valid until the actual signing workflow passes.
+- No signed release exists yet. Physical-device QA, low-RAM profiling, accessibility, runtime 16 KB, complete MASVS/MASTG and independent penetration testing remain open.

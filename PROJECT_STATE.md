@@ -1,6 +1,6 @@
 # Rivo Browser — Project State
 
-Updated: 2026-11-23
+Updated: 2026-11-24
 
 ## 2026-11-23 — Release CI reconciliation (PR #64 candidate)
 - Live audit confirmed PR #64 and PR #65 target the same Main SHA (cfa94c3f26e8e478bb51adf1b3b60fc6ea871006) and overlap in the signed-release workflow and dependency verification metadata. PR #64 is the preferred candidate because it additionally verifies APK/AAB signer fingerprint consistency and exact AAB output cardinality.
@@ -282,3 +282,14 @@ Updated: 2026-11-23
 - PR #66 governance hardening is merged; .github/CODEOWNERS assigns @techsomadhanmedia, and active ruleset 27894079 requires one approval, code-owner review, current build check, up-to-date branches and resolved conversations.
 - Production release is not complete: no version tag/dispatch has been executed, no production-signed APK/AAB or GitHub Release exists. Signed-release workflow accepts v* tags or manual dispatch for an existing tag and verifies the keystore, APK/AAB signer consistency and SHA-256 manifest. Owner-reported signing secrets are not independently inspectable here; Environment reviewer/self-review and deployment-ref restrictions remain unverified.
 - Physical-device acceptance, 3–4 GB RAM profiling, accessibility/OEM checks, runtime 16 KB validation, GeckoView runtime security fixtures, full MASVS/MASTG assessment and independent penetration testing remain separate, uncompleted gates. The user has deferred phone testing until the production APK is ready.
+
+
+## Authoritative checkpoint — 2026-11-24 08:57 UTC
+
+- PR #75 was independently approved by CODEOWNER `techsomadhanmedia` and merged to Main as `8f8bafd8ebfdec97c2fe1e24007feeabd8ff19c4`.
+- PR #75 corrected the signed-release cleanup step to remove the actual temporary PKCS#12 file `$RUNNER_TEMP/rivo-upload.p12`; the prior cleanup targeted an obsolete `.jks` filename. The release workflow's Base64 normalization/strict decoding fix from PR #74 is also on Main.
+- Main-head checks for this merge: OSV Scanner run [45360601078](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45360601078), Gradle Dependency Graph [45360600467](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45360600467), and Source SBOM [45360600609](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45360600609) completed successfully. Android CI [45360600469](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45360600469) and Gradle Dependency Verification Bootstrap [45360600491](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45360600491) were still running at this checkpoint; do not infer success until final conclusions are checked.
+- The existing immutable tag `v0.2.0-phase1` points to the earlier commit `e528d16a951fc6d2a153fcb7519fb0b0e2cd8255`, before the Base64 decoder and cleanup fixes. Do not reuse or move that tag. A new reviewed Main-ancestral tag (candidate `v0.2.1-phase1`) is required for a release containing these fixes.
+- No GitHub Release or production-signed APK/AAB is published. The four production signing secret values are not visible to this integration; the owner-reported configuration has not been validated by a successful signed-release run. Production Environment reviewer/deployment restrictions also remain unverified.
+- The connected GitHub actions do not expose tag creation or workflow dispatch. An authorized repository owner must create/push the new tag or dispatch the signed-release workflow against an existing new tag. Do not claim release completion until APK/AAB signatures, matching signer fingerprints and downloaded SHA-256 checksums pass.
+- Physical-device acceptance, 3–4 GB RAM profiling, TalkBack/accessibility, runtime 16 KB verification, complete MASVS/MASTG review and independent penetration testing remain open.

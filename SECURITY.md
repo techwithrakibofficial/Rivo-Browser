@@ -1,6 +1,6 @@
 # Rivo Browser — Security Baseline
 
-Updated: 2026-11-23
+Updated: 2026-11-24
 
 ## Release pipeline hardening candidate — 2026-11-23
 - APKs are verified with Android SDK apksigner; AAB signature verification requires a positive jarsigner verification result. SHA-256 signer certificate fingerprints must match across APK/AAB outputs.
@@ -214,3 +214,13 @@ Rivo now surfaces GeckoView's active/passive mixed-content status in its connect
 - Signed-release workflow is owner-gated, requires the production Environment, verifies keystore access, R8 mapping, APK/AAB signatures and signer fingerprint consistency, creates a SHA-256 manifest, and refuses to overwrite an existing GitHub Release. It triggers on v* tags or manual dispatch with an existing tag. No tag/run/signed artifact/release currently exists.
 - Repository owner reports the four signing secrets are configured in the production Environment; this integration cannot inspect secret presence/values or Environment reviewers, self-review prevention or deployment-ref restrictions. Treat those controls as unverified until an administrator checks them.
 - Static CI success is not physical-device security evidence. Physical-device privacy/data lifecycle, 3–4 GB profiling, accessibility, runtime 16 KB, GeckoView TLS/mixed-content fixtures, full MASVS/MASTG control review and independent penetration testing remain open. No certification is claimed.
+
+
+## 2026-11-24 — Signed-release workflow fix and verification boundary
+
+- PR #75 merged after independent CODEOWNER approval as Main commit `8f8bafd8ebfdec97c2fe1e24007feeabd8ff19c4`.
+- The cleanup step now deletes the actual temporary PKCS#12 keystore path `$RUNNER_TEMP/rivo-upload.p12` on all job outcomes. PR #74's Base64 normalization and strict validation are also integrated.
+- PR-head CI passed Android build/security static checks, JVM and instrumentation tasks, dependency verification, OSV, Dependency Graph and SBOM. Post-merge OSV, Dependency Graph and SBOM passed; Main Android CI and dependency verification were still in progress at the checkpoint.
+- These checks validate workflow source and application CI, not the owner's production signing secret values. Only a successful production-environment signing run followed by independent APK/AAB signer-fingerprint and checksum verification establishes signing success.
+- Existing `v0.2.0-phase1` predates the workflow fixes. Use a new reviewed Main-ancestral tag; do not rewrite the old tag. No signed release is claimed.
+- Physical-device privacy/security behavior, runtime 16 KB, full MASVS/MASTG review and independent penetration testing remain open.
