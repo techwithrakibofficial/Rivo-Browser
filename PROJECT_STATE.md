@@ -1,3 +1,12 @@
+## 2026-11-24 — Release version alignment candidate
+
+- Verified Main before this change: `b5e909e159896bc4beef49a9c3e3cb3d63a69b83` (PR #88 merge; fingerprint parser fix is present).
+- Verified app metadata on Main: `versionName=0.2.1-phase1`, `versionCode=3`.
+- Existing immutable tag `v0.2.2-phase1` points to `e15ee3ce1c623f70679b9c117018d98de0b1b757`, before PR #88; the tag's workflow still has the old fingerprint parser. Do not dispatch or move this tag for production signing.
+- Proposed next release candidate in this PR: `v0.2.3-phase1`, app `versionName=0.2.3-phase1`, `versionCode=4`. The tag must be created only after this PR is merged and CI passes.
+- Manual dispatch from Main with input `v0.2.3-phase1` checks out that tag's source; the release workflow also verifies the selected commit is reachable from Main.
+- No production-signed APK/AAB or GitHub Release is verified. Signing secrets and environment protection are not inspectable here.
+
 # Rivo Browser — Project State
 
 ## 2026-11-24 — Follow-up audit after PR #83
