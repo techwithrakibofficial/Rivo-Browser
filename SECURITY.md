@@ -1,3 +1,9 @@
+## 2026-11-24 — Release workflow verification checkpoint
+- PR #64's release hardening is integrated in Main; PR #65 was closed without merge as superseded.
+- Integrated workflow validates normalized PKCS12 signing input and alias, pins third-party actions to immutable SHAs, verifies signed APK/AAB outputs and signer fingerprint consistency, requires an R8 mapping file, verifies SHA-256 checksums across publication, limits token permissions, and cleans up the temporary keystore.
+- Main SHA cda82ea2a8bed4206e0ab441b6044d5c733c8cdc passed Android build, OSV, dependency graph, SBOM and Gradle dependency verification checks.
+- Workflow source review and CI are not equivalent to a production signing exercise. No production-signed release artifact was verified in this checkpoint; PR #77 and an owner-triggered release run remain gates.
+
 # Rivo Browser — Security Baseline
 
 Updated: 2026-11-23
