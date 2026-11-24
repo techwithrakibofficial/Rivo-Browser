@@ -1,6 +1,6 @@
 # Rivo Browser — Testing and Evidence
 
-Updated: 2026-11-23
+Updated: 2026-11-24
 
 ## 2026-11-23 — Release CI reconciliation (PR #64 candidate)
 - Live audit confirmed PR #64 and PR #65 target the same Main SHA (cfa94c3f26e8e478bb51adf1b3b60fc6ea871006) and overlap in the signed-release workflow and dependency verification metadata. PR #64 is the preferred candidate because it additionally verifies APK/AAB signer fingerprint consistency and exact AAB output cardinality.
@@ -262,3 +262,13 @@ A workflow being configured is not evidence that the latest commit passed. Recor
 - Universal APK and static 16 KB alignment checks are merged and validated in Main CI. Static alignment does not prove runtime 16 KB compatibility on hardware.
 - Not yet tested: physical-device browser journeys, 3–4 GB RAM, TalkBack/OEM behavior, runtime 16 KB, private-session/data lifecycle under process death, and GeckoView TLS/mixed-content fixtures. User has deferred device testing until production APK availability.
 - Release remains pending: no version tag, production-signed APK/AAB, signer fingerprint/checksum publication or GitHub Release exists. Follow the signed-release workflow only from an owner-authorized Main-ancestral version tag; verify production Environment protection and downloaded release assets.
+
+
+## 2026-11-24 — PR #75 and Main verification checkpoint
+
+- PR #75 head `fcb92d06f99e1bfa4b1fa5aa15cf06586ad2872a` passed Android CI, Gradle dependency-verification bootstrap, OSV Scanner, Dependency Graph and Source SBOM before independent CODEOWNER approval and merge.
+- PR #75 merged as `8f8bafd8ebfdec97c2fe1e24007feeabd8ff19c4`; the cleanup step was verified in Main source to remove `$RUNNER_TEMP/rivo-upload.p12`.
+- Post-merge Main OSV Scanner [45360601078](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45360601078), Dependency Graph [45360600467](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45360600467) and Source SBOM [45360600609](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45360600609) succeeded.
+- Post-merge Android CI [45360600469](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45360600469) and Gradle Dependency Verification Bootstrap [45360600491](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45360600491) were in progress when recorded. No pass/fail conclusion is claimed for those two runs here.
+- The CI evidence above does not test the production keystore. No signed APK/AAB, signer fingerprint proof or GitHub Release is available until the owner-triggered signed-release workflow completes.
+- Physical-device journeys, 3–4 GB profiling, TalkBack/OEM behavior, runtime 16 KB hardware validation, GeckoView runtime security fixtures and complete MASVS/MASTG/independent penetration testing remain unverified.
