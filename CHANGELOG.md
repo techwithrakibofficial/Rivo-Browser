@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-24 — Release workflow verification follow-up
+- PR #83 documentation reconciliation merged after CODEOWNER approval.
+- Post-merge audit identified that `gradle clean` before AAB assembly removes the APK intermediate directory; the subsequent verification must use the APKs already preserved in `dist/`.
+- The correction passed all five CI workflows and CODEOWNER review on PR #84. PR #85 reapplies it against latest Main to satisfy strict branch freshness; its own checks/review are pending.
+- No production-signed artifacts or GitHub Release are claimed.
+
+
 ## 2026-11-24 — PR #82 release-build fix integrated
 - PR #82 merged to `main` as `5ac3a6853cd20df47813acc580fcae2dbb34cbe9`; the signed-release workflow now builds ABI-split APKs and the AAB in separate Gradle invocations to avoid the AGP shrunk-resource collision.
 - PR #82 head CI passed Android CI, OSV Scanner PR, Gradle Dependency Graph, Source SBOM and Gradle dependency-verification bootstrap.
