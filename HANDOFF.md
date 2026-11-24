@@ -1,5 +1,19 @@
 # Rivo Browser — Handoff
 
+## 2026-11-24 — Current handoff after PR #82
+- Current `main`: `5ac3a6853cd20df47813acc580fcae2dbb34cbe9` (PR #82 merge).
+- PR #82 separates ABI-split APK assembly from AAB bundle assembly. Its PR-head Android CI, OSV, dependency graph, SBOM and dependency-verification workflows passed.
+- Post-merge Main run state at this checkpoint: OSV Scanner Scheduled, Source SBOM and Gradle Dependency Graph passed; Android CI and Gradle Dependency Verification Bootstrap were in progress.
+- The earlier signed-release attempt #45385076282 failed at `:app:buildReleasePreBundle` because APK/AAB tasks shared the ABI-split invocation. The corrected workflow is now on `main`; no signed release has been produced.
+
+### Remaining exact gates
+1. Execute the signed-release workflow from current `main` with input tag `v0.2.1-phase1`; do not rerun the old failed tag push run because it uses the old workflow revision.
+2. Verify published APK/AAB signatures, matching signer fingerprints, R8 mapping artifact and SHA-256 checksums.
+3. Complete physical-device QA on supported 3–4 GB and modern devices, including private sessions, permissions, notifications, downloads, reader, QR and Transfer Studio.
+4. Complete TalkBack, narrow-width/large-font, contrast, memory/startup/battery and 16 KB runtime checks.
+5. Finish OWASP MASVS/MASTG evidence review and dependency advisory triage.
+
+
 Updated: 2026-11-24
 
 ## 2026-11-23 — Release CI reconciliation (PR #64 candidate)
