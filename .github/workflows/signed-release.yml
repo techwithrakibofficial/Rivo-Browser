@@ -90,10 +90,33 @@ jobs:
             fi
           done
 
-          KEYSTORE_PATH="$RUNNER_TEMP/rivo-upload.jks"
-          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE_PATH"
+          KEYSTORE_PATH="$RUNNER_TEMP/rivo-upload.p12"
+          # Termux/base64 output may be wrapped across lines or use the URL-safe
+          # alphabet. Normalize whitespace/alphabet and validate without logging
+          # any signing material; never silently discard invalid characters.
+          export KEYSTORE_BASE64
+          python3 - <<'PY'
+          import base64
+          import os
+          import re
+          import sys
+
+          encoded = "".join(os.environ["KEYSTORE_BASE64"].split())
+          encoded = encoded.translate(str.maketrans("-_", "+/"))
+          if not re.fullmatch(r"[A-Za-z0-9+/]*={0,2}", encoded):
+              sys.exit("::error::Keystore secret contains non-Base64 characters; restore the exact complete Base64 export.")
+          encoded += "=" * (-len(encoded) % 4)
+          try:
+              decoded = base64.b64decode(encoded, validate=True)
+          except Exception:
+              sys.exit("::error::Keystore secret is truncated or invalid Base64; restore the exact complete Base64 export.")
+          if not decoded:
+              sys.exit("::error::Decoded keystore is empty.")
+          with open(os.environ["RUNNER_TEMP"] + "/rivo-upload.p12", "wb") as keystore:
+              keystore.write(decoded)
+          PY
           test -s "$KEYSTORE_PATH"
-          keytool -list -keystore "$KEYSTORE_PATH" -storepass "$STORE_PASSWORD" -alias "$KEY_ALIAS" >/dev/null
+          keytool -list -storetype PKCS12 -keystore "$KEYSTORE_PATH" -storepass "$STORE_PASSWORD" -alias "$KEY_ALIAS" >/dev/null
 
           {
             echo "RIVO_UPLOAD_STORE_FILE=$KEYSTORE_PATH"
