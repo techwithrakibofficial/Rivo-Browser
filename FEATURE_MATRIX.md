@@ -62,3 +62,11 @@ Build success, JVM tests, emulator instrumentation, physical-device testing and 
 - PR #67 fixes the Medium mixed-content security-indicator presentation issue in source and adds JVM regression/property tests. GeckoView runtime mixed-content behavior remains unverified on physical devices/fixtures.
 - On this Main SHA, OSV Scanner [#45248503306](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45248503306), Dependency Graph [#45248502790](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45248502790), and Source SBOM [#45248501246](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45248501246) succeeded. Android CI [#45248503483](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45248503483) and Dependency Verification Bootstrap [#45248501576](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45248501576) were still in progress at the last captured check; do not claim success before rechecking final conclusions.
 - Remaining release gates: production-signed APK/AAB and signer/checksum verification; physical-device QA, accessibility and 3–4 GB RAM profiling; runtime 16 KB verification; full MASVS/MASTG assessment and independent penetration testing where required. CI does not replace these gates; no certification is claimed.
+
+
+## 2026-11-24 Android CI evidence update
+- ARM64 and ARMv7 shipping debug APK variants: **built and uploaded** by successful Main CI run #45326960699; QA/debug only.
+- API 35 x86_64 emulator instrumentation: **passed** for the currently checked-in instrumented regression tests; this does not cover all feature journeys.
+- Static 16 KB package/native alignment: **passed** for the CI APK/AAB outputs; runtime 16 KB hardware verification remains pending.
+- Universal no-ABI-split debug APK: **in progress** on QA branch `qa/universal-debug-apk-and-ci-evidence-2026-11-24`; not yet merged or accepted.
+- Physical device, low-RAM performance and accessibility acceptance: **pending**.
