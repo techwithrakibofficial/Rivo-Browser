@@ -68,5 +68,13 @@ Build success, JVM tests, emulator instrumentation, physical-device testing and 
 - ARM64 and ARMv7 shipping debug APK variants: **built and uploaded** by successful Main CI run #45326960699; QA/debug only.
 - API 35 x86_64 emulator instrumentation: **passed** for the currently checked-in instrumented regression tests; this does not cover all feature journeys.
 - Static 16 KB package/native alignment: **passed** for the CI APK/AAB outputs; runtime 16 KB hardware verification remains pending.
-- Universal no-ABI-split debug APK: **in progress** on QA branch `qa/universal-debug-apk-and-ci-evidence-2026-11-24`; not yet merged or accepted.
 - Physical device, low-RAM performance and accessibility acceptance: **pending**.
+
+
+## 2026-11-24 Main verification update
+
+- Universal no-ABI-split debug APK: Integrated and CI-verified on Main via PR #72; static 16 KB alignment check passed. This is not runtime 16 KB hardware validation.
+- Main Android CI #45334566292, Gradle dependency verification bootstrap #45334566241, Dependency Graph #45334566254, OSV Scanner #45334566666 and Source SBOM #45334566273: success on 39c35e64ab4260adb7787fed919c29cd098ac40a.
+- CI artifacts include ARM64/ARMv7 debug APKs, universal debug APK, unsigned QA AAB, test reports and benchmark outputs. Production-signed release remains pending.
+- PR #66 governance hardening is merged; CODEOWNERS maps the repository to @techsomadhanmedia; active ruleset requires one approval and code-owner review.
+- Physical-device, accessibility, low-RAM, runtime 16 KB and full MASVS/MASTG/independent penetration assessment remain pending; do not treat emulator CI as device acceptance.
