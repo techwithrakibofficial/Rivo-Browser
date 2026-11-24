@@ -26,8 +26,8 @@ android {
         applicationId = "com.rivo.browser"
         minSdk = 26
         targetSdk = 36
-        versionCode = 2
-        versionName = "0.2.0-phase1"
+        versionCode = 3
+        versionName = "0.2.1-phase1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildFeatures { compose = true }
@@ -49,6 +49,8 @@ android {
         if (releaseSigningRequired) {
             create("upload") {
                 storeFile = file(requireNotNull(releaseStoreFile))
+                // The release workflow validates a PKCS#12 keystore; keep AGP explicit.
+                storeType = "PKCS12"
                 storePassword = requireNotNull(releaseStorePassword)
                 keyAlias = requireNotNull(releaseKeyAlias)
                 keyPassword = requireNotNull(releaseKeyPassword)
