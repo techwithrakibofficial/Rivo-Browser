@@ -200,3 +200,10 @@ See Git history for prior Tab Universe, storage hardening, browser navigation, t
 - Fixed APK verification after AAB build's `gradle clean`: validate APKs already preserved in `dist/`, not the deleted APK build directory; removed duplicate copying.
 - All five PR workflows passed: Android CI, Source SBOM, OSV Scanner PR, Gradle Dependency Graph and Gradle Dependency Verification Bootstrap.
 - No signed production artifacts or GitHub Release are claimed. Protected workflow dispatch/tag and physical-device/security acceptance remain open.
+
+
+## 2026-11-24 — Documentation reconciliation merged
+- PR #86 merged as `e15ee3ce1c623f70679b9c117018d98de0b1b757` after CODEOWNER approval by `techsomadhanmedia`.
+- All five PR workflows succeeded; no unresolved review threads remained.
+- The nine project handoff/status documents and README were reconciled with the PR #85 release-workflow fix and remaining release/QA gates.
+- Documentation-only change; no production-signed artifacts or GitHub Release are claimed.

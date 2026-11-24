@@ -320,3 +320,12 @@ Updated: 2026-11-24
 - Release acceptance still requires signed APK/AAB, matching signer fingerprints, R8 mapping and SHA-256 verification. Physical-device QA, 3–4 GB profiling, accessibility/TalkBack, runtime 16 KB, complete MASVS/MASTG review and independent penetration testing remain open.
 - Duplicate work retired: PR #84 was superseded by PR #85; do not reopen this fix absent regression evidence.
 - Ledger: REL-APK-VERIFY COMPLETE; REL-SIGNED-PUBLISH BLOCKED on owner-triggered dispatch/tag; DEVICE-QA and MASVS-REVIEW incomplete.
+
+
+## 2026-11-24 — Authoritative state after PR #86 merge
+- Canonical Main SHA: `e15ee3ce1c623f70679b9c117018d98de0b1b757`; PR #86 is merged.
+- PR #86 CODEOWNER review by `techsomadhanmedia`: APPROVED; review threads: zero unresolved.
+- All five PR-head workflows succeeded: Android CI, Source SBOM, OSV Scanner PR, Gradle Dependency Graph and Gradle Dependency Verification Bootstrap.
+- PR #86 reconciled the nine project handoff/status documents and corrected README release-state wording. This merge is documentation-only; it does not create a production release or close device/security acceptance gates.
+- Signed production release remains blocked on an owner-authorized new immutable tag or workflow dispatch. The current GitHub integration exposes neither action.
+- Physical-device QA, 3–4 GB performance, accessibility, runtime 16 KB and full MASVS/MASTG assessment remain incomplete. No certification is claimed.
