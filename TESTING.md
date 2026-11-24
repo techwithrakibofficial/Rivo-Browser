@@ -1,5 +1,15 @@
 # Rivo Browser — Testing and Evidence
 
+## 2026-11-24 — Prompt 01 reconciliation follow-up
+- Main SHA: `a4ff0039d6a6bca1b300e3ad0c8af8ca56126413`.
+- Main check-runs: Android `build`, OSV scan, Gradle dependency graph, source SBOM, Generate and validate verification metadata, and Open reviewed verification metadata PR — all completed successfully.
+- PR #77 combined-head validation after adding the isolated-bootstrap metadata: lockfile resolution/OSV, dependency graph and source SBOM completed successfully; Android build and strict metadata bootstrap were still running at this documentation checkpoint.
+- The generated metadata contains 766 SHA-256 entries. No PGP keys, ignored keys, trusted keys or trusted-artifact bypasses were introduced.
+- The six missing plugin-classpath checksum names reported by the original failed PR checks are present in the generated metadata. The exact metadata blob was copied into PR #77; PR #80 was closed as superseded.
+- Bootstrap is trust-on-first-use from the configured repositories, not independent publisher-signature attestation. Gradle documentation explicitly requires review of generated metadata; CI strict validation confirms completeness/integrity matching, not independent provenance.
+- No production-signed APK/AAB or published GitHub Release has been verified in this checkpoint.
+
+
 Updated: 2026-11-24
 
 ## 2026-11-23 — Release CI reconciliation (PR #64 candidate)
