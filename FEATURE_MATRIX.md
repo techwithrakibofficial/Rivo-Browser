@@ -78,3 +78,10 @@ Build success, JVM tests, emulator instrumentation, physical-device testing and 
 - CI artifacts include ARM64/ARMv7 debug APKs, universal debug APK, unsigned QA AAB, test reports and benchmark outputs. Production-signed release remains pending.
 - PR #66 governance hardening is merged; CODEOWNERS maps the repository to @techsomadhanmedia; active ruleset requires one approval and code-owner review.
 - Physical-device, accessibility, low-RAM, runtime 16 KB and full MASVS/MASTG/independent penetration assessment remain pending; do not treat emulator CI as device acceptance.
+
+
+## 2026-11-24 — Current release verification checkpoint
+- Features marked Integrated remain source-integrated; this status is not equivalent to device acceptance.
+- PR #85's signed-release APK-after-clean correction is merged to Main at `4821c7af1255486e25b98305fd2b74cde33f488d` and passed all five PR workflows plus CODEOWNER review.
+- Production signing/publication remains Pending until a protected signed-release run and artifact signature/checksum verification complete.
+- Physical-device QA, 3–4 GB profiling, TalkBack/accessibility, runtime 16 KB and full MASVS/MASTG review remain Pending.
