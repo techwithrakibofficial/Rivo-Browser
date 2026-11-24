@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-24 — Prompt 01 reconciliation follow-up
+- PR #64 merged; overlapping PR #65 closed as superseded; PR #76 merged the previous handoff sync.
+- Main SHA `a4ff0039d6a6bca1b300e3ad0c8af8ca56126413` passed Android build, OSV, dependency graph, source SBOM and Gradle dependency verification checks.
+- PR #77 combines PKCS12 keystore type, version 0.2.1 and isolated-bootstrap SHA-256 verification metadata. Duplicate metadata PR #80 was closed after its exact metadata blob was included in #77.
+- Production-signed release remains pending fresh CODEOWNER approval, green PR checks, merge and a new Main-ancestral tag.
+
+
 ## 2026-11-23 — Release CI hardening candidate
 - PR #64 is the preferred reconciliation candidate over overlapping PR #65; it validates production keystore/alias configuration, signed APK/AAB verification, R8 mapping output, signer fingerprint consistency, and retry-safe release publishing.
 - Dependency verification bootstrap and strict validation passed on PR #64 (Actions run #45171080773); generated metadata and lockfiles already matched the branch.
