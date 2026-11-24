@@ -53,6 +53,11 @@ jobs:
             :engine-gecko:testDebugUnitTest \
             :engine-benchmark:assembleGeckoDebug \
             :engine-benchmark:assembleWebviewDebug \
+            :app:dependencies \
+            :engine-api:dependencies \
+            :engine-webview:dependencies \
+            :engine-gecko:dependencies \
+            :engine-benchmark:dependencies \
             -Privo.abiSplits=false \
             :engine-benchmark:bundleGeckoRelease \
             :engine-benchmark:bundleWebviewRelease \
@@ -67,6 +72,11 @@ jobs:
             :engine-gecko:testDebugUnitTest \
             :engine-benchmark:assembleGeckoDebug \
             :engine-benchmark:assembleWebviewDebug \
+            :app:dependencies \
+            :engine-api:dependencies \
+            :engine-webview:dependencies \
+            :engine-gecko:dependencies \
+            :engine-benchmark:dependencies \
             -Privo.abiSplits=false \
             :engine-benchmark:bundleGeckoRelease \
             :engine-benchmark:bundleWebviewRelease \
