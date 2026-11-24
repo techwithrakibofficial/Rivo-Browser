@@ -327,3 +327,14 @@ Automated CI success is verified. It is not evidence of physical-device acceptan
 - The signed-release workflow is present and validates the production keystore, APK/AAB signer consistency and SHA-256 assets. The owner reports that the four production signing secrets were configured; this integration cannot inspect secret presence/values or Environment protection. No release tag/dispatch has been executed, no signed production APK/AAB has been generated, and no GitHub Release is published.
 - The current GitHub integration exposes no tag-creation, workflow-dispatch, or release-creation action. The release workflow therefore cannot be triggered from this session; do not represent the unsigned CI AAB as a release.
 - Remaining production-acceptance gates: execute the protected signed-release workflow from an owner-created reviewed version tag or GitHub Actions manual dispatch; verify downloaded signed APK/AAB, matching signer fingerprints and published checksums; complete the documented device matrix for 3–4 GB performance, accessibility, runtime 16 KB and GeckoView TLS/mixed-content/private-data behavior; complete independent penetration testing and control-by-control MASVS/MASTG assessment. No certification is claimed.
+
+
+## Handoff — Android CI QA completed — 2026-11-24 04:43 UTC
+
+- Main revision tested: `3422fd94aa20f77de6a81bc61c6c4d09ba07a656`.
+- Android CI [run #45326960699](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45326960699) completed successfully; every step succeeded.
+- Passing gates include security static audit, strict dependency verification, assembleDebug, lintDebug, app and Gecko policy JVM tests, GeckoView/WebView benchmark builds, minified release AAB, static 16 KB native/ZIP alignment, and API 35 x86_64 emulator instrumentation.
+- Instrumentation command: `:app:connectedDebugAndroidTest`; Gradle completed successfully and test reports were uploaded. This only validates the checked-in instrumentation tests, not every browser feature or physical handset.
+- Available run artifacts: ARM64 debug APK, ARMv7 debug APK, unsigned QA AAB, Android test reports and engine benchmark outputs. Artifacts expire after their configured retention window; obtain them from the linked Actions run.
+- Current QA branch `qa/universal-debug-apk-and-ci-evidence-2026-11-24` adds a no-ABI-split universal debug APK build, 16 KB static validation and artifact upload. Await PR CI before relying on that deliverable.
+- Next: verify universal APK CI; expand functional instrumentation coverage around launch/navigation/tabs/private mode/download/permissions/reader/bookmarks/history/appearance; perform 3–4 GB physical-device, accessibility and runtime 16 KB validation; execute protected signed release and verify signatures/checksums. Do not claim physical-device acceptance or MASVS certification.
