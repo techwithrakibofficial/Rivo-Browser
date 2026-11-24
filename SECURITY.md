@@ -196,3 +196,12 @@ Rivo now surfaces GeckoView's active/passive mixed-content status in its connect
 - The signed-release workflow is present and validates the production keystore, APK/AAB signer consistency and SHA-256 assets. The owner reports that the four production signing secrets were configured; this integration cannot inspect secret presence/values or Environment protection. No release tag/dispatch has been executed, no signed production APK/AAB has been generated, and no GitHub Release is published.
 - The current GitHub integration exposes no tag-creation, workflow-dispatch, or release-creation action. The release workflow therefore cannot be triggered from this session; do not represent the unsigned CI AAB as a release.
 - Remaining production-acceptance gates: execute the protected signed-release workflow from an owner-created reviewed version tag or GitHub Actions manual dispatch; verify downloaded signed APK/AAB, matching signer fingerprints and published checksums; complete the documented device matrix for 3–4 GB performance, accessibility, runtime 16 KB and GeckoView TLS/mixed-content/private-data behavior; complete independent penetration testing and control-by-control MASVS/MASTG assessment. No certification is claimed.
+
+
+## 2026-11-24 — Android CI verification
+
+- Android CI [run #45326960699](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45326960699) completed successfully on Main SHA `3422fd94aa20f77de6a81bc61c6c4d09ba07a656`.
+- Security static audit passed: backup/cleartext network controls, system trust anchors, exported component restrictions, absence of shipping JavaScript bridge/custom trust-all TLS hook, disabled Gecko diagnostics/debug configuration and WebView benchmark/probe restrictions.
+- Strict dependency verification, Android lint, JVM tests and API 35 x86_64 emulator instrumentation also completed successfully. The instrumentation tests are narrow regression checks, not a penetration test.
+- Static 16 KB package/native-library alignment passed for CI APK/AAB artifacts. This is not runtime proof on 16 KB page-size hardware.
+- The unsigned AAB and debug APK artifacts are QA-only. Production signing, signer fingerprint verification, release checksum validation, physical-device security behavior and independent MASVS/MASTG assessment remain separate gates.
