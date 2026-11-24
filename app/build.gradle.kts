@@ -49,6 +49,8 @@ android {
         if (releaseSigningRequired) {
             create("upload") {
                 storeFile = file(requireNotNull(releaseStoreFile))
+                // The release workflow validates a PKCS#12 keystore; keep AGP explicit.
+                storeType = "PKCS12"
                 storePassword = requireNotNull(releaseStorePassword)
                 keyAlias = requireNotNull(releaseKeyAlias)
                 keyPassword = requireNotNull(releaseKeyPassword)
