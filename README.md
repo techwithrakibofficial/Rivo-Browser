@@ -2,13 +2,15 @@
 
 Rivo Browser is a free, privacy-focused Android browser designed for low- and mid-range phones, including devices with 3–4 GB RAM.
 
-## Current project status — 2026-11-13
+## Current project status — 2026-11-24
 
 - Canonical source: `main`.
-- Latest Main commit at this checkpoint: `5845e1b7804ad2cb102af16acd58af4b77aec3cb`.
-- PR #46 security/privacy integration is merged; no open pull requests were returned by the repository PR search at this checkpoint.
-- Main-head Android CI run #510 passed on the current Main SHA. OSV Scanner Scheduled #31, Gradle Dependency Graph #149 and Source SBOM #195 also passed on that SHA.
-- **This is not yet a production release.** CI success does not replace physical-device QA, runtime 16 KB testing, full security review or production signing.
+- Latest verified Main commit: `e44cae6fb2e9a34bcc40d6769e78626df1ea40c5` (PR #68 documentation reconciliation).
+- PR #67 security remediation and PR #68 documentation reconciliation are merged. PR #68 received CODEOWNER approval.
+- Main branch ruleset `Protect main branch` is active and requires PR review, CODEOWNERS approval, resolved review threads and the strict `build` check.
+- Post-merge Source SBOM and OSV Scanner workflows succeeded. Post-merge Android CI is still running; check [GitHub Actions](https://github.com/techwithrakibofficial/Rivo-Browser/actions) for the final result before treating the current Main commit as fully green.
+- The owner reports successful installation and phone-based testing. This is owner-reported acceptance, not independent device-lab evidence.
+- **No production release is published.** No signed production APK/AAB or public release asset is currently evidenced.
 
 ## Features integrated in Main
 
@@ -21,22 +23,22 @@ Rivo Browser is a free, privacy-focused Android browser designed for low- and mi
 - Dark, Light and Premium Glass appearance modes.
 - Read-only Developer Mode diagnostics.
 - Lazy loading of restored background tabs.
+- Security status disclosure for active/passive mixed content and qualified unknown state.
 
-## Honest limitations and outstanding release gates
+## Honest limitations and release gates
 
 - Reader Mode depends on GeckoView page readability and does not bypass gated content.
 - QR scanning requires compatible Google Play services.
 - Transfer cancellation is best-effort; pause/resume/retry are not implemented.
 - No end-user WebExtensions manager/marketplace is provided.
-- Production signing secrets are not accessible to this session; no signed production APK/AAB is verified.
-- Physical-device functional, accessibility and 3–4 GB RAM performance QA remain outstanding.
-- 16 KB page-size checks are static only; runtime verification on compatible hardware remains outstanding.
-- OWASP MASVS assessment is preliminary source-based gap analysis, not an independent audit or certification.
-- Main branch protection is disabled; a repository ruleset/branch protection requiring PR review and CI remains to be configured.
+- Downloaded file bytes are not encrypted by the browser metadata cipher.
+- Static 16 KB packaging checks are distinct from runtime validation on compatible hardware.
+- Production signing and public release require an authorized version tag/dispatch and successful signer/checksum verification.
+- Source-based security review and CI do not equal an independent penetration test or MASVS certification.
 
 ## Engineering documentation
 
-- `PROJECT_STATE.md` — current implementation and blockers.
+- `PROJECT_STATE.md` — implementation state and blockers.
 - `HANDOFF.md` — session handoff and next steps.
 - `DEVELOPMENT_PLAN.md` — phase status and release gates.
 - `ARCHITECTURE.md` — module and lifecycle architecture.
@@ -44,8 +46,9 @@ Rivo Browser is a free, privacy-focused Android browser designed for low- and mi
 - `FEATURE_MATRIX.md` — feature implementation status.
 - `TESTING.md` — test evidence and device matrix.
 - `SECURITY.md` and `SECURITY_ASSESSMENT.md` — security controls, limitations and preliminary gap register.
+- `SECURITY_AUDIT.md` — source audit and manual verification matrix.
 - `CHANGELOG.md` — notable project changes.
 
 ## Build
 
-Open the project in Android Studio with a compatible Android SDK and JDK 17, or use the repository's Gradle wrapper. CI artifacts are for QA only and must not be treated as signed production releases. See `.github/workflows/signed-release.yml` for the protected signing workflow and required repository Actions secrets.
+Open the project in Android Studio with a compatible Android SDK and JDK 17, or use the repository's Gradle wrapper. CI artifacts are for QA only and must not be treated as signed production releases. See `.github/workflows/signed-release.yml` for the protected signing workflow.
