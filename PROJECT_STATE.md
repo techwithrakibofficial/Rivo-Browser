@@ -260,3 +260,15 @@ Updated: 2026-11-23
 - The signed-release workflow is present and validates the production keystore, APK/AAB signer consistency and SHA-256 assets. The owner reports that the four production signing secrets were configured; this integration cannot inspect secret presence/values or Environment protection. No release tag/dispatch has been executed, no signed production APK/AAB has been generated, and no GitHub Release is published.
 - The current GitHub integration exposes no tag-creation, workflow-dispatch, or release-creation action. The release workflow therefore cannot be triggered from this session; do not represent the unsigned CI AAB as a release.
 - Remaining production-acceptance gates: execute the protected signed-release workflow from an owner-created reviewed version tag or GitHub Actions manual dispatch; verify downloaded signed APK/AAB, matching signer fingerprints and published checksums; complete the documented device matrix for 3–4 GB performance, accessibility, runtime 16 KB and GeckoView TLS/mixed-content/private-data behavior; complete independent penetration testing and control-by-control MASVS/MASTG assessment. No certification is claimed.
+
+
+## Verified Android QA closeout — 2026-11-24 04:43 UTC
+
+- Canonical Main at QA execution: `3422fd94aa20f77de6a81bc61c6c4d09ba07a656` (immutable GitHub Actions dependency pinning).
+- Android CI run [#45326960699](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45326960699) completed with conclusion **success**. All job steps passed.
+- Verified CI gates: strict Gradle dependency-verification metadata check, Android security static audit, shipping debug assembly, Android lint, app JVM unit tests, Gecko policy JVM tests, GeckoView/WebView benchmark builds, minified shipping release AAB build, native library/APK 16 KB static alignment, artifact uploads, and API 35 x86_64 Android Emulator instrumentation task.
+- Emulator instrumentation task executed `:app:connectedDebugAndroidTest`; Gradle reported BUILD SUCCESSFUL. Test report artifact is retained by the run. Instrumentation is limited to the checked-in Android test sources; this is not a full UI journey/device compatibility suite.
+- Uploaded QA artifacts: ARM64 debug APK, ARMv7 debug APK, unsigned QA-only release AAB, Android test reports, and GeckoView/WebView benchmark artifacts. These are temporary Actions artifacts (14-day retention except test reports at 7 days), not signed production downloads.
+- The APKs are architecture-specific. A separate PR adds a universal debug APK build, 16 KB static check and upload; it must pass its own CI and merge before being treated as a Main artifact.
+- No physical-device test was executed by this CI run. 3–4 GB RAM profiling, TalkBack/OEM behavior, real-device navigation/download/private-session workflows, runtime 16 KB hardware validation and independent penetration testing remain open.
+- Production signing/release remains a separate gate. The unsigned AAB is not a Play-ready signed release. No release tag, signed APK/AAB, signer fingerprint verification or GitHub Release is evidenced here.
