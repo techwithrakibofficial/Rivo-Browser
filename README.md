@@ -12,12 +12,13 @@ Rivo Browser is a free, privacy-focused Android browser designed for low- and mi
 ## Current project status — 2026-11-24
 
 - Canonical source: `main`.
-- Latest verified Main commit: `e44cae6fb2e9a34bcc40d6769e78626df1ea40c5` (PR #68 documentation reconciliation).
-- PR #67 security remediation and PR #68 documentation reconciliation are merged. PR #68 received CODEOWNER approval.
-- Main branch ruleset `Protect main branch` is active and requires PR review, CODEOWNERS approval, resolved review threads and the strict `build` check.
-- Post-merge Source SBOM and OSV Scanner workflows succeeded. Post-merge Android CI is still running; check [GitHub Actions](https://github.com/techwithrakibofficial/Rivo-Browser/actions) for the final result before treating the current Main commit as fully green.
-- The owner reports successful installation and phone-based testing. This is owner-reported acceptance, not independent device-lab evidence.
-- **No production release is published.** No signed production APK/AAB or public release asset is currently evidenced.
+- Latest verified Main commit: `4821c7af1255486e25b98305fd2b74cde33f488d` (PR #85 release-workflow correction).
+- PR #85 is merged after CODEOWNER approval, zero unresolved review threads and five successful PR workflows.
+- PR #86 contains the current documentation reconciliation and is awaiting CODEOWNER review and required checks.
+- No production release is published or verified. The protected signed-release workflow requires an existing new version tag reachable from Main, valid production Environment secrets and a repository-owner-triggered workflow run.
+- The owner reports successful phone installation/testing; this is owner-reported acceptance, not independent device-lab evidence.
+- CI/emulator evidence is not physical-device acceptance. 3–4 GB profiling, accessibility, runtime 16 KB and full MASVS/MASTG assessment remain release gates.
+
 
 ## Features integrated in Main
 
