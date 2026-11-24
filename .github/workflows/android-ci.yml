@@ -109,6 +109,17 @@ jobs:
           path: app/build/outputs/apk/debug/*armeabi-v7a*.apk
           if-no-files-found: error
           retention-days: 14
+      - name: Assemble universal shipping debug APK
+        run: gradle --no-daemon --dependency-verification strict -Privo.abiSplits=false :app:assembleDebug
+      - name: Verify universal shipping APK 16 KB alignment
+        run: python3 tools/verify_16kb_alignment.py --apk app/build/outputs/apk/debug/app-debug.apk
+      - name: Upload universal shipping debug APK
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: rivo-browser-universal-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
       - name: Enable KVM for Android emulator
         if: runner.os == 'Linux'
         run: |
