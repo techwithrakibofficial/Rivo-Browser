@@ -159,5 +159,13 @@ See Git history for prior Tab Universe, storage hardening, browser navigation, t
 - Android CI run [#45326960699](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45326960699) completed successfully on Main `3422fd94aa20f77de6a81bc61c6c4d09ba07a656`.
 - Passed security static audit, strict dependency verification, shipping debug build, lint, app/Gecko JVM tests, GeckoView/WebView benchmark builds, minified release AAB, static 16 KB alignment and API 35 x86_64 emulator instrumentation.
 - Uploaded ARM64/ARMv7 debug APKs, unsigned QA AAB, test reports and benchmark artifacts.
-- Follow-up QA branch adds a universal debug APK artifact path and its own static 16 KB check; pending CI validation.
 - No production-signed release or physical-device QA is implied by this CI closeout.
+
+
+## 2026-11-24 — Main CI and QA artifact closeout
+
+- Merged PR #72: universal no-ABI-split debug APK build, static 16 KB alignment check and artifact publication.
+- Main Android CI #45334566292 and Gradle verification bootstrap #45334566241 passed on 39c35e64ab4260adb7787fed919c29cd098ac40a; Dependency Graph #45334566254, OSV #45334566666 and Source SBOM #45334566273 also passed.
+- CI artifacts include ARM64/ARMv7 debug APKs, universal debug APK, unsigned QA AAB, Android test reports and engine benchmark outputs. No production-signed APK/AAB or GitHub Release is available yet.
+- PR #66 governance hardening is merged; .github/CODEOWNERS and active one-approval/code-owner ruleset are in Main.
+- Remaining: owner-authorized version tag and signed-release workflow; verify signatures/fingerprints/checksums. Physical-device QA is deferred until the production APK is ready; low-RAM, accessibility, runtime 16 KB and complete MASVS/MASTG assessment remain open.
