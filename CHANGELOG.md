@@ -152,3 +152,12 @@ See Git history for prior Tab Universe, storage hardening, browser navigation, t
 - The signed-release workflow is present and validates the production keystore, APK/AAB signer consistency and SHA-256 assets. The owner reports that the four production signing secrets were configured; this integration cannot inspect secret presence/values or Environment protection. No release tag/dispatch has been executed, no signed production APK/AAB has been generated, and no GitHub Release is published.
 - The current GitHub integration exposes no tag-creation, workflow-dispatch, or release-creation action. The release workflow therefore cannot be triggered from this session; do not represent the unsigned CI AAB as a release.
 - Remaining production-acceptance gates: execute the protected signed-release workflow from an owner-created reviewed version tag or GitHub Actions manual dispatch; verify downloaded signed APK/AAB, matching signer fingerprints and published checksums; complete the documented device matrix for 3–4 GB performance, accessibility, runtime 16 KB and GeckoView TLS/mixed-content/private-data behavior; complete independent penetration testing and control-by-control MASVS/MASTG assessment. No certification is claimed.
+
+
+## 2026-11-24 — Android QA CI closeout
+
+- Android CI run [#45326960699](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45326960699) completed successfully on Main `3422fd94aa20f77de6a81bc61c6c4d09ba07a656`.
+- Passed security static audit, strict dependency verification, shipping debug build, lint, app/Gecko JVM tests, GeckoView/WebView benchmark builds, minified release AAB, static 16 KB alignment and API 35 x86_64 emulator instrumentation.
+- Uploaded ARM64/ARMv7 debug APKs, unsigned QA AAB, test reports and benchmark artifacts.
+- Follow-up QA branch adds a universal debug APK artifact path and its own static 16 KB check; pending CI validation.
+- No production-signed release or physical-device QA is implied by this CI closeout.
