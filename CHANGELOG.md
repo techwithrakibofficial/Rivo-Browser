@@ -193,3 +193,10 @@ See Git history for prior Tab Universe, storage hardening, browser navigation, t
 - PR #74's Base64 normalization (whitespace and URL-safe alphabet) and strict decode validation are present on Main.
 - Post-merge OSV Scanner, Dependency Graph and Source SBOM passed. Android CI and Gradle dependency-verification bootstrap were still in progress at the checkpoint; their final outcomes must be rechecked.
 - No production-signed APK/AAB or GitHub Release has been created. A new reviewed version tag is required; the old `v0.2.0-phase1` tag predates these workflow fixes and must not be moved.
+
+
+## 2026-11-24 — PR #85 release verification fix merged
+- Merged PR #85 as `4821c7af1255486e25b98305fd2b74cde33f488d` after CODEOWNER approval and zero unresolved review threads.
+- Fixed APK verification after AAB build's `gradle clean`: validate APKs already preserved in `dist/`, not the deleted APK build directory; removed duplicate copying.
+- All five PR workflows passed: Android CI, Source SBOM, OSV Scanner PR, Gradle Dependency Graph and Gradle Dependency Verification Bootstrap.
+- No signed production artifacts or GitHub Release are claimed. Protected workflow dispatch/tag and physical-device/security acceptance remain open.

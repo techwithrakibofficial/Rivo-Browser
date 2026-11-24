@@ -158,3 +158,16 @@ A release candidate is acceptable only when:
 - Existing `v0.2.0-phase1` is an immutable older tag and excludes the release workflow fixes. The next release should use a new owner-authorized tag (candidate `v0.2.1-phase1`) on the reviewed Main commit.
 - The connected GitHub integration cannot create tags or dispatch workflows. The repository owner must perform that one release trigger; do not move/rewrite the old tag or distribute unsigned QA artifacts.
 - Production release remains unverified until protected signing succeeds and APK/AAB signatures, matching signer fingerprints and SHA-256 checksums are independently checked. Physical-device, accessibility, low-RAM, runtime 16 KB and full security assessment remain open.
+
+
+## 2026-11-24 — Incremental execution ledger after PR #85
+| ID | Work unit | Status | Evidence / next action |
+|---|---|---|---|
+| REL-APK-VERIFY | Verify preserved APKs after AAB clean | COMPLETE | PR #85 merged as `4821c7af1255486e25b98305fd2b74cde33f488d`; all five PR workflows succeeded; CODEOWNER approved; no unresolved threads |
+| REL-SIGNED-PUBLISH | Protected production signing/publication | BLOCKED | Owner must dispatch signed-release workflow or push a new immutable tag; current integration cannot trigger either |
+| REL-ARTIFACT-AUDIT | Signed artifact integrity | BLOCKED | Verify APK/AAB signatures, matching cert fingerprints, R8 mapping and SHA-256 after successful release run |
+| QA-DEVICE | Physical-device and target-class QA | INCOMPLETE | Run documented device matrix; CI/emulator does not replace physical devices |
+| QA-ACCESS | Accessibility and low-end performance | INCOMPLETE | TalkBack, large font, contrast, reduced motion, 3–4 GB memory/startup/battery |
+| SEC-MASVS | MASVS/MASTG control evidence review | INCOMPLETE | Complete control-by-control evidence and residual-risk register; independent penetration test not evidenced |
+- Dependency order: REL-SIGNED-PUBLISH → REL-ARTIFACT-AUDIT; QA-DEVICE/QA-ACCESS and SEC-MASVS are independent acceptance tracks.
+- PR #84 is superseded; do not repeat REL-APK-VERIFY without regression evidence.

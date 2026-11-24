@@ -309,3 +309,14 @@ Updated: 2026-11-24
 - No GitHub Release or production-signed APK/AAB is published. The four production signing secret values are not visible to this integration; the owner-reported configuration has not been validated by a successful signed-release run. Production Environment reviewer/deployment restrictions also remain unverified.
 - The connected GitHub actions do not expose tag creation or workflow dispatch. An authorized repository owner must create/push the new tag or dispatch the signed-release workflow against an existing new tag. Do not claim release completion until APK/AAB signatures, matching signer fingerprints and downloaded SHA-256 checksums pass.
 - Physical-device acceptance, 3–4 GB RAM profiling, TalkBack/accessibility, runtime 16 KB verification, complete MASVS/MASTG review and independent penetration testing remain open.
+
+
+## 2026-11-24 — Verified release-pipeline checkpoint (PR #85)
+- Canonical Main commit: `4821c7af1255486e25b98305fd2b74cde33f488d` (squash merge of PR #85).
+- PR #85 fixes post-clean APK verification: signed APKs are preserved in `dist/` before AAB build cleanup, and verification validates those preserved files rather than the deleted APK intermediate directory. Redundant copying was removed.
+- PR #85 merged after CODEOWNER approval by `techsomadhanmedia`, zero unresolved review threads, and all five PR workflows succeeded: Android CI, Source SBOM, OSV Scanner PR, Gradle Dependency Graph and Gradle Dependency Verification Bootstrap.
+- Android CI passed security static audit, shipping assemble, lint, JVM tests, Gecko policy tests, benchmark builds, minified release bundle, static 16 KB alignment checks and Android security instrumentation. These are CI/emulator results, not physical-device acceptance.
+- Highest-priority blocker: trigger the protected signed-release workflow from current Main with a new immutable reviewed version tag. This GitHub connection exposes neither tag creation nor workflow dispatch.
+- Release acceptance still requires signed APK/AAB, matching signer fingerprints, R8 mapping and SHA-256 verification. Physical-device QA, 3–4 GB profiling, accessibility/TalkBack, runtime 16 KB, complete MASVS/MASTG review and independent penetration testing remain open.
+- Duplicate work retired: PR #84 was superseded by PR #85; do not reopen this fix absent regression evidence.
+- Ledger: REL-APK-VERIFY COMPLETE; REL-SIGNED-PUBLISH BLOCKED on owner-triggered dispatch/tag; DEVICE-QA and MASVS-REVIEW incomplete.
