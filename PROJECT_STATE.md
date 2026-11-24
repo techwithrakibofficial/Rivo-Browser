@@ -1,5 +1,14 @@
 # Rivo Browser — Project State
 
+## 2026-11-24 — Current verified state after PR #82
+- Canonical `main` SHA: `5ac3a6853cd20df47813acc580fcae2dbb34cbe9`.
+- PR #82 merged at 12:34:24Z. It fixes the signed-release AGP task collision by building ABI-split APKs with `rivo.abiSplits=true`, preserving them, cleaning intermediates, then building the AAB separately with `rivo.abiSplits=false`.
+- PR #82 head validation passed Android CI, OSV Scanner PR, Gradle Dependency Graph, Source SBOM and Gradle dependency-verification bootstrap.
+- Post-merge Main checks at documentation time: OSV Scanner Scheduled, Source SBOM and Gradle Dependency Graph succeeded; Android CI and Gradle Dependency Verification Bootstrap were still in progress.
+- Signed-release run #45385076282 failed on the pre-fix workflow at `:app:buildReleasePreBundle`; no signed artifacts or GitHub Release were verified. A fresh workflow dispatch using the corrected current-main workflow is still required.
+- Existing tag `v0.2.1-phase1` is not to be moved or rewritten. Use it as the workflow-dispatch input from current `main`.
+
+
 Updated: 2026-11-24
 
 ## 2026-11-23 — Release CI reconciliation (PR #64 candidate)
