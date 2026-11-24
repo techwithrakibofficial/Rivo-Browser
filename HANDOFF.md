@@ -1,3 +1,12 @@
+## 2026-11-24 — Release version alignment handoff
+
+- Main audited at `b5e909e159896bc4beef49a9c3e3cb3d63a69b83`; PR #88 fingerprint parser correction is present.
+- Main app metadata was inconsistent with the candidate tag: `0.2.1-phase1`, version code 3.
+- Existing tag `v0.2.2-phase1` points to pre-PR #88 commit `e15ee3ce1c623f70679b9c117018d98de0b1b757`; its workflow contains the old parser. Never move or use this tag for the production release.
+- This PR proposes `versionName=0.2.3-phase1`, `versionCode=4`. Wait for merge and green checks, then create/push immutable tag `v0.2.3-phase1` at the merged Main commit.
+- Trigger Signed Android Release manually from Main with tag input `v0.2.3-phase1`, approve the protected production Environment if configured, then verify APK/AAB signatures, matching certificate fingerprints, R8 mapping artifact and published SHA-256 checksums.
+- No signed release is published yet. Physical-device, 3–4 GB, accessibility, runtime 16 KB and MASVS/MASTG gates remain open.
+
 # Rivo Browser — Handoff
 
 ## 2026-11-24 — Follow-up handoff after PR #83
