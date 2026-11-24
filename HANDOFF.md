@@ -1,5 +1,20 @@
 # Rivo Browser — Handoff
 
+## 2026-11-24 — Prompt 01 release reconciliation follow-up
+- PR #64 merged; PR #65 closed as superseded. PR #76 merged documentation reconciliation. Current Main SHA: `a4ff0039d6a6bca1b300e3ad0c8af8ca56126413`.
+- All six Main checks passed: Android build, OSV, Gradle dependency graph, source SBOM, dependency verification bootstrap/strict validation and metadata proposal.
+- PR #77 now carries the PKCS12 signing-store type, version 0.2.1, and exact generated verification metadata from isolated bootstrap run #45376045073. PR #80 was closed as superseded to avoid duplicate metadata changes.
+- PR #77 latest checks are running; its previous CODEOWNER approval was dismissed after the latest commit. A fresh CODEOWNER approval is requested from `techsomadhanmedia`.
+- The old `v0.2.0-phase1` tag remains immutable. No new release tag or production-signed assets exist yet.
+
+## Exact next steps
+1. Obtain fresh CODEOWNER approval on PR #77 and wait for all current PR checks (Android build, OSV, dependency graph, SBOM and strict verification) to pass.
+2. Merge PR #77 only after required protections are satisfied.
+3. Create the new annotated tag `v0.2.1-phase1` on the resulting latest Main commit; push it as the repository owner to trigger the signed-release workflow.
+4. Verify the signed APK/AAB, matching certificate fingerprints, R8 mapping artifact retention and downloaded SHA-256 checksums. Do not create a GitHub Release manually before the workflow, because the workflow creates the Release itself.
+5. Complete the separate physical-device QA and low-RAM acceptance gates.
+
+
 Updated: 2026-11-24
 
 ## 2026-11-23 — Release CI reconciliation (PR #64 candidate)
