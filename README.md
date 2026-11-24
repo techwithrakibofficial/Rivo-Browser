@@ -1,3 +1,10 @@
+## Verified project status — 2026-11-24 (PR #85)
+- Latest verified Main commit: `4821c7af1255486e25b98305fd2b74cde33f488d` (PR #85 release-workflow correction).
+- PR #85 is merged; its five PR workflows and CODEOWNER review passed.
+- PR #86 contains the current nine-document state/handoff reconciliation and awaits CODEOWNER review and required checks.
+- No production release is published or verified. The signed-release workflow requires an existing version tag reachable from Main, protected production signing secrets and a repository-owner-triggered run.
+- CI/emulator evidence is not physical-device acceptance. 3–4 GB profiling, accessibility, runtime 16 KB and full MASVS/MASTG assessment remain release gates.
+
 # Rivo Browser
 
 Rivo Browser is a free, privacy-focused Android browser designed for low- and mid-range phones, including devices with 3–4 GB RAM.
