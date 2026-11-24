@@ -15,7 +15,7 @@ permissions:
 jobs:
   scan-scheduled:
     name: Scan known dependency vulnerabilities
-    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.7.1
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@32d3cd482bdadfb38b186c0ad1b031902d55d932 # v2.7.1
     with:
       # Scan the resolved module lockfiles; verification-metadata.xml is a checksum catalog,
       # not a dependency lockfile and includes build-tool configurations OSV cannot map reliably.
