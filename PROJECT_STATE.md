@@ -1,3 +1,10 @@
+## 2026-11-24 — Release CI / PR #64–#65 reconciliation (verified)
+- PR #64 is merged; merge commit: cda27e5bf019fbf50be47678c53bf1dcc2e54d0e. PR #65 is closed without merge as superseded; its distinct useful workflow changes are present in the integrated release workflow.
+- Current main at this checkpoint: cda82ea2a8bed4206e0ab441b6044d5c733c8cdc. Main is 23 commits ahead of the PR #64 merge and contains it in ancestry.
+- Main-head checks on cda82ea: Android CI `build`, OSV Scanner Scheduled, Gradle Dependency Graph, Source SBOM, Gradle verification metadata generation/strict verification, and reviewed metadata-PR job all completed successfully.
+- Current signed-release workflow includes PKCS12 keystore validation/normalization, pinned GitHub Actions, release-tag format and Main ancestry checks, signed APK/AAB verification, matching signer fingerprints, mandatory R8 mapping artifact (90-day retention), SHA-256 verification before/after publishing, least-privilege permissions, concurrency control and temporary-keystore cleanup.
+- Production-signed release execution has not been evidenced in this checkpoint. PR #77 (PKCS12 signing config/version 0.2.1) remains open and requires independent review plus fresh checks before release tagging.
+
 # Rivo Browser — Project State
 
 Updated: 2026-11-23
