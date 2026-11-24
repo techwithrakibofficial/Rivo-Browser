@@ -1,5 +1,13 @@
 # Rivo Browser — Project State
 
+## 2026-11-24 — Prompt 01 release reconciliation follow-up
+- PR #64 is merged and PR #65 is closed as superseded. PR #76 is also merged; current Main checkpoint is `a4ff0039d6a6bca1b300e3ad0c8af8ca56126413`.
+- All six Main-head checks completed successfully on this checkpoint: Android `build`, OSV scan, dependency graph, source SBOM, Gradle verification bootstrap/strict validation, and metadata proposal job.
+- PR #77 combines explicit AGP PKCS12 store type, versionCode 3 / versionName 0.2.1-phase1, and the isolated-bootstrap Gradle verification metadata. The metadata contains 766 SHA-256 entries and no PGP keys, ignored keys, trusted keys, or trusted-artifact bypasses.
+- PR #80 was closed as superseded because its exact verification-metadata blob is included unchanged in PR #77. PR #77 fresh CI is in progress; no production-signed build is claimed.
+- Existing immutable tag `v0.2.0-phase1` remains present. New tag `v0.2.1-phase1` has not been created; production release remains pending PR #77 approval/checks and a signed-release run.
+
+
 Updated: 2026-11-24
 
 ## 2026-11-23 — Release CI reconciliation (PR #64 candidate)
