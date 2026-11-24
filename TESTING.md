@@ -1,5 +1,13 @@
 # Rivo Browser — Testing and Evidence
 
+## 2026-11-24 — PR #82 and post-merge validation
+- PR #82 head SHA `62c1185d405ed32d7ce074da23d4d899eab434e4`: Android CI, OSV Scanner PR, Gradle Dependency Graph, Source SBOM and Gradle dependency-verification bootstrap all completed successfully.
+- Merge commit: `5ac3a6853cd20df47813acc580fcae2dbb34cbe9`.
+- Post-merge Main: OSV Scanner Scheduled, Source SBOM and Gradle Dependency Graph completed successfully. Android CI run #45394811390 and Gradle Dependency Verification Bootstrap run #45394811440 were still in progress at this checkpoint.
+- Previous signed-release run #45385076282 failed at `:app:buildReleasePreBundle` on the old workflow revision; it must not be counted as a successful release test.
+- No production-signed artifact, physical-device acceptance, runtime 16 KB validation or complete MASVS assessment is evidenced here.
+
+
 Updated: 2026-11-24
 
 ## 2026-11-23 — Release CI reconciliation (PR #64 candidate)
