@@ -252,4 +252,13 @@ A workflow being configured is not evidence that the latest commit passed. Recor
 - Artifacts: `rivo-browser-arm64-debug`, `rivo-browser-armv7-debug`, `rivo-browser-release-aab-unsigned`, `rivo-android-test-reports`, and GeckoView/WebView benchmark artifacts.
 - 16 KB result is static package/native-library alignment evidence only; runtime on 16 KB hardware remains untested.
 - No physical device was connected or tested by this run. No claim is made for 3–4 GB performance, TalkBack, OEM notifications, real-world site compatibility, full browser journey coverage, penetration testing or MASVS certification.
-- A follow-up QA branch adds a universal no-ABI-split debug APK plus an explicit 16 KB static check; its own CI result is pending.
+
+
+## 2026-11-24 — Main CI evidence after PR #72
+
+- Main SHA 39c35e64ab4260adb7787fed919c29cd098ac40a: Android CI #45334566292 success; Gradle verification bootstrap #45334566241 success.
+- Dependency Graph #45334566254, OSV Scanner #45334566666 and Source SBOM #45334566273: success.
+- Verified workflow artifacts: ARM64/ARMv7 debug APKs, universal debug APK, unsigned QA AAB, Android test reports and Gecko/WebView benchmark outputs. The QA AAB is unsigned; no production signing is implied.
+- Universal APK and static 16 KB alignment checks are merged and validated in Main CI. Static alignment does not prove runtime 16 KB compatibility on hardware.
+- Not yet tested: physical-device browser journeys, 3–4 GB RAM, TalkBack/OEM behavior, runtime 16 KB, private-session/data lifecycle under process death, and GeckoView TLS/mixed-content fixtures. User has deferred device testing until production APK availability.
+- Release remains pending: no version tag, production-signed APK/AAB, signer fingerprint/checksum publication or GitHub Release exists. Follow the signed-release workflow only from an owner-authorized Main-ancestral version tag; verify production Environment protection and downloaded release assets.
