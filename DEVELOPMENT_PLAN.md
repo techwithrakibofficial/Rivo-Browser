@@ -1,6 +1,6 @@
 # Rivo Browser — Development Plan
 
-Updated: 2026-11-13
+Updated: 2026-11-24
 
 ## Phase 0 — Foundation
 **Source implementation: substantially complete; measured engine decision remains open.**
@@ -148,3 +148,13 @@ A release candidate is acceptable only when:
 - Governance PR #66 is merged; CODEOWNERS and active one-approval/code-owner ruleset are present.
 - Immediate release milestone: owner creates/pushes an authorized v0.2.0-phase1 tag on the reviewed Main commit. The owner-gated signed-release workflow validates production keystore, builds minified signed APK/AAB, verifies matching signer fingerprints and publishes SHA-256 checksums. No production release exists yet; integration cannot push tags or dispatch workflows.
 - Post-release acceptance (intentionally deferred until the APK is ready): physical-device browser journeys, 3–4 GB RAM, accessibility/OEM behavior, runtime 16 KB, private data lifecycle and GeckoView security fixtures. Complete full MASVS/MASTG assessment and independent penetration testing before claiming security acceptance.
+
+
+## 2026-11-24 — Release workflow reconciliation
+
+- PR #75 merged to Main as `8f8bafd8ebfdec97c2fe1e24007feeabd8ff19c4` after independent CODEOWNER approval. It fixes temporary PKCS#12 cleanup to remove `$RUNNER_TEMP/rivo-upload.p12`.
+- PR #74's Base64 normalization and strict decode validation are also integrated. PR-head Android CI, dependency verification, OSV, Dependency Graph and SBOM checks passed before merge.
+- Post-merge OSV #45360601078, Dependency Graph #45360600467 and Source SBOM #45360600609 passed. Post-merge Android CI #45360600469 and dependency-verification bootstrap #45360600491 were still running at this checkpoint; recheck before closure.
+- Existing `v0.2.0-phase1` is an immutable older tag and excludes the release workflow fixes. The next release should use a new owner-authorized tag (candidate `v0.2.1-phase1`) on the reviewed Main commit.
+- The connected GitHub integration cannot create tags or dispatch workflows. The repository owner must perform that one release trigger; do not move/rewrite the old tag or distribute unsigned QA artifacts.
+- Production release remains unverified until protected signing succeeds and APK/AAB signatures, matching signer fingerprints and SHA-256 checksums are independently checked. Physical-device, accessibility, low-RAM, runtime 16 KB and full security assessment remain open.
