@@ -138,5 +138,13 @@ A release candidate is acceptable only when:
 - Main Android CI run [#45326960699](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45326960699) is now complete and successful on `3422fd94aa20f77de6a81bc61c6c4d09ba07a656`.
 - Verified: static Android security configuration audit, strict dependency verification, debug build, lint, app/Gecko JVM tests, GeckoView/WebView benchmark builds, minified release AAB, static native/ZIP 16 KB alignment and API 35 x86_64 emulator instrumentation task.
 - QA artifacts uploaded: ARM64 and ARMv7 debug APKs, unsigned QA AAB, instrumentation reports and benchmark outputs.
-- Next engineering work: produce a universal debug APK (no ABI split) and statically validate it; add deterministic UI/instrumentation scenarios for core browser workflows; then arrange independent physical-device and low-RAM/accessibility/runtime-16KB checks.
 - Release remains blocked on protected production signing/tag execution and independent artifact signer/checksum verification. Emulator CI is not physical-device acceptance.
+
+
+## 2026-11-24 — post-PR #72 execution checkpoint
+
+- PR #72 is merged at Main SHA 39c35e64ab4260adb7787fed919c29cd098ac40a. Main Android CI #45334566292 and Gradle verification bootstrap #45334566241 passed; Dependency Graph #45334566254, OSV #45334566666 and Source SBOM #45334566273 passed.
+- Universal no-ABI-split debug APK and static 16 KB alignment validation are integrated and passed on Main. CI artifacts also include ARM64/ARMv7 debug APKs, unsigned QA AAB, Android test reports and engine benchmark outputs.
+- Governance PR #66 is merged; CODEOWNERS and active one-approval/code-owner ruleset are present.
+- Immediate release milestone: owner creates/pushes an authorized v0.2.0-phase1 tag on the reviewed Main commit. The owner-gated signed-release workflow validates production keystore, builds minified signed APK/AAB, verifies matching signer fingerprints and publishes SHA-256 checksums. No production release exists yet; integration cannot push tags or dispatch workflows.
+- Post-release acceptance (intentionally deferred until the APK is ready): physical-device browser journeys, 3–4 GB RAM, accessibility/OEM behavior, runtime 16 KB, private data lifecycle and GeckoView security fixtures. Complete full MASVS/MASTG assessment and independent penetration testing before claiming security acceptance.
