@@ -131,11 +131,28 @@ jobs:
           gradle-version: "9.6.0"
           cache-provider: basic
 
-      - name: Build signed, minified APKs and AAB
+      - name: Build signed, minified APK splits
         run: |
           set -euo pipefail
           gradle --no-daemon --stacktrace -Privo.releaseSigningRequired=true \
-            :app:assembleRelease :app:bundleRelease
+            -Privo.abiSplits=true clean :app:assembleRelease
+          mkdir -p dist
+          mapfile -t apks < <(find app/build/outputs/apk/release -type f -name '*.apk' | sort)
+          (( ${#apks[@]} >= 1 )) || { echo "::error::No release APKs were produced."; exit 1; }
+          cp "${apks[@]}" dist/
+
+      - name: Build signed, minified universal AAB
+        run: |
+          set -euo pipefail
+          # AGP cannot bundle an app while multiple ABI APK splits are enabled.
+          # Preserve APKs in dist, clean intermediates, then build the single AAB
+          # with ABI splits disabled for this separate Gradle invocation.
+          gradle --no-daemon --stacktrace clean
+          gradle --no-daemon --stacktrace -Privo.releaseSigningRequired=true \
+            -Privo.abiSplits=false :app:bundleRelease
+          mapfile -t aabs < <(find app/build/outputs/bundle/release -type f -name '*.aab' | sort)
+          (( ${#aabs[@]} == 1 )) || { echo "::error::Expected exactly one release AAB."; exit 1; }
+          cp "${aabs[0]}" dist/
 
       - name: Verify R8 output, signatures, and signer identity
         shell: bash
