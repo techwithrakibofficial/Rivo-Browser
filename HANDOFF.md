@@ -1,5 +1,12 @@
 # Rivo Browser — Handoff
 
+## 2026-11-24 — Follow-up handoff after PR #83
+- PR #83 merged after CODEOWNER approval at 13:01:36Z. Main then advanced to `2126dd3c692da6d85553015d2064a414df90e207`.
+- Release audit found APK verification still searched `app/build/outputs/apk/release` after the separate AAB build's `gradle clean`; that directory is removed by design. PR #84's identical correction passed all five CI workflows and CODEOWNER review, but was superseded because PR #83 had advanced Main.
+- PR #85 reapplies the verified correction on current Main: verify preserved `dist/*.apk` and the AAB output after clean. Await its own CI and CODEOWNER approval.
+- After merge: dispatch `.github/workflows/signed-release.yml` from current Main with `v0.2.1-phase1`; verify signed APK/AAB, matching signer fingerprints, R8 mapping artifact and checksums. Then complete physical-device, accessibility, 3–4 GB performance, runtime 16 KB and MASVS/MASTG validation.
+
+
 ## 2026-11-24 — Current handoff after PR #82
 - Current `main`: `5ac3a6853cd20df47813acc580fcae2dbb34cbe9` (PR #82 merge).
 - PR #82 separates ABI-split APK assembly from AAB bundle assembly. Its PR-head Android CI, OSV, dependency graph, SBOM and dependency-verification workflows passed.

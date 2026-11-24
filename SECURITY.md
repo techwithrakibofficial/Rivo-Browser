@@ -1,5 +1,11 @@
 # Rivo Browser — Security Baseline
 
+## 2026-11-24 — Release verification follow-up
+- Release pipeline audit found a sequencing defect: APK outputs are preserved in `dist/`, then `gradle clean` removes the APK intermediate directory before AAB assembly. Verification must inspect the preserved APKs in `dist/`.
+- The correction passed all five CI workflows and CODEOWNER review on PR #84; PR #85 carries the same change against current Main and awaits its own validation/review.
+- Production signing remains unverified until a fresh release run proves keystore use, APK/AAB signature validity, matching signer fingerprints, R8 mapping retention and SHA-256 integrity. No independent penetration test or MASVS certification is claimed.
+
+
 ## 2026-11-24 — Release pipeline update after PR #82
 - PR #82 merged to Main (`5ac3a6853cd20df47813acc580fcae2dbb34cbe9`) and separates APK ABI splits from AAB bundling to address the observed AGP `buildReleasePreBundle` collision.
 - PR-head CI and security/dependency workflows passed. Post-merge OSV Scanner Scheduled, Source SBOM and Gradle Dependency Graph passed; Android CI and dependency verification were still running at this checkpoint.
