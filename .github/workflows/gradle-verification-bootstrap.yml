@@ -45,6 +45,9 @@ jobs:
       - name: Start from a clean dependency verification baseline
         run: rm -f gradle/verification-metadata.xml
       - name: Bootstrap SHA-256 checksums across shipping and test configurations
+        # Use an isolated Gradle cache so every artifact is fetched and fingerprinted.
+        env:
+          GRADLE_USER_HOME: ${{ runner.temp }}/gradle-verification-bootstrap
         run: |
           gradle --no-daemon --update-locks org.jetbrains.kotlin:kotlin-stdlib --write-locks --write-verification-metadata sha256 \
             :app:assembleDebug \
@@ -53,12 +56,19 @@ jobs:
             :engine-gecko:testDebugUnitTest \
             :engine-benchmark:assembleGeckoDebug \
             :engine-benchmark:assembleWebviewDebug \
+            :app:dependencies \
+            :engine-api:dependencies \
+            :engine-webview:dependencies \
+            :engine-gecko:dependencies \
+            :engine-benchmark:dependencies \
             -Privo.abiSplits=false \
             :engine-benchmark:bundleGeckoRelease \
             :engine-benchmark:bundleWebviewRelease \
             :app:bundleRelease
 
       - name: Validate all generated metadata in strict mode
+        env:
+          GRADLE_USER_HOME: ${{ runner.temp }}/gradle-verification-bootstrap
         run: |
           gradle --no-daemon --dependency-verification strict \
             :app:assembleDebug \
@@ -67,6 +77,11 @@ jobs:
             :engine-gecko:testDebugUnitTest \
             :engine-benchmark:assembleGeckoDebug \
             :engine-benchmark:assembleWebviewDebug \
+            :app:dependencies \
+            :engine-api:dependencies \
+            :engine-webview:dependencies \
+            :engine-gecko:dependencies \
+            :engine-benchmark:dependencies \
             -Privo.abiSplits=false \
             :engine-benchmark:bundleGeckoRelease \
             :engine-benchmark:bundleWebviewRelease \
