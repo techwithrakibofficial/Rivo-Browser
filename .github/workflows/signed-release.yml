@@ -182,7 +182,7 @@ jobs:
           for apk in "${apks[@]}"; do
             signature_output="$("$APKSIGNER" verify --verbose --print-certs "$apk" 2>&1)"
             printf '%s\n' "$signature_output"
-            apk_cert="$(printf '%s\n' "$signature_output" | sed -nE 's/.*Signer #1 certificate SHA-256 digest: ([0-9A-Fa-f:]+).*/\1/p' | head -n1 | tr -d ':' | tr '[:lower:]' '[:upper:]')"
+            apk_cert="$(printf '%s\n' "$signature_output" | sed -nE 's/.*certificate SHA-256 digest: ([0-9A-Fa-f:]+).*/\1/p' | head -n1 | tr -d ':' | tr '[:lower:]' '[:upper:]')"
             test -n "$apk_cert" || { echo "::error::Could not read APK signer certificate fingerprint."; exit 1; }
             if [[ -z "$expected_cert" ]]; then
               expected_cert="$apk_cert"
