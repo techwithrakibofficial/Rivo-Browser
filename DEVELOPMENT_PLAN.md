@@ -1,3 +1,10 @@
+## 2026-11-24 — Release version alignment gate
+
+- Existing tag `v0.2.2-phase1` is immutable and points to a pre-PR #88 source revision; its app metadata is `0.2.1-phase1` / version code 3 and its workflow has the old fingerprint parser. It must not be used for production signing.
+- This PR proposes the next release identity `0.2.3-phase1` / version code 4.
+- Release sequence: merge this change after required review and green CI; create immutable `v0.2.3-phase1` tag at merged Main; manually dispatch Signed Android Release from Main using that tag; verify all signed outputs and release checksums.
+- Production release remains blocked until the signed workflow succeeds and physical-device/security/accessibility/performance acceptance gates are evidenced.
+
 # Rivo Browser — Development Plan
 
 Updated: 2026-11-24
