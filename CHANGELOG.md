@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-11-24 — PR #82 release-build fix integrated
+- PR #82 merged to `main` as `5ac3a6853cd20df47813acc580fcae2dbb34cbe9`; the signed-release workflow now builds ABI-split APKs and the AAB in separate Gradle invocations to avoid the AGP shrunk-resource collision.
+- PR #82 head CI passed Android CI, OSV Scanner PR, Gradle Dependency Graph, Source SBOM and Gradle dependency-verification bootstrap.
+- Post-merge Main: OSV Scanner Scheduled, Source SBOM and Gradle Dependency Graph passed; Android CI and Gradle dependency-verification bootstrap were still running at this checkpoint.
+- Previous signed-release run #45385076282 failed at `:app:buildReleasePreBundle` before this fix; it is not evidence of a successful release. Re-run the workflow using the corrected workflow from current `main` and tag input `v0.2.1-phase1`.
+- No production-signed APK/AAB or GitHub Release is claimed. Physical-device QA and full security/accessibility/performance acceptance remain open.
+
+
 ## 2026-11-23 — Release CI hardening candidate
 - PR #64 is the preferred reconciliation candidate over overlapping PR #65; it validates production keystore/alias configuration, signed APK/AAB verification, R8 mapping output, signer fingerprint consistency, and retry-safe release publishing.
 - Dependency verification bootstrap and strict validation passed on PR #64 (Actions run #45171080773); generated metadata and lockfiles already matched the branch.
