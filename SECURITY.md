@@ -1,5 +1,13 @@
 # Rivo Browser — Security Baseline
 
+## 2026-11-24 — Prompt 01 reconciliation follow-up
+- Current Main SHA `a4ff0039d6a6bca1b300e3ad0c8af8ca56126413` passed Android build, OSV, dependency graph, source SBOM and Gradle verification workflows.
+- PR #77 includes explicit `PKCS12` keystore store type, version 0.2.1 and the exact isolated-bootstrap dependency verification metadata; PR #80 was closed as superseded after its metadata was copied unchanged into #77.
+- Verification metadata contains SHA-256 checksums only (766 entries); no trusted PGP keys, ignored keys, or trusted-artifact exceptions. Bootstrap checksums are trust-on-first-use from configured repositories and must not be described as independent upstream signature attestation.
+- Signed-release workflow source enforces owner-triggered execution, tag syntax, Main ancestry, APK/AAB signature checks, signer fingerprint parity, mandatory R8 mapping retention, checksum validation and temporary keystore cleanup.
+- Production signing remains unverified until PR #77 is approved/merged, a new tag is pushed, and the signed-release workflow completes with downloadable assets re-verified.
+
+
 Updated: 2026-11-24
 
 ## Release pipeline hardening candidate — 2026-11-23
