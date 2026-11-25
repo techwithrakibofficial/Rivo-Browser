@@ -71,6 +71,12 @@ android {
                 signingConfig = signingConfigs.getByName("upload")
             }
         }
+        create("releaseDiagnostic") {
+            initWith(getByName("release"))
+            applicationIdSuffix = ".release-diagnostic"
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += listOf("release")
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
