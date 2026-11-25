@@ -45,3 +45,9 @@ Updated: 2026-11-10
 - No design-system source changes were made in PR #85.
 - Existing centralized Dark, Light and Premium Glass themes and secondary Quick Appearance Picker remain integrated per the feature matrix.
 - Contrast, TalkBack, font scaling, reduced-motion behavior and low-end rendering still require physical-device/accessibility acceptance; CI does not close these gates.
+
+## 2026-11-25 — Native start-page composition
+- New-tab content uses a lightweight Compose start page with semantic Material surfaces, shared Rivo spacing/radii and no real-time blur.
+- The page prioritizes a clear brand header, quick-access actions, bookmarks and recently visited pages; existing top omnibox remains the single search/navigation entry point.
+- In private tabs, recently visited history is not rendered. User-saved bookmarks remain available.
+- Validation still required: all three appearance modes, 320 dp width, large fonts, TalkBack, reduced motion/transparency preferences and 3–4 GB device rendering.
