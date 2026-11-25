@@ -75,13 +75,6 @@ android {
                 signingConfig = signingConfigs.getByName("upload")
             }
         }
-        create("releaseDiagnostic") {
-            initWith(getByName("release"))
-            applicationIdSuffix = ".diagnosticrelease"
-            buildConfigField("boolean", "CRASH_DIAGNOSTICS_ENABLED", "true")
-            signingConfig = signingConfigs.getByName("debug")
-            matchingFallbacks += listOf("release")
-        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
