@@ -344,3 +344,10 @@ Updated: 2026-11-24
 - Start page surfaces quick actions, saved bookmarks and recent normal-mode visits; private-mode start pages intentionally omit browsing history.
 - Existing HTTP(S) navigation, GeckoView sessions and the centralized Dark/Light/Premium Glass Material color scheme remain the rendering foundation.
 - This is an unvalidated PR candidate until same-head Android CI, lint, unit tests and emulator instrumentation pass. Physical-device, accessibility and low-RAM acceptance remain separate.
+
+
+## 2026-11-25 — PR #92 native start page candidate
+- Open PR #92: `feat(home): add native Rivo start page for new tabs`; branch `feat/glass-home-screen`. This is a feature candidate and is not part of Main until reviewed and merged.
+- Source adds `RivoHomeScreen.kt`, switches new-tab default to the internal `rivo://home` marker without issuing a network request, and renders the local Compose start page while retaining GeckoView for HTTP(S) pages.
+- Start page surfaces existing bookmarks/history and existing tab/private-tab/panel actions. It adds no dependency, network fetch, permission or real-time blur.
+- CI and device acceptance are pending; do not describe this as tested or integrated until exact-head checks complete and review is approved.
