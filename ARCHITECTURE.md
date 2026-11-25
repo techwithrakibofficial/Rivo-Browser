@@ -81,3 +81,9 @@ Updated: 2026-11-11
 - PR #85 changes signed-release artifact verification only: APKs are preserved in `dist/` before AAB build cleanup, then signature checks enumerate those APKs and the single AAB output.
 - All five PR workflows passed before merge. No browser runtime architecture changed in this work unit.
 - Physical-device GeckoView behavior, target-class performance, runtime 16 KB and complete MASVS/MASTG assessment remain evidence gaps.
+
+## 2026-11-25 — Desktop Site session configuration candidate
+- Desktop Site is configured on the active tab's existing GeckoSession; it does not create a second session or replace the engine.
+- Both user-agent mode and viewport mode are changed independently using `GeckoSessionSettings`. Mozilla documents that desktop UA mode alone does not enable the 980 CSS-pixel desktop viewport; both settings are required.
+- The tab reloads after a mode change. The state is per-tab and currently in-memory only; it resets to mobile after process restoration.
+- Official API: https://mozilla.github.io/geckoview/javadoc/mozilla-central/org/mozilla/geckoview/GeckoSessionSettings.html and https://mozilla.github.io/geckoview/javadoc/mozilla-central/org/mozilla/geckoview/doc-files/CHANGELOG
