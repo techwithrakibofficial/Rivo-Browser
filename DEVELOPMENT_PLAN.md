@@ -185,3 +185,9 @@ A release candidate is acceptable only when:
 | UX-START-PAGE | Native new-tab start page | IMPLEMENTED — VALIDATION PENDING | Branch `feat/glass-home-screen`; verify same-head Android CI, TalkBack/large fonts, private-mode history isolation and 3–4 GB device performance before merge |
 | UX-CHROME | Compact browser chrome and navigation controls | PLANNED | Refactor in a separate reviewable unit after start-page CI; preserve omnibox, security status, menu actions and tab controls |
 | UX-PANELS | Consistent premium panel/settings hierarchy | PLANNED | Audit current panel/dialog surfaces and consolidate around existing semantic design tokens |
+
+
+## 2026-11-25 — Home UX follow-up candidate
+- PR #92 adds a local Compose start page for newly created tabs and keeps normal web navigation on GeckoView.
+- Scope is intentionally limited to the new-tab surface: quick actions, bookmark shortcuts and recent history. No new network service, permission or runtime dependency is introduced.
+- Acceptance still requires exact-head Android CI, accessibility checks, all three appearance modes, narrow-screen/large-font layout and physical-device performance testing. Do not mark this feature integrated until PR #92 is reviewed and merged.
