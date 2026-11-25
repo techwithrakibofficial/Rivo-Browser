@@ -297,7 +297,7 @@ class BrowserController(context: Context) {
         tab.initialLoadPending = !loadImmediately
         tabs.add(tab)
         if (selectImmediately) selectTab(tab.id)
-        if (loadImmediately) tab.engine.load(url)
+        if (loadImmediately && url != HOME_URL) tab.engine.load(url)
         persistOpenTabs()
     }
 
@@ -972,7 +972,7 @@ class BrowserController(context: Context) {
     }
 
     companion object {
-        const val HOME_URL = "https://duckduckgo.com/"
+        const val HOME_URL = "rivo://home"
         const val MAX_TABS = 8
         const val MAX_DOWNLOAD_BYTES = 250L * 1024L * 1024L
     }
