@@ -67,12 +67,11 @@ android {
             }
         }
         create("diagnostic") {
-            // Match release shrinking to reproduce release-only startup failures.
-            initWith(getByName("release"))
+            // Use the already-verified debug dependency graph for a locally installable diagnostic build.
+            initWith(getByName("debug"))
             applicationIdSuffix = ".diagnostic"
             versionNameSuffix = "-diagnostic"
-            // Reuse release variants from the Android library modules.
-            matchingFallbacks += listOf("release")
+            matchingFallbacks += listOf("debug")
             // Separate package and debug key keep the user's production install/data untouched.
             signingConfig = signingConfigs.getByName("debug")
         }
