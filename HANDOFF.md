@@ -408,3 +408,9 @@ Automated CI success is verified. It is not evidence of physical-device acceptan
 - README, PROJECT_STATE.md, HANDOFF.md, DEVELOPMENT_PLAN.md, ARCHITECTURE.md, DESIGN_SYSTEM.md, FEATURE_MATRIX.md, CHANGELOG.md, TESTING.md and SECURITY.md were reconciled in PR #86.
 - No production-signed APK/AAB or GitHub Release is verified. The next release gate is an owner-authorized new immutable Main-ancestral tag or manual dispatch of `.github/workflows/signed-release.yml`; this GitHub integration cannot trigger either.
 - After the signed run: verify APK/AAB signatures, identical signer fingerprints, R8 mapping artifact and SHA-256 checksums. Separately complete physical-device, 3–4 GB, accessibility, runtime 16 KB and MASVS/MASTG checks.
+
+## 2026-11-25 — UX work in progress
+- Created branch `feat/glass-home-screen` from Main for the native new-tab start page.
+- Added `RivoHomeScreen.kt`; new tabs use an internal `rivo://home` state and defer GeckoView navigation until the user submits a URL or opens a saved page.
+- Private start pages do not display normal browsing history. The top omnibox remains the single search/address input.
+- Validation and PR review are pending; do not merge until Android CI, tests and CODEOWNER review pass. Device accessibility and low-RAM acceptance remain open.
