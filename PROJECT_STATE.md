@@ -338,3 +338,10 @@ Updated: 2026-11-24
 - PR #86 reconciled the nine project handoff/status documents and corrected README release-state wording. This merge is documentation-only; it does not create a production release or close device/security acceptance gates.
 - Signed production release remains blocked on an owner-authorized new immutable tag or workflow dispatch. The current GitHub integration exposes neither action.
 - Physical-device QA, 3–4 GB performance, accessibility, runtime 16 KB and full MASVS/MASTG assessment remain incomplete. No certification is claimed.
+
+## 2026-11-25 — Desktop Site implementation candidate
+- Added a per-tab Desktop Site toggle on `feat/desktop-site-mode`.
+- The GeckoView adapter sets both `USER_AGENT_MODE_DESKTOP` and `VIEWPORT_MODE_DESKTOP`; returning to Mobile Site restores both mobile settings. The page is reloaded after each change.
+- The setting is in-memory per tab and is not yet persisted across process restarts.
+- Source: Mozilla GeckoSessionSettings API (GeckoView 163): https://mozilla.github.io/geckoview/javadoc/mozilla-central/org/mozilla/geckoview/GeckoSessionSettings.html
+- CI, runtime behavior, and device acceptance pending; do not describe this as tested yet.
