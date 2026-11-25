@@ -215,3 +215,8 @@ See Git history for prior Tab Universe, storage hardening, browser navigation, t
 - All five PR workflows succeeded; no unresolved review threads remained.
 - The nine project handoff/status documents and README were reconciled with the PR #85 release-workflow fix and remaining release/QA gates.
 - Documentation-only change; no production-signed artifacts or GitHub Release are claimed.
+
+## Unreleased — 2026-11-25
+- Added a native Compose start page for new tabs with quick actions, bookmarks and recent normal-mode visits.
+- Private-mode start pages omit normal browsing history.
+- Validation pending on `feat/glass-home-screen`; not yet released.
