@@ -66,6 +66,14 @@ android {
                 signingConfig = signingConfigs.getByName("upload")
             }
         }
+        create("diagnostic") {
+            initWith(getByName("debug"))
+            applicationIdSuffix = ".diagnostic"
+            versionNameSuffix = "-diagnostic"
+            // Separate package and debug key keep the user's production install/data untouched.
+            isMinifyEnabled = false
+            isShrinkResources = false
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
