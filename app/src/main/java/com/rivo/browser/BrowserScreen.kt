@@ -291,8 +291,8 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                 ) {
                     TextButton(onClick = { browser.goBack() }, enabled = active?.canGoBack == true) { Text("Back") }
                     TextButton(onClick = { browser.goForward() }, enabled = active?.canGoForward == true) { Text("Forward") }
-                    TextButton(onClick = { browser.reloadOrStop() }) { Text(if (active?.loading == true) "Stop" else "Reload") }
-                    TextButton(onClick = { browser.addCurrentBookmark() }) { Text("Bookmark") }
+                    TextButton(onClick = { browser.reloadOrStop() }, enabled = active?.url != BrowserController.HOME_URL) { Text(if (active?.loading == true) "Stop" else "Reload") }
+                    TextButton(onClick = { browser.addCurrentBookmark() }, enabled = active?.url?.startsWith("http") == true) { Text("Bookmark") }
                     TextButton(onClick = { browser.openPanel(BrowserPanel.TABS) }) { Text("Tabs ${browser.tabs.size}") }
                 }
             }
