@@ -254,18 +254,19 @@ jobs:
           test -s dist/SHA256SUMS
           (cd dist && sha256sum -c SHA256SUMS)
 
-          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             echo "::error::Release $RELEASE_TAG already exists; refusing to overwrite or mutate published release assets."
             exit 1
           fi
 
           gh release create "$RELEASE_TAG" dist/* \
+            --repo "$GITHUB_REPOSITORY" \
             --verify-tag \
             --title "Rivo Browser $RELEASE_TAG" \
             --generate-notes
 
           verify_dir="$(mktemp -d)"
           trap 'rm -rf "$verify_dir"' EXIT
-          gh release download "$RELEASE_TAG" --dir "$verify_dir"
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --dir "$verify_dir"
           test -s "$verify_dir/SHA256SUMS"
           (cd "$verify_dir" && sha256sum -c SHA256SUMS)
