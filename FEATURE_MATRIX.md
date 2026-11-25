@@ -1,6 +1,6 @@
 # Rivo Browser — Feature Matrix
 
-Updated: 2026-11-11
+Updated: 2026-11-25
 
 Status: **Integrated** means source is merged into Main; it does not imply physical-device acceptance.
 
@@ -11,6 +11,7 @@ Status: **Integrated** means source is merged into Main; it does not imply physi
 | Navigation / omnibox | Integrated | HTTP(S) navigation; unsupported schemes become search input |
 | Back / forward / reload / stop | Integrated | Gecko session controls |
 | Connection security | Integrated | Gecko-reported security callbacks; no TLS override |
+| Startup crash diagnostics | Integrated (debug-only) | Bounded local report; production release handler disabled; device reproduction pending |
 | Multi-tab browsing | Integrated | Eight-tab cap pending device memory measurements |
 | Private browsing | Integrated | Native private sessions; excludes app-side history/bookmarks/restoration |
 | Advanced Tab Universe | Integrated | Search, filters, sorting and semantic accessibility labels |
