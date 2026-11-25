@@ -310,3 +310,9 @@ A workflow being configured is not evidence that the latest commit passed. Recor
 - Privacy check by source inspection: recently visited history is not composed in private mode; bookmarks remain visible.
 - Automated validation: pending same-head Android CI, lint, JVM tests and emulator instrumentation.
 - Manual acceptance still required: Dark/Light/Premium Glass, 320 dp width, large font, TalkBack, keyboard interaction, tab switching, normal/private history separation and 3–4 GB device performance.
+
+
+## 2026-11-25 — PR #92 native start page validation status
+- Source-level review confirms the internal `rivo://home` marker bypasses Gecko network loading for new tabs and the Compose start page is selected only for that marker; ordinary web URLs continue through GeckoView.
+- Reuses existing bookmark/history state and controller actions. No new dependency or permission was introduced.
+- This section records source inspection only. Exact-head Android CI, unit/instrumentation checks, Dark/Light/Glass visual review, TalkBack, 320 dp/large-font and physical 3–4 GB device testing remain pending. No test pass is claimed here.
