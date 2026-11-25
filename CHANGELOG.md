@@ -215,3 +215,6 @@ See Git history for prior Tab Universe, storage hardening, browser navigation, t
 - All five PR workflows succeeded; no unresolved review threads remained.
 - The nine project handoff/status documents and README were reconciled with the PR #85 release-workflow fix and remaining release/QA gates.
 - Documentation-only change; no production-signed artifacts or GitHub Release are claimed.
+
+## Unreleased — 2026-11-25
+- Added a per-tab Desktop Site toggle using GeckoView's desktop user-agent and viewport modes, with a mobile-site reset. Automated and device validation pending.
