@@ -338,3 +338,9 @@ Updated: 2026-11-24
 - PR #86 reconciled the nine project handoff/status documents and corrected README release-state wording. This merge is documentation-only; it does not create a production release or close device/security acceptance gates.
 - Signed production release remains blocked on an owner-authorized new immutable tag or workflow dispatch. The current GitHub integration exposes neither action.
 - Physical-device QA, 3–4 GB performance, accessibility, runtime 16 KB and full MASVS/MASTG assessment remain incomplete. No certification is claimed.
+
+## 2026-11-25 — Native start-page implementation candidate
+- Feature branch `feat/glass-home-screen` adds an in-app Rivo start page for new tabs instead of immediately navigating to the external DuckDuckGo homepage.
+- Start page surfaces quick actions, saved bookmarks and recent normal-mode visits; private-mode start pages intentionally omit browsing history.
+- Existing HTTP(S) navigation, GeckoView sessions and the centralized Dark/Light/Premium Glass Material color scheme remain the rendering foundation.
+- This is an unvalidated PR candidate until same-head Android CI, lint, unit tests and emulator instrumentation pass. Physical-device, accessibility and low-RAM acceptance remain separate.
