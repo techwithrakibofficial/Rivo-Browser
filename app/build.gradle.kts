@@ -67,12 +67,12 @@ android {
             }
         }
         create("diagnostic") {
-            initWith(getByName("debug"))
+            // Match release shrinking to reproduce release-only startup failures.
+            initWith(getByName("release"))
             applicationIdSuffix = ".diagnostic"
             versionNameSuffix = "-diagnostic"
             // Separate package and debug key keep the user's production install/data untouched.
-            isMinifyEnabled = false
-            isShrinkResources = false
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
