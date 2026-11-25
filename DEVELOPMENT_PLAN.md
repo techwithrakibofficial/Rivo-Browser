@@ -178,3 +178,8 @@ A release candidate is acceptable only when:
 | SEC-MASVS | MASVS/MASTG control evidence review | INCOMPLETE | Complete control-by-control evidence and residual-risk register; independent penetration test not evidenced |
 - Dependency order: REL-SIGNED-PUBLISH → REL-ARTIFACT-AUDIT; QA-DEVICE/QA-ACCESS and SEC-MASVS are independent acceptance tracks.
 - PR #84 is superseded; do not repeat REL-APK-VERIFY without regression evidence.
+
+## 2026-11-25 — Desktop Site feature work unit
+| ID | Work unit | Status | Evidence / next action |
+|---|---|---|---|
+| UX-DESKTOP | Per-tab Desktop Site request | IMPLEMENTED — VALIDATION PENDING | Branch `feat/desktop-site-mode`; verify Gecko UA + viewport both change, mobile reset, private-tab behavior, reload and tab isolation in exact-head CI/device tests |
