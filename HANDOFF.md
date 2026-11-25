@@ -1,6 +1,6 @@
 ## 2026-11-25 — PR #91 verified handoff
 
-- Current PR #91 head: `21c16f7495d18bb9030aa249485315277515e602`; base Main: `099f6b4d6f5e1988049dd306abcb95ddfe38e7de`; PR is open and mergeable, not merged.
+- Source revision tested by all five PR workflows: `21c16f7495d18bb9030aa249485315277515e602`; subsequent branch commits are documentation-only. Base Main: `099f6b4d6f5e1988049dd306abcb95ddfe38e7de`; PR is open and mergeable, not merged.
 - All five PR workflows passed on the exact head: Android CI `45602982534`, OSV `45602982377`, dependency graph `45602982512`, SBOM `45602982369`, verification bootstrap `45602982354`.
 - Download the ARM64 startup-diagnostic APK from the verified Actions artifact: `https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45602982534/artifacts/15016269540`.
 - Device follow-up: install this diagnostic APK alongside the production app, launch it, reproduce the original exit/crash, reopen the diagnostic app, tap **Copy crash report**, and share the copied text. No Developer Options or ADB is required for this flow. Do not clear the report until it has been copied.

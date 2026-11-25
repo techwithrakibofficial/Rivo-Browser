@@ -1,6 +1,6 @@
 ## 2026-11-25 — PR #91 startup diagnostics and CI verification
 
-- PR #91 remains open and targets Main SHA `099f6b4d6f5e1988049dd306abcb95ddfe38e7de`; source revision validated by all five workflows is `21c16f7495d18bb9039dd306abcb95ddfe38e7de`.
+- PR #91 remains open and targets Main SHA `099f6b4d6f5e1988049dd306abcb95ddfe38e7de`; source revision validated by all five workflows is `21c16f7495d18bb9030aa249485315277515e602`; subsequent commits are documentation-only.
 - Added bounded, local-only uncaught-crash reporting for the installable debug diagnostic app (`com.rivo.browser.diagnostic`). Production `release` sets `CRASH_DIAGNOSTICS_ENABLED=false`; the Application does not install the reporter in production.
 - Removed the extra minified `releaseDiagnostic` build type after it introduced 200 lines of Gradle lockfile drift. The regular debug diagnostic APK is sufficient for on-device capture without Developer Options; production build type and package ID remain unchanged.
 - Added 19 missing SHA-256 artifact checksums to `gradle/verification-metadata.xml`. The Gradle Dependency Verification Bootstrap validated the full shipping/test task set in strict mode.
