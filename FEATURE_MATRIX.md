@@ -85,3 +85,8 @@ Build success, JVM tests, emulator instrumentation, physical-device testing and 
 - PR #85's signed-release APK-after-clean correction is merged to Main at `4821c7af1255486e25b98305fd2b74cde33f488d` and passed all five PR workflows plus CODEOWNER review.
 - Production signing/publication remains Pending until a protected signed-release run and artifact signature/checksum verification complete.
 - Physical-device QA, 3–4 GB profiling, TalkBack/accessibility, runtime 16 KB and full MASVS/MASTG review remain Pending.
+
+## 2026-11-25 — Desktop Site candidate
+| Feature | Status | Notes |
+|---|---|---|
+| Desktop Site / Request desktop website | Implemented on review branch; CI pending | Per-tab GeckoView user-agent and viewport modes; toggle back to mobile; setting not persisted across process restart |
