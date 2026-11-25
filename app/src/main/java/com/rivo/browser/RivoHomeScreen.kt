@@ -112,7 +112,7 @@ internal fun RivoHomeScreen(
                 HomeEmptyState("Pages you visit will show up here.")
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(RivoSpacing.small)) {
-                    history.asReversed().take(5).forEach { page ->
+                    history.take(5).forEach { page ->
                         HomePageRow(page = page, onClick = { onOpenUrl(page.url) })
                     }
                 }
