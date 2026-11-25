@@ -220,3 +220,10 @@ See Git history for prior Tab Universe, storage hardening, browser navigation, t
 - Added a native Compose start page for new tabs with quick actions, bookmarks and recent normal-mode visits.
 - Private-mode start pages omit normal browsing history.
 - Validation pending on `feat/glass-home-screen`; not yet released.
+
+
+## 2026-11-25 — Native new-tab start page candidate (PR #92)
+- Added a Compose-native Rivo start page for new tabs, with quick actions, bookmark shortcuts and recently visited pages.
+- Kept HTTP(S) content on GeckoView; the internal `rivo://home` marker is not sent to the network.
+- Reused existing local browser state and design tokens; no new dependencies or permissions.
+- Candidate only: PR #92 is open; automated checks and physical-device acceptance are pending.
