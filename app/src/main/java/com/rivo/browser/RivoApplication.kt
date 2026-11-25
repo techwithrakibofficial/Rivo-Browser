@@ -42,7 +42,7 @@ class RivoApplication : Application() {
 
     companion object {
         const val REPORT_FILE = "rivo-crash-report.txt"
-        private const val MAX_REPORT_CHARS = 24000
+        private const val MAX_REPORT_CHARS = 26000
 
         fun readReport(application: Application): String? =
             runCatching {
