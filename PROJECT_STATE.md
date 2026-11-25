@@ -351,3 +351,9 @@ Updated: 2026-11-24
 - Source adds `RivoHomeScreen.kt`, switches new-tab default to the internal `rivo://home` marker without issuing a network request, and renders the local Compose start page while retaining GeckoView for HTTP(S) pages.
 - Start page surfaces existing bookmarks/history and existing tab/private-tab/panel actions. It adds no dependency, network fetch, permission or real-time blur.
 - CI and device acceptance are pending; do not describe this as tested or integrated until exact-head checks complete and review is approved.
+
+
+## 2026-11-25 — PR #92 exact-head validation
+- PR #92 source head `7d94e754febc8d50de2ce6ce8021d70c78c8a778` passed all five automation workflows: Android CI `45605872554`, dependency verification `45605872603`, OSV `45605872638`, dependency graph `45605872497`, and SBOM `45605872807`.
+- Native start-page source is implemented and CI-validated; private-mode home hides normal history and the internal `rivo://home` state is excluded from restored web URLs.
+- PR remains open, not merged. Physical-device, accessibility and low-RAM acceptance remain outstanding.

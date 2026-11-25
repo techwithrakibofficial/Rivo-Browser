@@ -316,3 +316,9 @@ A workflow being configured is not evidence that the latest commit passed. Recor
 - Source-level review confirms the internal `rivo://home` marker bypasses Gecko network loading for new tabs and the Compose start page is selected only for that marker; ordinary web URLs continue through GeckoView.
 - Reuses existing bookmark/history state and controller actions. No new dependency or permission was introduced.
 - This section records source inspection only. Exact-head Android CI, unit/instrumentation checks, Dark/Light/Glass visual review, TalkBack, 320 dp/large-font and physical 3–4 GB device testing remain pending. No test pass is claimed here.
+
+
+## 2026-11-25 — PR #92 exact-head CI result
+- Source revision `7d94e754febc8d50de2ce6ce8021d70c78c8a778` passed all five required automation workflows: Android CI `45605872554`, dependency verification bootstrap `45605872603`, OSV Scanner PR `45605872638`, Gradle Dependency Graph `45605872497`, and Source SBOM `45605872807`.
+- Android CI passed shipping build, lint, JVM tests, Gecko policy tests, benchmark builds, minified release bundle, static 16 KB alignment checks, QA APK/AAB uploads and API 35 security instrumentation.
+- This is CI/emulator evidence only. Dark/Light/Glass visual acceptance, TalkBack, narrow/large-font layout, physical 3–4 GB device performance and real-device privacy validation remain pending. PR #92 remains open and unmerged.

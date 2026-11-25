@@ -420,3 +420,9 @@ Automated CI success is verified. It is not evidence of physical-device acceptan
 - Feature branch: `feat/glass-home-screen`; open PR #92 targets Main. Do not merge without required CODEOWNER review and green exact-head checks.
 - Implementation: local Compose start page for new tabs (`rivo://home` internal marker); HTTP(S) pages continue to render in GeckoView. New tab, private tab, tab overview, bookmarks, history and bookmark/history shortcuts reuse existing controller methods and local data.
 - No physical-device, TalkBack, contrast, 320 dp, large-font or 3–4 GB RAM acceptance has been performed by this session. Recheck exact-head Android CI and all other required workflows before considering merge.
+
+
+## 2026-11-25 — PR #92 CI-green handoff
+- PR #92 (`feat/glass-home-screen`) source head `7d94e754febc8d50de2ce6ce8021d70c78c8a778` passed all five workflows: Android CI `45605872554`, dependency verification `45605872603`, OSV `45605872638`, dependency graph `45605872497`, and Source SBOM `45605872807`.
+- Home start page is a local Compose surface; HTTP(S) remains on GeckoView. Private-mode home does not display normal browsing history.
+- PR #92 is open and unmerged. Required CODEOWNER/reviewer approval is still a merge gate. Physical device, TalkBack, appearance contrast and 3–4 GB performance tests remain pending.

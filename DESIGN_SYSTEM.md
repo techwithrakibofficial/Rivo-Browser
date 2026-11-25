@@ -57,3 +57,8 @@ Updated: 2026-11-10
 - Added a Compose-native start page for new tabs, using the centralized Material 3 semantic color, spacing and shape tokens so Dark, Light and Premium Glass remain theme-driven.
 - The start page exposes New tab, Private tab, All tabs, Bookmarks, recent saved pages and recent history; page rows navigate through the existing browser controller.
 - No real-time blur, remote images, new dependencies or background work were added. Contrast, TalkBack, 320 dp, large-font and low-RAM device checks remain pending.
+
+
+## 2026-11-25 — Native start page CI validation
+- PR #92's start-page implementation passed exact-head Android CI, including lint, JVM/policy tests and API 35 security instrumentation. It consumes centralized semantic surfaces and spacing tokens for all three appearance modes.
+- Visual contrast across actual device themes, TalkBack, 320 dp width, large font scaling and reduced-motion behavior still require manual acceptance. CI success is not device UX approval.

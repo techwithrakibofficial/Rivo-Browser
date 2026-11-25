@@ -94,3 +94,8 @@ Build success, JVM tests, emulator instrumentation, physical-device testing and 
 
 ## 2026-11-25 — PR #92 candidate feature
 | Native start page | Implemented in open PR #92; not yet integrated into Main | New tabs show local Compose start page with quick actions, bookmarks and recent history; existing Gecko browsing remains active for web URLs. CI and device acceptance pending. |
+
+
+## 2026-11-25 — Native start page candidate validation
+- PR #92 native start page source is implemented and all five exact-head automation workflows passed on `7d94e754febc8d50de2ce6ce8021d70c78c8a778` (Android CI, OSV, dependency graph, Source SBOM and dependency verification).
+- Status remains **candidate in open PR** until required review and merge. Physical-device, accessibility and 3–4 GB acceptance are not implied by CI success.
