@@ -9,6 +9,7 @@
     <uses-feature android:name="android.hardware.microphone" android:required="false" />
 
     <application
+        android:name=".RivoApplication"
         android:allowBackup="false"
         android:label="Rivo Browser"
         android:supportsRtl="true"
