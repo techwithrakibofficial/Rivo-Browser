@@ -15,6 +15,7 @@ class RestorableTabPolicyTest {
         assertFalse(RestorableTabPolicy.isSafeUrl("javascript:alert(1)"))
         assertFalse(RestorableTabPolicy.isSafeUrl("file:///etc/passwd"))
         assertFalse(RestorableTabPolicy.isSafeUrl("about:blank"))
+        assertFalse(RestorableTabPolicy.isSafeUrl("rivo://home"))
         assertFalse(RestorableTabPolicy.isSafeUrl("example.com"))
         assertFalse(RestorableTabPolicy.isSafeUrl("https://user:pass@example.com"))
     }
@@ -25,7 +26,8 @@ class RestorableTabPolicyTest {
                 RestorableTabCandidate(1, false, "https://normal.example/", "Normal"),
                 RestorableTabCandidate(2, true, "https://private.example/", "Private"),
                 RestorableTabCandidate(3, false, "javascript:alert(1)", "Unsafe"),
-                RestorableTabCandidate(4, false, "https://normal.example/", "Duplicate normal")
+                RestorableTabCandidate(4, false, "https://normal.example/", "Duplicate normal"),
+                RestorableTabCandidate(5, false, "rivo://home", "Native start page")
             ),
             selectedTabId = 2
         )
