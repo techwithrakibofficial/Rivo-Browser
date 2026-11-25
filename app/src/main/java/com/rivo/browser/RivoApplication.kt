@@ -14,6 +14,8 @@ import kotlin.system.exitProcess
 class RivoApplication : Application() {
     override fun onCreate() {
         super.onCreate()
+        // Production builds must not collect or persist crash diagnostics.
+        if (!BuildConfig.CRASH_DIAGNOSTICS_ENABLED) return
         val previous = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, error ->
             runCatching {
