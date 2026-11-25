@@ -178,3 +178,10 @@ A release candidate is acceptable only when:
 | SEC-MASVS | MASVS/MASTG control evidence review | INCOMPLETE | Complete control-by-control evidence and residual-risk register; independent penetration test not evidenced |
 - Dependency order: REL-SIGNED-PUBLISH → REL-ARTIFACT-AUDIT; QA-DEVICE/QA-ACCESS and SEC-MASVS are independent acceptance tracks.
 - PR #84 is superseded; do not repeat REL-APK-VERIFY without regression evidence.
+
+## 2026-11-25 — Product UX execution ledger
+| ID | Work unit | Status | Evidence / next action |
+|---|---|---|---|
+| UX-START-PAGE | Native new-tab start page | IMPLEMENTED — VALIDATION PENDING | Branch `feat/glass-home-screen`; verify same-head Android CI, TalkBack/large fonts, private-mode history isolation and 3–4 GB device performance before merge |
+| UX-CHROME | Compact browser chrome and navigation controls | PLANNED | Refactor in a separate reviewable unit after start-page CI; preserve omnibox, security status, menu actions and tab controls |
+| UX-PANELS | Consistent premium panel/settings hierarchy | PLANNED | Audit current panel/dialog surfaces and consolidate around existing semantic design tokens |
