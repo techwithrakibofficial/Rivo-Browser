@@ -59,11 +59,12 @@ android {
     }
     buildTypes {
         getByName("debug") {
-            // Keep diagnostics on the already-verified debug dependency graph.
-            // A separate package keeps the production install and data untouched.
+            // Installable beside production; diagnostics are enabled only in this variant.
             applicationIdSuffix = ".diagnostic"
+            buildConfigField("boolean", "CRASH_DIAGNOSTICS_ENABLED", "true")
         }
         getByName("release") {
+            buildConfigField("boolean", "CRASH_DIAGNOSTICS_ENABLED", "false")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
@@ -74,6 +75,7 @@ android {
         create("releaseDiagnostic") {
             initWith(getByName("release"))
             applicationIdSuffix = ".release-diagnostic"
+            buildConfigField("boolean", "CRASH_DIAGNOSTICS_ENABLED", "true")
             signingConfig = signingConfigs.getByName("debug")
             matchingFallbacks += listOf("release")
         }
