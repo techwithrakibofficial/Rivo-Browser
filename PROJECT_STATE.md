@@ -1,3 +1,14 @@
+## 2026-11-25 — PR #91 startup diagnostics and CI verification
+
+- PR #91 remains open and targets Main SHA `099f6b4d6f5e1988049dd306abcb95ddfe38e7de`; latest PR head is `21c16f7495d18bb9030aa249485315277515e602`.
+- Added bounded, local-only uncaught-crash reporting for the installable debug diagnostic app (`com.rivo.browser.diagnostic`). Production `release` sets `CRASH_DIAGNOSTICS_ENABLED=false`; the Application does not install the reporter in production.
+- Removed the extra minified `releaseDiagnostic` build type after it introduced 200 lines of Gradle lockfile drift. The regular debug diagnostic APK is sufficient for on-device capture without Developer Options; production build type and package ID remain unchanged.
+- Added 19 missing SHA-256 artifact checksums to `gradle/verification-metadata.xml`. The Gradle Dependency Verification Bootstrap validated the full shipping/test task set in strict mode.
+- Exact PR-head CI for the latest SHA: Android CI run `45602982534`, OSV Scanner PR `45602982377`, Gradle Dependency Graph `45602982512`, Source SBOM `45602982369`, and Gradle Dependency Verification Bootstrap `45602982354` — all completed with `success`.
+- Android CI passed shipping/debug and minified release bundle builds, lint, unit tests, Gecko policy tests, benchmark builds, static 16 KB alignment, diagnostic APK assembly/upload and API 35 security instrumentation.
+- Diagnostic APK artifact: `https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45602982534/artifacts/15016269540` (Actions artifact, 14-day retention). It is a diagnostic build, not a production release.
+- Not merged. Physical-device reproduction and report collection are still pending; CI success does not establish a fix for the device's original crash.
+
 ## 2026-11-24 — Release version alignment candidate
 
 - Verified Main before this change: `b5e909e159896bc4beef49a9c3e3cb3d63a69b83` (PR #88 merge; fingerprint parser fix is present).
