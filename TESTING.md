@@ -1,3 +1,14 @@
+## 2026-11-25 — PR #91 exact-head validation
+
+- Tested commit: `21c16f7495d18bb9030aa249485315277515e602`.
+- Android CI run `45602982534`: **success**. Passed shipping debug assemble, lint, app unit tests, Gecko policy unit tests, Gecko/WebView benchmark builds, minified shipping AAB build, static APK/AAB 16 KB alignment checks, diagnostic APK build/upload and API 35 Android security instrumentation tests.
+- OSV Scanner PR run `45602982377`: **success**; scanner completed and committed Gradle lockfiles matched resolved dependencies.
+- Gradle Dependency Graph run `45602982512`: **success**.
+- Source SBOM run `45602982369`: **success**.
+- Gradle Dependency Verification Bootstrap run `45602982354`: **success**; generated checksum metadata passed strict-mode validation across the configured shipping and test task set.
+- Startup-diagnostic APK uploaded as artifact `15016269540` in run `45602982534`. Artifact is installable QA output, not production-signed.
+- This is CI/emulator evidence only. Physical-device crash reproduction, copied report inspection, accessibility/manual privacy QA and production signing remain separate gates.
+
 # Rivo Browser — Testing and Evidence
 
 ## 2026-11-24 — Release workflow follow-up evidence
