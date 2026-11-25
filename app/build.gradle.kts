@@ -71,6 +71,8 @@ android {
             initWith(getByName("release"))
             applicationIdSuffix = ".diagnostic"
             versionNameSuffix = "-diagnostic"
+            // Reuse release variants from the Android library modules.
+            matchingFallbacks += listOf("release")
             // Separate package and debug key keep the user's production install/data untouched.
             signingConfig = signingConfigs.getByName("debug")
         }
