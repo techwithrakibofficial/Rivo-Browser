@@ -244,3 +244,8 @@ Rivo now surfaces GeckoView's active/passive mixed-content status in its connect
 - APK signature verification now reads preserved `dist/*.apk` after AAB assembly performs `gradle clean`; the deleted APK intermediate directory is no longer searched.
 - This corrects workflow sequencing only. Production signing is not proven until a protected run validates PKCS#12 keystore use, APK/AAB signatures, matching signer fingerprints, R8 mapping and SHA-256 checksums.
 - No secrets or keystore material were exposed or changed. Physical-device security testing, full MASVS/MASTG review and independent penetration testing remain open; no certification is claimed.
+
+## 2026-11-25 — Native start-page privacy boundary
+- The new-tab `rivo://home` marker is app-internal state, not a website origin. It is excluded by the existing HTTP(S)-only restored-tab allowlist.
+- Private-mode start pages do not render normal browsing history. User-saved bookmarks remain available by design.
+- Automated and device validation for this UX change is pending; no new network service, telemetry or account integration is introduced.
