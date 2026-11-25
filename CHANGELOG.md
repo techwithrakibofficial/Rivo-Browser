@@ -8,6 +8,11 @@
 
 # Changelog
 
+## 2026-11-25 — Launcher icon
+- Added the Rivo adaptive launcher icon (background, foreground, Android 13 themed monochrome layer; round variant) and wired `android:icon` / `android:roundIcon` in the manifest. minSdk is 26, so no legacy PNG fallbacks are needed.
+- Brand source files (SVG, 512 px Play Store PNG) live in `docs/design/brand/`.
+- Verification: XML well-formedness and a rendered preview of the artwork only. Build/lint come from CI; on-device appearance (launcher masks, themed icon) still needs a device check.
+
 ## 2026-11-24 — Release workflow verification follow-up
 - PR #83 documentation reconciliation merged after CODEOWNER approval.
 - Post-merge audit identified that `gradle clean` before AAB assembly removes the APK intermediate directory; the subsequent verification must use the APKs already preserved in `dist/`.
