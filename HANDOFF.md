@@ -408,3 +408,9 @@ Automated CI success is verified. It is not evidence of physical-device acceptan
 - README, PROJECT_STATE.md, HANDOFF.md, DEVELOPMENT_PLAN.md, ARCHITECTURE.md, DESIGN_SYSTEM.md, FEATURE_MATRIX.md, CHANGELOG.md, TESTING.md and SECURITY.md were reconciled in PR #86.
 - No production-signed APK/AAB or GitHub Release is verified. The next release gate is an owner-authorized new immutable Main-ancestral tag or manual dispatch of `.github/workflows/signed-release.yml`; this GitHub integration cannot trigger either.
 - After the signed run: verify APK/AAB signatures, identical signer fingerprints, R8 mapping artifact and SHA-256 checksums. Separately complete physical-device, 3–4 GB, accessibility, runtime 16 KB and MASVS/MASTG checks.
+
+## 2026-11-25 — Desktop Site work in progress
+- Created branch `feat/desktop-site-mode` from Main.
+- Added `GeckoDesktopSitePolicy` to map the user-facing toggle to both GeckoView user-agent and viewport modes; `GeckoBrowserTab` applies settings and `BrowserController` reloads the current tab.
+- Added a Browser menu action and visible `DESKTOP SITE REQUESTED` indicator. The setting is per-tab and in-memory only.
+- Added unit tests for desktop/mobile mapping. Exact-head CI and device behavior are pending; do not merge until verified and reviewed.
