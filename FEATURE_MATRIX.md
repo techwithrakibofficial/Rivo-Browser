@@ -90,3 +90,7 @@ Build success, JVM tests, emulator instrumentation, physical-device testing and 
 | Feature | Status | Notes |
 |---|---|---|
 | Native Rivo new-tab start page | Implemented on review branch; CI pending | Quick access, bookmarks and recent normal history; private start page omits history; no external homepage request on new tab |
+
+
+## 2026-11-25 — PR #92 candidate feature
+| Native start page | Implemented in open PR #92; not yet integrated into Main | New tabs show local Compose start page with quick actions, bookmarks and recent history; existing Gecko browsing remains active for web URLs. CI and device acceptance pending. |
