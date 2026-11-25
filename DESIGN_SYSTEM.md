@@ -51,3 +51,9 @@ Updated: 2026-11-10
 - The page prioritizes a clear brand header, quick-access actions, bookmarks and recently visited pages; existing top omnibox remains the single search/navigation entry point.
 - In private tabs, recently visited history is not rendered. User-saved bookmarks remain available.
 - Validation still required: all three appearance modes, 320 dp width, large fonts, TalkBack, reduced motion/transparency preferences and 3–4 GB device rendering.
+
+
+## 2026-11-25 — Native start page candidate (PR #92)
+- Added a Compose-native start page for new tabs, using the centralized Material 3 semantic color, spacing and shape tokens so Dark, Light and Premium Glass remain theme-driven.
+- The start page exposes New tab, Private tab, All tabs, Bookmarks, recent saved pages and recent history; page rows navigate through the existing browser controller.
+- No real-time blur, remote images, new dependencies or background work were added. Contrast, TalkBack, 320 dp, large-font and low-RAM device checks remain pending.
