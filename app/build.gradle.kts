@@ -58,6 +58,11 @@ android {
         }
     }
     buildTypes {
+        getByName("debug") {
+            // Keep diagnostics on the already-verified debug dependency graph.
+            // A separate package keeps the production install and data untouched.
+            applicationIdSuffix = ".diagnostic"
+        }
         getByName("release") {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -65,15 +70,6 @@ android {
             if (releaseSigningRequired) {
                 signingConfig = signingConfigs.getByName("upload")
             }
-        }
-        create("diagnostic") {
-            // Use the already-verified debug dependency graph for a locally installable diagnostic build.
-            initWith(getByName("debug"))
-            applicationIdSuffix = ".diagnostic"
-            versionNameSuffix = "-diagnostic"
-            matchingFallbacks += listOf("debug")
-            // Separate package and debug key keep the user's production install/data untouched.
-            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
