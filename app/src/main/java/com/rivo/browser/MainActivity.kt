@@ -28,7 +28,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val crashReport = RivoApplication.readReport(application)
+        val crashReport = if (BuildConfig.CRASH_DIAGNOSTICS_ENABLED) {
+            RivoApplication.readReport(application)
+        } else null
         diagnosticMode = crashReport != null
         setContent {
             if (crashReport != null) {
