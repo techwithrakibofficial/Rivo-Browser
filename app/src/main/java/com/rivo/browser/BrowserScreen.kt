@@ -195,6 +195,15 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                                     menuExpanded = false
                                     browser.openPanel(BrowserPanel.APPEARANCE)
                                 })
+                                DropdownMenuItem(
+                                    text = { Text(if (active?.desktopMode == true) "Use mobile site" else "Desktop site") },
+                                    trailingIcon = { if (active?.desktopMode == true) Text("On") },
+                                    enabled = active?.url?.startsWith("https://") == true || active?.url?.startsWith("http://") == true,
+                                    onClick = {
+                                        menuExpanded = false
+                                        browser.toggleDesktopMode()
+                                    }
+                                )
                                 DropdownMenuItem(text = { Text("Reader Mode") }, onClick = {
                                     menuExpanded = false
                                     browser.openReaderMode()
@@ -228,6 +237,14 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                     if (active?.privateMode == true) {
                         Text(
                             "PRIVATE TAB · This session is not saved to local history",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(start = RivoSpacing.small, top = RivoSpacing.compact)
+                        )
+                    }
+                    if (active?.desktopMode == true) {
+                        Text(
+                            "DESKTOP SITE REQUESTED",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(start = RivoSpacing.small, top = RivoSpacing.compact)
