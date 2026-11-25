@@ -414,3 +414,9 @@ Automated CI success is verified. It is not evidence of physical-device acceptan
 - Added `RivoHomeScreen.kt`; new tabs use an internal `rivo://home` state and defer GeckoView navigation until the user submits a URL or opens a saved page.
 - Private start pages do not display normal browsing history. The top omnibox remains the single search/address input.
 - Validation and PR review are pending; do not merge until Android CI, tests and CODEOWNER review pass. Device accessibility and low-RAM acceptance remain open.
+
+
+## 2026-11-25 — PR #92 home-screen candidate
+- Feature branch: `feat/glass-home-screen`; open PR #92 targets Main. Do not merge without required CODEOWNER review and green exact-head checks.
+- Implementation: local Compose start page for new tabs (`rivo://home` internal marker); HTTP(S) pages continue to render in GeckoView. New tab, private tab, tab overview, bookmarks, history and bookmark/history shortcuts reuse existing controller methods and local data.
+- No physical-device, TalkBack, contrast, 320 dp, large-font or 3–4 GB RAM acceptance has been performed by this session. Recheck exact-head Android CI and all other required workflows before considering merge.
