@@ -81,3 +81,7 @@ Updated: 2026-11-11
 - PR #85 changes signed-release artifact verification only: APKs are preserved in `dist/` before AAB build cleanup, then signature checks enumerate those APKs and the single AAB output.
 - All five PR workflows passed before merge. No browser runtime architecture changed in this work unit.
 - Physical-device GeckoView behavior, target-class performance, runtime 16 KB and complete MASVS/MASTG assessment remain evidence gaps.
+
+## 2026-11-25 — Native start-page candidate
+- A new tab uses the app-internal `rivo://home` marker instead of requesting an external homepage. `BrowserScreen` renders a Compose start page while the marker is active; user navigation switches the tab to an HTTP(S) URL and attaches the GeckoView surface.
+- The marker is not an allowed navigation destination or restorable URL: the existing restoration policy continues to persist only absolute HTTP(S) URLs. This feature is isolated to the new-tab UI path.
