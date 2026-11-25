@@ -85,3 +85,9 @@ Updated: 2026-11-11
 ## 2026-11-25 — Native start-page candidate
 - A new tab uses the app-internal `rivo://home` marker instead of requesting an external homepage. `BrowserScreen` renders a Compose start page while the marker is active; user navigation switches the tab to an HTTP(S) URL and attaches the GeckoView surface.
 - The marker is not an allowed navigation destination or restorable URL: the existing restoration policy continues to persist only absolute HTTP(S) URLs. This feature is isolated to the new-tab UI path.
+
+
+## 2026-11-25 — Local start page candidate (PR #92)
+- New tabs use the internal `rivo://home` marker as a presentation state; `BrowserScreen` renders `RivoHomeScreen` locally and does not create a Gecko navigation for that marker.
+- The start page receives bookmark/history snapshots and callbacks from the existing `BrowserController`; all external destinations are opened through the controller's existing navigation resolver.
+- This is a UI-layer addition only. It does not change the selected GeckoView engine, session isolation, persistence format, permissions or network policy. PR #92 is not merged into Main.
