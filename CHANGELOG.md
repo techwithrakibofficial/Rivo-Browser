@@ -1,3 +1,12 @@
+## 2026-11-25 — Startup crash diagnostics and dependency verification
+
+- Added a bounded uncaught-exception report for the debug diagnostic app, stored only in app-private storage with no automatic upload and no exception messages.
+- Disabled crash-report handler installation in the production release build.
+- CI now uploads an ARM64 startup-diagnostic APK for device reproduction without Developer Options/ADB.
+- Added 19 missing SHA-256 dependency artifact checksums and validated strict dependency verification.
+- Kept the diagnostic implementation to the existing debug build type; removed the additional minified diagnostic variant to avoid unnecessary dependency-lockfile churn.
+- PR #91 exact-head CI passed all five workflows; see `TESTING.md` for run IDs and validation scope.
+
 ## 2026-11-24 — Release version alignment candidate
 
 - Audited the existing `v0.2.2-phase1` tag: it points to the pre-fingerprint-parser-fix revision and its app metadata reports `0.2.1-phase1` / version code 3.
