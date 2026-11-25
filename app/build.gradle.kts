@@ -26,8 +26,8 @@ android {
         applicationId = "com.rivo.browser"
         minSdk = 26
         targetSdk = 36
-        versionCode = 3
-        versionName = "0.2.1-phase1"
+        versionCode = 4
+        versionName = "0.2.3-phase1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildFeatures { compose = true }

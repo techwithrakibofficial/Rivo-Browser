@@ -1,3 +1,11 @@
+## Release version alignment — 2026-11-24 (PR candidate)
+
+- The existing immutable tag `v0.2.2-phase1` points to a source revision whose Android app metadata is `versionName=0.2.1-phase1`, `versionCode=3`; it predates the signed-release fingerprint-parser fix.
+- Do not dispatch a production release for that tag. Its tagged workflow also contains the old fingerprint parser.
+- Proposed next release candidate: `v0.2.3-phase1` with Android `versionCode=4`, after this change is merged and a new immutable tag is created on the reviewed Main commit.
+- The corrected signed-release workflow is on Main. Manual dispatch from Main with the new tag input checks out that tag's source and verifies that it is an ancestor of Main.
+- No signed production APK/AAB or GitHub Release is claimed.
+
 ## Verified project status — 2026-11-24 (PR #86 merged)
 - Latest verified Main commit: `e15ee3ce1c623f70679b9c117018d98de0b1b757` (PR #86 documentation reconciliation).
 - PR #86 merged after CODEOWNER approval; all five PR workflows passed and no review threads remained unresolved.

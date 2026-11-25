@@ -1,3 +1,11 @@
+## 2026-11-24 — Release version alignment candidate
+
+- Audited the existing `v0.2.2-phase1` tag: it points to the pre-fingerprint-parser-fix revision and its app metadata reports `0.2.1-phase1` / version code 3.
+- Do not use or move that immutable tag for production signing.
+- This PR aligns the next candidate to `0.2.3-phase1` / version code 4. Create the new tag only after merge and successful CI.
+- The signed-release workflow on Main contains the corrected apksigner fingerprint parser. Manual dispatch must be started from Main with the new tag as input.
+- No production-signed artifacts or published release are claimed.
+
 # Changelog
 
 ## 2026-11-24 — Release workflow verification follow-up
