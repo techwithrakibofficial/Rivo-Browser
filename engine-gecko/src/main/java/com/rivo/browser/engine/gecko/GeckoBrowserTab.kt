@@ -424,6 +424,18 @@ class GeckoBrowserTab(
 
     fun goBack() { if (!disposed && !crashed && canGoBack) session.goBack() }
     fun goForward() { if (!disposed && !crashed && canGoForward) session.goForward() }
+    /**
+     * Switch both the HTTP user-agent identity and CSS viewport mode.
+     * GeckoView treats these as separate settings; changing only the UA does
+     * not request the desktop 980 CSS-pixel viewport.
+     */
+    fun setDesktopMode(enabled: Boolean) {
+        if (disposed) return
+        val settings = session.settings
+        settings.setUserAgentMode(GeckoDesktopSitePolicy.userAgentMode(enabled))
+        settings.setViewportMode(GeckoDesktopSitePolicy.viewportMode(enabled))
+    }
+
     fun reload() {
         if (disposed) return
         if (crashed) {
