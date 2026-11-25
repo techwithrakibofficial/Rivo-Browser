@@ -1,3 +1,12 @@
+## 2026-11-25 — PR #91 verified handoff
+
+- Current PR #91 head: `21c16f7495d18bb9030aa249485315277515e602`; base Main: `099f6b4d6f5e1988049dd306abcb95ddfe38e7de`; PR is open and mergeable, not merged.
+- All five PR workflows passed on the exact head: Android CI `45602982534`, OSV `45602982377`, dependency graph `45602982512`, SBOM `45602982369`, verification bootstrap `45602982354`.
+- Download the ARM64 startup-diagnostic APK from the verified Actions artifact: `https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/45602982534/artifacts/15016269540`.
+- Device follow-up: install this diagnostic APK alongside the production app, launch it, reproduce the original exit/crash, reopen the diagnostic app, tap **Copy crash report**, and share the copied text. No Developer Options or ADB is required for this flow. Do not clear the report until it has been copied.
+- Reporter is debug-only and stores a bounded report in app-private storage; it does not auto-upload. Production release disables the handler.
+- No physical-device test has been performed by this session. PR must not be merged without the repository's required review/approval; do not create or move release tags from this PR.
+
 ## 2026-11-24 — Release version alignment handoff
 
 - Main audited at `b5e909e159896bc4beef49a9c3e3cb3d63a69b83`; PR #88 fingerprint parser correction is present.
