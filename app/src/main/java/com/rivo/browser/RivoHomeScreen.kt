@@ -106,13 +106,15 @@ internal fun RivoHomeScreen(
             }
         }
 
-        HomeSectionHeader("Recently visited", "History", onOpenHistory)
-        if (history.isEmpty()) {
-            HomeEmptyState("Pages you visit will show up here.")
-        } else {
-            Column(verticalArrangement = Arrangement.spacedBy(RivoSpacing.small)) {
-                history.asReversed().take(5).forEach { page ->
-                    HomePageRow(page = page, onClick = { onOpenUrl(page.url) })
+        if (!privateMode) {
+            HomeSectionHeader("Recently visited", "History", onOpenHistory)
+            if (history.isEmpty()) {
+                HomeEmptyState("Pages you visit will show up here.")
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(RivoSpacing.small)) {
+                    history.asReversed().take(5).forEach { page ->
+                        HomePageRow(page = page, onClick = { onOpenUrl(page.url) })
+                    }
                 }
             }
         }
