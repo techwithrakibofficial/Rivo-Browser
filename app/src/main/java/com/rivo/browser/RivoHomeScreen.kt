@@ -121,7 +121,8 @@ internal fun RivoHomeScreen(
 
         Spacer(Modifier.height(RivoSpacing.small))
         Text(
-            "Private by design · No account · No cloud sync",
+            if (privateMode) "Private session · History is not shown or saved"
+            else "Local bookmarks and history · No Rivo account required",
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.align(Alignment.CenterHorizontally)
