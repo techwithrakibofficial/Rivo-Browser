@@ -303,3 +303,10 @@ A workflow being configured is not evidence that the latest commit passed. Recor
 - CODEOWNER `techsomadhanmedia` approved; review threads: zero unresolved.
 - PR #86 merged to Main as `e15ee3ce1c623f70679b9c117018d98de0b1b757`.
 - This validates the documentation PR checks only; no post-merge workflow result, signed release, physical-device acceptance or security certification is claimed.
+
+## 2026-11-25 — Native start-page validation candidate
+- Branch: `feat/glass-home-screen`.
+- Source change: new tabs start at internal `rivo://home`; GeckoView loads only after a user navigation action.
+- Privacy check by source inspection: recently visited history is not composed in private mode; bookmarks remain visible.
+- Automated validation: pending same-head Android CI, lint, JVM tests and emulator instrumentation.
+- Manual acceptance still required: Dark/Light/Premium Glass, 320 dp width, large font, TalkBack, keyboard interaction, tab switching, normal/private history separation and 3–4 GB device performance.
