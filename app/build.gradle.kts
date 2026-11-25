@@ -77,7 +77,7 @@ android {
         }
         create("releaseDiagnostic") {
             initWith(getByName("release"))
-            applicationIdSuffix = ".release-diagnostic"
+            applicationIdSuffix = ".releaseDiagnostic"
             buildConfigField("boolean", "CRASH_DIAGNOSTICS_ENABLED", "true")
             signingConfig = signingConfigs.getByName("debug")
             matchingFallbacks += listOf("release")
