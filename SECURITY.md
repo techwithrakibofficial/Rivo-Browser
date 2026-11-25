@@ -1,3 +1,10 @@
+## 2026-11-25 — Startup crash diagnostics privacy boundary
+
+- Crash-report collection is enabled only in the installable debug diagnostic variant (`com.rivo.browser.diagnostic`). The production `release` build sets `CRASH_DIAGNOSTICS_ENABLED=false`; `RivoApplication` does not install a crash-reporting handler in that build.
+- Diagnostic reports are bounded, stored only in app-private internal storage and are never uploaded automatically. Exception messages are omitted to avoid persisting URL/query strings or other user-provided text.
+- The diagnostic APK is a temporary GitHub Actions QA artifact; it is not a production release and must not be distributed as the shipping build.
+- This source-level privacy boundary still requires CI verification and device testing. It is not a substitute for a full MASVS/MASTG assessment.
+
 # Rivo Browser — Security Baseline
 
 ## 2026-11-24 — Release verification follow-up
