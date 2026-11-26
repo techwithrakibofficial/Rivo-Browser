@@ -354,3 +354,7 @@ Updated: 2026-11-24
 - On current Main, OSV Scanner Scheduled run `45777625863`, Source SBOM run `45777625516`, and Gradle Dependency Graph run `45777625489` succeeded. Android CI run `45777625468` and Gradle Dependency Verification Bootstrap run `45777625387` were still in progress at the time of this checkpoint. Recheck final conclusions before closing them.
 - No open PRs were returned by the repository query. Desktop Site mode was already merged by PR #93 at `e747ded5e84b6f0179aee892b9a3fc630187f8cf`, which is an ancestor of current Main. The old topic branch is stale; do not merge it again.
 - Remaining gates: final current-Main CI/bootstrap results; safe Desktop Site port and tests; physical-device QA on Android 16 / HyperOS 16.3.0 / Tecno Pova Slim 5G; 3–4 GB profiling; accessibility and all-theme checks; runtime 16 KB validation; MASVS/MASTG evidence review; protected production signing and artifact verification. No production-signed APK/AAB, device acceptance or security certification is claimed.
+
+## Correction — verified Desktop Site status (2026-11-26)
+
+Desktop Site is already integrated in current Main by PR #93. Merge commit `e747ded5e84b6f0179aee892b9a3fc630187f8cf` is an ancestor of Main `3cca9117771e1412a20788be01ea56ec3d768480` (GitHub compare: 0 commits ahead, 14 behind for the old topic branch). The per-tab toggle, GeckoView user-agent/viewport mapping and policy tests are present in Main. Do not re-port or merge the stale branch. Remaining work is physical-device behavior/lifecycle QA, not feature integration.
