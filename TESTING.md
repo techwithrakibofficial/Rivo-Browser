@@ -309,3 +309,10 @@ A workflow being configured is not evidence that the latest commit passed. Recor
 - Added unit coverage for both desktop and mobile GeckoSessionSettings mode mappings.
 - Automated validation pending: exact-head Android CI, Gecko engine unit tests, instrumentation.
 - Manual acceptance pending: desktop UA and 980 CSS-pixel viewport are both applied; switching back restores mobile UA and viewport; mode is isolated to one tab; normal/private tabs; reload behavior; site compatibility and 3–4 GB device memory use.
+
+## 2026-11-26 — PR #100 and current Main verification
+
+- PR #100 head `fdaabf029a4a9d9541eca7ed63aaa5cf9e98c688`: Android CI and PR supply-chain workflows completed successfully. The Gradle verification bootstrap metadata-review job was skipped by its explicit `push`-to-`main` condition; this is expected for a pull-request event.
+- Current Main SHA `3cca9117771e1412a20788be01ea56ec3d768480`: OSV Scanner `45777625863`, Source SBOM `45777625516` and Gradle Dependency Graph `45777625489` succeeded. Android CI `45777625468` and Gradle Dependency Verification Bootstrap `45777625387` were still in progress at last inspection; update this record after checking final conclusions.
+- The prior Main commit `6230b3e733448ce241bfa4133c89d55b5dcd3d49` had successful Android CI and dependency-verification runs; that does not replace current-commit verification.
+- PR #100 automated tests do not replace physical-device visual/accessibility/privacy acceptance. Device QA, 3–4 GB profiling, runtime 16 KB, GeckoView security fixtures and full MASVS/MASTG review remain open.
