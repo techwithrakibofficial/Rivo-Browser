@@ -94,3 +94,7 @@ Updated: 2026-11-11
 - Restored-tab policy rejects this internal marker so it cannot be replayed as a web navigation. Private tabs must not display or persist non-private history.
 - Home surfaces consume semantic appearance tokens for Dark, Light and Premium Glass; this does not by itself prove visual contrast or accessibility acceptance on physical devices.
 - Desktop Site remains unmerged: its existing branch is 15 commits ahead/behind current Main. Do not cherry-pick/merge without reviewing current GeckoSession lifecycle and UI state; any port must set both GeckoView user-agent and viewport modes and remain isolated per tab.
+
+## Correction — Desktop Site integration (2026-11-26)
+
+Desktop Site is integrated by PR #93; merge commit `e747ded5e84b6f0179aee892b9a3fc630187f8cf` is an ancestor of current Main. The per-tab implementation sets both GeckoView user-agent and viewport modes. Remaining verification concerns lifecycle restoration and real-site behavior on physical devices.
