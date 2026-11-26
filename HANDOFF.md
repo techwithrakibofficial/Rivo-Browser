@@ -430,3 +430,7 @@ Automated CI success is verified. It is not evidence of physical-device acceptan
 5. Trigger protected production signing only through the authorized owner-controlled workflow/tag; verify APK/AAB signatures, matching fingerprints and SHA-256 checksums before calling it a release.
 
 No signed release, physical-device acceptance or MASVS certification is claimed.
+
+## Correction — Desktop Site already merged (2026-11-26)
+
+PR #93 merged Desktop Site into Main. Its merge commit is an ancestor of current Main; the old topic branch is stale and 14 commits behind. Do not re-port or merge it. Next action is device validation of per-tab isolation, reload, mobile reset, private tabs and tab restoration.
