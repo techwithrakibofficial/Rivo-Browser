@@ -320,3 +320,7 @@ A workflow being configured is not evidence that the latest commit passed. Recor
 ## Correction — Desktop Site merged status (2026-11-26)
 
 Desktop Site policy unit tests and implementation are included in Main via PR #93. Remaining tests are physical-device real-site compatibility, per-tab isolation, reload, mobile reset, private-tab behavior and tab restoration. The stale topic branch must not be used as the source of truth.
+
+## CI status refresh — 2026-11-26
+
+For Main SHA `3cca9117771e1412a20788be01ea56ec3d768480`, Gradle Dependency Verification Bootstrap `45777625387` completed successfully. Android CI `45777625468` was still executing Android security instrumentation tests at the latest check; its final result remains pending. The OSV, SBOM and Dependency Graph runs listed above succeeded.
