@@ -26,8 +26,8 @@ android {
         applicationId = "com.rivo.browser"
         minSdk = 26
         targetSdk = 36
-        versionCode = 4
-        versionName = "0.2.3-phase1"
+        versionCode = 5
+        versionName = "0.2.4-phase1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildFeatures {
@@ -66,7 +66,7 @@ android {
             buildConfigField("boolean", "CRASH_DIAGNOSTICS_ENABLED", "true")
         }
         getByName("release") {
-            buildConfigField("boolean", "CRASH_DIAGNOSTICS_ENABLED", "false")
+            buildConfigField("boolean", "CRASH_DIAGNOSTICS_ENABLED", "true")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
