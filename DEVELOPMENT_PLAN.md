@@ -196,3 +196,7 @@ A release candidate is acceptable only when:
 2. Port/retest Desktop Site safely (or explicitly defer if API/UI conflicts arise).
 3. Complete device/theme/accessibility/low-RAM/security acceptance evidence.
 4. Execute protected production signing with owner authorization and verify signed artifacts.
+
+## Correction — Desktop Site status (2026-11-26)
+
+Desktop Site is already integrated by PR #93 and is an ancestor of current Main. The old branch is 14 commits behind Main; do not port or merge it again. Move this work item from implementation to physical-device and lifecycle validation (per-tab isolation, reload, mobile reset, private tabs, restore).
