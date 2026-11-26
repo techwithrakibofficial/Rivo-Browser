@@ -414,3 +414,19 @@ Automated CI success is verified. It is not evidence of physical-device acceptan
 - Added `GeckoDesktopSitePolicy` to map the user-facing toggle to both GeckoView user-agent and viewport modes; `GeckoBrowserTab` applies settings and `BrowserController` reloads the current tab.
 - Added a Browser menu action and visible `DESKTOP SITE REQUESTED` indicator. The setting is per-tab and in-memory only.
 - Added unit tests for desktop/mobile mapping. Exact-head CI and device behavior are pending; do not merge until verified and reviewed.
+
+## Handoff — current Main after PR #100 (2026-11-26)
+
+- Main SHA: `3cca9117771e1412a20788be01ea56ec3d768480`; PR #100 is merged. Native Compose start page and internal home-marker handling are integrated.
+- PR #100's PR-head Android CI and supply-chain workflows succeeded. The bootstrap metadata-review job was expected to skip on the PR event because it is restricted to `push` on `main`.
+- Post-merge runs on this SHA: OSV `45777625863`, SBOM `45777625516`, Dependency Graph `45777625489` succeeded; Android CI `45777625468` and dependency-verification bootstrap `45777625387` were still running at last inspection.
+- No open PRs were found. `feat/desktop-site-mode` is stale/diverged (15 ahead, 15 behind); do not merge it as-is. Re-port its small GeckoSession UA+viewport policy and UI affordance onto a fresh branch from current Main, then run full CI and independent review.
+
+### Next actions
+1. Recheck current Main Android CI and dependency-verification bootstrap final conclusions.
+2. Finish a fresh-branch Desktop Site port only after inspecting current Main UI and GeckoView API compatibility; keep it per-tab and do not claim persistence unless implemented/tested.
+3. Reconcile documentation against current Main and ensure all nine status documents agree.
+4. Run documented physical-device, accessibility, low-RAM and privacy/security matrix; record owner-reported results separately from independently verified results.
+5. Trigger protected production signing only through the authorized owner-controlled workflow/tag; verify APK/AAB signatures, matching fingerprints and SHA-256 checksums before calling it a release.
+
+No signed release, physical-device acceptance or MASVS certification is claimed.
