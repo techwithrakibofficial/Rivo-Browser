@@ -100,3 +100,9 @@ Build success, JVM tests, emulator instrumentation, physical-device testing and 
 | Dark / Light / Premium Glass start-page surfaces | Integrated in source | Visual contrast, TalkBack and low-end rendering acceptance pending |
 | Desktop Site | Not integrated in Main | Candidate branch diverged 15 commits ahead/behind; port and validate on fresh Main branch before claiming availability |
 | Production signed APK/AAB | Not verified | No current-Main signed release evidence in this checkpoint |
+
+## Correction — Desktop Site (2026-11-26)
+
+| Feature | Main status | Remaining validation |
+|---|---|---|
+| Desktop Site | Integrated by PR #93 | Per-tab GeckoView user-agent + viewport modes and mobile reset are present; physical-site compatibility, tab isolation, private-tab and restore QA pending |
