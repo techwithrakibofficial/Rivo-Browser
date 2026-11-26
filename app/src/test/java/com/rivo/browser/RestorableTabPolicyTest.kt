@@ -15,6 +15,7 @@ class RestorableTabPolicyTest {
         assertFalse(RestorableTabPolicy.isSafeUrl("javascript:alert(1)"))
         assertFalse(RestorableTabPolicy.isSafeUrl("file:///etc/passwd"))
         assertFalse(RestorableTabPolicy.isSafeUrl("about:blank"))
+        assertFalse(RestorableTabPolicy.isSafeUrl("rivo://home"))
         assertFalse(RestorableTabPolicy.isSafeUrl("example.com"))
         assertFalse(RestorableTabPolicy.isSafeUrl("https://user:pass@example.com"))
     }
