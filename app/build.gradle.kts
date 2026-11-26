@@ -30,7 +30,10 @@ android {
         versionName = "0.2.3-phase1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-    buildFeatures { compose = true }
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
     splits {
         abi {
             isEnable = enableAbiSplits
@@ -58,7 +61,12 @@ android {
         }
     }
     buildTypes {
+        getByName("debug") {
+            applicationIdSuffix = ".diagnostic"
+            buildConfigField("boolean", "CRASH_DIAGNOSTICS_ENABLED", "true")
+        }
         getByName("release") {
+            buildConfigField("boolean", "CRASH_DIAGNOSTICS_ENABLED", "false")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
