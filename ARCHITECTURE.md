@@ -87,3 +87,10 @@ Updated: 2026-11-11
 - Both user-agent mode and viewport mode are changed independently using `GeckoSessionSettings`. Mozilla documents that desktop UA mode alone does not enable the 980 CSS-pixel desktop viewport; both settings are required.
 - The tab reloads after a mode change. The state is per-tab and currently in-memory only; it resets to mobile after process restoration.
 - Official API: https://mozilla.github.io/geckoview/javadoc/mozilla-central/org/mozilla/geckoview/GeckoSessionSettings.html and https://mozilla.github.io/geckoview/javadoc/mozilla-central/org/mozilla/geckoview/doc-files/CHANGELOG
+
+## 2026-11-26 — Native start page integration
+
+- PR #100 adds a native Compose start page integrated with the existing browser controller. The internal `rivo://home` marker is an app-level navigation state and must never be passed to GeckoView or treated as a network URL.
+- Restored-tab policy rejects this internal marker so it cannot be replayed as a web navigation. Private tabs must not display or persist non-private history.
+- Home surfaces consume semantic appearance tokens for Dark, Light and Premium Glass; this does not by itself prove visual contrast or accessibility acceptance on physical devices.
+- Desktop Site remains unmerged: its existing branch is 15 commits ahead/behind current Main. Do not cherry-pick/merge without reviewing current GeckoSession lifecycle and UI state; any port must set both GeckoView user-agent and viewport modes and remain isolated per tab.
