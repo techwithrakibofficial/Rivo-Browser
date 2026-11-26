@@ -135,9 +135,39 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surface.copy(alpha = if (browser.appearance == BrowserAppearance.GLASS) 0.88f else 1f))
-                        .padding(horizontal = RivoSpacing.medium, vertical = RivoSpacing.small + RivoSpacing.compact)
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = if (browser.appearance == BrowserAppearance.GLASS) 0.92f else 1f))
+                        .padding(horizontal = RivoSpacing.medium, vertical = RivoSpacing.small)
                 ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(bottom = RivoSpacing.small),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer
+                        ) {
+                            Text(
+                                "R",
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                        Column(
+                            modifier = Modifier.weight(1f).padding(start = RivoSpacing.small),
+                            verticalArrangement = Arrangement.spacedBy(0.dp)
+                        ) {
+                            Text("RIVO", style = MaterialTheme.typography.titleSmall)
+                            Text(
+                                if (active?.privateMode == true) "PRIVATE BROWSING" else "YOUR PRIVATE SPACE",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        TextButton(onClick = { browser.createTab() }) {
+                            Text("+  New tab")
+                        }
+                    }
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(RivoSpacing.small)) {
                         OutlinedTextField(
                             value = address,
@@ -150,8 +180,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                             },
                             singleLine = true,
                             shape = RoundedCornerShape(RivoShapes.control),
-                            label = { Text("Address or search") },
-                            placeholder = { Text("Search or enter address") },
+                            placeholder = { Text("Search or enter website") },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Go),
                             keyboardActions = KeyboardActions(onGo = {
                                 val submittedAddress = address
@@ -167,9 +196,9 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                             address = NavigationInputResolver.resolve(submittedAddress)
                             isEditingAddress = false
                             keyboard?.hide()
-                        }) { Text("Go") }
+                        }) { Text("→", modifier = Modifier.semantics { contentDescription = "Go" }) }
                         Box {
-                            TextButton(onClick = { menuExpanded = true }) { Text("Menu") }
+                            TextButton(onClick = { menuExpanded = true }) { Text("⋯", modifier = Modifier.semantics { contentDescription = "Open menu" }) }
                             DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
                                 DropdownMenuItem(text = { Text("New tab") }, onClick = {
                                     menuExpanded = false
@@ -285,20 +314,51 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                     }
                 }
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState())
-                        .background(MaterialTheme.colorScheme.surface)
-                        .padding(horizontal = RivoSpacing.small, vertical = RivoSpacing.compact + 2.dp),
-                    horizontalArrangement = Arrangement.spacedBy(RivoSpacing.compact),
-                    verticalAlignment = Alignment.CenterVertically
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.surface.copy(
+                        alpha = if (browser.appearance == BrowserAppearance.GLASS) 0.94f else 1f
+                    ),
+                    tonalElevation = 3.dp
                 ) {
-                    TextButton(onClick = { browser.goBack() }, enabled = active?.canGoBack == true) { Text("Back") }
-                    TextButton(onClick = { browser.goForward() }, enabled = active?.canGoForward == true) { Text("Forward") }
-                    TextButton(onClick = { browser.reloadOrStop() }) { Text(if (active?.loading == true) "Stop" else "Reload") }
-                    TextButton(onClick = { browser.addCurrentBookmark() }) { Text("Bookmark") }
-                    TextButton(onClick = { browser.openPanel(BrowserPanel.TABS) }) { Text("Tabs ${browser.tabs.size}") }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = RivoSpacing.compact, vertical = 2.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TextButton(onClick = { browser.goBack() }, enabled = active?.canGoBack == true) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("‹", style = MaterialTheme.typography.titleLarge)
+                                Text("Back", style = MaterialTheme.typography.labelSmall)
+                            }
+                        }
+                        TextButton(onClick = { browser.goForward() }, enabled = active?.canGoForward == true) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("›", style = MaterialTheme.typography.titleLarge)
+                                Text("Forward", style = MaterialTheme.typography.labelSmall)
+                            }
+                        }
+                        TextButton(onClick = { browser.reloadOrStop() }) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(if (active?.loading == true) "×" else "↻", style = MaterialTheme.typography.titleLarge)
+                                Text(if (active?.loading == true) "Stop" else "Reload", style = MaterialTheme.typography.labelSmall)
+                            }
+                        }
+                        TextButton(onClick = { browser.addCurrentBookmark() }) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("☆", style = MaterialTheme.typography.titleLarge)
+                                Text("Save", style = MaterialTheme.typography.labelSmall)
+                            }
+                        }
+                        TextButton(onClick = { browser.openPanel(BrowserPanel.TABS) }) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("▢ ${browser.tabs.size}", style = MaterialTheme.typography.titleMedium)
+                                Text("Tabs", style = MaterialTheme.typography.labelSmall)
+                            }
+                        }
+                    }
                 }
             }
         }
