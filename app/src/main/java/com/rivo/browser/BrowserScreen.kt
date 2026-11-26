@@ -86,7 +86,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     val keyboard = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
     val view = LocalView.current
-    var address by remember(active?.id) { mutableStateOf(active?.url.orEmpty()) }
+    var address by remember(active?.id) { mutableStateOf(active?.url?.takeUnless { it == BrowserController.HOME_URL }.orEmpty()) }
     var isEditingAddress by remember(active?.id) { mutableStateOf(false) }
     var menuExpanded by remember { mutableStateOf(false) }
     var showClearDataConfirmation by remember { mutableStateOf(false) }
@@ -118,7 +118,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     }
 
     LaunchedEffect(active?.url, isEditingAddress) {
-        if (active != null && !isEditingAddress) address = active.url
+        if (active != null && !isEditingAddress) address = active.url.takeUnless { it == BrowserController.HOME_URL }.orEmpty()
     }
     LaunchedEffect(browser.pendingAndroidPermissionNames) {
         val requested = browser.pendingAndroidPermissionNames ?: return@LaunchedEffect
@@ -272,7 +272,19 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                     }
                 }
 
-                if (active != null) {
+                if (active?.url == BrowserController.HOME_URL) {
+                    RivoHomeScreen(
+                        bookmarks = browser.bookmarks,
+                        history = browser.history,
+                        privateMode = active.privateMode,
+                        onOpenUrl = { browser.navigate(it) },
+                        onNewTab = { browser.createTab() },
+                        onNewPrivateTab = { browser.createTab(privateMode = true) },
+                        onOpenBookmarks = { browser.openPanel(BrowserPanel.BOOKMARKS) },
+                        onOpenHistory = { browser.openPanel(BrowserPanel.HISTORY) },
+                        onOpenTabs = { browser.openPanel(BrowserPanel.TABS) }
+                    )
+                } else if (active != null) {
                     keyTab(active.id) {
                         AndroidView(
                             factory = { active.engine.createView(context) },
@@ -296,8 +308,8 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                 ) {
                     TextButton(onClick = { browser.goBack() }, enabled = active?.canGoBack == true) { Text("Back") }
                     TextButton(onClick = { browser.goForward() }, enabled = active?.canGoForward == true) { Text("Forward") }
-                    TextButton(onClick = { browser.reloadOrStop() }) { Text(if (active?.loading == true) "Stop" else "Reload") }
-                    TextButton(onClick = { browser.addCurrentBookmark() }) { Text("Bookmark") }
+                    TextButton(onClick = { browser.reloadOrStop() }, enabled = active?.url != BrowserController.HOME_URL) { Text(if (active?.loading == true) "Stop" else "Reload") }
+                    TextButton(onClick = { browser.addCurrentBookmark() }, enabled = active?.url?.startsWith("http") == true) { Text("Bookmark") }
                     TextButton(onClick = { browser.openPanel(BrowserPanel.TABS) }) { Text("Tabs ${browser.tabs.size}") }
                 }
             }
