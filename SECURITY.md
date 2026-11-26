@@ -256,3 +256,7 @@ Rivo now surfaces GeckoView's active/passive mixed-content status in its connect
 - PR #100 PR-head CI passed. Its bootstrap metadata-review job was skipped by design on the PR event because the workflow condition only runs that job for a push to `main`; this is not a failed security check.
 - Current Main OSV Scanner `45777625863`, Source SBOM `45777625516` and Dependency Graph `45777625489` succeeded. Main Android CI `45777625468` and dependency-verification bootstrap `45777625387` were still running at last inspection; recheck before closure.
 - This source/CI evidence is not a penetration test or MASVS certification. Physical-device private-data lifecycle, GeckoView TLS/mixed-content behavior, permissions/IPC, screenshots/recents, 3–4 GB memory, runtime 16 KB and control-by-control MASVS/MASTG review remain outstanding.
+
+## CI status refresh — 2026-11-26
+
+Gradle Dependency Verification Bootstrap `45777625387` completed successfully. Main Android CI `45777625468` was still executing Android security instrumentation tests at the latest check; recheck its conclusion. Workflow success does not substitute for physical-device security QA or MASVS/MASTG evidence.
