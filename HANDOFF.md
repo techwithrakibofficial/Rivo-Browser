@@ -434,3 +434,7 @@ No signed release, physical-device acceptance or MASVS certification is claimed.
 ## Correction — Desktop Site already merged (2026-11-26)
 
 PR #93 merged Desktop Site into Main. Its merge commit is an ancestor of current Main; the old topic branch is stale and 14 commits behind. Do not re-port or merge it. Next action is device validation of per-tab isolation, reload, mobile reset, private tabs and tab restoration.
+
+## CI status refresh — 2026-11-26
+
+Gradle Dependency Verification Bootstrap `45777625387` completed successfully. Main Android CI `45777625468` was still running Android security instrumentation tests at the latest check. Recheck that run's final conclusion; do not report all Main CI green before it completes.
