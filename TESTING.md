@@ -316,3 +316,7 @@ A workflow being configured is not evidence that the latest commit passed. Recor
 - Current Main SHA `3cca9117771e1412a20788be01ea56ec3d768480`: OSV Scanner `45777625863`, Source SBOM `45777625516` and Gradle Dependency Graph `45777625489` succeeded. Android CI `45777625468` and Gradle Dependency Verification Bootstrap `45777625387` were still in progress at last inspection; update this record after checking final conclusions.
 - The prior Main commit `6230b3e733448ce241bfa4133c89d55b5dcd3d49` had successful Android CI and dependency-verification runs; that does not replace current-commit verification.
 - PR #100 automated tests do not replace physical-device visual/accessibility/privacy acceptance. Device QA, 3–4 GB profiling, runtime 16 KB, GeckoView security fixtures and full MASVS/MASTG review remain open.
+
+## Correction — Desktop Site merged status (2026-11-26)
+
+Desktop Site policy unit tests and implementation are included in Main via PR #93. Remaining tests are physical-device real-site compatibility, per-tab isolation, reload, mobile reset, private-tab behavior and tab restoration. The stale topic branch must not be used as the source of truth.
