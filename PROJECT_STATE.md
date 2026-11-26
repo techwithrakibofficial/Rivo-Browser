@@ -358,3 +358,7 @@ Updated: 2026-11-24
 ## Correction — verified Desktop Site status (2026-11-26)
 
 Desktop Site is already integrated in current Main by PR #93. Merge commit `e747ded5e84b6f0179aee892b9a3fc630187f8cf` is an ancestor of Main `3cca9117771e1412a20788be01ea56ec3d768480` (GitHub compare: 0 commits ahead, 14 behind for the old topic branch). The per-tab toggle, GeckoView user-agent/viewport mapping and policy tests are present in Main. Do not re-port or merge the stale branch. Remaining work is physical-device behavior/lifecycle QA, not feature integration.
+
+## CI status refresh — 2026-11-26
+
+Gradle Dependency Verification Bootstrap run `45777625387` completed successfully. Main Android CI run `45777625468` was still executing `Run Android security instrumentation tests` at the latest check. Do not mark current-Main Android CI complete until its run conclusion is `success`.
