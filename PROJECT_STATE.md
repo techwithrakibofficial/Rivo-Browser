@@ -345,3 +345,12 @@ Updated: 2026-11-24
 - The setting is in-memory per tab and is not yet persisted across process restarts.
 - Source: Mozilla GeckoSessionSettings API (GeckoView 163): https://mozilla.github.io/geckoview/javadoc/mozilla-central/org/mozilla/geckoview/GeckoSessionSettings.html
 - CI, runtime behavior, and device acceptance pending; do not describe this as tested yet.
+
+## 2026-11-26 — Verified current Main checkpoint
+
+- Canonical Main SHA: `3cca9117771e1412a20788be01ea56ec3d768480` (PR #100 merge). The merge commit is signed/verified by GitHub.
+- PR #100 integrates the native Compose Rivo start page. Its internal `rivo://home` marker is handled inside the app and is not sent to GeckoView/network; private mode does not expose history; restored tabs reject the internal marker. Dark, Light and Premium Glass use semantic surfaces.
+- PR #100 PR-head Android CI and supply-chain checks passed. The PR bootstrap metadata-review job was skipped by design because its workflow condition only permits a `push` to `main`; it is not a failed check.
+- On current Main, OSV Scanner Scheduled run `45777625863`, Source SBOM run `45777625516`, and Gradle Dependency Graph run `45777625489` succeeded. Android CI run `45777625468` and Gradle Dependency Verification Bootstrap run `45777625387` were still in progress at the time of this checkpoint. Recheck final conclusions before closing them.
+- No open PRs were returned by the repository query. The old `feat/desktop-site-mode` branch is 15 commits ahead and 15 behind current Main; do not merge it directly. Its implementation must be re-ported onto fresh Main and revalidated.
+- Remaining gates: final current-Main CI/bootstrap results; safe Desktop Site port and tests; physical-device QA on Android 16 / HyperOS 16.3.0 / Tecno Pova Slim 5G; 3–4 GB profiling; accessibility and all-theme checks; runtime 16 KB validation; MASVS/MASTG evidence review; protected production signing and artifact verification. No production-signed APK/AAB, device acceptance or security certification is claimed.
