@@ -90,3 +90,19 @@ Build success, JVM tests, emulator instrumentation, physical-device testing and 
 | Feature | Status | Notes |
 |---|---|---|
 | Desktop Site / Request desktop website | Implemented on review branch; CI pending | Per-tab GeckoView user-agent and viewport modes; toggle back to mobile; setting not persisted across process restart |
+
+## 2026-11-26 — Main feature status update
+
+| Feature | Current status | Evidence / limitation |
+|---|---|---|
+| Native Rivo start page | Integrated in Main | PR #100 merged at `3cca911`; native Compose page, internal home marker not sent to GeckoView/network |
+| Private-mode history separation on start page | Integrated in source | Private mode omits history; physical-device privacy lifecycle still needs QA |
+| Dark / Light / Premium Glass start-page surfaces | Integrated in source | Visual contrast, TalkBack and low-end rendering acceptance pending |
+| Desktop Site | Not integrated in Main | Candidate branch diverged 15 commits ahead/behind; port and validate on fresh Main branch before claiming availability |
+| Production signed APK/AAB | Not verified | No current-Main signed release evidence in this checkpoint |
+
+## Correction — Desktop Site (2026-11-26)
+
+| Feature | Main status | Remaining validation |
+|---|---|---|
+| Desktop Site | Integrated by PR #93 | Per-tab GeckoView user-agent + viewport modes and mobile reset are present; physical-site compatibility, tab isolation, private-tab and restore QA pending |

@@ -223,3 +223,12 @@ See Git history for prior Tab Universe, storage hardening, browser navigation, t
 
 ## Unreleased — 2026-11-25
 - Added a per-tab Desktop Site toggle using GeckoView's desktop user-agent and viewport modes, with a mobile-site reset. Automated and device validation pending.
+
+## 2026-11-26 — Unreleased / Main integration
+
+- Merged PR #100: integrated the native Compose Rivo start page with app-internal `rivo://home` handling; the marker is not sent to GeckoView/network and is rejected during restored-tab navigation. Start-page history is omitted in private mode. Dark, Light and Premium Glass semantic surfaces are supported.
+- Desktop Site remains a separate unmerged candidate and is not included in this Main entry.
+
+## 2026-11-26 — Desktop Site integration correction
+
+- Desktop Site per-tab mode was merged to Main by PR #93. The implementation maps both GeckoView user-agent and viewport modes and supports returning to mobile mode. Physical-device compatibility validation remains outstanding.

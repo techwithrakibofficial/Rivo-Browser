@@ -45,3 +45,9 @@ Updated: 2026-11-10
 - No design-system source changes were made in PR #85.
 - Existing centralized Dark, Light and Premium Glass themes and secondary Quick Appearance Picker remain integrated per the feature matrix.
 - Contrast, TalkBack, font scaling, reduced-motion behavior and low-end rendering still require physical-device/accessibility acceptance; CI does not close these gates.
+
+## 2026-11-26 — Native start page theme integration
+
+- PR #100's native Compose start page is integrated on Main and uses semantic surfaces for Dark, Light and Premium Glass.
+- This is source integration, not completed design acceptance. Still required: screenshots and contrast review for all three modes, icon legibility, TalkBack, 320 dp width, large fonts, reduced motion/transparency-disabled behavior, and low-RAM rendering on target hardware.
+- Do not add a permanent theme-switch icon to the main browser display; keep Quick Appearance Picker as a secondary control.
