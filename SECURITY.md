@@ -244,3 +244,8 @@ Rivo now surfaces GeckoView's active/passive mixed-content status in its connect
 - APK signature verification now reads preserved `dist/*.apk` after AAB assembly performs `gradle clean`; the deleted APK intermediate directory is no longer searched.
 - This corrects workflow sequencing only. Production signing is not proven until a protected run validates PKCS#12 keystore use, APK/AAB signatures, matching signer fingerprints, R8 mapping and SHA-256 checksums.
 - No secrets or keystore material were exposed or changed. Physical-device security testing, full MASVS/MASTG review and independent penetration testing remain open; no certification is claimed.
+
+## 2026-11-25 — Desktop Site security notes
+- Desktop Site changes only GeckoView's user-agent and viewport presentation settings. It does not disable HTTPS validation, tracking protection, origin isolation, site permissions or private-session boundaries.
+- The mode is scoped to the existing tab's GeckoSession and currently resets to mobile after process restoration; it does not store a persistent per-site override.
+- Runtime behavior and device acceptance remain pending on `feat/desktop-site-mode`.

@@ -58,6 +58,7 @@ class BrowserTabState(
     var mixedContentStatusUnknown by mutableStateOf(true)
     var trackingProtectionEnabled by mutableStateOf(false)
     var trackingProtectionException by mutableStateOf(false)
+    var desktopMode by mutableStateOf(false)
     lateinit var engine: GeckoBrowserTab
     var initialLoadPending: Boolean = false
 }
@@ -495,6 +496,23 @@ class BrowserController(context: Context) {
     fun reloadOrStop() {
         val tab = activeTab ?: return
         if (tab.loading) tab.engine.stop() else tab.engine.reload()
+    }
+
+    fun toggleDesktopMode() {
+        val tab = activeTab ?: return
+        if (!tab.url.startsWith("https://") && !tab.url.startsWith("http://")) {
+            notice = "Desktop Site is available only for web pages."
+            return
+        }
+        if (tab.loading) tab.engine.stop()
+        tab.desktopMode = !tab.desktopMode
+        tab.engine.setDesktopMode(tab.desktopMode)
+        tab.engine.reload()
+        notice = if (tab.desktopMode) {
+            "Desktop Site requested. The page is reloading with desktop user-agent and viewport settings."
+        } else {
+            "Mobile Site requested. The page is reloading with mobile user-agent and viewport settings."
+        }
     }
 
     fun addCurrentBookmark() {

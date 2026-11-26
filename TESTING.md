@@ -303,3 +303,9 @@ A workflow being configured is not evidence that the latest commit passed. Recor
 - CODEOWNER `techsomadhanmedia` approved; review threads: zero unresolved.
 - PR #86 merged to Main as `e15ee3ce1c623f70679b9c117018d98de0b1b757`.
 - This validates the documentation PR checks only; no post-merge workflow result, signed release, physical-device acceptance or security certification is claimed.
+
+## 2026-11-25 — Desktop Site validation candidate
+- Branch: `feat/desktop-site-mode`.
+- Added unit coverage for both desktop and mobile GeckoSessionSettings mode mappings.
+- Automated validation pending: exact-head Android CI, Gecko engine unit tests, instrumentation.
+- Manual acceptance pending: desktop UA and 980 CSS-pixel viewport are both applied; switching back restores mobile UA and viewport; mode is isolated to one tab; normal/private tabs; reload behavior; site compatibility and 3–4 GB device memory use.
