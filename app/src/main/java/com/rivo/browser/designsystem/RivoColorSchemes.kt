@@ -15,6 +15,8 @@ object RivoColorSchemes {
             background = Color(0xFFF3F6FA),
             surface = Color(0xFFFFFFFF),
             onSurface = Color(0xFF172333),
+            surfaceVariant = Color(0xFFE5EDF5),
+            onSurfaceVariant = Color(0xFF46586B),
             error = Color(0xFFBA1A1A)
         )
         BrowserAppearance.DARK -> darkColorScheme(
@@ -23,6 +25,8 @@ object RivoColorSchemes {
             background = Color(0xFF0D1118),
             surface = Color(0xFF171E28),
             onSurface = Color(0xFFE8EEF7),
+            surfaceVariant = Color(0xFF222D3B),
+            onSurfaceVariant = Color(0xFFB9C7D8),
             error = Color(0xFFFFB4AB)
         )
         BrowserAppearance.GLASS -> darkColorScheme(
@@ -31,6 +35,8 @@ object RivoColorSchemes {
             background = Color(0xFF101827),
             surface = Color(0xCC26354B),
             onSurface = Color(0xFFF3F7FF),
+            surfaceVariant = Color(0x553D526D),
+            onSurfaceVariant = Color(0xFFD3E0F2),
             error = Color(0xFFFFB4AB)
         )
     }
