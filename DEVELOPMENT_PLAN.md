@@ -200,3 +200,7 @@ A release candidate is acceptable only when:
 ## Correction — Desktop Site status (2026-11-26)
 
 Desktop Site is already integrated by PR #93 and is an ancestor of current Main. The old branch is 14 commits behind Main; do not port or merge it again. Move this work item from implementation to physical-device and lifecycle validation (per-tab isolation, reload, mobile reset, private tabs, restore).
+
+## CI status refresh — 2026-11-26
+
+Dependency-verification bootstrap `45777625387` completed successfully. Android CI `45777625468` was still running Android security instrumentation tests at the latest check. Close this gate only after a successful final run.
