@@ -196,9 +196,9 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                             address = NavigationInputResolver.resolve(submittedAddress)
                             isEditingAddress = false
                             keyboard?.hide()
-                        }) { Text("→") }
+                        }) { Text("→", modifier = Modifier.semantics { contentDescription = "Go" }) }
                         Box {
-                            TextButton(onClick = { menuExpanded = true }) { Text("⋯") }
+                            TextButton(onClick = { menuExpanded = true }) { Text("⋯", modifier = Modifier.semantics { contentDescription = "Open menu" }) }
                             DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
                                 DropdownMenuItem(text = { Text("New tab") }, onClick = {
                                     menuExpanded = false
