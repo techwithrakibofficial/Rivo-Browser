@@ -183,3 +183,16 @@ A release candidate is acceptable only when:
 | ID | Work unit | Status | Evidence / next action |
 |---|---|---|---|
 | UX-DESKTOP | Per-tab Desktop Site request | IMPLEMENTED — VALIDATION PENDING | Branch `feat/desktop-site-mode`; verify Gecko UA + viewport both change, mobile reset, private-tab behavior, reload and tab isolation in exact-head CI/device tests |
+
+## 2026-11-26 — Current execution checkpoint
+
+- PR #100 merged to Main at `3cca9117771e1412a20788be01ea56ec3d768480`; native Compose start page is integrated with internal `rivo://home` handling and private-history separation.
+- PR #100 PR-head CI passed; its metadata-review job skipped as expected on `pull_request` because the job is restricted to Main pushes.
+- Current Main OSV, SBOM and Dependency Graph runs succeeded. Main Android CI and Gradle verification bootstrap were still in progress at last inspection; recheck before marking green.
+- No open PRs. Desktop Site work exists on a branch that has diverged 15 commits each way from Main; direct merge is unsafe. Port only the minimal verified GeckoView UA+viewport change onto a fresh Main branch and re-test.
+
+### Priority order
+1. Close current Main CI/bootstrap and inspect any failures.
+2. Port/retest Desktop Site safely (or explicitly defer if API/UI conflicts arise).
+3. Complete device/theme/accessibility/low-RAM/security acceptance evidence.
+4. Execute protected production signing with owner authorization and verify signed artifacts.
