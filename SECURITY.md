@@ -249,3 +249,10 @@ Rivo now surfaces GeckoView's active/passive mixed-content status in its connect
 - Desktop Site changes only GeckoView's user-agent and viewport presentation settings. It does not disable HTTPS validation, tracking protection, origin isolation, site permissions or private-session boundaries.
 - The mode is scoped to the existing tab's GeckoSession and currently resets to mobile after process restoration; it does not store a persistent per-site override.
 - Runtime behavior and device acceptance remain pending on `feat/desktop-site-mode`.
+
+## 2026-11-26 — Current Main security/verification boundary
+
+- PR #100's native start page keeps the internal `rivo://home` marker within app navigation; it is not a network URL and must not be passed to GeckoView. Restored-tab handling rejects the marker. Private-mode start-page content omits browsing history.
+- PR #100 PR-head CI passed. Its bootstrap metadata-review job was skipped by design on the PR event because the workflow condition only runs that job for a push to `main`; this is not a failed security check.
+- Current Main OSV Scanner `45777625863`, Source SBOM `45777625516` and Dependency Graph `45777625489` succeeded. Main Android CI `45777625468` and dependency-verification bootstrap `45777625387` were still running at last inspection; recheck before closure.
+- This source/CI evidence is not a penetration test or MASVS certification. Physical-device private-data lifecycle, GeckoView TLS/mixed-content behavior, permissions/IPC, screenshots/recents, 3–4 GB memory, runtime 16 KB and control-by-control MASVS/MASTG review remain outstanding.
