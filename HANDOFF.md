@@ -507,3 +507,11 @@ Gradle Dependency Verification Bootstrap `45777625387` completed successfully. M
 ## 2026-11-28 — UI refinement handoff
 
 Current candidate branch: `feat/minimal-home-transparent-browser-chrome` (based on Main `b2dd56f3b600b9612ff77f2433eec435ce51e860`). It simplifies the home page to one centered Google search field, hides the top omnibox on home only, retains it on website pages, moves Reload into the three-dot menu immediately above New tab, removes the standalone top reload button, and reduces the bottom navigation to a 48 dp translucent strip. Native panels and Reader Mode use translucent surfaces; website-rendered content is untouched. Check PR CI before merging, then perform real-device checks in Dark/Light/Glass, with particular attention to contrast, tap targets, TalkBack, and different webpage backgrounds. No physical-device verification is claimed yet.
+
+
+## Current handoff — 2026-11-28 / PR #107
+- Branch `feat/minimal-home-transparent-browser-chrome`; implementation head `2fc560f8acd3fa0602f460132a308a5647dacddd`; PR https://github.com/techwithrakibofficial/Rivo-Browser/pull/107.
+- Current-head workflows passed: Android CI `46139235887`, dependency verification `46139235896`, OSV `46139235905`, dependency graph `46139235898`, SBOM `46139235890`.
+- PR remains open/unmerged. CODEOWNER `techsomadhanmedia` is requested; no current-head approval is recorded. Earlier approvals were dismissed after subsequent commits.
+- Next gates: fresh CODEOWNER approval; required checks green on exact head; merge under repository protection; create/push `v0.2.7-phase1`; verify signed APK/AAB, signer and SHA256SUMS.
+- Manual acceptance on TECNO Pova Slim 5G / Android 16 / HyperOS 16.3.0 remains mandatory: navigation, themes, tabs/private privacy, text zoom, JS/GPC, downloads, permissions, TalkBack, large fonts, reduced motion and memory/performance. No device pass is claimed.

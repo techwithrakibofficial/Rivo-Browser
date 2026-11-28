@@ -427,3 +427,13 @@ Gradle Dependency Verification Bootstrap run `45777625387` completed successfull
 - Removed the standalone top reload button; added Reload as the first three-dot menu item immediately above New tab.
 - Bottom controls reduced to a 48 dp translucent strip. Header, home search surface, native browser panels and Reader Mode use translucent surfaces; website content is not altered.
 - Changes are a PR candidate only until CI and review pass. Physical-device visual/accessibility QA remains outstanding.
+
+
+## Authoritative checkpoint — 2026-11-28 / PR #107
+- Candidate branch `feat/minimal-home-transparent-browser-chrome`, source head `2fc560f8acd3fa0602f460132a308a5647dacddd`, based on Main `b2dd56f3b600b9612ff77f2433eec435ce51e860`.
+- PR #107 is open/unmerged and mergeable. Fresh CODEOWNER approval for the current head is not recorded; earlier approvals were dismissed after later commits. Never bypass protection.
+- Candidate implements minimal Google home, home-only omnibox hiding, Reload in overflow above New tab, translucent native chrome, violet/blue Dark and Glass palettes plus Light, reduced-motion-aware RIVO glow, persistent GeckoView text zoom 80–200%, four-column Tab Universe with downscaled normal-tab snapshots/private screenshot exclusion, and focused Settings controls including JavaScript/GPC.
+- Settings is partial, not full Chrome/Brave parity. Transparency does not alter webpage content. GeckoView extension management is not exposed as a supported feature.
+- Workflows passed for this head: Android CI `46139235887`, Dependency Verification Bootstrap `46139235896`, OSV Scanner `46139235905`, Gradle Dependency Graph `46139235898`, Source SBOM `46139235890`.
+- PR artifacts are not production-signed. Signed release requires protected merge, tag `v0.2.7-phase1`, configured signing secrets and artifact verification.
+- Physical TECNO Pova Slim 5G / Android 16 / HyperOS 16.3.0 acceptance, accessibility, low-memory performance, runtime 16 KB and full security review remain unverified.

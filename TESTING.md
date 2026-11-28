@@ -384,3 +384,12 @@ For Main SHA `3cca9117771e1412a20788be01ea56ec3d768480`, Gradle Dependency Verif
 Automated PR CI is required for the minimal-home/translucent-chrome change: Android assemble, lint, JVM/unit tests, Gecko policy tests, release bundle and security instrumentation. Do not mark this UI as device-verified based on CI alone.
 
 Manual acceptance still required on physical Android hardware: home shows only the centered Google search field; top omnibox is absent only on home; Reload is first in the three-dot menu above New tab; website pages retain the omnibox; bottom bar is compact and all five controls remain understandable/tappable; native settings/panels remain legible over the page; verify Dark, Light and Premium Glass, light/dark/busy web backgrounds, large font and TalkBack.
+
+
+## Candidate test evidence — 2026-11-28 / PR #107
+- Android CI `46139235887` passed: shipping assembly, lint, unit tests, Gecko policy tests, minified release AAB build, static 16 KB alignment and Android security instrumentation.
+- Dependency Verification Bootstrap `46139235896`, OSV Scanner `46139235905`, Gradle Dependency Graph `46139235898`, Source SBOM `46139235890` passed.
+- These results apply to source head `2fc560f8acd3fa0602f460132a308a5647dacddd`; any later docs commit requires checks to be rerun. Static alignment is not runtime 16 KB proof and CI is not physical-device QA.
+
+### Required device acceptance
+Install the production-signed build on TECNO Pova Slim 5G / Android 16 / HyperOS 16.3.0. Test cold/repeated launch, Google search/navigation, home/new tab, overflow Reload, Tab Universe, tab switching/closing, private screenshot exclusion, text zoom 80/100/200 and persistence, JavaScript/GPC persistence, downloads, permissions, bookmarks/history, Reader Mode, clear-data and Transfer Studio. Capture all three themes over light/dark/busy pages; verify contrast, TalkBack, 320 dp, large fonts and disabled animations. Profile low-memory behavior and verify private page imagery is never retained. Runtime 16 KB and MASVS/MASTG gates require actual evidence.
