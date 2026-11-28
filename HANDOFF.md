@@ -515,3 +515,13 @@ Current candidate branch: `feat/minimal-home-transparent-browser-chrome` (based 
 - PR remains open/unmerged. CODEOWNER `techsomadhanmedia` is requested; no current-head approval is recorded. Earlier approvals were dismissed after subsequent commits.
 - Next gates: fresh CODEOWNER approval; required checks green on exact head; merge under repository protection; create/push `v0.2.7-phase1`; verify signed APK/AAB, signer and SHA256SUMS.
 - Manual acceptance on TECNO Pova Slim 5G / Android 16 / HyperOS 16.3.0 remains mandatory: navigation, themes, tabs/private privacy, text zoom, JS/GPC, downloads, permissions, TalkBack, large fonts, reduced motion and memory/performance. No device pass is claimed.
+
+
+## 2026-11-28 — PR #108 handoff
+
+- Branch: `fix/search-bottom-bar-glass-contrast-settings-foundation`; PR #108 targets Main.
+- Implemented single-word Google search fallback, regression tests, 64 dp bottom navigation, stronger Glass contrast and a categorized Settings hub with links to existing supported panels.
+- CODEOWNER `@techsomadhanmedia` requested. Do not merge until review and required CI checks are green.
+- Next: verify PR-head Android CI (including JVM tests); inspect diff for accidental unrelated layout edits; fix failures; merge only after review/branch protection; publish a new signed release only after merge and green release workflow.
+- After install, verify Facebook -> Google results, facebook.com -> website, bottom labels not clipped on Android 16/HyperOS, and all three themes over browser chrome.
+- Full video-style matching, broader feature settings, accessibility, low-memory profiling, runtime 16 KB and physical acceptance remain open.
