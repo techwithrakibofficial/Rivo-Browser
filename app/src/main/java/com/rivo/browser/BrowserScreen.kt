@@ -15,10 +15,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
@@ -26,6 +29,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -72,6 +76,7 @@ import java.util.Locale
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.window.Dialog
@@ -130,64 +135,90 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                         .padding(horizontal = RivoSpacing.medium, vertical = RivoSpacing.small)
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(bottom = RivoSpacing.small),
+                        modifier = Modifier.fillMaxWidth().padding(bottom = RivoSpacing.compact),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = MaterialTheme.colorScheme.primaryContainer
-                        ) {
+                        if (active?.privateMode == true) {
                             Text(
-                                "R",
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                        }
-                        Column(
-                            modifier = Modifier.weight(1f).padding(start = RivoSpacing.small),
-                            verticalArrangement = Arrangement.spacedBy(0.dp)
-                        ) {
-                            Text("RIVO", style = MaterialTheme.typography.titleSmall)
-                            Text(
-                                if (active?.privateMode == true) "PRIVATE BROWSING" else "YOUR PRIVATE SPACE",
+                                "PRIVATE TAB",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
-                        TextButton(onClick = { browser.createTab() }) {
-                            Text("+  New tab")
+                        Spacer(Modifier.weight(1f))
+                        IconButton(
+                            onClick = { browser.reloadOrStop() },
+                            enabled = active?.url != BrowserController.HOME_URL,
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            Text(
+                                if (active?.loading == true) "×" else "↻",
+                                style = MaterialTheme.typography.titleLarge,
+                                modifier = Modifier.semantics {
+                                    contentDescription = if (active?.loading == true) "Stop loading" else "Reload page"
+                                }
+                            )
                         }
                     }
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(RivoSpacing.small)) {
-                        OutlinedTextField(
-                            value = address,
-                            onValueChange = {
-                                address = it
-                                isEditingAddress = true
-                            },
-                            modifier = Modifier.weight(1f).onFocusChanged {
-                                isEditingAddress = it.isFocused
-                            },
-                            singleLine = true,
-                            shape = RoundedCornerShape(RivoShapes.control),
-                            placeholder = { Text("Search or enter website") },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Go),
-                            keyboardActions = KeyboardActions(onGo = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(RivoSpacing.compact)
+                    ) {
+                        Surface(
+                            modifier = Modifier.weight(1f).height(46.dp),
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.72f),
+                            shadowElevation = 1.dp
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(start = 14.dp, end = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text("⌕", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Box(Modifier.weight(1f).padding(start = 8.dp)) {
+                                    if (address.isEmpty()) {
+                                        Text("Search Google or enter website", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                    BasicTextField(
+                                        value = address,
+                                        onValueChange = {
+                                            address = it
+                                            isEditingAddress = true
+                                        },
+                                        modifier = Modifier.fillMaxWidth().onFocusChanged {
+                                            isEditingAddress = it.isFocused
+                                        },
+                                        singleLine = true,
+                                        textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Go),
+                                        keyboardActions = KeyboardActions(onGo = {
+                                            val submittedAddress = address
+                                            browser.navigate(submittedAddress)
+                                            address = NavigationInputResolver.resolve(submittedAddress)
+                                            isEditingAddress = false
+                                            keyboard?.hide()
+                                        })
+                                    )
+                                }
+                                if (address.isNotEmpty()) {
+                                    IconButton(onClick = { address = "" }, modifier = Modifier.size(36.dp)) {
+                                        Text("×", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                }
+                            }
+                        }
+                        IconButton(
+                            onClick = {
                                 val submittedAddress = address
                                 browser.navigate(submittedAddress)
                                 address = NavigationInputResolver.resolve(submittedAddress)
                                 isEditingAddress = false
                                 keyboard?.hide()
-                            })
-                        )
-                        Button(onClick = {
-                            val submittedAddress = address
-                            browser.navigate(submittedAddress)
-                            address = NavigationInputResolver.resolve(submittedAddress)
-                            isEditingAddress = false
-                            keyboard?.hide()
-                        }) { Text("→", modifier = Modifier.semantics { contentDescription = "Go" }) }
+                            },
+                            modifier = Modifier.size(42.dp)
+                        ) {
+                            Text("→", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { contentDescription = "Go" })
+                        }
                         Box {
                             TextButton(onClick = { menuExpanded = true }) { Text("⋯", modifier = Modifier.semantics { contentDescription = "Open menu" }) }
                             DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
@@ -306,12 +337,13 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                         bookmarks = browser.bookmarks,
                         history = browser.history,
                         privateMode = active.privateMode,
+                        onSearch = { browser.navigate(it) },
                         onOpenUrl = { browser.navigate(it) },
-                        onNewTab = { browser.createTab() },
                         onNewPrivateTab = { browser.createTab(privateMode = true) },
                         onOpenBookmarks = { browser.openPanel(BrowserPanel.BOOKMARKS) },
                         onOpenHistory = { browser.openPanel(BrowserPanel.HISTORY) },
-                        onOpenTabs = { browser.openPanel(BrowserPanel.TABS) }
+                        onOpenTabs = { browser.openPanel(BrowserPanel.TABS) },
+                        modifier = Modifier.weight(1f)
                     )
                 } else if (active != null) {
                     keyTab(active.id) {
@@ -352,10 +384,10 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                                 Text("Forward", style = MaterialTheme.typography.labelSmall)
                             }
                         }
-                        TextButton(onClick = { browser.reloadOrStop() }, enabled = active?.url != BrowserController.HOME_URL) {
+                        TextButton(onClick = { browser.createTab() }) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(if (active?.loading == true) "×" else "↻", style = MaterialTheme.typography.titleLarge)
-                                Text(if (active?.loading == true) "Stop" else "Reload", style = MaterialTheme.typography.labelSmall)
+                                Text("+", style = MaterialTheme.typography.titleLarge)
+                                Text("New tab", style = MaterialTheme.typography.labelSmall)
                             }
                         }
                         TextButton(onClick = { browser.addCurrentBookmark() }, enabled = active?.url?.startsWith("http") == true) {

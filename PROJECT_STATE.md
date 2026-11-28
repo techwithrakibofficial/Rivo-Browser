@@ -1,3 +1,12 @@
+# 2026-11-28 — Chrome-inspired home and toolbar implementation candidate
+
+- Review branch: `feat/chrome-style-google-home-glass-ui`, based on Main `3a284aa9b11dd4e43d8dde6f56baaabea276c84d`.
+- Candidate changes: Chrome-inspired native Google home page, Google default search routing, compact omnibox, removal of persistent RIVO top header, top Reload/Stop action, bottom New tab (+), silver translucent Glass palette and lightweight animator-scale-aware home motion.
+- New-tab blank regression diagnosis: Gecko's initial `about:blank` location callback overwrote the tab's `rivo://home` marker. A home-location policy now ignores that initial callback only while the tab is still on the native-home marker.
+- Added unit coverage for home-location handling and updated search resolver tests for Google.
+- Candidate app metadata: `0.2.6-phase1` / versionCode 7.
+- PR/CI and device acceptance are not yet verified. Do not call this complete until Android CI and physical-device visual/function checks pass.
+
 ## 2026-11-28 — v0.2.5 signed release published and verified
 
 - PR #104 merged; documentation baseline Main commit: `3a284aa9b11dd4e43d8dde6f56baaabea276c84d`.

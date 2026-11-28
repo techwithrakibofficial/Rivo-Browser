@@ -1,3 +1,15 @@
+## 2026-11-28 — Chrome-inspired home and browser chrome candidate (PR pending)
+
+| Feature | Candidate status | Notes / validation |
+|---|---|---|
+| Chrome-inspired native start page | Implemented on review branch | Google search identity, pill search field, shortcut row, bookmark/history sections |
+| Default search provider | Google in source candidate | Valid HTTP(S) addresses still navigate directly; plain text routes to Google Search |
+| New-tab blank-page regression | Source fix added | Ignore initial Gecko `about:blank` callback while tab retains native `rivo://home` marker; unit tests added |
+| Compact browser toolbar | Implemented on review branch | Removed RIVO top label; top action Reload/Stop; bottom Reload slot replaced with New tab (+) |
+| Silver Premium Glass | Implemented on review branch | Translucent silver palette and restrained border surfaces; no heavy blur |
+| Home motion graphics | Implemented on review branch | Subtle logo/sheen opacity motion, gated by system animator setting |
+| UI/device acceptance | Pending | Build CI, screenshots, TalkBack, narrow screens, animation scale and low-RAM hardware checks required |
+
 ## 2026-11-28 — v0.2.5 signed release published and verified
 
 - PR #104 merged; documentation baseline Main commit: `3a284aa9b11dd4e43d8dde6f56baaabea276c84d`.

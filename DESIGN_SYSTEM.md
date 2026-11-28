@@ -1,3 +1,14 @@
+## 2026-11-28 — Chrome-inspired start page and compact browser chrome
+
+- Reworked the native start page around a centered Google search identity, compact pill-shaped search field, shortcut row, bookmarks and recent history.
+- Removed the persistent RIVO brand/header from the top browser chrome. The upper trailing action is Reload/Stop; the bottom navigation slot previously used by Reload is now New tab (+).
+- Compactened the omnibox to a 46 dp capsule and reduced adjacent control footprint while retaining accessible descriptions and keyboard Go behavior.
+- Premium Glass uses a silver/ice translucent palette, subtle outlines and lightweight opacity motion; no real-time blur is introduced.
+- Home motion checks Android's system animator setting and falls back to a static presentation when animations are disabled. This is intentionally restrained for low-/mid-range hardware.
+- Fixed the native-home marker being overwritten by Gecko's initial `about:blank` location callback. New tabs should now remain on Rivo's native home rather than expose an empty Gecko document.
+- Search fallback now targets Google Search; explicit valid HTTP(S) URLs remain direct navigation.
+- UI screenshots, TalkBack, narrow widths, font scaling, reduced-animation behavior and 3–4 GB hardware rendering still require acceptance testing.
+
 # Rivo Browser — Design System
 
 Updated: 2026-11-10

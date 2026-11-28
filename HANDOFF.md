@@ -1,3 +1,14 @@
+# 2026-11-28 — Chrome-inspired home / browser chrome handoff
+
+- Work branch: `feat/chrome-style-google-home-glass-ui`.
+- Implemented candidate: Chrome-inspired Google start page, Google Search fallback, compact omnibox, removed top RIVO branding, top Reload/Stop, bottom New tab (+), silver Premium Glass palette, subtle motion and the native-home `about:blank` callback guard.
+- Added `HomeLocationPolicyTest`; updated `NavigationInputResolverTest` expected search URLs to Google.
+- Version candidate: `0.2.6-phase1` / versionCode 7.
+- Next: verify source imports and Compose compilation; run full Android CI; fix any failures; inspect PR checks and request CODEOWNER review; merge only after required review and green checks.
+- After merge: build signed `v0.2.6-phase1` release using the protected release workflow, verify APK/AAB signatures, signer identity, mapping retention and SHA256SUMS; install on the reported Android 16 device.
+- Device acceptance: verify new tab opens native home (not about:blank), Google query searches Google, direct URLs navigate, top Reload works, bottom + opens another home tab, tab counter remains correct, and Dark/Light/Silver Glass modes remain legible. Check reduced animation, TalkBack, 320 dp width and 3–4 GB performance.
+- Do not claim visual polish or runtime regression fixed solely from source changes/CI.
+
 ## 2026-11-28 — v0.2.5 signed release published and verified
 
 - PR #104 merged; documentation baseline Main commit: `3a284aa9b11dd4e43d8dde6f56baaabea276c84d`.

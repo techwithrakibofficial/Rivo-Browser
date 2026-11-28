@@ -1,3 +1,10 @@
+## 2026-11-28 — Chrome-inspired home / toolbar candidate tests
+
+- Updated navigation resolver assertions to expect `https://www.google.com/search?q=...` for plain-text and unsupported-scheme input.
+- Added `HomeLocationPolicyTest` covering initial `about:blank` suppression on the native-home marker, real navigation acceptance and non-home blank navigation behavior.
+- Automated build/unit tests have not yet run for this branch at documentation time.
+- Required UI/device acceptance: create several new tabs and verify native home remains visible; search Google; navigate a valid URL; verify top Reload/Stop and bottom New tab; test all three appearance modes; check TalkBack, 320 dp, large font, animator scale 0 and 3–4 GB device rendering.
+
 ## 2026-11-28 — v0.2.5 signed release published and verified
 
 - PR #104 merged; documentation baseline Main commit: `3a284aa9b11dd4e43d8dde6f56baaabea276c84d`.

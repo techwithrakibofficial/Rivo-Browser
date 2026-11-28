@@ -1,3 +1,13 @@
+## 2026-11-28 — v0.2.6-phase1 Chrome-inspired home and toolbar candidate
+
+- Replaced the previous generic Rivo start page with a Chrome-inspired Google search start page, shortcuts, bookmarks and recent history.
+- Set Google Search as the default search provider for plain-text input; direct HTTP(S) URL handling remains unchanged.
+- Fixed the new-tab `about:blank` regression by preserving the internal native-home marker when Gecko reports its initial empty document.
+- Removed the persistent RIVO brand row from the top browser display; moved Reload/Stop to the upper toolbar and replaced the bottom Reload control with a New tab (+) action.
+- Reduced omnibox height and visual weight; introduced silver translucent Premium Glass surfaces and restrained motion that respects Android's animator-disabled setting.
+- App version candidate: `0.2.6-phase1` / versionCode 7.
+- Source branch: `feat/chrome-style-google-home-glass-ui`. Merge and CI/device acceptance are pending; no APK is published for this candidate.
+
 ## 2026-11-28 — v0.2.5 signed release published and verified
 
 - PR #104 merged; documentation baseline Main commit: `3a284aa9b11dd4e43d8dde6f56baaabea276c84d`.
