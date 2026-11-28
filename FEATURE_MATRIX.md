@@ -1,3 +1,15 @@
+## 2026-11-28 — PR #107 continued UI implementation (unmerged)
+
+| Feature | Candidate status | Notes / validation |
+|---|---|---|
+| Animated Rivo home identity | Implemented on review branch | Gradient emblem and subtle glow above centered Google search field |
+| Desktop site indicator | Implemented on review branch | Checkmark appears only when desktop mode is enabled |
+| Website text zoom | Implemented on review branch | GeckoView runtime font factor 80–200%, persisted; active page reloads |
+| Tab overview | Implemented on review branch | Four-column grid; normal tabs use downscaled in-memory GeckoView captures; private tabs are text-only |
+| Settings hub | Partial implementation | Appearance, text zoom, Google default, Privacy Center, clear-data action and Transfer Studio; not a full browser-settings catalogue |
+| Flagship visual system | Partial implementation | Violet/blue Dark and Glass palettes plus animated home identity; remaining screens and motion need visual QA |
+| Release/device acceptance | Pending | CI, physical install, screenshots, TalkBack and device performance required |
+
 ## 2026-11-28 — Chrome-inspired home and browser chrome candidate (PR pending)
 
 | Feature | Candidate status | Notes / validation |

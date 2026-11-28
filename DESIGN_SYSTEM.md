@@ -1,3 +1,13 @@
+## 2026-11-28 — Flagship visual direction and tab/settings surfaces
+
+- Dark and Premium Glass palettes now use a deep violet/blue foundation with luminous lavender and blue accents; Light remains a readable light palette.
+- Home branding uses an animated gradient emblem and subtle breathing glow above the centered Google search field.
+- Tab Universe is a four-column overview with downscaled live GeckoView snapshots for normal tabs. Private tabs intentionally use a text-only tile to avoid retaining private page imagery in the overview.
+- Settings exposes only currently implemented controls: appearance, GeckoView text zoom, Google default search, existing privacy center, clear-data flow and Transfer Studio.
+- Text zoom uses GeckoView's global font-size factor and reloads the active page to apply the setting. The setting is persisted locally.
+- The tab grid preview is an in-memory snapshot, not a continuously live miniature browser; previews update when a normal tab is switched away from.
+- Full flagship motion language, background effects, and complete Settings breadth still need visual iteration and validation; do not describe the entire product as finished.
+
 ## 2026-11-28 — Chrome-inspired start page and compact browser chrome
 
 - Reworked the native start page around a centered Google search identity, compact pill-shaped search field, shortcut row, bookmarks and recent history.

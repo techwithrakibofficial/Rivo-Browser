@@ -1,3 +1,12 @@
+# 2026-11-28 — PR #107 continued implementation handoff
+
+- Branch: `feat/minimal-home-transparent-browser-chrome`.
+- Latest commit: `e979d7964a7093d950c947c42bc1bae32a9f16fd`.
+- Added animated home brand, enabled-only desktop checkmark, persisted GeckoView global text zoom, four-column tab overview with private-safe preview capture, partial Settings hub and violet/blue palette updates.
+- Next: inspect all latest commit workflows, fix compile/lint/test failures, run regression tests, then inspect PR reviewability/mergeability. Do not merge before required checks and reviews.
+- After merge, run signed release workflow and verify APK/AAB signatures/checksums. Physical Android 16 device install and feature QA remain mandatory.
+- Still unfinished: broader settings coverage, full flagship motion/visual treatment across every native screen, accessibility/reduced-motion verification, performance profiling, and physical-device acceptance.
+
 # 2026-11-28 — Chrome-inspired home / browser chrome handoff
 
 - Work branch: `feat/chrome-style-google-home-glass-ui`.

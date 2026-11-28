@@ -1,3 +1,13 @@
+# 2026-11-28 — PR #107 continued implementation checkpoint
+
+- Active branch: `feat/minimal-home-transparent-browser-chrome`; PR #107 targets Main.
+- Latest implementation commit: `e979d7964a7093d950c947c42bc1bae32a9f16fd`.
+- Added animated RIVO home identity, Desktop site checkmark state, persisted GeckoView text zoom, four-column tab grid with normal-tab snapshots (private tabs excluded), and a partial Settings hub.
+- Dark and Premium Glass palettes shifted toward violet/blue flagship styling.
+- Settings is deliberately scoped to implemented features only; it is not yet a complete Chrome/Brave-scale settings catalogue.
+- Tab screenshots are downscaled in-memory captures, not persistent/live thumbnails. Private tabs do not capture screenshots.
+- PR remains unmerged. CI for latest SHA, full UI QA, signed release, and physical-device acceptance remain unverified/pending.
+
 # 2026-11-28 — Chrome-inspired home and toolbar implementation candidate
 
 - Review branch: `feat/chrome-style-google-home-glass-ui`, based on Main `3a284aa9b11dd4e43d8dde6f56baaabea276c84d`.

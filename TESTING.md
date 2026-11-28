@@ -1,3 +1,12 @@
+## 2026-11-28 — PR #107 continued UI implementation test plan
+
+- Text zoom: verify 80%, 100%, 200%, persistence after process restart, and active-page reload behavior.
+- Tab overview: open at least four normal pages, switch between them, confirm snapshots render, close tabs, and verify grid selection/close actions.
+- Privacy: confirm private tabs never capture or show webpage snapshots; close private tabs and verify private session cleanup remains intact.
+- Settings: verify appearance changes, text zoom, Google default label, Privacy Intelligence Center navigation, clear-data confirmation and Transfer Studio navigation.
+- Home/overflow: confirm RIVO animated emblem appears above the centered field; disabled desktop mode has no trailing state icon and enabled mode has a checkmark.
+- CI has not yet been rechecked for commit `e979d7964a7093d950c947c42bc1bae32a9f16fd`. Physical-device, TalkBack, large-font, reduced-motion and performance tests remain pending.
+
 ## 2026-11-28 — Chrome-inspired home / toolbar candidate tests
 
 - Updated navigation resolver assertions to expect `https://www.google.com/search?q=...` for plain-text and unsupported-scheme input.
