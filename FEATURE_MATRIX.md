@@ -141,3 +141,14 @@ Build success, JVM tests, emulator instrumentation, physical-device testing and 
 | Feature | Main status | Remaining validation |
 |---|---|---|
 | Desktop Site | Integrated by PR #93 | Per-tab GeckoView user-agent + viewport modes and mobile reset are present; physical-site compatibility, tab isolation, private-tab and restore QA pending |
+
+
+## UI refinement — 2026-11-28
+
+| Area | Current behavior |
+|---|---|
+| Home page | Single centered Google search/address field; top omnibox hidden |
+| Reload | Available in three-dot menu immediately above New tab; no standalone top reload button |
+| Website omnibox | Retained on non-home pages |
+| Bottom navigation | Compact 48 dp translucent strip with Back, Forward, New tab, Save and Tabs |
+| Native panels | Translucent surfaces; contrast/accessibility device QA pending |
