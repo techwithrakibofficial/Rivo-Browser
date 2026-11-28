@@ -94,6 +94,8 @@ class BrowserController(context: Context) {
 
     var activeTabId by mutableStateOf(0L)
         private set
+    var textZoom by mutableStateOf(1f)
+        private set
     var appearance by mutableStateOf(BrowserAppearance.DARK)
         private set
     var panel by mutableStateOf<BrowserPanel?>(null)
@@ -125,9 +127,9 @@ class BrowserController(context: Context) {
 
     init {
         scope.launch {
-            appearance = runCatching {
-                BrowserAppearance.valueOf(storage.loadTheme().uppercase())
-            }.getOrDefault(BrowserAppearance.DARK)
+            appearance = runCatching { BrowserAppearance.valueOf(storage.loadTheme().uppercase()) }.getOrDefault(BrowserAppearance.DARK)
+            textZoom = runCatching { storage.loadTextZoom() }.getOrDefault(1f)
+            runtime.settings.setFontSizeFactor(textZoom)
             try {
                 bookmarks.addAll(storage.loadBookmarks())
                 history.addAll(storage.loadHistory())
@@ -744,6 +746,15 @@ class BrowserController(context: Context) {
         scope.launch { storage.saveTheme(value.name.lowercase()) }
     }
 
+    fun updateTextZoom(value: Float) {
+        val normalized = (kotlin.math.round(value * 10f) / 10f).coerceIn(0.8f, 2f)
+        if (normalized == textZoom) return
+        textZoom = normalized
+        runtime.settings.setFontSizeFactor(normalized)
+        activeTab?.engine?.reload()
+        scope.launch { runCatching { storage.saveTextZoom(normalized) }.onFailure { notice = "Text size preference could not be saved." } }
+    }
+
     fun openPanel(value: BrowserPanel?) { panel = value }
     fun showNotice(value: String) { notice = value }
     fun dismissNotice() { notice = null }
@@ -1036,7 +1047,7 @@ class BrowserDownload(val id: Long, filename: String, val mimeType: String?, val
     var file: File? = null
 }
 
-enum class BrowserPanel { TABS, BOOKMARKS, HISTORY, DOWNLOADS, APPEARANCE, DEVELOPER, SITE_PERMISSIONS, MENU }
+enum class BrowserPanel { TABS, BOOKMARKS, HISTORY, DOWNLOADS, APPEARANCE, SETTINGS, DEVELOPER, SITE_PERMISSIONS, MENU }
 
 
 /** Only the selected tab on a started host may activate/focus Gecko. */

@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.first
@@ -49,6 +50,7 @@ class BrowserStorage internal constructor(
         throw error
     }
     private val themeKey = stringPreferencesKey("appearance")
+    private val textZoomKey = floatPreferencesKey("text_zoom")
     private val bookmarksKey = stringPreferencesKey("bookmarks_json")
     private val historyKey = stringPreferencesKey("history_json")
     private val openTabsKey = stringPreferencesKey("open_tabs_json")
@@ -70,6 +72,12 @@ class BrowserStorage internal constructor(
 
     suspend fun saveTheme(theme: String) {
         dataStore.edit { it[themeKey] = theme }
+    }
+
+    suspend fun loadTextZoom(): Float = dataStore.data.first()[textZoomKey] ?: 1f
+
+    suspend fun saveTextZoom(value: Float) {
+        dataStore.edit { it[textZoomKey] = value.coerceIn(0.8f, 2f) }
     }
 
     suspend fun loadBookmarks(): List<SavedPage> = decodeProtected(readProtected(bookmarksKey))
