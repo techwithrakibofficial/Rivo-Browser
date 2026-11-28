@@ -304,3 +304,9 @@ See Git history for prior Tab Universe, storage hardening, browser navigation, t
 - Improve bottom navigation height to prevent icon and label clipping.
 - Increase Premium Glass surface opacity and outline contrast for legible browser chrome.
 - Organize Settings around implemented browser controls and link to existing browser panels; explicitly disclose capabilities not shipped.
+
+
+## 0.2.8-phase1 — Release preparation (2026-11-28)
+
+- Include PR #108 fixes: single-word omnibox searches route to Google, bottom navigation has corrected icon/label space, Premium Glass browser chrome contrast is stronger, and Settings navigation is organized around implemented controls.
+- Source merge CI and supply-chain workflows passed; physical-device acceptance remains pending.
