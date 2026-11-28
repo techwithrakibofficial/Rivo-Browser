@@ -1,3 +1,15 @@
+## 2026-11-28 — PR #103 startup crash remediation evidence
+
+- Crash report R8 frames were compared against release mapping artifacts. v0.2.4 mapping associated the initial frames with Google ML Kit Code Scanner internals; diagnostic version text was stale/hard-coded as 0.2.3.
+- Source correction in PR #103 defers scanner client construction until explicit QR action and catches synchronous initialization failure.
+- PR #103 merged as Main commit `4d344128fcecac3b64476a71606b0e05d92051f9`.
+- Android CI #46109063315 passed: shipping build, lint, JVM tests, Gecko policy tests, benchmark builds, release bundle, static 16 KB alignment and API 35 emulator instrumentation.
+- Dependency verification #46109063314, OSV Scanner #46109063319, Dependency Graph #46109063312 and Source SBOM #46109063414 passed.
+- Not tested: TECNO KM9 physical cold-start, repeated launch, QR scan on device. Automated emulator pass does not prove the reported device-specific crash is fixed.
+- No signed v0.2.5 artifact yet; latest published release remains v0.2.4. Physical-device and remaining acceptance gates stay open.
+
+---
+
 # Rivo Browser — Testing and Evidence
 
 ## 2026-11-24 — Release workflow follow-up evidence
