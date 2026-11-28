@@ -417,3 +417,12 @@ Install the production-signed build on TECNO Pova Slim 5G / Android 16 / HyperOS
 ### Device checks still required
 
 Install the signed 0.2.8 build on TECNO Pova Slim 5G / Android 16 / HyperOS 16.3.0. Verify `Facebook` opens Google results, `facebook.com` opens the site, bottom controls are fully visible in gesture and 3-button navigation, and Dark/Light/Premium Glass maintain contrast. Also test TalkBack, large fonts, narrow widths, reduced motion, private-session data isolation, downloads, permissions and low-memory behavior. Do not mark these as passed until evidence is captured.
+
+
+## 2026-11-28 — PR #110 candidate (not yet merged)
+- Reworked the native start page toward a Chrome-style Google home: Google search field, local bookmark/history shortcuts, History and Incognito actions, plus Bookmarks and Tabs quick actions. No external news feed or fake account profile is presented.
+- Browser top chrome now exposes Home/New tab, Guest profile/settings, open-tab count and overflow controls.
+- Settings panel surface is opaque in Premium Glass to prevent website pixels bleeding through text; explicit semantic foreground colors are used.
+- GeckoView's documented Android Autofill bridge is enabled on created GeckoView instances. This allows a separately configured Android Autofill provider to participate; it is not a Rivo password manager, and it does not implement credential storage or sync.
+- Rivo account sign-in/cloud sync, a built-in password vault, and an extension marketplace remain unavailable and are not represented as shipped features.
+- Candidate app version: 0.2.9-phase1 / versionCode 10. PR #110 requires fresh CI/review/merge; physical-device visual and autofill acceptance remain pending.
