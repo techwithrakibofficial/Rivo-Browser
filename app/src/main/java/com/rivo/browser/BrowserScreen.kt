@@ -399,6 +399,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     if (browser.readerLoading) {
         AlertDialog(
             onDismissRequest = { browser.closeReaderMode() },
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f),
             title = { Text("Preparing Reader Mode") },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(RivoSpacing.small)) {
@@ -415,6 +416,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     browser.qrScanResult?.let { value ->
         AlertDialog(
             onDismissRequest = { browser.dismissQrScanResult() },
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f),
             title = { Text("QR code result") },
             text = { Text(value, maxLines = 8) },
             confirmButton = {
@@ -429,6 +431,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     if (showClearDataConfirmation) {
         AlertDialog(
             onDismissRequest = { showClearDataConfirmation = false },
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f),
             title = { Text("Clear browsing data?") },
             text = { Text("This closes all open tabs and clears browsing history, cookies, site storage, cache, site permissions and download history. Bookmarks and normal downloads are kept; private downloads are deleted. Android app-level permission denials are retained.") },
             confirmButton = {
@@ -446,6 +449,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
         val fileName = downloadUri.lastPathSegment ?: "download"
         AlertDialog(
             onDismissRequest = { browser.cancelPendingDownload() },
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f),
             title = { Text("Download file?") },
             text = {
                 Text(
@@ -466,6 +470,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     currentPermissionPrompt?.let { request ->
         AlertDialog(
             onDismissRequest = { browser.respondToSitePermission(false) },
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f),
             title = { Text("Website permission") },
             text = {
                 Text(
@@ -491,6 +496,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     if (browser.notice != null) {
         AlertDialog(
             onDismissRequest = { browser.dismissNotice() },
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f),
             title = { Text("Rivo Browser") },
             text = { Text(browser.notice.orEmpty()) },
             confirmButton = {
