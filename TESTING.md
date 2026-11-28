@@ -426,3 +426,16 @@ Install the signed 0.2.8 build on TECNO Pova Slim 5G / Android 16 / HyperOS 16.3
 - GeckoView's documented Android Autofill bridge is enabled on created GeckoView instances. This allows a separately configured Android Autofill provider to participate; it is not a Rivo password manager, and it does not implement credential storage or sync.
 - Rivo account sign-in/cloud sync, a built-in password vault, and an extension marketplace remain unavailable and are not represented as shipped features.
 - Candidate app version: 0.2.9-phase1 / versionCode 10. PR #110 requires fresh CI/review/merge; physical-device visual and autofill acceptance remain pending.
+
+
+## Authoritative project checkpoint — 2026-11-28 (PR #110 merged)
+
+- Canonical Main commit: `e10220c0c09711d5b5c5575bef106687797f9bae`; PR #110 is merged. The earlier “PR #110 candidate / not yet merged” entries above are historical and superseded by this checkpoint.
+- App metadata on Main: `0.2.9-phase1`, versionCode 10.
+- Android CI run [#46171158253](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/46171158253) completed successfully. Verified steps include shipping debug assemble, Android lint, app unit tests, Gecko engine policy tests, GeckoView/WebView benchmark builds, minified shipping release bundle, static native-library/APK 16 KB alignment checks, QA artifact uploads and Android security instrumentation tests. Gradle dependency-verification bootstrap [#46171158244](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/46171158244) and OSV scan [#46171158469](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/46171158469) also completed successfully.
+- CI outputs are QA/debug artifacts and an unsigned QA AAB; they are not production-signed release files. The immutable tag `v0.2.9-phase1` is not present, and no signed v0.2.9 GitHub Release is verified. Do not distribute unsigned CI artifacts as the production APK.
+- PR #110 delivered the Chrome-inspired native home, local History/Bookmarks shortcuts, toolbar Home/profile/tab/overflow controls, opaque Settings surface with explicit foreground colors, and GeckoView Android Autofill integration. Autofill depends on the Android provider configured by the user; this is not a built-in password vault or account sync.
+- Physical TECNO Pova Slim 5G / Android 16 / HyperOS 16.3.0 acceptance remains unverified in this audit. Also outstanding: TalkBack/large-font/narrow-width/reduced-motion checks, 3–4 GB memory profiling, runtime 16 KB validation on compatible hardware, GeckoView runtime security fixtures, and complete control-by-control MASVS/MASTG review. No independent penetration test or MASVS certification is claimed.
+- Keep historical checkpoints above for traceability; this dated checkpoint is authoritative for the current Main revision only.
+
+Latest verified Main CI: run #46171158253 passed all configured steps, including lint, unit/policy tests, minified bundle, static 16 KB checks and Android security instrumentation. These do not replace physical-device acceptance or runtime 16 KB proof.
