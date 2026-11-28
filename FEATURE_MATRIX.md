@@ -180,3 +180,15 @@ Build success, JVM tests, emulator instrumentation, physical-device testing and 
 - Settings hub: expanded organization and navigation to implemented tabs, bookmarks, history, downloads, site permissions, privacy center and diagnostics (PR #108, pending review/CI).
 - Password autofill/manager, account sync, extension marketplace and in-app Android default-browser selection: not shipped; do not present as available.
 - Premium Glass readability update and bottom navigation sizing correction are pending CI and physical-device acceptance.
+
+
+## 2026-11-28 — Main merge status after PR #108
+
+| Feature | Source status | Validation boundary |
+|---|---|---|
+| Single-word omnibox Google search | Merged to Main | Regression tests and Main CI passed; physical navigation check pending |
+| Bottom navigation icon/label sizing | Merged to Main (64 dp) | Android CI passed; Android 16 inset/font/device check pending |
+| Premium Glass contrast | Merged to Main | Semantic opacity/outline increased; visual contrast and accessibility acceptance pending |
+| Categorized Settings navigation | Merged to Main | Only implemented controls/panels are represented; no password manager, sync, add-on marketplace or default-browser role UI claim |
+| 0.2.8 release metadata | Prepared on release branch | versionName `0.2.8-phase1`, versionCode 9; signed release not yet created |
+
