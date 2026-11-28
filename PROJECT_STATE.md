@@ -1,3 +1,18 @@
+# 2026-11-28 — Verified startup-crash remediation checkpoint
+
+- Canonical Main after PR #103: `4d344128fcecac3b64476a71606b0e05d92051f9`.
+- PR #103 merged: https://github.com/techwithrakibofficial/Rivo-Browser/pull/103.
+- Crash report stack was matched against the v0.2.4 R8 mapping; the printed 0.2.3 version was stale because diagnostics hard-coded that value. The mapped frames entered Google ML Kit Code Scanner internals during initial Compose composition.
+- Root cause addressed in source: defer `GmsBarcodeScanning.getClient(...)` until the user taps Scan QR code; synchronous initialization failures now show a notice. Diagnostic version metadata uses `BuildConfig.VERSION_NAME`.
+- App metadata on Main: `0.2.5-phase1`, versionCode 6.
+- PR-head Android CI run #46109063315, dependency-verification bootstrap #46109063314, OSV Scanner #46109063319, Dependency Graph #46109063312 and Source SBOM #46109063414 all completed successfully.
+- This is source-level remediation plus automated CI evidence. TECNO KM9 physical launch/QR-scan confirmation is still pending; do not claim the runtime crash is confirmed fixed until tested on that device.
+- Latest signed GitHub Release remains `v0.2.4-phase1`. A `v0.2.5-phase1` tag and signed APK/AAB are not yet published.
+- Release workflow accepts an existing tag for manual dispatch or a pushed `v*` tag. The current GitHub integration exposes no tag-creation operation; owner must create immutable tag `v0.2.5-phase1` at Main SHA above, then run Signed Android Release and verify assets/signatures/checksums.
+- Existing physical-device, 3–4 GB profiling, TalkBack/accessibility, runtime 16 KB, and full MASVS/MASTG gates remain open.
+
+---
+
 ## 2026-11-24 — Release version alignment candidate
 
 - Verified Main before this change: `b5e909e159896bc4beef49a9c3e3cb3d63a69b83` (PR #88 merge; fingerprint parser fix is present).

@@ -1,3 +1,10 @@
+## 2026-11-28 — QR scanner startup regression update
+
+- QR scanner remains **Integrated**, but its Google ML Kit client is now created only after the user explicitly selects Scan QR code; it is no longer initialized during initial browser composition.
+- Synchronous scanner initialization errors are handled with a user-facing notice. Compatible Google Play services remain required.
+- PR #103 merged to Main; Android CI, emulator instrumentation and supply-chain checks passed.
+- TECNO KM9 physical-device launch and QR-scan acceptance remain **Pending**. Automated CI does not establish device acceptance.
+
 # Rivo Browser — Feature Matrix
 
 Updated: 2026-11-11

@@ -1,3 +1,12 @@
+## 2026-11-28 — v0.2.5-phase1 source changes (PR #103)
+
+- Deferred Google ML Kit Code Scanner initialization until the user selects Scan QR code, preventing QR scanner initialization from running during initial BrowserScreen composition.
+- Added handling for synchronous scanner initialization errors with a user-facing notice.
+- Crash diagnostics now print the actual `BuildConfig.VERSION_NAME`, replacing stale hard-coded version text.
+- App version bumped to `0.2.5-phase1` / versionCode 6.
+- PR #103 merged to Main as `4d344128fcecac3b64476a71606b0e05d92051f9`; all PR-head CI and supply-chain workflows passed.
+- Signed v0.2.5 release and TECNO KM9 physical-device confirmation are still pending.
+
 ## 2026-11-24 — Release version alignment candidate
 
 - Audited the existing `v0.2.2-phase1` tag: it points to the pre-fingerprint-parser-fix revision and its app metadata reports `0.2.1-phase1` / version code 3.
