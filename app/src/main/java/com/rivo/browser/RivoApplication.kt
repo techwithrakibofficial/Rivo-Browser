@@ -17,7 +17,7 @@ class RivoApplication : Application() {
             runCatching {
                 val report = buildString {
                     appendLine("Rivo Browser startup/runtime crash report")
-                    appendLine("App version: 0.2.3-phase1 (diagnostic build)")
+                    appendLine("App version: ${BuildConfig.VERSION_NAME}")
                     appendLine("Device: ${Build.MANUFACTURER} ${Build.MODEL}")
                     appendLine("Android SDK: ${Build.VERSION.SDK_INT}")
                     appendLine()
