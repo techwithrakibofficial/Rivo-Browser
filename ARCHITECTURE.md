@@ -98,3 +98,16 @@ Updated: 2026-11-11
 ## Correction — Desktop Site integration (2026-11-26)
 
 Desktop Site is integrated by PR #93; merge commit `e747ded5e84b6f0179aee892b9a3fc630187f8cf` is an ancestor of current Main. The per-tab implementation sets both GeckoView user-agent and viewport modes. Remaining verification concerns lifecycle restoration and real-site behavior on physical devices.
+
+
+## 2026-11-28 — Main UX correction verification and 0.2.8 release preparation
+
+- Main includes PR #108 at merge commit `8b2f9adc8b6a2828cbfa1d144828b3c367a8c668`.
+- PR #108 CODEOWNER review and merge completed. Exact-merge-commit Android CI run [46147059192](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/46147059192) completed successfully; Gradle dependency-verification bootstrap [46147059274](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/46147059274) also completed successfully.
+- Same-revision supply-chain checks succeeded: OSV Scanner [46147059324](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/46147059324), Source SBOM [46147059195](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/46147059195), and Gradle Dependency Graph [46147059212](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/46147059212).
+- Android CI passed its configured build, lint, JVM/policy tests, release-bundle build, static 16 KB alignment checks and security instrumentation steps. These are CI/emulator checks, not physical-device acceptance or runtime 16 KB proof.
+- CI produced unsigned QA/debug artifacts only. The latest public signed release remains `v0.2.7-phase1.1`; do not distribute unsigned CI artifacts as a production APK.
+- Next release identity is `0.2.8-phase1` / versionCode 9. Production signing and publishing require a new immutable tag or manual workflow dispatch, then signer/checksum verification. The available GitHub connection in this session cannot create/push tags or dispatch workflows.
+- Physical TECNO Pova Slim 5G / Android 16 / HyperOS 16.3.0 acceptance, supplied-video visual matching, accessibility/TalkBack, 3–4 GB performance profiling, runtime 16 KB validation and independent MASVS/MASTG/penetration assessment remain unverified. No certification is claimed.
+
+- PR #108 changes navigation input resolution, bottom browser chrome layout, semantic Glass surface tokens and settings navigation; it does not change the GeckoView engine boundary or add unsupported engine capabilities.

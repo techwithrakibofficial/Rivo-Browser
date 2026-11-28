@@ -83,5 +83,12 @@ Updated: 2026-11-10
 - Home is intentionally reduced to one centered Google search/address field. Browser actions remain accessible from the three-dot menu and compact bottom controls.
 - Reload is a menu action immediately above New tab; the separate top reload button is removed.
 - The home page hides the top omnibox; normal website pages retain it.
-- Browser chrome and native panels use translucent semantic surfaces rather than real-time blur. The compact bottom bar is 48 dp with a higher-opacity surface to preserve control legibility over arbitrary page content.
+- Browser chrome and native panels use translucent semantic surfaces rather than real-time blur. The corrected bottom bar is 64 dp with a higher-opacity surface to preserve control legibility over arbitrary page content.
 - Preserve foreground contrast and visible control boundaries across Dark, Light and Premium Glass. Do not apply browser-chrome transparency to website-rendered content. Validate against busy/light/dark page backgrounds and large text/TalkBack.
+
+
+## 2026-11-28 — Premium Glass and bottom navigation correction
+
+- PR #108 increases semantic Glass surface opacity and outline contrast to improve browser-chrome legibility; the design intentionally balances translucency against readable controls.
+- Bottom navigation height is 64 dp so icon/label pairs fit within the safe-drawing content area. Confirm actual visibility, gesture/navigation-bar insets, TalkBack and font scaling on target hardware.
+- Exact matching to the previously supplied motion-video reference is not verified because that reference was not available in this work turn.

@@ -506,7 +506,7 @@ Gradle Dependency Verification Bootstrap `45777625387` completed successfully. M
 
 ## 2026-11-28 — UI refinement handoff
 
-Current candidate branch: `feat/minimal-home-transparent-browser-chrome` (based on Main `b2dd56f3b600b9612ff77f2433eec435ce51e860`). It simplifies the home page to one centered Google search field, hides the top omnibox on home only, retains it on website pages, moves Reload into the three-dot menu immediately above New tab, removes the standalone top reload button, and reduces the bottom navigation to a 48 dp translucent strip. Native panels and Reader Mode use translucent surfaces; website-rendered content is untouched. Check PR CI before merging, then perform real-device checks in Dark/Light/Glass, with particular attention to contrast, tap targets, TalkBack, and different webpage backgrounds. No physical-device verification is claimed yet.
+Current candidate branch: `feat/minimal-home-transparent-browser-chrome` (based on Main `b2dd56f3b600b9612ff77f2433eec435ce51e860`). It simplifies the home page to one centered Google search field, hides the top omnibox on home only, retains it on website pages, moves Reload into the three-dot menu immediately above New tab, removes the standalone top reload button, and sets the bottom navigation to a 64 dp translucent strip. Native panels and Reader Mode use translucent surfaces; website-rendered content is untouched. Check PR CI before merging, then perform real-device checks in Dark/Light/Glass, with particular attention to contrast, tap targets, TalkBack, and different webpage backgrounds. No physical-device verification is claimed yet.
 
 
 ## Current handoff — 2026-11-28 / PR #107
@@ -525,3 +525,16 @@ Current candidate branch: `feat/minimal-home-transparent-browser-chrome` (based 
 - Next: verify PR-head Android CI (including JVM tests); inspect diff for accidental unrelated layout edits; fix failures; merge only after review/branch protection; publish a new signed release only after merge and green release workflow.
 - After install, verify Facebook -> Google results, facebook.com -> website, bottom labels not clipped on Android 16/HyperOS, and all three themes over browser chrome.
 - Full video-style matching, broader feature settings, accessibility, low-memory profiling, runtime 16 KB and physical acceptance remain open.
+
+
+## 2026-11-28 — Main UX correction verification and 0.2.8 release preparation
+
+- Main includes PR #108 at merge commit `8b2f9adc8b6a2828cbfa1d144828b3c367a8c668`.
+- PR #108 CODEOWNER review and merge completed. Exact-merge-commit Android CI run [46147059192](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/46147059192) completed successfully; Gradle dependency-verification bootstrap [46147059274](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/46147059274) also completed successfully.
+- Same-revision supply-chain checks succeeded: OSV Scanner [46147059324](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/46147059324), Source SBOM [46147059195](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/46147059195), and Gradle Dependency Graph [46147059212](https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/46147059212).
+- Android CI passed its configured build, lint, JVM/policy tests, release-bundle build, static 16 KB alignment checks and security instrumentation steps. These are CI/emulator checks, not physical-device acceptance or runtime 16 KB proof.
+- CI produced unsigned QA/debug artifacts only. The latest public signed release remains `v0.2.7-phase1.1`; do not distribute unsigned CI artifacts as a production APK.
+- Next release identity is `0.2.8-phase1` / versionCode 9. Production signing and publishing require a new immutable tag or manual workflow dispatch, then signer/checksum verification. The available GitHub connection in this session cannot create/push tags or dispatch workflows.
+- Physical TECNO Pova Slim 5G / Android 16 / HyperOS 16.3.0 acceptance, supplied-video visual matching, accessibility/TalkBack, 3–4 GB performance profiling, runtime 16 KB validation and independent MASVS/MASTG/penetration assessment remain unverified. No certification is claimed.
+
+- Build/release handoff: bump source metadata to `0.2.8-phase1` / versionCode 9 on the preparation branch; obtain required CODEOWNER review and merge; then owner creates/pushes immutable `v0.2.8-phase1` or dispatches Signed Android Release for that tag. Verify release assets and SHA256SUMS before sharing.
