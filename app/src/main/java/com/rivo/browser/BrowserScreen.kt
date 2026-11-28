@@ -148,7 +148,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(RivoSpacing.compact)
                     ) {
-                        IconButton(onClick = { browser.createTab() }, modifier = Modifier.size(40.dp)) {
+                        IconButton(onClick = { browser.navigate(BrowserController.HOME_URL) }, modifier = Modifier.size(40.dp)) {
                             Text("⌂", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.semantics { contentDescription = "Home and new tab" })
                         }
                         if (active?.url != BrowserController.HOME_URL) {
