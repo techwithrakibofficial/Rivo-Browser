@@ -1,3 +1,10 @@
+## 2026-11-28 — v0.2.7-phase1 release candidate
+
+- Bumped app version to `0.2.7-phase1` / versionCode 8 because `v0.2.6-phase1` is already published; this UI candidate must not reuse an immutable release tag.
+- Opening Tab Universe now captures the active normal tab preview as well as previously visited tabs; private tab snapshots remain disabled.
+- Home glow animation now respects Android's system animator-enabled setting and becomes static when system animations are disabled.
+- Signed release requires merge to Main, then creation/push of immutable tag `v0.2.7-phase1`; the GitHub connector available in this session cannot create/push a tag or dispatch a workflow.
+
 - Tab snapshot lifecycle now recycles replaced/closed preview bitmaps; private-tab snapshots remain disabled.
 
 - Extended Settings with persisted JavaScript enable/disable and Global Privacy Control (GPC) controls, applied through GeckoRuntimeSettings; changing either reloads the active page.

@@ -1,3 +1,5 @@
+- Release candidate metadata bumped to `0.2.7-phase1` / versionCode 8 to avoid reusing the already published `v0.2.6-phase1` tag. Active tab preview is captured when Tab Universe opens; home glow respects Android animator settings.
+
 - Latest Android CI for the preview implementation exposed a nullable GeckoView screenshot callback compile error; a null-safe correction is now included in the current branch update. Fresh CI is required before considering it fixed.
 
 - Preview bitmap lifecycle includes replacement/close/dispose recycling; private pages remain excluded from capture.

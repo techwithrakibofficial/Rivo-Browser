@@ -1,5 +1,7 @@
 package com.rivo.browser
 
+import android.animation.ValueAnimator
+
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -63,11 +65,12 @@ internal fun RivoHomeScreen(
     var query by remember { mutableStateOf("") }
     val keyboard = LocalSoftwareKeyboardController.current
 
+    val animationsEnabled = remember { ValueAnimator.areAnimatorsEnabled() }
     val motion = rememberInfiniteTransition(label = "rivo-home-brand")
     val glow by motion.animateFloat(
-        initialValue = 0.72f,
+        initialValue = if (animationsEnabled) 0.72f else 1f,
         targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(2200, easing = FastOutSlowInEasing), repeatMode = androidx.compose.animation.core.RepeatMode.Reverse),
+        animationSpec = if (animationsEnabled) infiniteRepeatable(tween(2200, easing = FastOutSlowInEasing), repeatMode = androidx.compose.animation.core.RepeatMode.Reverse) else tween(0),
         label = "brand-glow"
     )
 

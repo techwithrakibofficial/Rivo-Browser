@@ -1,3 +1,7 @@
+- Open Tab Universe while a normal webpage is active and verify the active tab has a fresh screenshot; repeat in private mode and verify no screenshot is captured.
+- Disable Android animator animations and verify home branding becomes static; re-enable and verify the glow animation returns.
+- Confirm app metadata reports `0.2.7-phase1` / versionCode 8 and release tag is not reused.
+
 - Build regression: GeckoView capture callbacks may return a nullable Bitmap; confirm null capture is safely handled and no preview crashes occur.
 - Settings panel layout: verify the dialog scrolls on short screens and at large system font sizes; test nested tab grid and transfer lists.
 

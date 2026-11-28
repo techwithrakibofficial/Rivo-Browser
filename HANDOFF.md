@@ -1,3 +1,6 @@
+- Release candidate version is now `0.2.7-phase1` / versionCode 8. After merge to Main, create and push immutable tag `v0.2.7-phase1` to trigger the protected signed-release workflow; this session's GitHub connector does not expose tag creation or workflow dispatch.
+- Tab Universe captures active normal-tab preview when opened; home glow becomes static when Android animations are disabled.
+
 - Previous Android CI run failed at `GeckoBrowserTab.capturePreview`: GeckoResult returns nullable Bitmap. Latest fix now null-checks the bitmap and recycles safely; rerun full CI to confirm.
 
 - Tab preview bitmap replacement and teardown now recycle retained images; verify repeated tab switching/closing during memory profiling.

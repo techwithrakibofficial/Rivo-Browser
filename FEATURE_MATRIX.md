@@ -1,3 +1,7 @@
+| Active tab preview capture | Implemented on review branch | Opening Tab Universe captures current normal tab; private tabs remain text-only |
+| Reduced-motion handling | Implemented on review branch | Home logo glow follows Android animator-enabled setting |
+| Release candidate version | Updated | `0.2.7-phase1` / versionCode 8; prior `0.2.6-phase1` tag must not be reused |
+
 | Tab preview memory lifecycle | Implemented on review branch | Replaced/closed snapshots are recycled; private tabs never capture |
 
 | JavaScript preference | Implemented on review branch | GeckoRuntimeSettings control; persisted locally; active page reloads |

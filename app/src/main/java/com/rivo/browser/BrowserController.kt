@@ -795,7 +795,21 @@ class BrowserController(context: Context) {
         scope.launch { runCatching { storage.saveTextZoom(normalized) }.onFailure { notice = "Text size preference could not be saved." } }
     }
 
-    fun openPanel(value: BrowserPanel?) { panel = value }
+    fun openPanel(value: BrowserPanel?) {
+        if (value == BrowserPanel.TABS) {
+            activeTab?.let { tab ->
+                if (!tab.privateMode) tab.engine.capturePreview { bitmap ->
+                    if (bitmap != null) {
+                        if (tabs.any { it.id == tab.id }) {
+                            tab.previewBitmap?.recycle()
+                            tab.previewBitmap = bitmap
+                        } else bitmap.recycle()
+                    }
+                }
+            }
+        }
+        panel = value
+    }
     fun showNotice(value: String) { notice = value }
     fun dismissNotice() { notice = null }
 
