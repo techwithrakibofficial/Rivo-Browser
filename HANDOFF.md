@@ -1,3 +1,16 @@
+# 2026-11-28 — Startup crash fix handoff
+
+- Main SHA: `4d344128fcecac3b64476a71606b0e05d92051f9`; PR #103 merged.
+- Source fix: lazy-init Google ML Kit Code Scanner only on explicit QR action; catch synchronous startup errors; diagnostics now report `BuildConfig.VERSION_NAME`.
+- App version: `0.2.5-phase1` / versionCode 6.
+- CI evidence: Android CI #46109063315, dependency verification #46109063314, OSV #46109063319, Dependency Graph #46109063312 and Source SBOM #46109063414 all succeeded.
+- Next: create immutable tag `v0.2.5-phase1` at this Main SHA; dispatch `.github/workflows/signed-release.yml` with that tag; verify signed APK/AAB, signer fingerprint consistency, R8 mapping retention and SHA256SUMS.
+- Then install ARM64 APK on TECNO KM9 (Android SDK 36), confirm repeated cold launch and QR scanning. Capture a fresh diagnostic report if it still crashes.
+- This session's GitHub integration does not expose tag creation; repository owner must create/push the tag. No signed 0.2.5 release exists yet.
+- Other gates: real-device feature QA, accessibility, 3–4 GB profiling, runtime 16 KB, full MASVS/MASTG assessment.
+
+---
+
 ## 2026-11-24 — Release version alignment handoff
 
 - Main audited at `b5e909e159896bc4beef49a9c3e3cb3d63a69b83`; PR #88 fingerprint parser correction is present.
