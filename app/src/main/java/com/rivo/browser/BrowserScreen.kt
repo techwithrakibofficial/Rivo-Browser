@@ -94,15 +94,6 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     val devicePermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { results ->
         browser.completeAndroidPermissionRequest(results)
     }
-    val qrScanner = remember(context) {
-        GmsBarcodeScanning.getClient(
-            context,
-            GmsBarcodeScannerOptions.Builder()
-                .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
-                .build()
-        )
-    }
-
     SideEffect {
         val window = (view.context as? Activity)?.window
         if (window != null) {
@@ -239,12 +230,21 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                                 })
                                 DropdownMenuItem(text = { Text("Scan QR code") }, onClick = {
                                     menuExpanded = false
-                                    qrScanner.startScan()
-                                        .addOnSuccessListener { barcode -> browser.showQrScanResult(barcode.rawValue) }
-                                        .addOnCanceledListener { }
-                                        .addOnFailureListener {
-                                            browser.showNotice("QR scanner is unavailable. Check Google Play services and try again.")
-                                        }
+                                    try {
+                                        GmsBarcodeScanning.getClient(
+                                            context,
+                                            GmsBarcodeScannerOptions.Builder()
+                                                .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
+                                                .build()
+                                        ).startScan()
+                                            .addOnSuccessListener { barcode -> browser.showQrScanResult(barcode.rawValue) }
+                                            .addOnCanceledListener { }
+                                            .addOnFailureListener {
+                                                browser.showNotice("QR scanner is unavailable. Check Google Play services and try again.")
+                                            }
+                                    } catch (_: Exception) {
+                                        browser.showNotice("QR scanner could not start. Check Google Play services and try again.")
+                                    }
                                 })
                                 DropdownMenuItem(text = { Text("Developer mode") }, onClick = {
                                     menuExpanded = false
