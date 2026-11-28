@@ -214,3 +214,13 @@ Build success, JVM tests, emulator instrumentation, physical-device testing and 
 - Keep historical checkpoints above for traceability; this dated checkpoint is authoritative for the current Main revision only.
 
 PR #110 status: Chrome-inspired home and local shortcuts implemented; Android Autofill framework integration enabled. Built-in password vault, Rivo account/cloud sync and end-user extension marketplace remain unavailable.
+
+## 2026-11-29 — Chrome-style top toolbar candidate
+
+| Feature | Status | Notes |
+|---|---|---|
+| Back / Forward / Reload / Stop | Implemented on PR branch; CI pending | Uses existing Gecko session navigation state. |
+| Persistent address and Google search omnibox | Implemented on PR branch; CI pending | Shared by home and website pages. |
+| Tab switcher and overflow actions | Implemented on PR branch; CI pending | Opens existing Tab Universe and native panels. |
+| Bookmark toggle and Android page sharing | Implemented on PR branch; CI pending | Local bookmark storage; ACTION_SEND shares HTTP(S) URL. |
+| Chrome account sync, Google Translate, built-in password vault | Not implemented | Not represented as available capabilities. |
