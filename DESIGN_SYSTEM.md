@@ -114,3 +114,8 @@ Updated: 2026-11-10
 - Keep historical checkpoints above for traceability; this dated checkpoint is authoritative for the current Main revision only.
 
 PR #110 visual note: Settings Glass surface uses an opaque surface and explicit semantic foreground colors to prevent webpage pixels bleeding through text. Physical contrast/accessibility validation across Dark, Light and Premium Glass remains pending.
+
+## 2026-11-29 — Browser toolbar layout candidate
+- Compact primary row for Back, Forward, Reload/Stop, omnibox, tab count and overflow; horizontally scrollable secondary actions avoid clipping on narrow screens.
+- Controls use semantic Material theme colors and translucent surfaces; no real-time blur is introduced.
+- Verify Dark, Light and Premium Glass contrast, 320 dp width, TalkBack focus order and large-font behavior on-device.
