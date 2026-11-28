@@ -137,7 +137,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     MaterialTheme(colorScheme = RivoColorSchemes.forAppearance(browser.appearance)) {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             Column(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
-                val currentPageBookmarked = active?.url?.startsWith("http") == true &&
+                val currentPageBookmarked = active?.privateMode == false && active.url.startsWith("http") &&
                     browser.bookmarks.any { it.url == active.url }
                 Column(
                     modifier = Modifier
