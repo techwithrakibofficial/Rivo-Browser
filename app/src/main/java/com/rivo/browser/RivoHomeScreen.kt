@@ -1,12 +1,26 @@
 package com.rivo.browser
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -27,6 +41,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.rivo.browser.data.SavedPage
 
 /**
@@ -49,11 +64,68 @@ internal fun RivoHomeScreen(
     var query by remember { mutableStateOf("") }
     val keyboard = LocalSoftwareKeyboardController.current
 
+    val motion = rememberInfiniteTransition(label = "rivo-home-brand")
+    val glow by motion.animateFloat(
+        initialValue = 0.72f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(2200, easing = FastOutSlowInEasing), repeatMode = androidx.compose.animation.core.RepeatMode.Reverse),
+        label = "brand-glow"
+    )
+
     Box(
         modifier = modifier.fillMaxSize().padding(horizontal = 24.dp),
         contentAlignment = Alignment.Center
     ) {
-        Surface(
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(30.dp)
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Surface(
+                    modifier = Modifier.size(76.dp).graphicsLayer {
+                        scaleX = 0.97f + glow * 0.03f
+                        scaleY = 0.97f + glow * 0.03f
+                        alpha = 0.88f + glow * 0.12f
+                    },
+                    shape = RoundedCornerShape(26.dp),
+                    color = Color.Transparent,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.65f)),
+                    shadowElevation = 18.dp
+                ) {
+                    Box(
+                        modifier = Modifier.background(
+                            Brush.linearGradient(
+                                listOf(
+                                    Color(0xFF8B5CF6).copy(alpha = 0.42f),
+                                    Color(0xFF2563EB).copy(alpha = 0.30f),
+                                    MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)
+                                )
+                            ),
+                        ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            "R",
+                            style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Black),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.graphicsLayer { alpha = glow }
+                        )
+                    }
+                }
+                Text(
+                    "RIVO",
+                    style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.ExtraBold, letterSpacing = 5.sp),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(top = 14.dp)
+                )
+                Text(
+                    "BROWSER",
+                    style = MaterialTheme.typography.labelMedium.copy(letterSpacing = 4.sp),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.9f)
+                )
+            }
+            Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = CircleShape,
             color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.58f),

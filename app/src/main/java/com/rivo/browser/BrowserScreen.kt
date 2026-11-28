@@ -229,7 +229,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                                 })
                                 DropdownMenuItem(
                                     text = { Text(if (active?.desktopMode == true) "Use mobile site" else "Desktop site") },
-                                    trailingIcon = { if (active?.desktopMode == true) Text("On") },
+                                    trailingIcon = { if (active?.desktopMode == true) Text("✓", color = MaterialTheme.colorScheme.primary) },
                                     enabled = active?.url?.startsWith("https://") == true || active?.url?.startsWith("http://") == true,
                                     onClick = {
                                         menuExpanded = false
