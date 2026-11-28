@@ -1,19 +1,3 @@
-## 2026-11-28 — v0.2.5 signed release published and verified
-
-- PR #104 merged; documentation baseline Main commit: `3a284aa9b11dd4e43d8dde6f56baaabea276c84d`.
-- Immutable annotated tag `v0.2.5-phase1` resolves to source commit `4d344128fcecac3b64476a71606b0e05d92051f9` (PR #103 crash-remediation source).
-- Signed Android Release workflow run #46111644854 completed successfully: https://github.com/techwithrakibofficial/Rivo-Browser/actions/runs/46111644854.
-- Both release jobs passed. Build job verified production signing configuration, signed/minified ARM64 and ARMv7 APKs, signed AAB, signer identity/signatures, retained R8 mapping, and removed temporary keystore. Publish job uploaded verified assets.
-- Retained workflow artifacts: signed release bundle (artifact ID `15250660159`) and R8 mapping (artifact ID `15249902905`); both reported unexpired at verification time.
-- Public release: https://github.com/techwithrakibofficial/Rivo-Browser/releases/tag/v0.2.5-phase1. Assets: `app-arm64-v8a-release.apk`, `app-armeabi-v7a-release.apk`, `app-release.aab`, and `SHA256SUMS`.
-- PR #104 documentation merge and subsequent Main workflows #46112116262 (Android CI), #46112116297 (dependency verification bootstrap), #46112116318 (Gradle Dependency Graph), #46112116254 (Source SBOM), and #46112116518 (OSV Scanner) completed successfully. Main SHA at this checkpoint is `3a284aa9b11dd4e43d8dde6f56baaabea276c84d`.
-- Physical TECNO KM9 (Android SDK 36) cold-start/repeated-launch/QR-scan acceptance remains **not yet evidenced**. Do not state the device-specific startup crash is confirmed fixed until this test passes.
-- Remaining release-quality gates: physical-device feature QA, 3–4 GB memory/performance profiling, TalkBack and large-font/accessibility checks, runtime 16 KB validation on target hardware, and a documented MASVS/MASTG assessment. No independent penetration test or MASVS certification is claimed.
-
----
-
-**Security evidence boundary:** the signed workflow's verification steps passed for this release. This does not constitute an independent penetration test, comprehensive MASVS/MASTG verification, or a security certification. Continue the documented security review and device validation.
-
 # Rivo Browser — Security Baseline
 
 ## 2026-11-24 — Release verification follow-up

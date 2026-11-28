@@ -177,6 +177,7 @@ class BrowserController(context: Context) {
             privateMode,
             object : GeckoTabListener {
                 override fun onLocationChanged(url: String, trackingProtectionException: Boolean) {
+                    if (!HomeLocationPolicy.shouldApplyLocation(tab.url, url)) return
                     tab.url = url
                     if (readerArticle?.tabId == tab.id && readerArticle?.url != url) {
                         readerArticle = null

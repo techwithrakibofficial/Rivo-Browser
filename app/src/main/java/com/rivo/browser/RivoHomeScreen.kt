@@ -1,7 +1,16 @@
 package com.rivo.browser
 
+import android.animation.ValueAnimator
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,21 +18,41 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.rivo.browser.data.SavedPage
 import com.rivo.browser.designsystem.RivoShapes
 import com.rivo.browser.designsystem.RivoSpacing
@@ -33,122 +62,203 @@ internal fun RivoHomeScreen(
     bookmarks: List<SavedPage>,
     history: List<SavedPage>,
     privateMode: Boolean,
+    onSearch: (String) -> Unit,
     onOpenUrl: (String) -> Unit,
-    onNewTab: () -> Unit,
     onNewPrivateTab: () -> Unit,
     onOpenBookmarks: () -> Unit,
     onOpenHistory: () -> Unit,
-    onOpenTabs: () -> Unit
+    onOpenTabs: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
+    var query by remember { mutableStateOf("") }
+    val keyboard = LocalSoftwareKeyboardController.current
+    val motionAlpha = rememberHomeMotionAlpha(ValueAnimator.areAnimatorsEnabled())
+    val borderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.14f)
+
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = RivoSpacing.large, vertical = RivoSpacing.extraLarge),
-        verticalArrangement = Arrangement.spacedBy(RivoSpacing.large)
+            .padding(horizontal = RivoSpacing.large),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(RivoSpacing.compact)) {
-            Text(
-                "RIVO",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Text(
-                "A calmer way to browse.",
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.semantics { heading() }
-            )
-            Text(
-                if (privateMode) "Private session · Your browsing stays out of local history"
-                else "Your web, your space. Pick up where you left off.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+        Spacer(Modifier.height(54.dp))
+        Text(
+            text = buildAnnotatedString {
+                withStyle(SpanStyle(color = Color(0xFF4285F4))) { append("G") }
+                withStyle(SpanStyle(color = Color(0xFFEA4335))) { append("o") }
+                withStyle(SpanStyle(color = Color(0xFFFBBC05))) { append("o") }
+                withStyle(SpanStyle(color = Color(0xFF4285F4))) { append("g") }
+                withStyle(SpanStyle(color = Color(0xFF34A853))) { append("l") }
+                withStyle(SpanStyle(color = Color(0xFFEA4335))) { append("e") }
+            },
+            fontSize = 48.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier
+                .graphicsLayer { alpha = motionAlpha }
+                .semantics { contentDescription = "Google search" }
+        )
+        Spacer(Modifier.height(8.dp))
+        Box(
+            Modifier
+                .size(width = 84.dp, height = 3.dp)
+                .clip(CircleShape)
+                .background(
+                    Brush.horizontalGradient(
+                        listOf(
+                            Color.Transparent,
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.48f),
+                            Color.Transparent
+                        )
+                    )
+                )
+                .graphicsLayer { alpha = motionAlpha }
+        )
+        Spacer(Modifier.height(26.dp))
 
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(RivoShapes.panel),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        Surface(
+            modifier = Modifier.fillMaxWidth().height(54.dp),
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.surfaceVariant.copy(
+                alpha = if (MaterialTheme.colorScheme.surface.alpha < 1f) 0.78f else 1f
+            ),
+            border = BorderStroke(1.dp, borderColor),
+            shadowElevation = 2.dp
         ) {
-            Column(
-                modifier = Modifier.padding(RivoSpacing.large),
-                verticalArrangement = Arrangement.spacedBy(RivoSpacing.small)
+            Row(
+                modifier = Modifier.padding(start = 16.dp, end = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Quick access", style = MaterialTheme.typography.titleMedium)
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(RivoSpacing.small)
-                ) {
-                    HomeAction("New tab", "Start fresh", onNewTab, Modifier.weight(1f))
-                    HomeAction("Private", "No local history", onNewPrivateTab, Modifier.weight(1f))
+                Text("⌕", fontSize = 25.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Box(Modifier.weight(1f).padding(horizontal = 10.dp)) {
+                    if (query.isEmpty()) {
+                        Text(
+                            "Search Google or type a URL",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                    BasicTextField(
+                        value = query,
+                        onValueChange = { query = it },
+                        modifier = Modifier.fillMaxWidth().semantics {
+                            contentDescription = "Search Google or enter a website"
+                        },
+                        singleLine = true,
+                        textStyle = MaterialTheme.typography.bodyMedium.copy(
+                            color = MaterialTheme.colorScheme.onSurface
+                        ),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Search
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onSearch = {
+                                val submitted = query.trim()
+                                if (submitted.isNotEmpty()) onSearch(submitted)
+                                keyboard?.hide()
+                            }
+                        )
+                    )
                 }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(RivoSpacing.small)
-                ) {
-                    HomeAction("All tabs", "Switch pages", onOpenTabs, Modifier.weight(1f))
-                    HomeAction("Bookmarks", "Saved pages", onOpenBookmarks, Modifier.weight(1f))
+                if (query.isNotEmpty()) {
+                    IconButton(onClick = { query = "" }) {
+                        Text("×", fontSize = 20.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                } else {
+                    Text("G", color = Color(0xFF4285F4), fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 12.dp))
                 }
             }
         }
 
-        HomeSectionHeader("Bookmarks", "See all", onOpenBookmarks)
-        if (bookmarks.isEmpty()) {
-            HomeEmptyState("Your saved pages will appear here.")
-        } else {
+        Spacer(Modifier.height(28.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(RivoSpacing.small)
+        ) {
+            HomeShortcut("Bookmarks", "☆", onOpenBookmarks, Modifier.weight(1f))
+            HomeShortcut("History", "◷", onOpenHistory, Modifier.weight(1f))
+            HomeShortcut("Private", "◉", onNewPrivateTab, Modifier.weight(1f))
+            HomeShortcut("Tabs", "▢", onOpenTabs, Modifier.weight(1f))
+        }
+
+        if (bookmarks.isNotEmpty()) {
+            Spacer(Modifier.height(30.dp))
+            HomeSectionHeader("Bookmarks", "See all", onOpenBookmarks)
             Column(verticalArrangement = Arrangement.spacedBy(RivoSpacing.small)) {
-                bookmarks.take(5).forEach { page ->
+                bookmarks.take(4).forEach { page ->
                     HomePageRow(page = page, onClick = { onOpenUrl(page.url) })
                 }
             }
         }
 
-        if (!privateMode) {
+        if (!privateMode && history.isNotEmpty()) {
+            Spacer(Modifier.height(22.dp))
             HomeSectionHeader("Recently visited", "History", onOpenHistory)
-            if (history.isEmpty()) {
-                HomeEmptyState("Pages you visit will show up here.")
-            } else {
-                Column(verticalArrangement = Arrangement.spacedBy(RivoSpacing.small)) {
-                    history.take(5).forEach { page ->
-                        HomePageRow(page = page, onClick = { onOpenUrl(page.url) })
-                    }
+            Column(verticalArrangement = Arrangement.spacedBy(RivoSpacing.small)) {
+                history.take(3).forEach { page ->
+                    HomePageRow(page = page, onClick = { onOpenUrl(page.url) })
                 }
             }
         }
-
-        Spacer(Modifier.height(RivoSpacing.small))
+        Spacer(Modifier.height(32.dp))
         Text(
-            if (privateMode) "Private session · History is not shown or saved"
-            else "Local bookmarks and history · No Rivo account required",
+            if (privateMode) "Private session · Browsing is not saved to local history"
+            else "Google is your default search engine",
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+        Spacer(Modifier.height(22.dp))
     }
 }
 
 @Composable
-private fun HomeAction(
+private fun rememberHomeMotionAlpha(enabled: Boolean): Float {
+    if (!enabled) return 0.84f
+    val transition = rememberInfiniteTransition(label = "home-silver-motion")
+    val alpha by transition.animateFloat(
+        initialValue = 0.72f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2400),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "home-silver-sheen"
+    )
+    return alpha
+}
+
+@Composable
+private fun HomeShortcut(
     title: String,
-    subtitle: String,
+    symbol: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Surface(
-        modifier = modifier.clickable(onClick = onClick),
-        shape = RoundedCornerShape(RivoShapes.card),
-        color = MaterialTheme.colorScheme.surfaceVariant
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(RivoShapes.card))
+            .clickable(onClick = onClick)
+            .padding(vertical = RivoSpacing.small),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(RivoSpacing.compact)
     ) {
-        Column(
-            modifier = Modifier.padding(RivoSpacing.medium),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
+        Surface(
+            modifier = Modifier.size(52.dp),
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.78f),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f))
         ) {
-            Text(title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
-            Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Box(contentAlignment = Alignment.Center) {
+                Text(symbol, fontSize = 23.sp, color = MaterialTheme.colorScheme.onSurface)
+            }
         }
+        Text(
+            title,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 1
+        )
     }
 }
 
@@ -158,8 +268,12 @@ private fun HomeSectionHeader(title: String, action: String, onAction: () -> Uni
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f).semantics { heading() })
-        TextButton(onClick = onAction) { Text(action) }
+        Text(
+            title,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.weight(1f).semantics { heading() }
+        )
+        androidx.compose.material3.TextButton(onClick = onAction) { Text(action) }
     }
 }
 
@@ -168,7 +282,8 @@ private fun HomePageRow(page: SavedPage, onClick: () -> Unit) {
     Surface(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         shape = RoundedCornerShape(RivoShapes.card),
-        color = MaterialTheme.colorScheme.surface
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f))
     ) {
         Column(
             modifier = Modifier.padding(horizontal = RivoSpacing.medium, vertical = RivoSpacing.small),
@@ -176,7 +291,7 @@ private fun HomePageRow(page: SavedPage, onClick: () -> Unit) {
         ) {
             Text(
                 page.title.ifBlank { page.url },
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1
             )
@@ -188,14 +303,4 @@ private fun HomePageRow(page: SavedPage, onClick: () -> Unit) {
             )
         }
     }
-}
-
-@Composable
-private fun HomeEmptyState(message: String) {
-    Text(
-        message,
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(vertical = RivoSpacing.small)
-    )
 }

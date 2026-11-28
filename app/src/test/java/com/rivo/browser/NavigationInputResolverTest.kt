@@ -17,7 +17,7 @@ class NavigationInputResolverTest {
     @Test
     fun searchesPlainText() {
         assertEquals(
-            "https://duckduckgo.com/?q=hello+world",
+            "https://www.google.com/search?q=hello+world",
             NavigationInputResolver.resolve("hello world")
         )
     }
@@ -25,7 +25,7 @@ class NavigationInputResolverTest {
     @Test
     fun doesNotOpenUnsupportedSchemes() {
         assertEquals(
-            "https://duckduckgo.com/?q=javascript%3Aalert%281%29",
+            "https://www.google.com/search?q=javascript%3Aalert%281%29",
             NavigationInputResolver.resolve("javascript:alert(1)")
         )
     }
@@ -46,7 +46,7 @@ class NavigationInputResolverTest {
     @Test
     fun rejectsOutOfRangePortAsSearchInsteadOfNavigation() {
         assertEquals(
-            "https://duckduckgo.com/?q=http%3A%2F%2Fexample.com%3A70000",
+            "https://www.google.com/search?q=http%3A%2F%2Fexample.com%3A70000",
             NavigationInputResolver.resolve("http://example.com:70000")
         )
     }
@@ -54,7 +54,7 @@ class NavigationInputResolverTest {
     @Test
     fun sendsCredentialBearingUrlsToSearchInsteadOfPersistableNavigation() {
         assertEquals(
-            "https://duckduckgo.com/?q=https%3A%2F%2Fuser%3Apass%40example.com",
+            "https://www.google.com/search?q=https%3A%2F%2Fuser%3Apass%40example.com",
             NavigationInputResolver.resolve("https://user:pass@example.com")
         )
     }

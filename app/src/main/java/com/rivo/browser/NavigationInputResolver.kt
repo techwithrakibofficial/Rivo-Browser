@@ -31,7 +31,7 @@ object NavigationInputResolver {
         }
 
         val query = URLEncoder.encode(input, StandardCharsets.UTF_8.name())
-        return "https://duckduckgo.com/?q=$query"
+        return "https://www.google.com/search?q=$query"
     }
 
     /** URI leaves host null for Unicode domains; IDN converts only the host. */
