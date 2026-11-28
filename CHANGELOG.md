@@ -332,3 +332,8 @@ See Git history for prior Tab Universe, storage hardening, browser navigation, t
 - Keep historical checkpoints above for traceability; this dated checkpoint is authoritative for the current Main revision only.
 
 Version 0.2.9-phase1 source is merged on Main; CI passed. This is source/QA readiness, not a signed production release.
+
+## Unreleased — Chrome-style top toolbar
+- Added Chrome-inspired navigation controls, persistent search/address omnibox, tab switcher and overflow.
+- Added quick actions for Home, bookmark save/remove, native page sharing, Downloads, new/private tabs, History, Bookmarks and profile/autofill.
+- Account sync, built-in translation and a Rivo password vault remain unavailable.
