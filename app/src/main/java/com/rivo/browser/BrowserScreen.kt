@@ -135,6 +135,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                         .padding(horizontal = RivoSpacing.medium, vertical = RivoSpacing.small)
                 ) {
                     Row(
+                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = if (active?.url == BrowserController.HOME_URL) Arrangement.End else Arrangement.spacedBy(RivoSpacing.compact)
                     ) {
