@@ -296,3 +296,11 @@ See Git history for prior Tab Universe, storage hardening, browser navigation, t
 - Reduced the bottom navigation strip to a compact 48 dp translucent bar and tuned surface opacity for readable controls over page content.
 - Applied translucent surfaces to the browser header, home search field, bottom controls, Reader Mode and native browser panels. Website-rendered page content is not modified.
 - Physical-device visual/accessibility QA remains pending; transparency and contrast must be checked in Dark, Light and Premium Glass modes.
+
+
+## Unreleased — PR #108
+
+- Fix omnibox single-word input to use Google Search instead of attempting to open a host with no domain suffix.
+- Improve bottom navigation height to prevent icon and label clipping.
+- Increase Premium Glass surface opacity and outline contrast for legible browser chrome.
+- Organize Settings around implemented browser controls and link to existing browser panels; explicitly disclose capabilities not shipped.
