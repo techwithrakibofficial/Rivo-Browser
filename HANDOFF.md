@@ -560,3 +560,9 @@ Current candidate branch: `feat/minimal-home-transparent-browser-chrome` (based 
 - Keep historical checkpoints above for traceability; this dated checkpoint is authoritative for the current Main revision only.
 
 Next owner-controlled release gate: create immutable tag `v0.2.9-phase1` at the reviewed Main commit, run the protected Signed Android Release workflow, then verify APK/AAB signatures, signer fingerprint consistency and SHA256SUMS before sharing.
+
+## 2026-11-29 — Chrome-style top toolbar handoff
+- Branch: feat/chrome-style-top-toolbar.
+- Adds persistent omnibox, Back/Forward, Reload/Stop, tab switcher, overflow and quick actions for Home, bookmark toggle, native share, Downloads, new/private tabs, History, Bookmarks and profile/autofill.
+- Overflow exposes existing supported Rivo features only.
+- Candidate version: 0.3.0-phase1 / versionCode 11. Requires fresh CI, review, merge and signed release. Physical-device acceptance remains pending.

@@ -133,3 +133,8 @@ Desktop Site is integrated by PR #93; merge commit `e747ded5e84b6f0179aee892b9a3
 - Keep historical checkpoints above for traceability; this dated checkpoint is authoritative for the current Main revision only.
 
 PR #110 architecture note: home shortcuts read local browser data; profile menu is Guest/settings navigation only; Android Autofill is delegated to the OS Autofill framework via GeckoView integration, not stored by a Rivo credential vault.
+
+## 2026-11-29 — Chrome-style browser toolbar candidate
+- Compact primary row: Back, Forward, Reload/Stop, persistent omnibox, tab switcher and overflow.
+- Scrollable secondary actions: Home, bookmark toggle, Android share, Downloads, new/private tabs, History, Bookmarks and profile/autofill entry.
+- Overflow exposes existing supported Reader Mode, QR scan, Desktop Site, text zoom, Privacy Intelligence Center, Developer Mode, clear-data confirmation and Settings. Unsupported Chrome services are not simulated.

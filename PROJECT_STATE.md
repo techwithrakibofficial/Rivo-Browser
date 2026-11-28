@@ -480,3 +480,9 @@ Gradle Dependency Verification Bootstrap run `45777625387` completed successfull
 - Keep historical checkpoints above for traceability; this dated checkpoint is authoritative for the current Main revision only.
 
 Current status: merged source and green configured CI; production signing/release and physical-device acceptance are still open gates.
+
+## 2026-11-29 — Chrome-style top toolbar candidate
+- Candidate branch: feat/chrome-style-top-toolbar; based on Main commit 0b9f125afbbfd10602f414af79a43cb32b578221.
+- Adds persistent Google search/address omnibox; Back, Forward, Reload/Stop, tab switcher and overflow; quick actions for Home, bookmark save/remove, native share, Downloads, new/private tabs, History, Bookmarks and profile/autofill.
+- Chrome account sync, built-in translation, own password vault and extension marketplace are not claimed.
+- Candidate version: 0.3.0-phase1 / versionCode 11. CI, review, merge and signed release are pending. Physical TECNO Pova Slim 5G acceptance remains unverified.

@@ -243,3 +243,8 @@ Dependency-verification bootstrap `45777625387` completed successfully. Android 
 - Keep historical checkpoints above for traceability; this dated checkpoint is authoritative for the current Main revision only.
 
 Next phase priorities: close the owner-controlled signed release gate; complete device acceptance/accessibility/performance matrix; then address documented feature gaps without representing unsupported GeckoView capabilities as shipped.
+
+## 2026-11-29 — Chrome-style top toolbar candidate
+- Scope: common browser navigation and page actions without claiming unavailable Chrome account/cloud services.
+- Implementation: persistent omnibox, Back/Forward, Reload/Stop, tab switcher, overflow, bookmark toggle, Android share sheet and scrollable quick actions.
+- Validation gate: fresh Android CI, source review, signed release workflow, then physical TECNO Pova Slim 5G visual/function/accessibility testing.
