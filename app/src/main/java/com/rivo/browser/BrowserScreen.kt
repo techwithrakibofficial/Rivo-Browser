@@ -258,7 +258,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                         TextButton(onClick = { browser.navigate(BrowserController.HOME_URL) }) { Text("⌂  Home") }
                         TextButton(onClick = {
                             if (currentPageBookmarked) active?.url?.let(browser::removeBookmark) else browser.addCurrentBookmark()
-                        }, enabled = active?.url?.startsWith("http") == true) {
+                        }, enabled = active?.let { !it.privateMode && it.url.startsWith("http") } == true) {
                             Text(if (currentPageBookmarked) "★  Saved" else "☆  Bookmark")
                         }
                         TextButton(onClick = { browser.shareCurrentPage() }, enabled = active?.url?.startsWith("http") == true) { Text("↗  Share") }
