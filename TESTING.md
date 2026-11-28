@@ -1,3 +1,6 @@
+- Build regression: GeckoView capture callbacks may return a nullable Bitmap; confirm null capture is safely handled and no preview crashes occur.
+- Settings panel layout: verify the dialog scrolls on short screens and at large system font sizes; test nested tab grid and transfer lists.
+
 - Tab preview memory: switch between normal tabs repeatedly, close tabs and exit the browser; verify previews are recycled and no private page image appears.
 
 - Settings switches: toggle JavaScript off/on and verify page behavior after reload and process restart; toggle GPC and verify GeckoView runtime setting persists. Confirm private mode continues to follow GeckoView's built-in GPC behavior.

@@ -419,13 +419,16 @@ class GeckoBrowserTab(
         runCatching {
             view.capturePixels().accept(
                 { bitmap ->
-                    val scaled = runCatching {
-                        val targetWidth = 240
-                        val targetHeight = (bitmap.height * (targetWidth.toFloat() / bitmap.width.coerceAtLeast(1))).toInt().coerceAtLeast(1)
-                        Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true)
-                    }.getOrNull()
-                    if (scaled !== bitmap) bitmap.recycle()
-                    callback(scaled)
+                    val preview = bitmap?.let { source ->
+                        val scaled = runCatching {
+                            val targetWidth = 240
+                            val targetHeight = (source.height * (targetWidth.toFloat() / source.width.coerceAtLeast(1))).toInt().coerceAtLeast(1)
+                            Bitmap.createScaledBitmap(source, targetWidth, targetHeight, true)
+                        }.getOrNull()
+                        if (scaled !== source) source.recycle()
+                        scaled
+                    }
+                    callback(preview)
                 },
                 { callback(null) }
             )

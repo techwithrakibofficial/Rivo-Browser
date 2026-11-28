@@ -616,9 +616,9 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
         Surface(
             shape = RoundedCornerShape(RivoShapes.panel),
             color = MaterialTheme.colorScheme.surface.copy(alpha = 0.78f),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().heightIn(max = 640.dp)
         ) {
-            Column(modifier = Modifier.padding(RivoSpacing.large)) {
+            Column(modifier = Modifier.padding(RivoSpacing.large).heightIn(max = 600.dp).verticalScroll(rememberScrollState())) {
                 Text(title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
                 Spacer(Modifier.height(RivoSpacing.medium))
                 when (panel) {

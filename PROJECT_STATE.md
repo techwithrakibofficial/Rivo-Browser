@@ -1,3 +1,5 @@
+- Latest Android CI for the preview implementation exposed a nullable GeckoView screenshot callback compile error; a null-safe correction is now included in the current branch update. Fresh CI is required before considering it fixed.
+
 - Preview bitmap lifecycle includes replacement/close/dispose recycling; private pages remain excluded from capture.
 
 - Settings hub now includes persisted JavaScript and Global Privacy Control controls in addition to appearance, text zoom, Google default, privacy center, clear-data flow and Transfer Studio. These controls require CI and runtime verification.

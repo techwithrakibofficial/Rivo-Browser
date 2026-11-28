@@ -1,3 +1,5 @@
+- Previous Android CI run failed at `GeckoBrowserTab.capturePreview`: GeckoResult returns nullable Bitmap. Latest fix now null-checks the bitmap and recycles safely; rerun full CI to confirm.
+
 - Tab preview bitmap replacement and teardown now recycle retained images; verify repeated tab switching/closing during memory profiling.
 
 - Latest settings extension adds persisted JavaScript and GPC controls through GeckoRuntimeSettings. Validate both switches and restart persistence in CI/device QA.
