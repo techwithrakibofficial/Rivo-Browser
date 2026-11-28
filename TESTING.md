@@ -393,3 +393,12 @@ Manual acceptance still required on physical Android hardware: home shows only t
 
 ### Required device acceptance
 Install the production-signed build on TECNO Pova Slim 5G / Android 16 / HyperOS 16.3.0. Test cold/repeated launch, Google search/navigation, home/new tab, overflow Reload, Tab Universe, tab switching/closing, private screenshot exclusion, text zoom 80/100/200 and persistence, JavaScript/GPC persistence, downloads, permissions, bookmarks/history, Reader Mode, clear-data and Transfer Studio. Capture all three themes over light/dark/busy pages; verify contrast, TalkBack, 320 dp, large fonts and disabled animations. Profile low-memory behavior and verify private page imagery is never retained. Runtime 16 KB and MASVS/MASTG gates require actual evidence.
+
+
+## 2026-11-28 — PR #108 regression checklist
+
+- Unit: `Facebook` resolves to Google Search; `facebook.com/login` resolves to HTTPS; explicit HTTP(S), IDN, ports, credentials and unsupported schemes retain existing safe behavior.
+- UI: bottom navigation icons and labels fit without clipping at Android 16 navigation/gesture modes and large font settings.
+- Theme: compare Dark, Light and Premium Glass browser chrome; verify text, disabled controls, icons, outlines and surfaces maintain readable contrast.
+- Settings: open each supported destination (Tabs, Bookmarks, History, Downloads, Site Settings/Privacy Center and Developer diagnostics); verify Back/Close behavior and scroll at small screens.
+- No physical-device result is claimed until tested on TECNO Pova Slim 5G / Android 16 / HyperOS 16.3.0.
