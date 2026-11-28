@@ -1,5 +1,6 @@
 package com.rivo.browser.engine.gecko
 
+import android.graphics.Bitmap
 import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
@@ -410,6 +411,25 @@ class GeckoBrowserTab(
         (oldView.parent as? ViewGroup)?.removeView(oldView)
         oldView.releaseSession()
         attachedView = null
+    }
+
+    /** Capture a small in-memory preview for the tab overview; callers exclude private tabs. */
+    fun capturePreview(callback: (Bitmap?) -> Unit) {
+        val view = attachedView ?: run { callback(null); return }
+        runCatching {
+            view.capturePixels().accept(
+                { bitmap ->
+                    val scaled = runCatching {
+                        val targetWidth = 240
+                        val targetHeight = (bitmap.height * (targetWidth.toFloat() / bitmap.width.coerceAtLeast(1))).toInt().coerceAtLeast(1)
+                        Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true)
+                    }.getOrNull()
+                    if (scaled !== bitmap) bitmap.recycle()
+                    callback(scaled)
+                },
+                { callback(null) }
+            )
+        }.onFailure { callback(null) }
     }
 
     fun load(url: String) {

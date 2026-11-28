@@ -22,6 +22,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items as gridItems
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -644,10 +646,18 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                                     val tab = browser.tabs.firstOrNull { it.id == item.id } ?: return@gridItems
                                     Surface(onClick = { browser.selectTab(tab.id); onDismiss() }, shape = RoundedCornerShape(14.dp), color = if (item.active) MaterialTheme.colorScheme.primary.copy(alpha = 0.20f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.62f), border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = if (item.active) 0.75f else 0.22f))) {
                                         Column(Modifier.padding(7.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                                            Box(Modifier.fillMaxWidth().height(76.dp).background(MaterialTheme.colorScheme.surface.copy(alpha = 0.72f), RoundedCornerShape(8.dp)).padding(6.dp)) {
-                                                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                                    Text(if (item.privateMode) "PRIVATE" else "WEB PAGE", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, maxLines = 1)
-                                                    Text(item.title, style = MaterialTheme.typography.labelSmall, maxLines = 3)
+                                            Box(Modifier.fillMaxWidth().height(76.dp).background(MaterialTheme.colorScheme.surface.copy(alpha = 0.72f), RoundedCornerShape(8.dp)).padding(3.dp)) {
+                                                if (!item.privateMode && tab.previewBitmap != null) {
+                                                    Image(
+                                                        bitmap = tab.previewBitmap!!.asImageBitmap(),
+                                                        contentDescription = "Preview of ${item.title}",
+                                                        modifier = Modifier.fillMaxSize()
+                                                    )
+                                                } else {
+                                                    Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(3.dp)) {
+                                                        Text(if (item.privateMode) "PRIVATE" else "WEB PAGE", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, maxLines = 1)
+                                                        Text(item.title, style = MaterialTheme.typography.labelSmall, maxLines = 3)
+                                                    }
                                                 }
                                             }
                                             Text(item.title, style = MaterialTheme.typography.labelSmall, maxLines = 2)

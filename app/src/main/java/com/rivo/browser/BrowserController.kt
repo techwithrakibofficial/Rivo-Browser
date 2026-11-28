@@ -1,5 +1,7 @@
 package com.rivo.browser
 
+import android.graphics.Bitmap
+
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -59,6 +61,7 @@ class BrowserTabState(
     var trackingProtectionEnabled by mutableStateOf(false)
     var trackingProtectionException by mutableStateOf(false)
     var desktopMode by mutableStateOf(false)
+    var previewBitmap by mutableStateOf<Bitmap?>(null)
     lateinit var engine: GeckoBrowserTab
     var initialLoadPending: Boolean = false
 }
@@ -306,7 +309,10 @@ class BrowserController(context: Context) {
     }
 
     fun selectTab(id: Long) {
-        tabs.firstOrNull { it.id == activeTabId }?.engine?.setActive(false)
+        tabs.firstOrNull { it.id == activeTabId }?.let { previous ->
+            if (!previous.privateMode) previous.engine.capturePreview { bitmap -> previous.previewBitmap = bitmap }
+            previous.engine.setActive(false)
+        }
         activeTabId = id
         tabs.firstOrNull { it.id == id }?.let { tab ->
             tab.engine.setActive(
@@ -338,6 +344,8 @@ class BrowserController(context: Context) {
             }
             download.file?.let(::deletePrivateDownloadFile)
         }
+        closing.previewBitmap?.recycle()
+        closing.previewBitmap = null
         closing.engine.dispose()
         downloads.removeAll { it.privateTabId == id }
         tabs.removeAt(index)
@@ -563,7 +571,7 @@ class BrowserController(context: Context) {
         downloads.filter { it.privateMode }.forEach { download ->
             download.file?.let(::deletePrivateDownloadFile)
         }
-        tabs.toList().forEach { it.engine.dispose() }
+        tabs.toList().forEach { it.previewBitmap?.recycle(); it.previewBitmap = null; it.engine.dispose() }
         tabs.clear()
         activeTabId = 0L
         sitePermissions.clear()
