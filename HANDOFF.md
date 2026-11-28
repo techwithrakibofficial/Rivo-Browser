@@ -538,3 +538,12 @@ Current candidate branch: `feat/minimal-home-transparent-browser-chrome` (based 
 - Physical TECNO Pova Slim 5G / Android 16 / HyperOS 16.3.0 acceptance, supplied-video visual matching, accessibility/TalkBack, 3–4 GB performance profiling, runtime 16 KB validation and independent MASVS/MASTG/penetration assessment remain unverified. No certification is claimed.
 
 - Build/release handoff: bump source metadata to `0.2.8-phase1` / versionCode 9 on the preparation branch; obtain required CODEOWNER review and merge; then owner creates/pushes immutable `v0.2.8-phase1` or dispatches Signed Android Release for that tag. Verify release assets and SHA256SUMS before sharing.
+
+
+## 2026-11-28 — PR #110 candidate (not yet merged)
+- Reworked the native start page toward a Chrome-style Google home: Google search field, local bookmark/history shortcuts, History and Incognito actions, plus Bookmarks and Tabs quick actions. No external news feed or fake account profile is presented.
+- Browser top chrome now exposes Home/New tab, Guest profile/settings, open-tab count and overflow controls.
+- Settings panel surface is opaque in Premium Glass to prevent website pixels bleeding through text; explicit semantic foreground colors are used.
+- GeckoView's documented Android Autofill bridge is enabled on created GeckoView instances. This allows a separately configured Android Autofill provider to participate; it is not a Rivo password manager, and it does not implement credential storage or sync.
+- Rivo account sign-in/cloud sync, a built-in password vault, and an extension marketplace remain unavailable and are not represented as shipped features.
+- Candidate app version: 0.2.9-phase1 / versionCode 10. PR #110 requires fresh CI/review/merge; physical-device visual and autofill acceptance remain pending.
