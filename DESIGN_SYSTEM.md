@@ -92,3 +92,12 @@ Updated: 2026-11-10
 - PR #108 increases semantic Glass surface opacity and outline contrast to improve browser-chrome legibility; the design intentionally balances translucency against readable controls.
 - Bottom navigation height is 64 dp so icon/label pairs fit within the safe-drawing content area. Confirm actual visibility, gesture/navigation-bar insets, TalkBack and font scaling on target hardware.
 - Exact matching to the previously supplied motion-video reference is not verified because that reference was not available in this work turn.
+
+
+## 2026-11-28 — PR #110 candidate (not yet merged)
+- Reworked the native start page toward a Chrome-style Google home: Google search field, local bookmark/history shortcuts, History and Incognito actions, plus Bookmarks and Tabs quick actions. No external news feed or fake account profile is presented.
+- Browser top chrome now exposes Home/New tab, Guest profile/settings, open-tab count and overflow controls.
+- Settings panel surface is opaque in Premium Glass to prevent website pixels bleeding through text; explicit semantic foreground colors are used.
+- GeckoView's documented Android Autofill bridge is enabled on created GeckoView instances. This allows a separately configured Android Autofill provider to participate; it is not a Rivo password manager, and it does not implement credential storage or sync.
+- Rivo account sign-in/cloud sync, a built-in password vault, and an extension marketplace remain unavailable and are not represented as shipped features.
+- Candidate app version: 0.2.9-phase1 / versionCode 10. PR #110 requires fresh CI/review/merge; physical-device visual and autofill acceptance remain pending.
