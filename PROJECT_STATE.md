@@ -437,3 +437,13 @@ Gradle Dependency Verification Bootstrap run `45777625387` completed successfull
 - Workflows passed for this head: Android CI `46139235887`, Dependency Verification Bootstrap `46139235896`, OSV Scanner `46139235905`, Gradle Dependency Graph `46139235898`, Source SBOM `46139235890`.
 - PR artifacts are not production-signed. Signed release requires protected merge, tag `v0.2.7-phase1`, configured signing secrets and artifact verification.
 - Physical TECNO Pova Slim 5G / Android 16 / HyperOS 16.3.0 acceptance, accessibility, low-memory performance, runtime 16 KB and full security review remain unverified.
+
+
+## 2026-11-28 — PR #108 browser UX corrections
+
+- PR #108: https://github.com/techwithrakibofficial/Rivo-Browser/pull/108 (open; CODEOWNER review requested; CI status must be rechecked after review).
+- Omnibox resolver now treats an unqualified single word such as `Facebook` as a Google query; explicit HTTP(S), dotted domains, localhost and IP-style hosts remain navigable. Regression tests cover single-word search and domain paths.
+- Bottom navigation is increased from 48 dp to 64 dp to fit icon/label pairs within the safe-drawing content area. Target-device confirmation is pending.
+- Premium Glass semantic surfaces use stronger opacity and outline contrast. This intentionally trades some transparency for readable browser chrome.
+- Settings hub now groups supported controls and links to tabs, bookmarks, history, Transfer Studio, site permissions, privacy center and diagnostics. Password autofill, account sync, add-on marketplace and Android default-browser role management are not represented as shipped features.
+- Physical-device QA and the supplied video-reference visual match remain pending; the video was not attached to this work turn.
