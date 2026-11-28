@@ -506,7 +506,7 @@ Gradle Dependency Verification Bootstrap `45777625387` completed successfully. M
 
 ## 2026-11-28 — UI refinement handoff
 
-Current candidate branch: `feat/minimal-home-transparent-browser-chrome` (based on Main `b2dd56f3b600b9612ff77f2433eec435ce51e860`). It simplifies the home page to one centered Google search field, hides the top omnibox on home only, retains it on website pages, moves Reload into the three-dot menu immediately above New tab, removes the standalone top reload button, and reduces the bottom navigation to a 48 dp translucent strip. Native panels and Reader Mode use translucent surfaces; website-rendered content is untouched. Check PR CI before merging, then perform real-device checks in Dark/Light/Glass, with particular attention to contrast, tap targets, TalkBack, and different webpage backgrounds. No physical-device verification is claimed yet.
+Current candidate branch: `feat/minimal-home-transparent-browser-chrome` (based on Main `b2dd56f3b600b9612ff77f2433eec435ce51e860`). It simplifies the home page to one centered Google search field, hides the top omnibox on home only, retains it on website pages, moves Reload into the three-dot menu immediately above New tab, removes the standalone top reload button, and sets the bottom navigation to a 64 dp translucent strip. Native panels and Reader Mode use translucent surfaces; website-rendered content is untouched. Check PR CI before merging, then perform real-device checks in Dark/Light/Glass, with particular attention to contrast, tap targets, TalkBack, and different webpage backgrounds. No physical-device verification is claimed yet.
 
 
 ## Current handoff — 2026-11-28 / PR #107
