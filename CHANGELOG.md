@@ -265,3 +265,13 @@ See Git history for prior Tab Universe, storage hardening, browser navigation, t
 ## 2026-11-26 — Desktop Site integration correction
 
 - Desktop Site per-tab mode was merged to Main by PR #93. The implementation maps both GeckoView user-agent and viewport modes and supports returning to mobile mode. Physical-device compatibility validation remains outstanding.
+
+
+## Unreleased — Minimal home and translucent browser chrome (2026-11-28)
+
+- Simplified the start page to a single centered Google search/address field; removed the wordmark, shortcuts, bookmark/history lists and secondary home-page content.
+- Removed the standalone top reload control and placed Reload at the top of the three-dot menu, immediately before New tab.
+- Hid the top omnibox on the home page while retaining the three-dot menu; kept the top omnibox on web pages.
+- Reduced the bottom navigation strip to a compact 48 dp translucent bar and tuned surface opacity for readable controls over page content.
+- Applied translucent surfaces to the browser header, home search field, bottom controls, Reader Mode and native browser panels. Website-rendered page content is not modified.
+- Physical-device visual/accessibility QA remains pending; transparency and contrast must be checked in Dark, Light and Premium Glass modes.
