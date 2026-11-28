@@ -102,6 +102,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     var address by remember(active?.id) { mutableStateOf(active?.url?.takeUnless { it == BrowserController.HOME_URL }.orEmpty()) }
     var isEditingAddress by remember(active?.id) { mutableStateOf(false) }
     var menuExpanded by remember { mutableStateOf(false) }
+    var profileMenuExpanded by remember { mutableStateOf(false) }
     var showClearDataConfirmation by remember { mutableStateOf(false) }
     val notificationPermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> browser.completeNotificationPermissionRequest(granted) }
     val devicePermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { results ->
@@ -207,8 +208,15 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                             Text("→", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { contentDescription = "Go" })
                         }
                         }
-                        IconButton(onClick = { browser.openPanel(BrowserPanel.SETTINGS) }, modifier = Modifier.size(38.dp)) {
-                            Text("●", color = MaterialTheme.colorScheme.primary, modifier = Modifier.semantics { contentDescription = "Guest profile and account settings" })
+                        Box {
+                            IconButton(onClick = { profileMenuExpanded = true }, modifier = Modifier.size(38.dp)) {
+                                Text("●", color = MaterialTheme.colorScheme.primary, modifier = Modifier.semantics { contentDescription = "Profile" })
+                            }
+                            DropdownMenu(expanded = profileMenuExpanded, onDismissRequest = { profileMenuExpanded = false }) {
+                                DropdownMenuItem(text = { Text("Guest profile") }, onClick = { profileMenuExpanded = false; browser.openPanel(BrowserPanel.SETTINGS) })
+                                DropdownMenuItem(text = { Text("Passwords & autofill") }, onClick = { profileMenuExpanded = false; browser.openPanel(BrowserPanel.SETTINGS) })
+                                DropdownMenuItem(text = { Text("Account sync unavailable") }, enabled = false, onClick = {})
+                            }
                         }
                         IconButton(onClick = { browser.openPanel(BrowserPanel.TABS) }, modifier = Modifier.size(38.dp)) {
                             Text(browser.tabs.size.toString(), color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.semantics { contentDescription = "Open tabs" })
