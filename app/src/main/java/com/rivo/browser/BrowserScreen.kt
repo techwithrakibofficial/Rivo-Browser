@@ -137,35 +137,51 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     MaterialTheme(colorScheme = RivoColorSchemes.forAppearance(browser.appearance)) {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             Column(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
+                val currentPageBookmarked = active?.url?.startsWith("http") == true &&
+                    browser.bookmarks.any { it.url == active.url }
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.64f))
-                        .padding(horizontal = RivoSpacing.medium, vertical = RivoSpacing.small)
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.78f))
+                        .padding(horizontal = RivoSpacing.small, vertical = RivoSpacing.compact)
                 ) {
+                    // Chrome-inspired primary toolbar: navigation, omnibox, tab switcher and menu.
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(RivoSpacing.compact)
+                        horizontalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
-                        IconButton(onClick = { browser.navigate(BrowserController.HOME_URL) }, modifier = Modifier.size(40.dp)) {
-                            Text("⌂", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.semantics { contentDescription = "Home and new tab" })
+                        IconButton(onClick = { browser.goBack() }, enabled = active?.canGoBack == true, modifier = Modifier.size(36.dp)) {
+                            Text("‹", style = MaterialTheme.typography.headlineSmall, color = if (active?.canGoBack == true) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f), modifier = Modifier.semantics { contentDescription = "Go back" })
                         }
-                        if (active?.url != BrowserController.HOME_URL) {
+                        IconButton(onClick = { browser.goForward() }, enabled = active?.canGoForward == true, modifier = Modifier.size(36.dp)) {
+                            Text("›", style = MaterialTheme.typography.headlineSmall, color = if (active?.canGoForward == true) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f), modifier = Modifier.semantics { contentDescription = "Go forward" })
+                        }
+                        IconButton(onClick = { browser.reloadOrStop() }, modifier = Modifier.size(36.dp)) {
+                            Text(if (active?.loading == true) "×" else "↻", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.semantics { contentDescription = if (active?.loading == true) "Stop loading" else "Reload page" })
+                        }
                         Surface(
-                            modifier = Modifier.weight(1f).height(46.dp),
+                            modifier = Modifier.weight(1f).height(42.dp),
                             shape = CircleShape,
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.72f),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.82f),
                             shadowElevation = 1.dp
                         ) {
                             Row(
-                                modifier = Modifier.padding(start = 14.dp, end = 4.dp),
+                                modifier = Modifier.padding(start = 10.dp, end = 4.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("⌕", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                Box(Modifier.weight(1f).padding(start = 8.dp)) {
+                                Text(
+                                    when {
+                                        active?.url == BrowserController.HOME_URL -> "⌕"
+                                        active?.securityKnown == true && active.secureConnection && !active.certificateException -> "▣"
+                                        else -> "ⓘ"
+                                    },
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Box(Modifier.weight(1f).padding(start = 7.dp)) {
                                     if (address.isEmpty()) {
-                                        Text("Search Google or enter website", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        Text("Search Google or enter website", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
                                     }
                                     BasicTextField(
                                         value = address,
@@ -175,168 +191,106 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                                         },
                                         modifier = Modifier.fillMaxWidth().onFocusChanged {
                                             isEditingAddress = it.isFocused
-                                        },
+                                        }.semantics { contentDescription = "Address and Google search bar" },
                                         singleLine = true,
                                         textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
                                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Go),
                                         keyboardActions = KeyboardActions(onGo = {
                                             val submittedAddress = address
-                                            browser.navigate(submittedAddress)
-                                            address = NavigationInputResolver.resolve(submittedAddress)
+                                            if (submittedAddress.isNotBlank()) browser.navigate(submittedAddress)
                                             isEditingAddress = false
                                             keyboard?.hide()
                                         })
                                     )
                                 }
                                 if (address.isNotEmpty()) {
-                                    IconButton(onClick = { address = "" }, modifier = Modifier.size(36.dp)) {
+                                    IconButton(onClick = { address = ""; isEditingAddress = true }, modifier = Modifier.size(30.dp)) {
                                         Text("×", color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     }
                                 }
                             }
                         }
-                        IconButton(
-                            onClick = {
-                                val submittedAddress = address
-                                browser.navigate(submittedAddress)
-                                address = NavigationInputResolver.resolve(submittedAddress)
-                                isEditingAddress = false
-                                keyboard?.hide()
-                            },
-                            modifier = Modifier.size(42.dp)
-                        ) {
-                            Text("→", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { contentDescription = "Go" })
-                        }
+                        IconButton(onClick = { browser.openPanel(BrowserPanel.TABS) }, modifier = Modifier.size(38.dp)) {
+                            Text("[${browser.tabs.size}]", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.semantics { contentDescription = "Open tabs" })
                         }
                         Box {
-                            IconButton(onClick = { profileMenuExpanded = true }, modifier = Modifier.size(38.dp)) {
-                                Text("●", color = MaterialTheme.colorScheme.primary, modifier = Modifier.semantics { contentDescription = "Profile" })
+                            TextButton(onClick = { menuExpanded = true }, modifier = Modifier.size(34.dp)) {
+                                Text("⋮", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.semantics { contentDescription = "More browser options" })
                             }
+                            DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
+                                DropdownMenuItem(text = { Text(if (active?.loading == true) "Stop" else "Reload") }, onClick = { menuExpanded = false; browser.reloadOrStop() })
+                                DropdownMenuItem(text = { Text("New tab") }, onClick = { menuExpanded = false; browser.createTab() })
+                                DropdownMenuItem(text = { Text("New private tab") }, onClick = { menuExpanded = false; browser.createTab(privateMode = true) })
+                                DropdownMenuItem(text = { Text("Bookmarks") }, onClick = { menuExpanded = false; browser.openPanel(BrowserPanel.BOOKMARKS) })
+                                DropdownMenuItem(text = { Text("History") }, onClick = { menuExpanded = false; browser.openPanel(BrowserPanel.HISTORY) })
+                                DropdownMenuItem(text = { Text("Downloads") }, onClick = { menuExpanded = false; browser.openPanel(BrowserPanel.DOWNLOADS) })
+                                DropdownMenuItem(text = { Text("Recent tabs") }, onClick = { menuExpanded = false; browser.openPanel(BrowserPanel.TABS) })
+                                DropdownMenuItem(text = { Text("Appearance") }, onClick = { menuExpanded = false; browser.openPanel(BrowserPanel.APPEARANCE) })
+                                DropdownMenuItem(text = { Text("Text size · ${(browser.textZoom * 100).toInt()}%") }, onClick = { menuExpanded = false; browser.updateTextZoom(1f) })
+                                DropdownMenuItem(text = { Text("Decrease text size") }, enabled = browser.textZoom > 0.8f, onClick = { menuExpanded = false; browser.updateTextZoom(browser.textZoom - 0.1f) })
+                                DropdownMenuItem(text = { Text("Increase text size") }, enabled = browser.textZoom < 2f, onClick = { menuExpanded = false; browser.updateTextZoom(browser.textZoom + 0.1f) })
+                                DropdownMenuItem(text = { Text(if (active?.desktopMode == true) "Use mobile site" else "Desktop site") }, trailingIcon = { if (active?.desktopMode == true) Text("✓", color = MaterialTheme.colorScheme.primary) }, enabled = active?.url?.startsWith("https://") == true || active?.url?.startsWith("http://") == true, onClick = { menuExpanded = false; browser.toggleDesktopMode() })
+                                DropdownMenuItem(text = { Text("Reader mode") }, onClick = { menuExpanded = false; browser.openReaderMode() })
+                                DropdownMenuItem(text = { Text("Scan QR code") }, onClick = {
+                                    menuExpanded = false
+                                    try {
+                                        GmsBarcodeScanning.getClient(context, GmsBarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_QR_CODE).build()).startScan()
+                                            .addOnSuccessListener { barcode -> browser.showQrScanResult(barcode.rawValue) }
+                                            .addOnCanceledListener { }
+                                            .addOnFailureListener { browser.showNotice("QR scanner is unavailable. Check Google Play services and try again.") }
+                                    } catch (_: Exception) {
+                                        browser.showNotice("QR scanner could not start. Check Google Play services and try again.")
+                                    }
+                                })
+                                DropdownMenuItem(text = { Text("Privacy Intelligence Center") }, onClick = { menuExpanded = false; browser.openPanel(BrowserPanel.SITE_PERMISSIONS) })
+                                DropdownMenuItem(text = { Text("Developer mode") }, onClick = { menuExpanded = false; browser.openPanel(BrowserPanel.DEVELOPER) })
+                                DropdownMenuItem(text = { Text("Clear browsing data") }, onClick = { menuExpanded = false; showClearDataConfirmation = true })
+                                DropdownMenuItem(text = { Text("Settings") }, onClick = { menuExpanded = false; browser.openPanel(BrowserPanel.SETTINGS) })
+                            }
+                        }
+                    }
+                    // Secondary action strip keeps the full set of commonly used Chrome-style actions reachable.
+                    Row(
+                        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        TextButton(onClick = { browser.navigate(BrowserController.HOME_URL) }) { Text("⌂  Home") }
+                        TextButton(onClick = {
+                            if (currentPageBookmarked) active?.url?.let(browser::removeBookmark) else browser.addCurrentBookmark()
+                        }, enabled = active?.url?.startsWith("http") == true) {
+                            Text(if (currentPageBookmarked) "★  Saved" else "☆  Bookmark")
+                        }
+                        TextButton(onClick = { browser.shareCurrentPage() }, enabled = active?.url?.startsWith("http") == true) { Text("↗  Share") }
+                        TextButton(onClick = { browser.openPanel(BrowserPanel.DOWNLOADS) }) { Text("↓  Downloads") }
+                        TextButton(onClick = { browser.createTab() }) { Text("+  New tab") }
+                        TextButton(onClick = { browser.createTab(privateMode = true) }) { Text("◉  Incognito") }
+                        TextButton(onClick = { browser.openPanel(BrowserPanel.HISTORY) }) { Text("◷  History") }
+                        TextButton(onClick = { browser.openPanel(BrowserPanel.BOOKMARKS) }) { Text("★  Bookmarks") }
+                        Box {
+                            TextButton(onClick = { profileMenuExpanded = true }) { Text("●  Profile") }
                             DropdownMenu(expanded = profileMenuExpanded, onDismissRequest = { profileMenuExpanded = false }) {
                                 DropdownMenuItem(text = { Text("Guest profile") }, onClick = { profileMenuExpanded = false; browser.openPanel(BrowserPanel.SETTINGS) })
                                 DropdownMenuItem(text = { Text("Passwords & autofill") }, onClick = { profileMenuExpanded = false; browser.openPanel(BrowserPanel.SETTINGS) })
                                 DropdownMenuItem(text = { Text("Account sync unavailable") }, enabled = false, onClick = {})
                             }
                         }
-                        IconButton(onClick = { browser.openPanel(BrowserPanel.TABS) }, modifier = Modifier.size(38.dp)) {
-                            Text(browser.tabs.size.toString(), color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.semantics { contentDescription = "Open tabs" })
-                        }
-                        Box {
-                            TextButton(onClick = { menuExpanded = true }) { Text("⋯", modifier = Modifier.semantics { contentDescription = "Open menu" }) }
-                            DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
-                                DropdownMenuItem(text = { Text("Reload") }, onClick = {
-                                    menuExpanded = false
-                                    browser.reloadOrStop()
-                                })
-                                DropdownMenuItem(text = { Text("New tab") }, onClick = {
-                                    menuExpanded = false
-                                    browser.createTab()
-                                })
-                                DropdownMenuItem(text = { Text("New private tab") }, onClick = {
-                                    menuExpanded = false
-                                    browser.createTab(privateMode = true)
-                                })
-                                DropdownMenuItem(text = { Text("Bookmarks") }, onClick = {
-                                    menuExpanded = false
-                                    browser.openPanel(BrowserPanel.BOOKMARKS)
-                                })
-                                DropdownMenuItem(text = { Text("History") }, onClick = {
-                                    menuExpanded = false
-                                    browser.openPanel(BrowserPanel.HISTORY)
-                                })
-                                DropdownMenuItem(text = { Text("Downloads") }, onClick = {
-                                    menuExpanded = false
-                                    browser.openPanel(BrowserPanel.DOWNLOADS)
-                                })
-                                DropdownMenuItem(text = { Text("Appearance") }, onClick = {
-                                    menuExpanded = false
-                                    browser.openPanel(BrowserPanel.APPEARANCE)
-                                })
-                                DropdownMenuItem(text = { Text("Text size · ${(browser.textZoom * 100).toInt()}%") }, onClick = { browser.updateTextZoom(1f) })
-                                DropdownMenuItem(text = { Text("Decrease text size") }, enabled = browser.textZoom > 0.8f, onClick = { browser.updateTextZoom(browser.textZoom - 0.1f) })
-                                DropdownMenuItem(text = { Text("Increase text size") }, enabled = browser.textZoom < 2f, onClick = { browser.updateTextZoom(browser.textZoom + 0.1f) })
-                                DropdownMenuItem(text = { Text("Settings") }, onClick = {
-                                    menuExpanded = false
-                                    browser.openPanel(BrowserPanel.SETTINGS)
-                                })
-                                DropdownMenuItem(
-                                    text = { Text(if (active?.desktopMode == true) "Use mobile site" else "Desktop site") },
-                                    trailingIcon = { if (active?.desktopMode == true) Text("✓", color = MaterialTheme.colorScheme.primary) },
-                                    enabled = active?.url?.startsWith("https://") == true || active?.url?.startsWith("http://") == true,
-                                    onClick = {
-                                        menuExpanded = false
-                                        browser.toggleDesktopMode()
-                                    }
-                                )
-                                DropdownMenuItem(text = { Text("Reader Mode") }, onClick = {
-                                    menuExpanded = false
-                                    browser.openReaderMode()
-                                })
-                                DropdownMenuItem(text = { Text("Scan QR code") }, onClick = {
-                                    menuExpanded = false
-                                    try {
-                                        GmsBarcodeScanning.getClient(
-                                            context,
-                                            GmsBarcodeScannerOptions.Builder()
-                                                .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
-                                                .build()
-                                        ).startScan()
-                                            .addOnSuccessListener { barcode -> browser.showQrScanResult(barcode.rawValue) }
-                                            .addOnCanceledListener { }
-                                            .addOnFailureListener {
-                                                browser.showNotice("QR scanner is unavailable. Check Google Play services and try again.")
-                                            }
-                                    } catch (_: Exception) {
-                                        browser.showNotice("QR scanner could not start. Check Google Play services and try again.")
-                                    }
-                                })
-                                DropdownMenuItem(text = { Text("Developer mode") }, onClick = {
-                                    menuExpanded = false
-                                    browser.openPanel(BrowserPanel.DEVELOPER)
-                                })
-                                DropdownMenuItem(text = { Text("Privacy Intelligence Center") }, onClick = {
-                                    menuExpanded = false
-                                    browser.openPanel(BrowserPanel.SITE_PERMISSIONS)
-                                })
-                            }
-                        }
                     }
                     if (active?.loading == true) {
-                        LinearProgressIndicator(
-                            progress = { active.progress / 100f },
-                            modifier = Modifier.fillMaxWidth().padding(top = 6.dp)
-                        )
+                        LinearProgressIndicator(progress = { active.progress / 100f }, modifier = Modifier.fillMaxWidth().padding(top = 4.dp))
                     }
                     if (active?.url != BrowserController.HOME_URL && active?.privateMode == true) {
-                        Text(
-                            "PRIVATE TAB · This session is not saved to local history",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(start = RivoSpacing.small, top = RivoSpacing.compact)
-                        )
+                        Text("PRIVATE TAB · This session is not saved to local history", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(start = RivoSpacing.small, top = RivoSpacing.compact))
                     }
                     if (active?.url != BrowserController.HOME_URL && active?.desktopMode == true) {
-                        Text(
-                            "DESKTOP SITE REQUESTED",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(start = RivoSpacing.small, top = RivoSpacing.compact)
-                        )
+                        Text("DESKTOP SITE REQUESTED", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(start = RivoSpacing.small, top = RivoSpacing.compact))
                     }
                     if (active?.url != BrowserController.HOME_URL && active != null && !active.privateMode && active.securityKnown) {
                         Text(
-                            BrowserSecurityStatusPolicy.label(
-                                secure = active.secureConnection,
-                                certificateException = active.certificateException,
-                                activeMixedContentLoaded = active.activeMixedContentLoaded,
-                                passiveMixedContentLoaded = active.passiveMixedContentLoaded,
-                                mixedContentStatusUnknown = active.mixedContentStatusUnknown
-                            ),
+                            BrowserSecurityStatusPolicy.label(secure = active.secureConnection, certificateException = active.certificateException, activeMixedContentLoaded = active.activeMixedContentLoaded, passiveMixedContentLoaded = active.passiveMixedContentLoaded, mixedContentStatusUnknown = active.mixedContentStatusUnknown),
                             style = MaterialTheme.typography.labelSmall,
                             color = when {
-                                active.certificateException || !active.secureConnection ||
-                                    active.activeMixedContentLoaded || active.passiveMixedContentLoaded ->
-                                    MaterialTheme.colorScheme.error
+                                active.certificateException || !active.secureConnection || active.activeMixedContentLoaded || active.passiveMixedContentLoaded -> MaterialTheme.colorScheme.error
                                 active.mixedContentStatusUnknown -> MaterialTheme.colorScheme.onSurfaceVariant
                                 else -> MaterialTheme.colorScheme.primary
                             },
