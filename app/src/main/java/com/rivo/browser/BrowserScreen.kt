@@ -903,23 +903,27 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                         }
                     }
                     BrowserPanel.SETTINGS -> {
-                        Text("Appearance", style = MaterialTheme.typography.titleSmall)
+                        Text("Basics", style = MaterialTheme.typography.titleSmall)
+                        Text("Search engine", style = MaterialTheme.typography.bodyMedium)
+                        Text("Google · default search provider", style = MaterialTheme.typography.bodySmall)
+                        Text("Homepage", style = MaterialTheme.typography.bodyMedium)
+                        Text("Rivo home · opens when you create a new tab", style = MaterialTheme.typography.bodySmall)
+                        Text("Address bar", style = MaterialTheme.typography.bodyMedium)
+                        Text("Shown at the top while browsing websites", style = MaterialTheme.typography.bodySmall)
+                        Spacer(Modifier.height(RivoSpacing.small))
+                        Text("Appearance & accessibility", style = MaterialTheme.typography.titleSmall)
                         BrowserAppearance.values().forEach { option ->
                             Row(modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp).selectable(selected = browser.appearance == option, role = Role.RadioButton, onClick = { browser.updateAppearance(option) }), verticalAlignment = Alignment.CenterVertically) {
                                 androidx.compose.material3.RadioButton(selected = browser.appearance == option, onClick = null)
                                 Text(option.name.lowercase().replaceFirstChar { it.uppercase() })
                             }
                         }
-                        Spacer(Modifier.height(RivoSpacing.small))
                         Text("Website text size · ${(browser.textZoom * 100).toInt()}%", style = MaterialTheme.typography.titleSmall)
                         Slider(value = browser.textZoom, onValueChange = browser::updateTextZoom, valueRange = 0.8f..2.0f, steps = 11)
                         Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) { Text("80%", style = MaterialTheme.typography.labelSmall); Text("100%", style = MaterialTheme.typography.labelSmall); Text("200%", style = MaterialTheme.typography.labelSmall) }
                         Text("GeckoView global web-content font scaling. The active page reloads to apply changes.", style = MaterialTheme.typography.bodySmall)
                         Spacer(Modifier.height(RivoSpacing.small))
-                        Text("Search", style = MaterialTheme.typography.titleSmall)
-                        Text("Default search engine: Google", style = MaterialTheme.typography.bodyMedium)
-                        Spacer(Modifier.height(RivoSpacing.small))
-                        Text("Site functionality", style = MaterialTheme.typography.titleSmall)
+                        Text("Privacy & security", style = MaterialTheme.typography.titleSmall)
                         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                             Column(Modifier.weight(1f)) {
                                 Text("JavaScript", style = MaterialTheme.typography.bodyMedium)
@@ -927,7 +931,6 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                             }
                             Switch(checked = browser.javascriptEnabled, onCheckedChange = browser::updateJavascriptEnabled)
                         }
-                        Text("Privacy & security", style = MaterialTheme.typography.titleSmall)
                         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                             Column(Modifier.weight(1f)) {
                                 Text("Global Privacy Control", style = MaterialTheme.typography.bodyMedium)
@@ -936,11 +939,16 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                             Switch(checked = browser.globalPrivacyControl, onCheckedChange = browser::updateGlobalPrivacyControl)
                         }
                         Text("Private tabs are excluded from local history and tab restoration. Tracking protection is enabled by the GeckoView session configuration.", style = MaterialTheme.typography.bodySmall)
-                        TextButton(onClick = { browser.openPanel(BrowserPanel.SITE_PERMISSIONS) }) { Text("Privacy Intelligence Center") }
+                        TextButton(onClick = { browser.openPanel(BrowserPanel.SITE_PERMISSIONS) }) { Text("Site settings & Privacy Intelligence Center") }
                         TextButton(onClick = onClearBrowsingData, enabled = !browser.clearingBrowsingData) { Text(if (browser.clearingBrowsingData) "Clearing…" else "Clear browsing data") }
                         Spacer(Modifier.height(RivoSpacing.small))
-                        Text("Downloads", style = MaterialTheme.typography.titleSmall)
-                        TextButton(onClick = { browser.openPanel(BrowserPanel.DOWNLOADS) }) { Text("Transfer Studio") }
+                        Text("Your browser", style = MaterialTheme.typography.titleSmall)
+                        TextButton(onClick = { browser.openPanel(BrowserPanel.TABS) }) { Text("Tabs and tab groups") }
+                        TextButton(onClick = { browser.openPanel(BrowserPanel.BOOKMARKS) }) { Text("Bookmarks") }
+                        TextButton(onClick = { browser.openPanel(BrowserPanel.HISTORY) }) { Text("History") }
+                        TextButton(onClick = { browser.openPanel(BrowserPanel.DOWNLOADS) }) { Text("Downloads · Transfer Studio") }
+                        TextButton(onClick = { browser.openPanel(BrowserPanel.DEVELOPER) }) { Text("About Rivo & developer diagnostics") }
+                        Text("Password autofill, a built-in password manager, account sync and an extension marketplace are not currently shipped. Android's system default-browser selection is managed outside Rivo.", style = MaterialTheme.typography.bodySmall)
                     }
                     BrowserPanel.APPEARANCE -> {
                         BrowserAppearance.values().forEach { appearance ->
