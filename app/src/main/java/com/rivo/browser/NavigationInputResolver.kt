@@ -5,24 +5,31 @@ import java.net.URI
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
-/** Pure URL/search parser: only HTTP and HTTPS navigation is accepted. */
+/** Resolves an omnibox value to a safe HTTP(S) URL or a Google search. */
 object NavigationInputResolver {
     fun resolve(rawInput: String): String {
         val input = rawInput.trim()
         if (input.isEmpty()) return ""
 
-        val candidate = if (
-            input.startsWith("https://", ignoreCase = true) ||
-            input.startsWith("http://", ignoreCase = true)
-        ) input else "https://$input"
-
+        val hasExplicitWebScheme = input.startsWith("https://", true) ||
+            input.startsWith("http://", true)
+        val candidate = if (hasExplicitWebScheme) input else "https://$input"
         val parsed = runCatching { URI(candidate) }.getOrNull()
         val normalized = parsed?.let(::normalizeInternationalHost)
+        val host = normalized?.host?.removePrefix("[")?.removeSuffix("]")
         val scheme = normalized?.scheme?.lowercase()
+        val looksLikeHost = hasExplicitWebScheme ||
+            (!host.isNullOrBlank() && (
+                host.contains('.') ||
+                    host.equals("localhost", ignoreCase = true) ||
+                    host.contains(':')
+                ))
+
         if (
+            looksLikeHost &&
             normalized != null &&
             scheme in setOf("http", "https") &&
-            !normalized.host.isNullOrBlank() &&
+            !host.isNullOrBlank() &&
             normalized.rawUserInfo == null &&
             (normalized.port == -1 || normalized.port in 0..65535) &&
             input.none(Char::isWhitespace)
@@ -39,7 +46,7 @@ object NavigationInputResolver {
         if (!uri.host.isNullOrBlank()) return uri
         val authority = uri.rawAuthority ?: return null
         val hostAndPort = authority.substringAfterLast('@')
-        if (hostAndPort.startsWith("[")) return uri // IPv6 is parsed by URI itself.
+        if (hostAndPort.startsWith("[")) return uri
 
         val separator = hostAndPort.lastIndexOf(':')
         val hasPort = separator >= 0
