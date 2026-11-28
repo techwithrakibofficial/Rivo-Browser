@@ -173,3 +173,10 @@ Build success, JVM tests, emulator instrumentation, physical-device testing and 
 | Website omnibox | Retained on non-home pages |
 | Bottom navigation | Compact 48 dp translucent strip with Back, Forward, New tab, Save and Tabs |
 | Native panels | Translucent surfaces; contrast/accessibility device QA pending |
+
+
+## 2026-11-28 — Settings and UX clarification
+
+- Settings hub: expanded organization and navigation to implemented tabs, bookmarks, history, downloads, site permissions, privacy center and diagnostics (PR #108, pending review/CI).
+- Password autofill/manager, account sync, extension marketplace and in-app Android default-browser selection: not shipped; do not present as available.
+- Premium Glass readability update and bottom navigation sizing correction are pending CI and physical-device acceptance.
