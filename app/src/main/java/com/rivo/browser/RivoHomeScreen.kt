@@ -70,7 +70,13 @@ internal fun RivoHomeScreen(
     val glow by motion.animateFloat(
         initialValue = if (animationsEnabled) 0.72f else 1f,
         targetValue = 1f,
-        animationSpec = if (animationsEnabled) infiniteRepeatable(tween(2200, easing = FastOutSlowInEasing), repeatMode = androidx.compose.animation.core.RepeatMode.Reverse) else tween(0),
+        animationSpec = infiniteRepeatable<Float>(
+            animation = tween(
+                durationMillis = if (animationsEnabled) 2200 else 0,
+                easing = FastOutSlowInEasing
+            ),
+            repeatMode = androidx.compose.animation.core.RepeatMode.Reverse
+        ),
         label = "brand-glow"
     )
 
