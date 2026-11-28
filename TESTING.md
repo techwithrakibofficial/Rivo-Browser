@@ -439,3 +439,10 @@ Install the signed 0.2.8 build on TECNO Pova Slim 5G / Android 16 / HyperOS 16.3
 - Keep historical checkpoints above for traceability; this dated checkpoint is authoritative for the current Main revision only.
 
 Latest verified Main CI: run #46171158253 passed all configured steps, including lint, unit/policy tests, minified bundle, static 16 KB checks and Android security instrumentation. These do not replace physical-device acceptance or runtime 16 KB proof.
+
+## 2026-11-29 — Chrome-style toolbar validation
+- Verify Back/Forward enablement follows Gecko history; Reload changes to Stop while loading and returns after completion.
+- Confirm omnibox is visible on native home and websites; Google single-word searches and direct URLs continue to resolve.
+- Verify tab counter, overflow destinations, bookmark add/remove, and Android Share sheet payload.
+- On 320 dp width and large font, horizontally scroll the secondary strip without clipping; test all themes, TalkBack, gesture insets and reduced motion.
+- Confirm private browsing does not leak into local History or tab restoration; verify bookmark behavior for private tabs.
