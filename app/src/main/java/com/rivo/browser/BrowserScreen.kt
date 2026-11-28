@@ -354,40 +354,42 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                 }
 
                 Surface(
-                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    // Two stacked controls (icon + label) need more than the old 48 dp slot.
+                    // safeDrawingPadding already accounts for the system navigation inset.
+                    modifier = Modifier.fillMaxWidth().height(64.dp),
                     color = MaterialTheme.colorScheme.surface.copy(alpha = 0.68f),
                     tonalElevation = 0.dp
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().height(48.dp).padding(horizontal = 2.dp),
+                        modifier = Modifier.fillMaxWidth().height(64.dp).padding(horizontal = 2.dp),
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        TextButton(onClick = { browser.goBack() }, enabled = active?.canGoBack == true, modifier = Modifier.weight(1f).height(46.dp)) {
+                        TextButton(onClick = { browser.goBack() }, enabled = active?.canGoBack == true, modifier = Modifier.weight(1f).height(60.dp)) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text("‹", style = MaterialTheme.typography.titleMedium)
                                 Text("Back", style = MaterialTheme.typography.labelSmall)
                             }
                         }
-                        TextButton(onClick = { browser.goForward() }, enabled = active?.canGoForward == true, modifier = Modifier.weight(1f).height(44.dp)) {
+                        TextButton(onClick = { browser.goForward() }, enabled = active?.canGoForward == true, modifier = Modifier.weight(1f).height(60.dp)) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text("›", style = MaterialTheme.typography.titleMedium)
                                 Text("Forward", style = MaterialTheme.typography.labelSmall)
                             }
                         }
-                        TextButton(onClick = { browser.createTab() }, modifier = Modifier.weight(1f).height(44.dp)) {
+                        TextButton(onClick = { browser.createTab() }, modifier = Modifier.weight(1f).height(60.dp)) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text("+", style = MaterialTheme.typography.titleMedium)
                                 Text("New tab", style = MaterialTheme.typography.labelSmall)
                             }
                         }
-                        TextButton(onClick = { browser.addCurrentBookmark() }, enabled = active?.url?.startsWith("http") == true, modifier = Modifier.weight(1f).height(44.dp)) {
+                        TextButton(onClick = { browser.addCurrentBookmark() }, enabled = active?.url?.startsWith("http") == true, modifier = Modifier.weight(1f).height(60.dp)) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text("☆", style = MaterialTheme.typography.titleMedium)
                                 Text("Save", style = MaterialTheme.typography.labelSmall)
                             }
                         }
-                        TextButton(onClick = { browser.openPanel(BrowserPanel.TABS) }, modifier = Modifier.weight(1f).height(44.dp)) {
+                        TextButton(onClick = { browser.openPanel(BrowserPanel.TABS) }, modifier = Modifier.weight(1f).height(60.dp)) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text("▢ ${browser.tabs.size}", style = MaterialTheme.typography.titleSmall)
                                 Text("Tabs", style = MaterialTheme.typography.labelSmall)
