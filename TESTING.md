@@ -357,3 +357,10 @@ Desktop Site policy unit tests and implementation are included in Main via PR #9
 ## CI status refresh — 2026-11-26
 
 For Main SHA `3cca9117771e1412a20788be01ea56ec3d768480`, Gradle Dependency Verification Bootstrap `45777625387` completed successfully. Android CI `45777625468` was still executing Android security instrumentation tests at the latest check; its final result remains pending. The OSV, SBOM and Dependency Graph runs listed above succeeded.
+
+
+## UI refinement validation — 2026-11-28
+
+Automated PR CI is required for the minimal-home/translucent-chrome change: Android assemble, lint, JVM/unit tests, Gecko policy tests, release bundle and security instrumentation. Do not mark this UI as device-verified based on CI alone.
+
+Manual acceptance still required on physical Android hardware: home shows only the centered Google search field; top omnibox is absent only on home; Reload is first in the three-dot menu above New tab; website pages retain the omnibox; bottom bar is compact and all five controls remain understandable/tappable; native settings/panels remain legible over the page; verify Dark, Light and Premium Glass, light/dark/busy web backgrounds, large font and TalkBack.
