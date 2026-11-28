@@ -1,5 +1,7 @@
 package com.rivo.browser
 
+import android.graphics.Bitmap
+
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -59,6 +61,7 @@ class BrowserTabState(
     var trackingProtectionEnabled by mutableStateOf(false)
     var trackingProtectionException by mutableStateOf(false)
     var desktopMode by mutableStateOf(false)
+    var previewBitmap by mutableStateOf<Bitmap?>(null)
     lateinit var engine: GeckoBrowserTab
     var initialLoadPending: Boolean = false
 }
@@ -94,6 +97,12 @@ class BrowserController(context: Context) {
 
     var activeTabId by mutableStateOf(0L)
         private set
+    var javascriptEnabled by mutableStateOf(true)
+        private set
+    var globalPrivacyControl by mutableStateOf(false)
+        private set
+    var textZoom by mutableStateOf(1f)
+        private set
     var appearance by mutableStateOf(BrowserAppearance.DARK)
         private set
     var panel by mutableStateOf<BrowserPanel?>(null)
@@ -125,9 +134,13 @@ class BrowserController(context: Context) {
 
     init {
         scope.launch {
-            appearance = runCatching {
-                BrowserAppearance.valueOf(storage.loadTheme().uppercase())
-            }.getOrDefault(BrowserAppearance.DARK)
+            appearance = runCatching { BrowserAppearance.valueOf(storage.loadTheme().uppercase()) }.getOrDefault(BrowserAppearance.DARK)
+            textZoom = runCatching { storage.loadTextZoom() }.getOrDefault(1f)
+            runtime.settings.setFontSizeFactor(textZoom)
+            javascriptEnabled = runCatching { storage.loadJavascriptEnabled() }.getOrDefault(true)
+            globalPrivacyControl = runCatching { storage.loadGlobalPrivacyControl() }.getOrDefault(false)
+            runtime.settings.setJavaScriptEnabled(javascriptEnabled)
+            runtime.settings.setGlobalPrivacyControl(globalPrivacyControl)
             try {
                 bookmarks.addAll(storage.loadBookmarks())
                 history.addAll(storage.loadHistory())
@@ -304,7 +317,17 @@ class BrowserController(context: Context) {
     }
 
     fun selectTab(id: Long) {
-        tabs.firstOrNull { it.id == activeTabId }?.engine?.setActive(false)
+        tabs.firstOrNull { it.id == activeTabId }?.let { previous ->
+            if (!previous.privateMode) previous.engine.capturePreview { bitmap ->
+                if (bitmap != null) {
+                    if (previous.id in tabs.map { it.id }) {
+                        previous.previewBitmap?.recycle()
+                        previous.previewBitmap = bitmap
+                    } else bitmap.recycle()
+                }
+            }
+            previous.engine.setActive(false)
+        }
         activeTabId = id
         tabs.firstOrNull { it.id == id }?.let { tab ->
             tab.engine.setActive(
@@ -336,6 +359,8 @@ class BrowserController(context: Context) {
             }
             download.file?.let(::deletePrivateDownloadFile)
         }
+        closing.previewBitmap?.recycle()
+        closing.previewBitmap = null
         closing.engine.dispose()
         downloads.removeAll { it.privateTabId == id }
         tabs.removeAt(index)
@@ -561,7 +586,7 @@ class BrowserController(context: Context) {
         downloads.filter { it.privateMode }.forEach { download ->
             download.file?.let(::deletePrivateDownloadFile)
         }
-        tabs.toList().forEach { it.engine.dispose() }
+        tabs.toList().forEach { it.previewBitmap?.recycle(); it.previewBitmap = null; it.engine.dispose() }
         tabs.clear()
         activeTabId = 0L
         sitePermissions.clear()
@@ -744,7 +769,47 @@ class BrowserController(context: Context) {
         scope.launch { storage.saveTheme(value.name.lowercase()) }
     }
 
-    fun openPanel(value: BrowserPanel?) { panel = value }
+    fun updateJavascriptEnabled(value: Boolean) {
+        if (javascriptEnabled == value) return
+        javascriptEnabled = value
+        runtime.settings.setJavaScriptEnabled(value)
+        activeTab?.engine?.reload()
+        scope.launch { runCatching { storage.saveJavascriptEnabled(value) }.onFailure { notice = "JavaScript preference could not be saved." } }
+    }
+
+    fun updateGlobalPrivacyControl(value: Boolean) {
+        if (globalPrivacyControl == value) return
+        globalPrivacyControl = value
+        runtime.settings.setGlobalPrivacyControl(value)
+        activeTab?.engine?.reload()
+        scope.launch { runCatching { storage.saveGlobalPrivacyControl(value) }.onFailure { notice = "Global Privacy Control preference could not be saved." } }
+    }
+
+    /** GeckoView applies font-size-factor changes after the active session is reloaded. */
+    fun updateTextZoom(value: Float) {
+        val normalized = (kotlin.math.round(value * 10f) / 10f).coerceIn(0.8f, 2f)
+        if (normalized == textZoom) return
+        textZoom = normalized
+        runtime.settings.setFontSizeFactor(normalized)
+        activeTab?.engine?.reload()
+        scope.launch { runCatching { storage.saveTextZoom(normalized) }.onFailure { notice = "Text size preference could not be saved." } }
+    }
+
+    fun openPanel(value: BrowserPanel?) {
+        if (value == BrowserPanel.TABS) {
+            activeTab?.let { tab ->
+                if (!tab.privateMode) tab.engine.capturePreview { bitmap ->
+                    if (bitmap != null) {
+                        if (tabs.any { it.id == tab.id }) {
+                            tab.previewBitmap?.recycle()
+                            tab.previewBitmap = bitmap
+                        } else bitmap.recycle()
+                    }
+                }
+            }
+        }
+        panel = value
+    }
     fun showNotice(value: String) { notice = value }
     fun dismissNotice() { notice = null }
 
@@ -1036,7 +1101,7 @@ class BrowserDownload(val id: Long, filename: String, val mimeType: String?, val
     var file: File? = null
 }
 
-enum class BrowserPanel { TABS, BOOKMARKS, HISTORY, DOWNLOADS, APPEARANCE, DEVELOPER, SITE_PERMISSIONS, MENU }
+enum class BrowserPanel { TABS, BOOKMARKS, HISTORY, DOWNLOADS, APPEARANCE, SETTINGS, DEVELOPER, SITE_PERMISSIONS, MENU }
 
 
 /** Only the selected tab on a started host may activate/focus Gecko. */

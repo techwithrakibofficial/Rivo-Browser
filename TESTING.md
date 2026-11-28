@@ -1,3 +1,23 @@
+- Open Tab Universe while a normal webpage is active and verify the active tab has a fresh screenshot; repeat in private mode and verify no screenshot is captured.
+- Disable Android animator animations and verify home branding becomes static; re-enable and verify the glow animation returns.
+- Confirm app metadata reports `0.2.7-phase1` / versionCode 8 and release tag is not reused.
+
+- Build regression: GeckoView capture callbacks may return a nullable Bitmap; confirm null capture is safely handled and no preview crashes occur.
+- Settings panel layout: verify the dialog scrolls on short screens and at large system font sizes; test nested tab grid and transfer lists.
+
+- Tab preview memory: switch between normal tabs repeatedly, close tabs and exit the browser; verify previews are recycled and no private page image appears.
+
+- Settings switches: toggle JavaScript off/on and verify page behavior after reload and process restart; toggle GPC and verify GeckoView runtime setting persists. Confirm private mode continues to follow GeckoView's built-in GPC behavior.
+
+## 2026-11-28 — PR #107 continued UI implementation test plan
+
+- Text zoom: verify 80%, 100%, 200%, persistence after process restart, and active-page reload behavior.
+- Tab overview: open at least four normal pages, switch between them, confirm snapshots render, close tabs, and verify grid selection/close actions.
+- Privacy: confirm private tabs never capture or show webpage snapshots; close private tabs and verify private session cleanup remains intact.
+- Settings: verify appearance changes, text zoom, Google default label, Privacy Intelligence Center navigation, clear-data confirmation and Transfer Studio navigation.
+- Home/overflow: confirm RIVO animated emblem appears above the centered field; disabled desktop mode has no trailing state icon and enabled mode has a checkmark.
+- CI has not yet been rechecked for commit `e979d7964a7093d950c947c42bc1bae32a9f16fd`. Physical-device, TalkBack, large-font, reduced-motion and performance tests remain pending.
+
 ## 2026-11-28 — Chrome-inspired home / toolbar candidate tests
 
 - Updated navigation resolver assertions to expect `https://www.google.com/search?q=...` for plain-text and unsupported-scheme input.
@@ -357,3 +377,19 @@ Desktop Site policy unit tests and implementation are included in Main via PR #9
 ## CI status refresh — 2026-11-26
 
 For Main SHA `3cca9117771e1412a20788be01ea56ec3d768480`, Gradle Dependency Verification Bootstrap `45777625387` completed successfully. Android CI `45777625468` was still executing Android security instrumentation tests at the latest check; its final result remains pending. The OSV, SBOM and Dependency Graph runs listed above succeeded.
+
+
+## UI refinement validation — 2026-11-28
+
+Automated PR CI is required for the minimal-home/translucent-chrome change: Android assemble, lint, JVM/unit tests, Gecko policy tests, release bundle and security instrumentation. Do not mark this UI as device-verified based on CI alone.
+
+Manual acceptance still required on physical Android hardware: home shows only the centered Google search field; top omnibox is absent only on home; Reload is first in the three-dot menu above New tab; website pages retain the omnibox; bottom bar is compact and all five controls remain understandable/tappable; native settings/panels remain legible over the page; verify Dark, Light and Premium Glass, light/dark/busy web backgrounds, large font and TalkBack.
+
+
+## Candidate test evidence — 2026-11-28 / PR #107
+- Android CI `46139235887` passed: shipping assembly, lint, unit tests, Gecko policy tests, minified release AAB build, static 16 KB alignment and Android security instrumentation.
+- Dependency Verification Bootstrap `46139235896`, OSV Scanner `46139235905`, Gradle Dependency Graph `46139235898`, Source SBOM `46139235890` passed.
+- These results apply to source head `2fc560f8acd3fa0602f460132a308a5647dacddd`; any later docs commit requires checks to be rerun. Static alignment is not runtime 16 KB proof and CI is not physical-device QA.
+
+### Required device acceptance
+Install the production-signed build on TECNO Pova Slim 5G / Android 16 / HyperOS 16.3.0. Test cold/repeated launch, Google search/navigation, home/new tab, overflow Reload, Tab Universe, tab switching/closing, private screenshot exclusion, text zoom 80/100/200 and persistence, JavaScript/GPC persistence, downloads, permissions, bookmarks/history, Reader Mode, clear-data and Transfer Studio. Capture all three themes over light/dark/busy pages; verify contrast, TalkBack, 320 dp, large fonts and disabled animations. Profile low-memory behavior and verify private page imagery is never retained. Runtime 16 KB and MASVS/MASTG gates require actual evidence.

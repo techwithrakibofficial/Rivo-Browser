@@ -1,3 +1,21 @@
+- Release candidate version is now `0.2.7-phase1` / versionCode 8. After merge to Main, create and push immutable tag `v0.2.7-phase1` to trigger the protected signed-release workflow; this session's GitHub connector does not expose tag creation or workflow dispatch.
+- Tab Universe captures active normal-tab preview when opened; home glow becomes static when Android animations are disabled.
+
+- Previous Android CI run failed at `GeckoBrowserTab.capturePreview`: GeckoResult returns nullable Bitmap. Latest fix now null-checks the bitmap and recycles safely; rerun full CI to confirm.
+
+- Tab preview bitmap replacement and teardown now recycle retained images; verify repeated tab switching/closing during memory profiling.
+
+- Latest settings extension adds persisted JavaScript and GPC controls through GeckoRuntimeSettings. Validate both switches and restart persistence in CI/device QA.
+
+# 2026-11-28 — PR #107 continued implementation handoff
+
+- Branch: `feat/minimal-home-transparent-browser-chrome`.
+- Latest commit: `8d80dca76dfd2e1cb1a12ded081273b7707cd604`.
+- Added animated home brand, enabled-only desktop checkmark, persisted GeckoView global text zoom, four-column tab overview with private-safe preview capture, partial Settings hub and violet/blue palette updates.
+- Next: inspect all latest commit workflows, fix compile/lint/test failures, run regression tests, then inspect PR reviewability/mergeability. Do not merge before required checks and reviews.
+- After merge, run signed release workflow and verify APK/AAB signatures/checksums. Physical Android 16 device install and feature QA remain mandatory.
+- Still unfinished: broader settings coverage, full flagship motion/visual treatment across every native screen, accessibility/reduced-motion verification, performance profiling, and physical-device acceptance.
+
 # 2026-11-28 — Chrome-inspired home / browser chrome handoff
 
 - Work branch: `feat/chrome-style-google-home-glass-ui`.
@@ -484,3 +502,16 @@ PR #93 merged Desktop Site into Main. Its merge commit is an ancestor of current
 ## CI status refresh — 2026-11-26
 
 Gradle Dependency Verification Bootstrap `45777625387` completed successfully. Main Android CI `45777625468` was still running Android security instrumentation tests at the latest check. Recheck that run's final conclusion; do not report all Main CI green before it completes.
+
+
+## 2026-11-28 — UI refinement handoff
+
+Current candidate branch: `feat/minimal-home-transparent-browser-chrome` (based on Main `b2dd56f3b600b9612ff77f2433eec435ce51e860`). It simplifies the home page to one centered Google search field, hides the top omnibox on home only, retains it on website pages, moves Reload into the three-dot menu immediately above New tab, removes the standalone top reload button, and reduces the bottom navigation to a 48 dp translucent strip. Native panels and Reader Mode use translucent surfaces; website-rendered content is untouched. Check PR CI before merging, then perform real-device checks in Dark/Light/Glass, with particular attention to contrast, tap targets, TalkBack, and different webpage backgrounds. No physical-device verification is claimed yet.
+
+
+## Current handoff — 2026-11-28 / PR #107
+- Branch `feat/minimal-home-transparent-browser-chrome`; implementation head `2fc560f8acd3fa0602f460132a308a5647dacddd`; PR https://github.com/techwithrakibofficial/Rivo-Browser/pull/107.
+- Current-head workflows passed: Android CI `46139235887`, dependency verification `46139235896`, OSV `46139235905`, dependency graph `46139235898`, SBOM `46139235890`.
+- PR remains open/unmerged. CODEOWNER `techsomadhanmedia` is requested; no current-head approval is recorded. Earlier approvals were dismissed after subsequent commits.
+- Next gates: fresh CODEOWNER approval; required checks green on exact head; merge under repository protection; create/push `v0.2.7-phase1`; verify signed APK/AAB, signer and SHA256SUMS.
+- Manual acceptance on TECNO Pova Slim 5G / Android 16 / HyperOS 16.3.0 remains mandatory: navigation, themes, tabs/private privacy, text zoom, JS/GPC, downloads, permissions, TalkBack, large fonts, reduced motion and memory/performance. No device pass is claimed.

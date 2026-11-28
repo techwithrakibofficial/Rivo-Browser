@@ -13,9 +13,9 @@ class RivoColorSchemesTest {
         val light = RivoColorSchemes.forAppearance(BrowserAppearance.LIGHT)
         val glass = RivoColorSchemes.forAppearance(BrowserAppearance.GLASS)
 
-        assertEquals(Color(0xFF0D1118), dark.background)
+        assertEquals(Color(0xFF090B18), dark.background)
         assertEquals(Color(0xFFF3F6FA), light.background)
-        assertEquals(Color(0xFF151B22), glass.background)
+        assertEquals(Color(0xFF100D25), glass.background)
         assertTrue(glass.surface.alpha < 1f)
         assertEquals(1f, dark.surface.alpha, 0f)
         assertEquals(1f, light.surface.alpha, 0f)

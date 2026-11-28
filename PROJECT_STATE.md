@@ -1,3 +1,21 @@
+- Release candidate metadata bumped to `0.2.7-phase1` / versionCode 8 to avoid reusing the already published `v0.2.6-phase1` tag. Active tab preview is captured when Tab Universe opens; home glow respects Android animator settings.
+
+- Latest Android CI for the preview implementation exposed a nullable GeckoView screenshot callback compile error; a null-safe correction is now included in the current branch update. Fresh CI is required before considering it fixed.
+
+- Preview bitmap lifecycle includes replacement/close/dispose recycling; private pages remain excluded from capture.
+
+- Settings hub now includes persisted JavaScript and Global Privacy Control controls in addition to appearance, text zoom, Google default, privacy center, clear-data flow and Transfer Studio. These controls require CI and runtime verification.
+
+# 2026-11-28 — PR #107 continued implementation checkpoint
+
+- Active branch: `feat/minimal-home-transparent-browser-chrome`; PR #107 targets Main.
+- Latest implementation commit: `8d80dca76dfd2e1cb1a12ded081273b7707cd604`.
+- Added animated RIVO home identity, Desktop site checkmark state, persisted GeckoView text zoom, four-column tab grid with normal-tab snapshots (private tabs excluded), and a partial Settings hub.
+- Dark and Premium Glass palettes shifted toward violet/blue flagship styling.
+- Settings is deliberately scoped to implemented features only; it is not yet a complete Chrome/Brave-scale settings catalogue.
+- Tab screenshots are downscaled in-memory captures, not persistent/live thumbnails. Private tabs do not capture screenshots.
+- PR remains unmerged. CI for latest SHA, full UI QA, signed release, and physical-device acceptance remain unverified/pending.
+
 # 2026-11-28 — Chrome-inspired home and toolbar implementation candidate
 
 - Review branch: `feat/chrome-style-google-home-glass-ui`, based on Main `3a284aa9b11dd4e43d8dde6f56baaabea276c84d`.
@@ -400,3 +418,22 @@ Desktop Site is already integrated in current Main by PR #93. Merge commit `e747
 ## CI status refresh — 2026-11-26
 
 Gradle Dependency Verification Bootstrap run `45777625387` completed successfully. Main Android CI run `45777625468` was still executing `Run Android security instrumentation tests` at the latest check. Do not mark current-Main Android CI complete until its run conclusion is `success`.
+
+
+## 2026-11-28 — Minimal home / transparent chrome candidate
+
+- New PR branch `feat/minimal-home-transparent-browser-chrome` contains the requested UI refinement on top of the verified `v0.2.6-phase1` Main commit.
+- Home screen now contains only a centered Google search/address field. Top omnibox is hidden on home and retained on normal web pages; three-dot menu remains accessible.
+- Removed the standalone top reload button; added Reload as the first three-dot menu item immediately above New tab.
+- Bottom controls reduced to a 48 dp translucent strip. Header, home search surface, native browser panels and Reader Mode use translucent surfaces; website content is not altered.
+- Changes are a PR candidate only until CI and review pass. Physical-device visual/accessibility QA remains outstanding.
+
+
+## Authoritative checkpoint — 2026-11-28 / PR #107
+- Candidate branch `feat/minimal-home-transparent-browser-chrome`, source head `2fc560f8acd3fa0602f460132a308a5647dacddd`, based on Main `b2dd56f3b600b9612ff77f2433eec435ce51e860`.
+- PR #107 is open/unmerged and mergeable. Fresh CODEOWNER approval for the current head is not recorded; earlier approvals were dismissed after later commits. Never bypass protection.
+- Candidate implements minimal Google home, home-only omnibox hiding, Reload in overflow above New tab, translucent native chrome, violet/blue Dark and Glass palettes plus Light, reduced-motion-aware RIVO glow, persistent GeckoView text zoom 80–200%, four-column Tab Universe with downscaled normal-tab snapshots/private screenshot exclusion, and focused Settings controls including JavaScript/GPC.
+- Settings is partial, not full Chrome/Brave parity. Transparency does not alter webpage content. GeckoView extension management is not exposed as a supported feature.
+- Workflows passed for this head: Android CI `46139235887`, Dependency Verification Bootstrap `46139235896`, OSV Scanner `46139235905`, Gradle Dependency Graph `46139235898`, Source SBOM `46139235890`.
+- PR artifacts are not production-signed. Signed release requires protected merge, tag `v0.2.7-phase1`, configured signing secrets and artifact verification.
+- Physical TECNO Pova Slim 5G / Android 16 / HyperOS 16.3.0 acceptance, accessibility, low-memory performance, runtime 16 KB and full security review remain unverified.

@@ -1,3 +1,17 @@
+- Tab preview snapshots are downscaled, replaced snapshots are recycled, and previews are recycled on tab close/controller disposal to bound retained memory.
+
+- Settings also includes functional JavaScript and Global Privacy Control switches. JavaScript is enabled by default; GPC is opt-in for normal browsing and GeckoView enables it in private mode by engine policy.
+
+## 2026-11-28 — Flagship visual direction and tab/settings surfaces
+
+- Dark and Premium Glass palettes now use a deep violet/blue foundation with luminous lavender and blue accents; Light remains a readable light palette.
+- Home branding uses an animated gradient emblem and subtle breathing glow above the centered Google search field.
+- Tab Universe is a four-column overview with downscaled live GeckoView snapshots for normal tabs. Private tabs intentionally use a text-only tile to avoid retaining private page imagery in the overview.
+- Settings exposes only currently implemented controls: appearance, GeckoView text zoom, Google default search, existing privacy center, clear-data flow and Transfer Studio.
+- Text zoom uses GeckoView's global font-size factor and reloads the active page to apply the setting. The setting is persisted locally.
+- The tab grid preview is an in-memory snapshot, not a continuously live miniature browser; previews update when a normal tab is switched away from.
+- Full flagship motion language, background effects, and complete Settings breadth still need visual iteration and validation; do not describe the entire product as finished.
+
 ## 2026-11-28 — Chrome-inspired start page and compact browser chrome
 
 - Reworked the native start page around a centered Google search identity, compact pill-shaped search field, shortcut row, bookmarks and recent history.
@@ -62,3 +76,12 @@ Updated: 2026-11-10
 - PR #100's native Compose start page is integrated on Main and uses semantic surfaces for Dark, Light and Premium Glass.
 - This is source integration, not completed design acceptance. Still required: screenshots and contrast review for all three modes, icon legibility, TalkBack, 320 dp width, large fonts, reduced motion/transparency-disabled behavior, and low-RAM rendering on target hardware.
 - Do not add a permanent theme-switch icon to the main browser display; keep Quick Appearance Picker as a secondary control.
+
+
+## 2026-11-28 — Minimal home and translucent surfaces
+
+- Home is intentionally reduced to one centered Google search/address field. Browser actions remain accessible from the three-dot menu and compact bottom controls.
+- Reload is a menu action immediately above New tab; the separate top reload button is removed.
+- The home page hides the top omnibox; normal website pages retain it.
+- Browser chrome and native panels use translucent semantic surfaces rather than real-time blur. The compact bottom bar is 48 dp with a higher-opacity surface to preserve control legibility over arbitrary page content.
+- Preserve foreground contrast and visible control boundaries across Dark, Light and Premium Glass. Do not apply browser-chrome transparency to website-rendered content. Validate against busy/light/dark page backgrounds and large text/TalkBack.

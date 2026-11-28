@@ -20,22 +20,22 @@ object RivoColorSchemes {
             error = Color(0xFFBA1A1A)
         )
         BrowserAppearance.DARK -> darkColorScheme(
-            primary = Color(0xFF9CCBFF),
-            secondary = Color(0xFFB8CDE2),
-            background = Color(0xFF0D1118),
-            surface = Color(0xFF171E28),
-            onSurface = Color(0xFFE8EEF7),
-            surfaceVariant = Color(0xFF222D3B),
-            onSurfaceVariant = Color(0xFFB9C7D8),
+            primary = Color(0xFFB69CFF),
+            secondary = Color(0xFF73B8FF),
+            background = Color(0xFF090B18),
+            surface = Color(0xFF15152A),
+            onSurface = Color(0xFFF1EEFF),
+            surfaceVariant = Color(0xFF242442),
+            onSurfaceVariant = Color(0xFFC9C6E6),
             error = Color(0xFFFFB4AB)
         )
         BrowserAppearance.GLASS -> darkColorScheme(
-            primary = Color(0xFFE3EAF2),
-            secondary = Color(0xFFC9D2DC),
-            background = Color(0xFF151B22),
-            surface = Color(0x667F8B98),
-            onSurface = Color(0xFFF5F7FA),
-            surfaceVariant = Color(0x557C8998),
+            primary = Color(0xFFD3BFFF),
+            secondary = Color(0xFF8CCBFF),
+            background = Color(0xFF100D25),
+            surface = Color(0x667D6BB2),
+            onSurface = Color(0xFFF8F5FF),
+            surfaceVariant = Color(0x556D65A4),
             onSurfaceVariant = Color(0xFFD9E0E8),
             outline = Color(0x99D4DCE5),
             outlineVariant = Color(0x557D8997),

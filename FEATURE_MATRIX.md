@@ -1,3 +1,24 @@
+| Active tab preview capture | Implemented on review branch | Opening Tab Universe captures current normal tab; private tabs remain text-only |
+| Reduced-motion handling | Implemented on review branch | Home logo glow follows Android animator-enabled setting |
+| Release candidate version | Updated | `0.2.7-phase1` / versionCode 8; prior `0.2.6-phase1` tag must not be reused |
+
+| Tab preview memory lifecycle | Implemented on review branch | Replaced/closed snapshots are recycled; private tabs never capture |
+
+| JavaScript preference | Implemented on review branch | GeckoRuntimeSettings control; persisted locally; active page reloads |
+| Global Privacy Control | Implemented on review branch | GeckoView GPC signal for normal tabs; private mode enables GPC by engine policy |
+
+## 2026-11-28 — PR #107 continued UI implementation (unmerged)
+
+| Feature | Candidate status | Notes / validation |
+|---|---|---|
+| Animated Rivo home identity | Implemented on review branch | Gradient emblem and subtle glow above centered Google search field |
+| Desktop site indicator | Implemented on review branch | Checkmark appears only when desktop mode is enabled |
+| Website text zoom | Implemented on review branch | GeckoView runtime font factor 80–200%, persisted; active page reloads |
+| Tab overview | Implemented on review branch | Four-column grid; normal tabs use downscaled in-memory GeckoView captures; private tabs are text-only |
+| Settings hub | Partial implementation | Appearance, text zoom, Google default, Privacy Center, clear-data action and Transfer Studio; not a full browser-settings catalogue |
+| Flagship visual system | Partial implementation | Violet/blue Dark and Glass palettes plus animated home identity; remaining screens and motion need visual QA |
+| Release/device acceptance | Pending | CI, physical install, screenshots, TalkBack and device performance required |
+
 ## 2026-11-28 — Chrome-inspired home and browser chrome candidate (PR pending)
 
 | Feature | Candidate status | Notes / validation |
@@ -141,3 +162,14 @@ Build success, JVM tests, emulator instrumentation, physical-device testing and 
 | Feature | Main status | Remaining validation |
 |---|---|---|
 | Desktop Site | Integrated by PR #93 | Per-tab GeckoView user-agent + viewport modes and mobile reset are present; physical-site compatibility, tab isolation, private-tab and restore QA pending |
+
+
+## UI refinement — 2026-11-28
+
+| Area | Current behavior |
+|---|---|
+| Home page | Single centered Google search/address field; top omnibox hidden |
+| Reload | Available in three-dot menu immediately above New tab; no standalone top reload button |
+| Website omnibox | Retained on non-home pages |
+| Bottom navigation | Compact 48 dp translucent strip with Back, Forward, New tab, Save and Tabs |
+| Native panels | Translucent surfaces; contrast/accessibility device QA pending |

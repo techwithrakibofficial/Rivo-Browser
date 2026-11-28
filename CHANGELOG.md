@@ -1,3 +1,24 @@
+## 2026-11-28 — v0.2.7-phase1 release candidate
+
+- Bumped app version to `0.2.7-phase1` / versionCode 8 because `v0.2.6-phase1` is already published; this UI candidate must not reuse an immutable release tag.
+- Opening Tab Universe now captures the active normal tab preview as well as previously visited tabs; private tab snapshots remain disabled.
+- Home glow animation now respects Android's system animator-enabled setting and becomes static when system animations are disabled.
+- Signed release requires merge to Main, then creation/push of immutable tag `v0.2.7-phase1`; the GitHub connector available in this session cannot create/push a tag or dispatch a workflow.
+
+- Tab snapshot lifecycle now recycles replaced/closed preview bitmaps; private-tab snapshots remain disabled.
+
+- Extended Settings with persisted JavaScript enable/disable and Global Privacy Control (GPC) controls, applied through GeckoRuntimeSettings; changing either reloads the active page.
+
+## 2026-11-28 — PR #107 browser UI continuation
+
+- Added animated RIVO home branding above the centered Google search field, with a violet/blue gradient emblem and subtle breathing glow.
+- Changed the Desktop site state indicator to a checkmark only when enabled; disabled state has no trailing indicator.
+- Added persistent GeckoView global text zoom (80–200%) with quick decrease/increase/reset actions in the overflow menu and a Settings slider.
+- Replaced the tab list with a four-column tab overview grid. Normal tabs capture a downscaled in-memory GeckoView screenshot when switched away; private tabs deliberately do not capture or display page screenshots.
+- Added a Settings hub linking existing Appearance, Privacy Intelligence Center, Transfer Studio and clear-browsing-data actions. Search engine remains Google; unimplemented engines/options are not shown as selectable.
+- Updated the Dark and Premium Glass semantic palettes toward the flagship violet/blue visual direction.
+- Candidate changes remain unmerged and require fresh CI, accessibility, visual and device QA. No signed APK or physical-device result is claimed.
+
 ## 2026-11-28 — v0.2.6-phase1 Chrome-inspired home and toolbar candidate
 
 - Replaced the previous generic Rivo start page with a Chrome-inspired Google search start page, shortcuts, bookmarks and recent history.
@@ -265,3 +286,13 @@ See Git history for prior Tab Universe, storage hardening, browser navigation, t
 ## 2026-11-26 — Desktop Site integration correction
 
 - Desktop Site per-tab mode was merged to Main by PR #93. The implementation maps both GeckoView user-agent and viewport modes and supports returning to mobile mode. Physical-device compatibility validation remains outstanding.
+
+
+## Unreleased — Minimal home and translucent browser chrome (2026-11-28)
+
+- Simplified the start page to a single centered Google search/address field; removed the wordmark, shortcuts, bookmark/history lists and secondary home-page content.
+- Removed the standalone top reload control and placed Reload at the top of the three-dot menu, immediately before New tab.
+- Hid the top omnibox on the home page while retaining the three-dot menu; kept the top omnibox on web pages.
+- Reduced the bottom navigation strip to a compact 48 dp translucent bar and tuned surface opacity for readable controls over page content.
+- Applied translucent surfaces to the browser header, home search field, bottom controls, Reader Mode and native browser panels. Website-rendered page content is not modified.
+- Physical-device visual/accessibility QA remains pending; transparency and contrast must be checked in Dark, Light and Premium Glass modes.

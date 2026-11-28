@@ -19,6 +19,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items as gridItems
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -71,6 +77,7 @@ import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Switch
 import androidx.compose.foundation.verticalScroll
 import java.util.Locale
 import androidx.compose.ui.text.input.ImeAction
@@ -131,39 +138,15 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surface.copy(alpha = if (browser.appearance == BrowserAppearance.GLASS) 0.92f else 1f))
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.64f))
                         .padding(horizontal = RivoSpacing.medium, vertical = RivoSpacing.small)
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(bottom = RivoSpacing.compact),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        if (active?.privateMode == true) {
-                            Text(
-                                "PRIVATE TAB",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                        Spacer(Modifier.weight(1f))
-                        IconButton(
-                            onClick = { browser.reloadOrStop() },
-                            enabled = active?.url != BrowserController.HOME_URL,
-                            modifier = Modifier.size(40.dp)
-                        ) {
-                            Text(
-                                if (active?.loading == true) "×" else "↻",
-                                style = MaterialTheme.typography.titleLarge,
-                                modifier = Modifier.semantics {
-                                    contentDescription = if (active?.loading == true) "Stop loading" else "Reload page"
-                                }
-                            )
-                        }
-                    }
-                    Row(
+                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(RivoSpacing.compact)
+                        horizontalArrangement = if (active?.url == BrowserController.HOME_URL) Arrangement.End else Arrangement.spacedBy(RivoSpacing.compact)
                     ) {
+                        if (active?.url != BrowserController.HOME_URL) {
                         Surface(
                             modifier = Modifier.weight(1f).height(46.dp),
                             shape = CircleShape,
@@ -219,9 +202,14 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                         ) {
                             Text("→", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { contentDescription = "Go" })
                         }
+                        }
                         Box {
                             TextButton(onClick = { menuExpanded = true }) { Text("⋯", modifier = Modifier.semantics { contentDescription = "Open menu" }) }
                             DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
+                                DropdownMenuItem(text = { Text("Reload") }, onClick = {
+                                    menuExpanded = false
+                                    browser.reloadOrStop()
+                                })
                                 DropdownMenuItem(text = { Text("New tab") }, onClick = {
                                     menuExpanded = false
                                     browser.createTab()
@@ -246,9 +234,16 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                                     menuExpanded = false
                                     browser.openPanel(BrowserPanel.APPEARANCE)
                                 })
+                                DropdownMenuItem(text = { Text("Text size · ${(browser.textZoom * 100).toInt()}%") }, onClick = { browser.updateTextZoom(1f) })
+                                DropdownMenuItem(text = { Text("Decrease text size") }, enabled = browser.textZoom > 0.8f, onClick = { browser.updateTextZoom(browser.textZoom - 0.1f) })
+                                DropdownMenuItem(text = { Text("Increase text size") }, enabled = browser.textZoom < 2f, onClick = { browser.updateTextZoom(browser.textZoom + 0.1f) })
+                                DropdownMenuItem(text = { Text("Settings") }, onClick = {
+                                    menuExpanded = false
+                                    browser.openPanel(BrowserPanel.SETTINGS)
+                                })
                                 DropdownMenuItem(
                                     text = { Text(if (active?.desktopMode == true) "Use mobile site" else "Desktop site") },
-                                    trailingIcon = { if (active?.desktopMode == true) Text("On") },
+                                    trailingIcon = { if (active?.desktopMode == true) Text("✓", color = MaterialTheme.colorScheme.primary) },
                                     enabled = active?.url?.startsWith("https://") == true || active?.url?.startsWith("http://") == true,
                                     onClick = {
                                         menuExpanded = false
@@ -294,7 +289,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                             modifier = Modifier.fillMaxWidth().padding(top = 6.dp)
                         )
                     }
-                    if (active?.privateMode == true) {
+                    if (active?.url != BrowserController.HOME_URL && active?.privateMode == true) {
                         Text(
                             "PRIVATE TAB · This session is not saved to local history",
                             style = MaterialTheme.typography.labelSmall,
@@ -302,7 +297,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                             modifier = Modifier.padding(start = RivoSpacing.small, top = RivoSpacing.compact)
                         )
                     }
-                    if (active?.desktopMode == true) {
+                    if (active?.url != BrowserController.HOME_URL && active?.desktopMode == true) {
                         Text(
                             "DESKTOP SITE REQUESTED",
                             style = MaterialTheme.typography.labelSmall,
@@ -310,7 +305,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                             modifier = Modifier.padding(start = RivoSpacing.small, top = RivoSpacing.compact)
                         )
                     }
-                    if (active != null && !active.privateMode && active.securityKnown) {
+                    if (active?.url != BrowserController.HOME_URL && active != null && !active.privateMode && active.securityKnown) {
                         Text(
                             BrowserSecurityStatusPolicy.label(
                                 secure = active.secureConnection,
@@ -359,46 +354,42 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                 }
 
                 Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.surface.copy(
-                        alpha = if (browser.appearance == BrowserAppearance.GLASS) 0.94f else 1f
-                    ),
-                    tonalElevation = 3.dp
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.68f),
+                    tonalElevation = 0.dp
                 ) {
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = RivoSpacing.compact, vertical = 2.dp),
+                        modifier = Modifier.fillMaxWidth().height(48.dp).padding(horizontal = 2.dp),
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        TextButton(onClick = { browser.goBack() }, enabled = active?.canGoBack == true) {
+                        TextButton(onClick = { browser.goBack() }, enabled = active?.canGoBack == true, modifier = Modifier.weight(1f).height(46.dp)) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("‹", style = MaterialTheme.typography.titleLarge)
+                                Text("‹", style = MaterialTheme.typography.titleMedium)
                                 Text("Back", style = MaterialTheme.typography.labelSmall)
                             }
                         }
-                        TextButton(onClick = { browser.goForward() }, enabled = active?.canGoForward == true) {
+                        TextButton(onClick = { browser.goForward() }, enabled = active?.canGoForward == true, modifier = Modifier.weight(1f).height(44.dp)) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("›", style = MaterialTheme.typography.titleLarge)
+                                Text("›", style = MaterialTheme.typography.titleMedium)
                                 Text("Forward", style = MaterialTheme.typography.labelSmall)
                             }
                         }
-                        TextButton(onClick = { browser.createTab() }) {
+                        TextButton(onClick = { browser.createTab() }, modifier = Modifier.weight(1f).height(44.dp)) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("+", style = MaterialTheme.typography.titleLarge)
+                                Text("+", style = MaterialTheme.typography.titleMedium)
                                 Text("New tab", style = MaterialTheme.typography.labelSmall)
                             }
                         }
-                        TextButton(onClick = { browser.addCurrentBookmark() }, enabled = active?.url?.startsWith("http") == true) {
+                        TextButton(onClick = { browser.addCurrentBookmark() }, enabled = active?.url?.startsWith("http") == true, modifier = Modifier.weight(1f).height(44.dp)) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("☆", style = MaterialTheme.typography.titleLarge)
+                                Text("☆", style = MaterialTheme.typography.titleMedium)
                                 Text("Save", style = MaterialTheme.typography.labelSmall)
                             }
                         }
-                        TextButton(onClick = { browser.openPanel(BrowserPanel.TABS) }) {
+                        TextButton(onClick = { browser.openPanel(BrowserPanel.TABS) }, modifier = Modifier.weight(1f).height(44.dp)) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("▢ ${browser.tabs.size}", style = MaterialTheme.typography.titleMedium)
+                                Text("▢ ${browser.tabs.size}", style = MaterialTheme.typography.titleSmall)
                                 Text("Tabs", style = MaterialTheme.typography.labelSmall)
                             }
                         }
@@ -422,6 +413,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     if (browser.readerLoading) {
         AlertDialog(
             onDismissRequest = { browser.closeReaderMode() },
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f),
             title = { Text("Preparing Reader Mode") },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(RivoSpacing.small)) {
@@ -438,6 +430,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     browser.qrScanResult?.let { value ->
         AlertDialog(
             onDismissRequest = { browser.dismissQrScanResult() },
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f),
             title = { Text("QR code result") },
             text = { Text(value, maxLines = 8) },
             confirmButton = {
@@ -452,6 +445,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     if (showClearDataConfirmation) {
         AlertDialog(
             onDismissRequest = { showClearDataConfirmation = false },
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f),
             title = { Text("Clear browsing data?") },
             text = { Text("This closes all open tabs and clears browsing history, cookies, site storage, cache, site permissions and download history. Bookmarks and normal downloads are kept; private downloads are deleted. Android app-level permission denials are retained.") },
             confirmButton = {
@@ -469,6 +463,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
         val fileName = downloadUri.lastPathSegment ?: "download"
         AlertDialog(
             onDismissRequest = { browser.cancelPendingDownload() },
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f),
             title = { Text("Download file?") },
             text = {
                 Text(
@@ -489,6 +484,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     currentPermissionPrompt?.let { request ->
         AlertDialog(
             onDismissRequest = { browser.respondToSitePermission(false) },
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f),
             title = { Text("Website permission") },
             text = {
                 Text(
@@ -514,6 +510,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     if (browser.notice != null) {
         AlertDialog(
             onDismissRequest = { browser.dismissNotice() },
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f),
             title = { Text("Rivo Browser") },
             text = { Text(browser.notice.orEmpty()) },
             confirmButton = {
@@ -530,7 +527,7 @@ private fun ReaderModeDialog(article: ReaderArticle, onDismiss: () -> Unit) {
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(RivoShapes.panel),
-            color = MaterialTheme.colorScheme.surface,
+            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.76f),
             modifier = Modifier.fillMaxWidth().heightIn(max = 640.dp)
         ) {
             Column(modifier = Modifier.padding(RivoSpacing.large)) {
@@ -610,6 +607,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
         BrowserPanel.HISTORY -> "History"
         BrowserPanel.DOWNLOADS -> "Transfer Studio"
         BrowserPanel.APPEARANCE -> "Quick appearance"
+        BrowserPanel.SETTINGS -> "Settings"
         BrowserPanel.DEVELOPER -> "Developer mode"
         BrowserPanel.SITE_PERMISSIONS -> "Privacy Intelligence Center"
         BrowserPanel.MENU -> "Browser menu"
@@ -617,104 +615,67 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(RivoShapes.panel),
-            color = MaterialTheme.colorScheme.surface,
-            modifier = Modifier.fillMaxWidth()
+            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.78f),
+            modifier = Modifier.fillMaxWidth().heightIn(max = 640.dp)
         ) {
-            Column(modifier = Modifier.padding(RivoSpacing.large)) {
+            Column(modifier = Modifier.padding(RivoSpacing.large).heightIn(max = 600.dp).verticalScroll(rememberScrollState())) {
                 Text(title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
                 Spacer(Modifier.height(RivoSpacing.medium))
                 when (panel) {
                     BrowserPanel.TABS -> {
-                        val tabItems = browser.tabs.map { tab ->
-                            TabUniverseItem(tab.id, tab.title, tab.url, tab.privateMode, tab.id == browser.activeTabId)
-                        }
+                        val tabItems = browser.tabs.map { tab -> TabUniverseItem(tab.id, tab.title, tab.url, tab.privateMode, tab.id == browser.activeTabId) }
                         val visibleTabs = TabUniversePolicy.visible(tabItems, tabQuery, tabFilter, tabSort)
-                        OutlinedTextField(
-                            value = tabQuery,
-                            onValueChange = { tabQuery = it },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true,
-                            label = { Text("Search tabs by title or URL") },
-                            placeholder = { Text("Search open tabs") }
-                        )
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .horizontalScroll(rememberScrollState()),
-                            horizontalArrangement = Arrangement.spacedBy(RivoSpacing.compact),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            listOf(
-                                TabUniverseFilter.ALL to "All",
-                                TabUniverseFilter.NORMAL to "Normal",
-                                TabUniverseFilter.PRIVATE to "Private",
-                                TabUniverseFilter.ACTIVE to "Active"
-                            ).forEach { (filter, label) ->
-                                FilterChip(
-                                    selected = tabFilter == filter,
-                                    onClick = { tabFilter = filter },
-                                    label = { Text(label) }
-                                )
+                        OutlinedTextField(value = tabQuery, onValueChange = { tabQuery = it }, modifier = Modifier.fillMaxWidth(), singleLine = true, label = { Text("Search tabs by title or URL") }, placeholder = { Text("Search open tabs") })
+                        Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(RivoSpacing.compact), verticalAlignment = Alignment.CenterVertically) {
+                            listOf(TabUniverseFilter.ALL to "All", TabUniverseFilter.NORMAL to "Normal", TabUniverseFilter.PRIVATE to "Private", TabUniverseFilter.ACTIVE to "Active").forEach { (filter, label) ->
+                                FilterChip(selected = tabFilter == filter, onClick = { tabFilter = filter }, label = { Text(label) })
                             }
                         }
                         Box {
                             TextButton(onClick = { sortMenuExpanded = true }) {
-                                Text("Organize: " + when (tabSort) {
-                                    TabUniverseSort.ACTIVE_FIRST -> "Active first"
-                                    TabUniverseSort.TITLE -> "Title"
-                                    TabUniverseSort.TYPE -> "Normal / private"
-                                })
+                                Text("Organize: " + when (tabSort) { TabUniverseSort.ACTIVE_FIRST -> "Active first"; TabUniverseSort.TITLE -> "Title"; TabUniverseSort.TYPE -> "Normal / private" })
                             }
                             DropdownMenu(expanded = sortMenuExpanded, onDismissRequest = { sortMenuExpanded = false }) {
-                                listOf(
-                                    TabUniverseSort.ACTIVE_FIRST to "Active first",
-                                    TabUniverseSort.TITLE to "Title",
-                                    TabUniverseSort.TYPE to "Normal / private"
-                                ).forEach { (sort, label) ->
-                                    DropdownMenuItem(text = { Text(label) }, onClick = {
-                                        tabSort = sort
-                                        sortMenuExpanded = false
-                                    })
+                                listOf(TabUniverseSort.ACTIVE_FIRST to "Active first", TabUniverseSort.TITLE to "Title", TabUniverseSort.TYPE to "Normal / private").forEach { (sort, label) ->
+                                    DropdownMenuItem(text = { Text(label) }, onClick = { tabSort = sort; sortMenuExpanded = false })
                                 }
                             }
                         }
-                        Text("${visibleTabs.size} of ${browser.tabs.size} tabs · ${browser.tabs.count { it.privateMode }} private",
-                            style = MaterialTheme.typography.labelSmall)
-                        if (visibleTabs.isEmpty()) {
-                            Text("No tabs match this search.")
-                        } else {
-                            LazyColumn(modifier = Modifier.heightIn(max = 300.dp)) {
-                                items(visibleTabs, key = { it.id }) { item ->
-                                    val tab = browser.tabs.firstOrNull { it.id == item.id } ?: return@items
-                                    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                                        verticalAlignment = Alignment.CenterVertically) {
-                                        TextButton(onClick = {
-                                            browser.selectTab(tab.id)
-                                            onDismiss()
-                                        }, modifier = Modifier
-                                            .weight(1f)
-                                            .semantics {
-                                                stateDescription = if (item.active) "Active tab" else "Inactive tab"
-                                            }) {
-                                            Column(horizontalAlignment = Alignment.Start) {
-                                                Text((if (item.active) "Active · " else "") +
-                                                    (if (item.privateMode) "Private · " else "Normal · ") + item.title,
-                                                    maxLines = 1)
-                                                Text(item.url, style = MaterialTheme.typography.labelSmall, maxLines = 1)
+                        Text("${visibleTabs.size} of ${browser.tabs.size} tabs · ${browser.tabs.count { it.privateMode }} private", style = MaterialTheme.typography.labelSmall)
+                        if (visibleTabs.isEmpty()) Text("No tabs match this search.") else {
+                            LazyVerticalGrid(columns = GridCells.Fixed(4), modifier = Modifier.fillMaxWidth().heightIn(max = 380.dp), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                gridItems(visibleTabs, key = { it.id }) { item ->
+                                    val tab = browser.tabs.firstOrNull { it.id == item.id } ?: return@gridItems
+                                    Surface(onClick = { browser.selectTab(tab.id); onDismiss() }, shape = RoundedCornerShape(14.dp), color = if (item.active) MaterialTheme.colorScheme.primary.copy(alpha = 0.20f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.62f), border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = if (item.active) 0.75f else 0.22f))) {
+                                        Column(Modifier.padding(7.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                                            Box(Modifier.fillMaxWidth().height(76.dp).background(MaterialTheme.colorScheme.surface.copy(alpha = 0.72f), RoundedCornerShape(8.dp)).padding(3.dp)) {
+                                                if (!item.privateMode && tab.previewBitmap != null) {
+                                                    Image(
+                                                        bitmap = tab.previewBitmap!!.asImageBitmap(),
+                                                        contentDescription = "Preview of ${item.title}",
+                                                        contentScale = ContentScale.Crop,
+                                                        modifier = Modifier.fillMaxSize()
+                                                    )
+                                                } else {
+                                                    Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(3.dp)) {
+                                                        Text(if (item.privateMode) "PRIVATE" else "WEB PAGE", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, maxLines = 1)
+                                                        Text(item.title, style = MaterialTheme.typography.labelSmall, maxLines = 3)
+                                                    }
+                                                }
+                                            }
+                                            Text(item.title, style = MaterialTheme.typography.labelSmall, maxLines = 2)
+                                            Text(runCatching { android.net.Uri.parse(item.url).host }.getOrNull() ?: "New tab", style = MaterialTheme.typography.labelSmall, maxLines = 1)
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                if (item.active) Text("●", color = MaterialTheme.colorScheme.primary)
+                                                Spacer(Modifier.weight(1f))
+                                                TextButton(onClick = { browser.closeTab(tab.id) }, modifier = Modifier.size(28.dp), contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)) { Text("×") }
                                             }
                                         }
-                                        TextButton(
-                                            onClick = { browser.closeTab(tab.id) },
-                                            modifier = Modifier.semantics {
-                                                contentDescription = "Close tab: ${tab.title}"
-                                            }
-                                        ) { Text("×") }
                                     }
                                 }
                             }
                         }
-                        Text("Inactive tabs remain available but their Gecko sessions are deactivated and unfocused. Open tabs are capped at 8.",
-                            style = MaterialTheme.typography.bodySmall)
+                        Text("4-column tab overview with title and site previews. Live page screenshots are not represented as if available.", style = MaterialTheme.typography.bodySmall)
                     }
                     BrowserPanel.BOOKMARKS -> {
                         if (browser.bookmarks.isEmpty()) Text("No bookmarks saved yet.")
@@ -938,6 +899,46 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                                 style = MaterialTheme.typography.bodySmall
                             )
                         }
+                    }
+                    BrowserPanel.SETTINGS -> {
+                        Text("Appearance", style = MaterialTheme.typography.titleSmall)
+                        BrowserAppearance.values().forEach { option ->
+                            Row(modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp).selectable(selected = browser.appearance == option, role = Role.RadioButton, onClick = { browser.updateAppearance(option) }), verticalAlignment = Alignment.CenterVertically) {
+                                androidx.compose.material3.RadioButton(selected = browser.appearance == option, onClick = null)
+                                Text(option.name.lowercase().replaceFirstChar { it.uppercase() })
+                            }
+                        }
+                        Spacer(Modifier.height(RivoSpacing.small))
+                        Text("Website text size · ${(browser.textZoom * 100).toInt()}%", style = MaterialTheme.typography.titleSmall)
+                        Slider(value = browser.textZoom, onValueChange = browser::updateTextZoom, valueRange = 0.8f..2.0f, steps = 11)
+                        Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) { Text("80%", style = MaterialTheme.typography.labelSmall); Text("100%", style = MaterialTheme.typography.labelSmall); Text("200%", style = MaterialTheme.typography.labelSmall) }
+                        Text("GeckoView global web-content font scaling. The active page reloads to apply changes.", style = MaterialTheme.typography.bodySmall)
+                        Spacer(Modifier.height(RivoSpacing.small))
+                        Text("Search", style = MaterialTheme.typography.titleSmall)
+                        Text("Default search engine: Google", style = MaterialTheme.typography.bodyMedium)
+                        Spacer(Modifier.height(RivoSpacing.small))
+                        Text("Site functionality", style = MaterialTheme.typography.titleSmall)
+                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Column(Modifier.weight(1f)) {
+                                Text("JavaScript", style = MaterialTheme.typography.bodyMedium)
+                                Text("Some websites need JavaScript to work.", style = MaterialTheme.typography.bodySmall)
+                            }
+                            Switch(checked = browser.javascriptEnabled, onCheckedChange = browser::updateJavascriptEnabled)
+                        }
+                        Text("Privacy & security", style = MaterialTheme.typography.titleSmall)
+                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Column(Modifier.weight(1f)) {
+                                Text("Global Privacy Control", style = MaterialTheme.typography.bodyMedium)
+                                Text("Send a GPC privacy preference signal to supported websites. GeckoView enables GPC in private mode by default.", style = MaterialTheme.typography.bodySmall)
+                            }
+                            Switch(checked = browser.globalPrivacyControl, onCheckedChange = browser::updateGlobalPrivacyControl)
+                        }
+                        Text("Private tabs are excluded from local history and tab restoration. Tracking protection is enabled by the GeckoView session configuration.", style = MaterialTheme.typography.bodySmall)
+                        TextButton(onClick = { browser.openPanel(BrowserPanel.SITE_PERMISSIONS) }) { Text("Privacy Intelligence Center") }
+                        TextButton(onClick = onClearBrowsingData, enabled = !browser.clearingBrowsingData) { Text(if (browser.clearingBrowsingData) "Clearing…" else "Clear browsing data") }
+                        Spacer(Modifier.height(RivoSpacing.small))
+                        Text("Downloads", style = MaterialTheme.typography.titleSmall)
+                        TextButton(onClick = { browser.openPanel(BrowserPanel.DOWNLOADS) }) { Text("Transfer Studio") }
                     }
                     BrowserPanel.APPEARANCE -> {
                         BrowserAppearance.values().forEach { appearance ->
