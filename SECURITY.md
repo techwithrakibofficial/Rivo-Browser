@@ -311,3 +311,7 @@ Gradle Dependency Verification Bootstrap `45777625387` completed successfully. M
 - Keep historical checkpoints above for traceability; this dated checkpoint is authoritative for the current Main revision only.
 
 Latest automated evidence: Android security static audit and Android security instrumentation passed in CI run #46171158253; OSV scan #46171158469 passed. This is not an independent penetration test, complete MASVS assessment or certification. Production signing/release is not yet evidenced.
+
+## 2026-11-29 — Toolbar sharing review note
+- Native Share accepts only active HTTP(S) URLs and invokes Android ACTION_SEND with plain-text URL/title. It does not export page content, cookies, credentials or browsing history.
+- Bookmark toggle uses existing local browser storage. Private-tab bookmark behavior must be verified before acceptance.
