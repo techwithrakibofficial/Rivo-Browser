@@ -131,7 +131,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.52f))
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.64f))
                         .padding(horizontal = RivoSpacing.medium, vertical = RivoSpacing.small)
                 ) {
                     Row(
@@ -339,16 +339,16 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                 }
 
                 Surface(
-                    modifier = Modifier.fillMaxWidth().height(46.dp),
-                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.54f),
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.68f),
                     tonalElevation = 0.dp
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().height(46.dp).padding(horizontal = 2.dp),
+                        modifier = Modifier.fillMaxWidth().height(48.dp).padding(horizontal = 2.dp),
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        TextButton(onClick = { browser.goBack() }, enabled = active?.canGoBack == true, modifier = Modifier.weight(1f).height(44.dp)) {
+                        TextButton(onClick = { browser.goBack() }, enabled = active?.canGoBack == true, modifier = Modifier.weight(1f).height(46.dp)) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text("‹", style = MaterialTheme.typography.titleMedium)
                                 Text("Back", style = MaterialTheme.typography.labelSmall)
