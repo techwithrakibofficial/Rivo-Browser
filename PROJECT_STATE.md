@@ -400,3 +400,12 @@ Desktop Site is already integrated in current Main by PR #93. Merge commit `e747
 ## CI status refresh — 2026-11-26
 
 Gradle Dependency Verification Bootstrap run `45777625387` completed successfully. Main Android CI run `45777625468` was still executing `Run Android security instrumentation tests` at the latest check. Do not mark current-Main Android CI complete until its run conclusion is `success`.
+
+
+## 2026-11-28 — Minimal home / transparent chrome candidate
+
+- New PR branch `feat/minimal-home-transparent-browser-chrome` contains the requested UI refinement on top of the verified `v0.2.6-phase1` Main commit.
+- Home screen now contains only a centered Google search/address field. Top omnibox is hidden on home and retained on normal web pages; three-dot menu remains accessible.
+- Removed the standalone top reload button; added Reload as the first three-dot menu item immediately above New tab.
+- Bottom controls reduced to a 48 dp translucent strip. Header, home search surface, native browser panels and Reader Mode use translucent surfaces; website content is not altered.
+- Changes are a PR candidate only until CI and review pass. Physical-device visual/accessibility QA remains outstanding.
