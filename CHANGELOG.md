@@ -1,3 +1,5 @@
+- Tab snapshot lifecycle now recycles replaced/closed preview bitmaps; private-tab snapshots remain disabled.
+
 - Extended Settings with persisted JavaScript enable/disable and Global Privacy Control (GPC) controls, applied through GeckoRuntimeSettings; changing either reloads the active page.
 
 ## 2026-11-28 — PR #107 browser UI continuation

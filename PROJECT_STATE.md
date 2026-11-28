@@ -1,3 +1,5 @@
+- Preview bitmap lifecycle includes replacement/close/dispose recycling; private pages remain excluded from capture.
+
 - Settings hub now includes persisted JavaScript and Global Privacy Control controls in addition to appearance, text zoom, Google default, privacy center, clear-data flow and Transfer Studio. These controls require CI and runtime verification.
 
 # 2026-11-28 — PR #107 continued implementation checkpoint

@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items as gridItems
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -652,6 +653,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                                                     Image(
                                                         bitmap = tab.previewBitmap!!.asImageBitmap(),
                                                         contentDescription = "Preview of ${item.title}",
+                                                        contentScale = ContentScale.Crop,
                                                         modifier = Modifier.fillMaxSize()
                                                     )
                                                 } else {
@@ -927,7 +929,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                             Column(Modifier.weight(1f)) {
                                 Text("Global Privacy Control", style = MaterialTheme.typography.bodyMedium)
-                                Text("Send a GPC privacy preference signal to supported websites.", style = MaterialTheme.typography.bodySmall)
+                                Text("Send a GPC privacy preference signal to supported websites. GeckoView enables GPC in private mode by default.", style = MaterialTheme.typography.bodySmall)
                             }
                             Switch(checked = browser.globalPrivacyControl, onCheckedChange = browser::updateGlobalPrivacyControl)
                         }

@@ -1,3 +1,5 @@
+- Tab preview memory: switch between normal tabs repeatedly, close tabs and exit the browser; verify previews are recycled and no private page image appears.
+
 - Settings switches: toggle JavaScript off/on and verify page behavior after reload and process restart; toggle GPC and verify GeckoView runtime setting persists. Confirm private mode continues to follow GeckoView's built-in GPC behavior.
 
 ## 2026-11-28 — PR #107 continued UI implementation test plan

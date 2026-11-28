@@ -1,3 +1,5 @@
+- Tab preview bitmap replacement and teardown now recycle retained images; verify repeated tab switching/closing during memory profiling.
+
 - Latest settings extension adds persisted JavaScript and GPC controls through GeckoRuntimeSettings. Validate both switches and restart persistence in CI/device QA.
 
 # 2026-11-28 — PR #107 continued implementation handoff

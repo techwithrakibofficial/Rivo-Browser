@@ -1,3 +1,5 @@
+| Tab preview memory lifecycle | Implemented on review branch | Replaced/closed snapshots are recycled; private tabs never capture |
+
 | JavaScript preference | Implemented on review branch | GeckoRuntimeSettings control; persisted locally; active page reloads |
 | Global Privacy Control | Implemented on review branch | GeckoView GPC signal for normal tabs; private mode enables GPC by engine policy |
 

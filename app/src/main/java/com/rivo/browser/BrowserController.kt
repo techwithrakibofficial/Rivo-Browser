@@ -318,7 +318,14 @@ class BrowserController(context: Context) {
 
     fun selectTab(id: Long) {
         tabs.firstOrNull { it.id == activeTabId }?.let { previous ->
-            if (!previous.privateMode) previous.engine.capturePreview { bitmap -> previous.previewBitmap = bitmap }
+            if (!previous.privateMode) previous.engine.capturePreview { bitmap ->
+                if (bitmap != null) {
+                    if (previous.id in tabs.map { it.id }) {
+                        previous.previewBitmap?.recycle()
+                        previous.previewBitmap = bitmap
+                    } else bitmap.recycle()
+                }
+            }
             previous.engine.setActive(false)
         }
         activeTabId = id
@@ -778,6 +785,7 @@ class BrowserController(context: Context) {
         scope.launch { runCatching { storage.saveGlobalPrivacyControl(value) }.onFailure { notice = "Global Privacy Control preference could not be saved." } }
     }
 
+    /** GeckoView applies font-size-factor changes after the active session is reloaded. */
     fun updateTextZoom(value: Float) {
         val normalized = (kotlin.math.round(value * 10f) / 10f).coerceIn(0.8f, 2f)
         if (normalized == textZoom) return
