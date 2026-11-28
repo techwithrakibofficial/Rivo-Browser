@@ -33,12 +33,12 @@ object RivoColorSchemes {
             primary = Color(0xFFD3BFFF),
             secondary = Color(0xFF8CCBFF),
             background = Color(0xFF100D25),
-            surface = Color(0x667D6BB2),
+            surface = Color(0xE61D2340),
             onSurface = Color(0xFFF8F5FF),
-            surfaceVariant = Color(0x556D65A4),
+            surfaceVariant = Color(0xD52D3654),
             onSurfaceVariant = Color(0xFFD9E0E8),
             outline = Color(0x99D4DCE5),
-            outlineVariant = Color(0x557D8997),
+            outlineVariant = Color(0x997D8997),
             error = Color(0xFFFFB4AB)
         )
     }
