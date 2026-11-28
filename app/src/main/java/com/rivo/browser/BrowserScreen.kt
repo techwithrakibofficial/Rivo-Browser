@@ -131,39 +131,14 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surface.copy(alpha = if (browser.appearance == BrowserAppearance.GLASS) 0.92f else 1f))
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.52f))
                         .padding(horizontal = RivoSpacing.medium, vertical = RivoSpacing.small)
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(bottom = RivoSpacing.compact),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        if (active?.privateMode == true) {
-                            Text(
-                                "PRIVATE TAB",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                        Spacer(Modifier.weight(1f))
-                        IconButton(
-                            onClick = { browser.reloadOrStop() },
-                            enabled = active?.url != BrowserController.HOME_URL,
-                            modifier = Modifier.size(40.dp)
-                        ) {
-                            Text(
-                                if (active?.loading == true) "×" else "↻",
-                                style = MaterialTheme.typography.titleLarge,
-                                modifier = Modifier.semantics {
-                                    contentDescription = if (active?.loading == true) "Stop loading" else "Reload page"
-                                }
-                            )
-                        }
-                    }
-                    Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(RivoSpacing.compact)
+                        horizontalArrangement = if (active?.url == BrowserController.HOME_URL) Arrangement.End else Arrangement.spacedBy(RivoSpacing.compact)
                     ) {
+                        if (active?.url != BrowserController.HOME_URL) {
                         Surface(
                             modifier = Modifier.weight(1f).height(46.dp),
                             shape = CircleShape,
@@ -219,9 +194,14 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                         ) {
                             Text("→", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { contentDescription = "Go" })
                         }
+                        }
                         Box {
                             TextButton(onClick = { menuExpanded = true }) { Text("⋯", modifier = Modifier.semantics { contentDescription = "Open menu" }) }
                             DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
+                                DropdownMenuItem(text = { Text("Reload") }, onClick = {
+                                    menuExpanded = false
+                                    browser.reloadOrStop()
+                                })
                                 DropdownMenuItem(text = { Text("New tab") }, onClick = {
                                     menuExpanded = false
                                     browser.createTab()
@@ -294,7 +274,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                             modifier = Modifier.fillMaxWidth().padding(top = 6.dp)
                         )
                     }
-                    if (active?.privateMode == true) {
+                    if (active?.url != BrowserController.HOME_URL && active?.privateMode == true) {
                         Text(
                             "PRIVATE TAB · This session is not saved to local history",
                             style = MaterialTheme.typography.labelSmall,
@@ -302,7 +282,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                             modifier = Modifier.padding(start = RivoSpacing.small, top = RivoSpacing.compact)
                         )
                     }
-                    if (active?.desktopMode == true) {
+                    if (active?.url != BrowserController.HOME_URL && active?.desktopMode == true) {
                         Text(
                             "DESKTOP SITE REQUESTED",
                             style = MaterialTheme.typography.labelSmall,
@@ -310,7 +290,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                             modifier = Modifier.padding(start = RivoSpacing.small, top = RivoSpacing.compact)
                         )
                     }
-                    if (active != null && !active.privateMode && active.securityKnown) {
+                    if (active?.url != BrowserController.HOME_URL && active != null && !active.privateMode && active.securityKnown) {
                         Text(
                             BrowserSecurityStatusPolicy.label(
                                 secure = active.secureConnection,
@@ -359,46 +339,42 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                 }
 
                 Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.surface.copy(
-                        alpha = if (browser.appearance == BrowserAppearance.GLASS) 0.94f else 1f
-                    ),
-                    tonalElevation = 3.dp
+                    modifier = Modifier.fillMaxWidth().height(46.dp),
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.54f),
+                    tonalElevation = 0.dp
                 ) {
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = RivoSpacing.compact, vertical = 2.dp),
+                        modifier = Modifier.fillMaxWidth().height(46.dp).padding(horizontal = 2.dp),
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        TextButton(onClick = { browser.goBack() }, enabled = active?.canGoBack == true) {
+                        TextButton(onClick = { browser.goBack() }, enabled = active?.canGoBack == true, modifier = Modifier.weight(1f).height(44.dp)) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("‹", style = MaterialTheme.typography.titleLarge)
+                                Text("‹", style = MaterialTheme.typography.titleMedium)
                                 Text("Back", style = MaterialTheme.typography.labelSmall)
                             }
                         }
-                        TextButton(onClick = { browser.goForward() }, enabled = active?.canGoForward == true) {
+                        TextButton(onClick = { browser.goForward() }, enabled = active?.canGoForward == true, modifier = Modifier.weight(1f).height(44.dp)) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("›", style = MaterialTheme.typography.titleLarge)
+                                Text("›", style = MaterialTheme.typography.titleMedium)
                                 Text("Forward", style = MaterialTheme.typography.labelSmall)
                             }
                         }
-                        TextButton(onClick = { browser.createTab() }) {
+                        TextButton(onClick = { browser.createTab() }, modifier = Modifier.weight(1f).height(44.dp)) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("+", style = MaterialTheme.typography.titleLarge)
+                                Text("+", style = MaterialTheme.typography.titleMedium)
                                 Text("New tab", style = MaterialTheme.typography.labelSmall)
                             }
                         }
-                        TextButton(onClick = { browser.addCurrentBookmark() }, enabled = active?.url?.startsWith("http") == true) {
+                        TextButton(onClick = { browser.addCurrentBookmark() }, enabled = active?.url?.startsWith("http") == true, modifier = Modifier.weight(1f).height(44.dp)) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("☆", style = MaterialTheme.typography.titleLarge)
+                                Text("☆", style = MaterialTheme.typography.titleMedium)
                                 Text("Save", style = MaterialTheme.typography.labelSmall)
                             }
                         }
-                        TextButton(onClick = { browser.openPanel(BrowserPanel.TABS) }) {
+                        TextButton(onClick = { browser.openPanel(BrowserPanel.TABS) }, modifier = Modifier.weight(1f).height(44.dp)) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("▢ ${browser.tabs.size}", style = MaterialTheme.typography.titleMedium)
+                                Text("▢ ${browser.tabs.size}", style = MaterialTheme.typography.titleSmall)
                                 Text("Tabs", style = MaterialTheme.typography.labelSmall)
                             }
                         }
@@ -530,7 +506,7 @@ private fun ReaderModeDialog(article: ReaderArticle, onDismiss: () -> Unit) {
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(RivoShapes.panel),
-            color = MaterialTheme.colorScheme.surface,
+            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.76f),
             modifier = Modifier.fillMaxWidth().heightIn(max = 640.dp)
         ) {
             Column(modifier = Modifier.padding(RivoSpacing.large)) {
@@ -617,7 +593,7 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(RivoShapes.panel),
-            color = MaterialTheme.colorScheme.surface,
+            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.78f),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(modifier = Modifier.padding(RivoSpacing.large)) {
