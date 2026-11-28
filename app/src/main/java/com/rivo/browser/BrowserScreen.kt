@@ -76,6 +76,7 @@ import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Switch
 import androidx.compose.foundation.verticalScroll
 import java.util.Locale
 import androidx.compose.ui.text.input.ImeAction
@@ -914,7 +915,22 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                         Text("Search", style = MaterialTheme.typography.titleSmall)
                         Text("Default search engine: Google", style = MaterialTheme.typography.bodyMedium)
                         Spacer(Modifier.height(RivoSpacing.small))
+                        Text("Site functionality", style = MaterialTheme.typography.titleSmall)
+                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Column(Modifier.weight(1f)) {
+                                Text("JavaScript", style = MaterialTheme.typography.bodyMedium)
+                                Text("Some websites need JavaScript to work.", style = MaterialTheme.typography.bodySmall)
+                            }
+                            Switch(checked = browser.javascriptEnabled, onCheckedChange = browser::updateJavascriptEnabled)
+                        }
                         Text("Privacy & security", style = MaterialTheme.typography.titleSmall)
+                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Column(Modifier.weight(1f)) {
+                                Text("Global Privacy Control", style = MaterialTheme.typography.bodyMedium)
+                                Text("Send a GPC privacy preference signal to supported websites.", style = MaterialTheme.typography.bodySmall)
+                            }
+                            Switch(checked = browser.globalPrivacyControl, onCheckedChange = browser::updateGlobalPrivacyControl)
+                        }
                         Text("Private tabs are excluded from local history and tab restoration. Tracking protection is enabled by the GeckoView session configuration.", style = MaterialTheme.typography.bodySmall)
                         TextButton(onClick = { browser.openPanel(BrowserPanel.SITE_PERMISSIONS) }) { Text("Privacy Intelligence Center") }
                         TextButton(onClick = onClearBrowsingData, enabled = !browser.clearingBrowsingData) { Text(if (browser.clearingBrowsingData) "Clearing…" else "Clear browsing data") }

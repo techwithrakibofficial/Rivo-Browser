@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.first
@@ -51,6 +52,8 @@ class BrowserStorage internal constructor(
     }
     private val themeKey = stringPreferencesKey("appearance")
     private val textZoomKey = floatPreferencesKey("text_zoom")
+    private val javascriptKey = booleanPreferencesKey("javascript_enabled")
+    private val gpcKey = booleanPreferencesKey("global_privacy_control")
     private val bookmarksKey = stringPreferencesKey("bookmarks_json")
     private val historyKey = stringPreferencesKey("history_json")
     private val openTabsKey = stringPreferencesKey("open_tabs_json")
@@ -79,6 +82,11 @@ class BrowserStorage internal constructor(
     suspend fun saveTextZoom(value: Float) {
         dataStore.edit { it[textZoomKey] = value.coerceIn(0.8f, 2f) }
     }
+
+    suspend fun loadJavascriptEnabled(): Boolean = dataStore.data.first()[javascriptKey] ?: true
+    suspend fun saveJavascriptEnabled(value: Boolean) { dataStore.edit { it[javascriptKey] = value } }
+    suspend fun loadGlobalPrivacyControl(): Boolean = dataStore.data.first()[gpcKey] ?: false
+    suspend fun saveGlobalPrivacyControl(value: Boolean) { dataStore.edit { it[gpcKey] = value } }
 
     suspend fun loadBookmarks(): List<SavedPage> = decodeProtected(readProtected(bookmarksKey))
 

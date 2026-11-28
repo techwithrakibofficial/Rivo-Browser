@@ -97,6 +97,10 @@ class BrowserController(context: Context) {
 
     var activeTabId by mutableStateOf(0L)
         private set
+    var javascriptEnabled by mutableStateOf(true)
+        private set
+    var globalPrivacyControl by mutableStateOf(false)
+        private set
     var textZoom by mutableStateOf(1f)
         private set
     var appearance by mutableStateOf(BrowserAppearance.DARK)
@@ -133,6 +137,10 @@ class BrowserController(context: Context) {
             appearance = runCatching { BrowserAppearance.valueOf(storage.loadTheme().uppercase()) }.getOrDefault(BrowserAppearance.DARK)
             textZoom = runCatching { storage.loadTextZoom() }.getOrDefault(1f)
             runtime.settings.setFontSizeFactor(textZoom)
+            javascriptEnabled = runCatching { storage.loadJavascriptEnabled() }.getOrDefault(true)
+            globalPrivacyControl = runCatching { storage.loadGlobalPrivacyControl() }.getOrDefault(false)
+            runtime.settings.setJavaScriptEnabled(javascriptEnabled)
+            runtime.settings.setGlobalPrivacyControl(globalPrivacyControl)
             try {
                 bookmarks.addAll(storage.loadBookmarks())
                 history.addAll(storage.loadHistory())
@@ -752,6 +760,22 @@ class BrowserController(context: Context) {
     fun updateAppearance(value: BrowserAppearance) {
         appearance = value
         scope.launch { storage.saveTheme(value.name.lowercase()) }
+    }
+
+    fun updateJavascriptEnabled(value: Boolean) {
+        if (javascriptEnabled == value) return
+        javascriptEnabled = value
+        runtime.settings.setJavaScriptEnabled(value)
+        activeTab?.engine?.reload()
+        scope.launch { runCatching { storage.saveJavascriptEnabled(value) }.onFailure { notice = "JavaScript preference could not be saved." } }
+    }
+
+    fun updateGlobalPrivacyControl(value: Boolean) {
+        if (globalPrivacyControl == value) return
+        globalPrivacyControl = value
+        runtime.settings.setGlobalPrivacyControl(value)
+        activeTab?.engine?.reload()
+        scope.launch { runCatching { storage.saveGlobalPrivacyControl(value) }.onFailure { notice = "Global Privacy Control preference could not be saved." } }
     }
 
     fun updateTextZoom(value: Float) {
