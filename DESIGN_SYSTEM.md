@@ -62,3 +62,12 @@ Updated: 2026-11-10
 - PR #100's native Compose start page is integrated on Main and uses semantic surfaces for Dark, Light and Premium Glass.
 - This is source integration, not completed design acceptance. Still required: screenshots and contrast review for all three modes, icon legibility, TalkBack, 320 dp width, large fonts, reduced motion/transparency-disabled behavior, and low-RAM rendering on target hardware.
 - Do not add a permanent theme-switch icon to the main browser display; keep Quick Appearance Picker as a secondary control.
+
+
+## 2026-11-28 — Minimal home and translucent surfaces
+
+- Home is intentionally reduced to one centered Google search/address field. Browser actions remain accessible from the three-dot menu and compact bottom controls.
+- Reload is a menu action immediately above New tab; the separate top reload button is removed.
+- The home page hides the top omnibox; normal website pages retain it.
+- Browser chrome and native panels use translucent semantic surfaces rather than real-time blur. The compact bottom bar is 48 dp with a higher-opacity surface to preserve control legibility over arbitrary page content.
+- Preserve foreground contrast and visible control boundaries across Dark, Light and Premium Glass. Do not apply browser-chrome transparency to website-rendered content. Validate against busy/light/dark page backgrounds and large text/TalkBack.
