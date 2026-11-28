@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items as gridItems
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.Image
@@ -101,6 +102,7 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
     var address by remember(active?.id) { mutableStateOf(active?.url?.takeUnless { it == BrowserController.HOME_URL }.orEmpty()) }
     var isEditingAddress by remember(active?.id) { mutableStateOf(false) }
     var menuExpanded by remember { mutableStateOf(false) }
+    var profileMenuExpanded by remember { mutableStateOf(false) }
     var showClearDataConfirmation by remember { mutableStateOf(false) }
     val notificationPermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> browser.completeNotificationPermissionRequest(granted) }
     val devicePermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { results ->
@@ -144,8 +146,11 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = if (active?.url == BrowserController.HOME_URL) Arrangement.End else Arrangement.spacedBy(RivoSpacing.compact)
+                        horizontalArrangement = Arrangement.spacedBy(RivoSpacing.compact)
                     ) {
+                        IconButton(onClick = { browser.navigate(BrowserController.HOME_URL) }, modifier = Modifier.size(40.dp)) {
+                            Text("⌂", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.semantics { contentDescription = "Home and new tab" })
+                        }
                         if (active?.url != BrowserController.HOME_URL) {
                         Surface(
                             modifier = Modifier.weight(1f).height(46.dp),
@@ -202,6 +207,19 @@ fun BrowserScreen(viewModel: BrowserViewModel = viewModel()) {
                         ) {
                             Text("→", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { contentDescription = "Go" })
                         }
+                        }
+                        Box {
+                            IconButton(onClick = { profileMenuExpanded = true }, modifier = Modifier.size(38.dp)) {
+                                Text("●", color = MaterialTheme.colorScheme.primary, modifier = Modifier.semantics { contentDescription = "Profile" })
+                            }
+                            DropdownMenu(expanded = profileMenuExpanded, onDismissRequest = { profileMenuExpanded = false }) {
+                                DropdownMenuItem(text = { Text("Guest profile") }, onClick = { profileMenuExpanded = false; browser.openPanel(BrowserPanel.SETTINGS) })
+                                DropdownMenuItem(text = { Text("Passwords & autofill") }, onClick = { profileMenuExpanded = false; browser.openPanel(BrowserPanel.SETTINGS) })
+                                DropdownMenuItem(text = { Text("Account sync unavailable") }, enabled = false, onClick = {})
+                            }
+                        }
+                        IconButton(onClick = { browser.openPanel(BrowserPanel.TABS) }, modifier = Modifier.size(38.dp)) {
+                            Text(browser.tabs.size.toString(), color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.semantics { contentDescription = "Open tabs" })
                         }
                         Box {
                             TextButton(onClick = { menuExpanded = true }) { Text("⋯", modifier = Modifier.semantics { contentDescription = "Open menu" }) }
@@ -617,7 +635,8 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(RivoShapes.panel),
-            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.78f),
+            color = if (browser.appearance == BrowserAppearance.GLASS) Color(0xFF202842) else MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.fillMaxWidth().heightIn(max = 640.dp)
         ) {
             Column(modifier = Modifier.padding(RivoSpacing.large).heightIn(max = 600.dp).verticalScroll(rememberScrollState())) {
@@ -942,13 +961,17 @@ private fun BrowserPanelDialog(browser: BrowserController, onDismiss: () -> Unit
                         TextButton(onClick = { browser.openPanel(BrowserPanel.SITE_PERMISSIONS) }) { Text("Site settings & Privacy Intelligence Center") }
                         TextButton(onClick = onClearBrowsingData, enabled = !browser.clearingBrowsingData) { Text(if (browser.clearingBrowsingData) "Clearing…" else "Clear browsing data") }
                         Spacer(Modifier.height(RivoSpacing.small))
+                        Text("Passwords & autofill", style = MaterialTheme.typography.titleSmall)
+                        Text("Android Autofill compatibility", style = MaterialTheme.typography.bodyMedium)
+                        Text("GeckoView can expose supported web forms to an Autofill provider already configured on your phone. Rivo does not yet ship its own password vault or account sync.", style = MaterialTheme.typography.bodySmall)
+                        Spacer(Modifier.height(RivoSpacing.small))
                         Text("Your browser", style = MaterialTheme.typography.titleSmall)
                         TextButton(onClick = { browser.openPanel(BrowserPanel.TABS) }) { Text("Tabs and tab groups") }
                         TextButton(onClick = { browser.openPanel(BrowserPanel.BOOKMARKS) }) { Text("Bookmarks") }
                         TextButton(onClick = { browser.openPanel(BrowserPanel.HISTORY) }) { Text("History") }
                         TextButton(onClick = { browser.openPanel(BrowserPanel.DOWNLOADS) }) { Text("Downloads · Transfer Studio") }
                         TextButton(onClick = { browser.openPanel(BrowserPanel.DEVELOPER) }) { Text("About Rivo & developer diagnostics") }
-                        Text("Password autofill, a built-in password manager, account sync and an extension marketplace are not currently shipped. Android's system default-browser selection is managed outside Rivo.", style = MaterialTheme.typography.bodySmall)
+                        Text("A built-in password vault, Rivo account sign-in, cloud sync and an extension marketplace are not currently shipped. Android's system default-browser selection is managed outside Rivo.", style = MaterialTheme.typography.bodySmall)
                     }
                     BrowserPanel.APPEARANCE -> {
                         BrowserAppearance.values().forEach { appearance ->

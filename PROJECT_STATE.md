@@ -458,3 +458,12 @@ Gradle Dependency Verification Bootstrap run `45777625387` completed successfull
 - CI produced unsigned QA/debug artifacts only. The latest public signed release remains `v0.2.7-phase1.1`; do not distribute unsigned CI artifacts as a production APK.
 - Next release identity is `0.2.8-phase1` / versionCode 9. Production signing and publishing require a new immutable tag or manual workflow dispatch, then signer/checksum verification. The available GitHub connection in this session cannot create/push tags or dispatch workflows.
 - Physical TECNO Pova Slim 5G / Android 16 / HyperOS 16.3.0 acceptance, supplied-video visual matching, accessibility/TalkBack, 3–4 GB performance profiling, runtime 16 KB validation and independent MASVS/MASTG/penetration assessment remain unverified. No certification is claimed.
+
+
+## 2026-11-28 — PR #110 candidate (not yet merged)
+- Reworked the native start page toward a Chrome-style Google home: Google search field, local bookmark/history shortcuts, History and Incognito actions, plus Bookmarks and Tabs quick actions. No external news feed or fake account profile is presented.
+- Browser top chrome now exposes Home/New tab, Guest profile/settings, open-tab count and overflow controls.
+- Settings panel surface is opaque in Premium Glass to prevent website pixels bleeding through text; explicit semantic foreground colors are used.
+- GeckoView's documented Android Autofill bridge is enabled on created GeckoView instances. This allows a separately configured Android Autofill provider to participate; it is not a Rivo password manager, and it does not implement credential storage or sync.
+- Rivo account sign-in/cloud sync, a built-in password vault, and an extension marketplace remain unavailable and are not represented as shipped features.
+- Candidate app version: 0.2.9-phase1 / versionCode 10. PR #110 requires fresh CI/review/merge; physical-device visual and autofill acceptance remain pending.

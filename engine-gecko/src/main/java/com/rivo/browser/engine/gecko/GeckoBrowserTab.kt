@@ -400,6 +400,7 @@ class GeckoBrowserTab(
         check(!disposed)
         releaseView()
         return GeckoView(context).also { newView ->
+            newView.setAutofillEnabled(true)
             newView.setSession(session)
             attachedView = newView
         }
