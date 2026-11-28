@@ -67,7 +67,7 @@ internal fun RivoHomeScreen(
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.45f)),
             shadowElevation = 2.dp
         ) {
-            Row(Modifier.padding(start = 16.dp, end = 8.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text("⌕", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Box(Modifier.weight(1f).padding(horizontal = 12.dp)) {
                     if (query.isEmpty()) Text("Search Google or type URL", color = MaterialTheme.colorScheme.onSurfaceVariant)
