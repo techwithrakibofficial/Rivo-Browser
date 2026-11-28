@@ -310,3 +310,12 @@ See Git history for prior Tab Universe, storage hardening, browser navigation, t
 
 - Include PR #108 fixes: single-word omnibox searches route to Google, bottom navigation has corrected icon/label space, Premium Glass browser chrome contrast is stronger, and Settings navigation is organized around implemented controls.
 - Source merge CI and supply-chain workflows passed; physical-device acceptance remains pending.
+
+
+## 2026-11-28 — PR #110 candidate (not yet merged)
+- Reworked the native start page toward a Chrome-style Google home: Google search field, local bookmark/history shortcuts, History and Incognito actions, plus Bookmarks and Tabs quick actions. No external news feed or fake account profile is presented.
+- Browser top chrome now exposes Home/New tab, Guest profile/settings, open-tab count and overflow controls.
+- Settings panel surface is opaque in Premium Glass to prevent website pixels bleeding through text; explicit semantic foreground colors are used.
+- GeckoView's documented Android Autofill bridge is enabled on created GeckoView instances. This allows a separately configured Android Autofill provider to participate; it is not a Rivo password manager, and it does not implement credential storage or sync.
+- Rivo account sign-in/cloud sync, a built-in password vault, and an extension marketplace remain unavailable and are not represented as shipped features.
+- Candidate app version: 0.2.9-phase1 / versionCode 10. PR #110 requires fresh CI/review/merge; physical-device visual and autofill acceptance remain pending.
