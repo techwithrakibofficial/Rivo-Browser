@@ -559,6 +559,22 @@ class BrowserController(context: Context) {
         }
     }
 
+    fun shareCurrentPage() {
+        val tab = activeTab ?: return
+        if (!tab.url.startsWith("http://") && !tab.url.startsWith("https://")) return
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, tab.title.ifBlank { tab.url })
+            putExtra(Intent.EXTRA_TEXT, tab.url)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        runCatching {
+            appContext.startActivity(Intent.createChooser(shareIntent, "Share page").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        }.onFailure {
+            notice = "Sharing is unavailable on this device."
+        }
+    }
+
     fun removeBookmark(url: String) {
         scope.launch {
             runCatching { storage.removeBookmark(url) }
