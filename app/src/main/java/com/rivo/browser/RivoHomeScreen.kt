@@ -176,3 +176,4 @@ internal fun RivoHomeScreen(
         }
     }
 }
+}
