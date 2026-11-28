@@ -1,3 +1,5 @@
+- Settings switches: toggle JavaScript off/on and verify page behavior after reload and process restart; toggle GPC and verify GeckoView runtime setting persists. Confirm private mode continues to follow GeckoView's built-in GPC behavior.
+
 ## 2026-11-28 — PR #107 continued UI implementation test plan
 
 - Text zoom: verify 80%, 100%, 200%, persistence after process restart, and active-page reload behavior.

@@ -1,3 +1,6 @@
+| JavaScript preference | Implemented on review branch | GeckoRuntimeSettings control; persisted locally; active page reloads |
+| Global Privacy Control | Implemented on review branch | GeckoView GPC signal for normal tabs; private mode enables GPC by engine policy |
+
 ## 2026-11-28 — PR #107 continued UI implementation (unmerged)
 
 | Feature | Candidate status | Notes / validation |

@@ -1,3 +1,5 @@
+- Extended Settings with persisted JavaScript enable/disable and Global Privacy Control (GPC) controls, applied through GeckoRuntimeSettings; changing either reloads the active page.
+
 ## 2026-11-28 — PR #107 browser UI continuation
 
 - Added animated RIVO home branding above the centered Google search field, with a violet/blue gradient emblem and subtle breathing glow.

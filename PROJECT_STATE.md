@@ -1,7 +1,9 @@
+- Settings hub now includes persisted JavaScript and Global Privacy Control controls in addition to appearance, text zoom, Google default, privacy center, clear-data flow and Transfer Studio. These controls require CI and runtime verification.
+
 # 2026-11-28 — PR #107 continued implementation checkpoint
 
 - Active branch: `feat/minimal-home-transparent-browser-chrome`; PR #107 targets Main.
-- Latest implementation commit: `e979d7964a7093d950c947c42bc1bae32a9f16fd`.
+- Latest implementation commit: `8d80dca76dfd2e1cb1a12ded081273b7707cd604`.
 - Added animated RIVO home identity, Desktop site checkmark state, persisted GeckoView text zoom, four-column tab grid with normal-tab snapshots (private tabs excluded), and a partial Settings hub.
 - Dark and Premium Glass palettes shifted toward violet/blue flagship styling.
 - Settings is deliberately scoped to implemented features only; it is not yet a complete Chrome/Brave-scale settings catalogue.

@@ -1,3 +1,5 @@
+- Settings also includes functional JavaScript and Global Privacy Control switches. JavaScript is enabled by default; GPC is opt-in for normal browsing and GeckoView enables it in private mode by engine policy.
+
 ## 2026-11-28 — Flagship visual direction and tab/settings surfaces
 
 - Dark and Premium Glass palettes now use a deep violet/blue foundation with luminous lavender and blue accents; Light remains a readable light palette.
